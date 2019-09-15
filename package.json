@@ -2,6 +2,7 @@
   "dependencies": {
     "@types/readline-sync": "^1.4.3",
     "@types/rpio": "0.0.2",
-    "readline-sync": "^1.4.9"
+    "readline-sync": "^1.4.9",
+    "rpio": "^1.0.13"
   }
 }
