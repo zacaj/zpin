@@ -11,10 +11,12 @@ import java.io.*;
 public class JServer extends Thread
 {
 	public static String version = "0.0.1";
+	public static int nConnections = 0;
 	
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+    public int connNum = ++nConnections;
 
     public JServer(Socket socket) throws IOException {
         this.socket = socket;
@@ -22,16 +24,18 @@ public class JServer extends Thread
     }
     
     void error(String str) throws Exception {
-    	out.println("400 " + str);
+    	out.print("400 " + str + "\r\n");
+    	System.out.println(""+connNum+" Error: 400 " + str);
     	throw new Exception("Client error " + str);
     }
     void internalError() {
-    	out.println("500");
+    	out.print("500" + "\r\n");
+    	System.out.println(""+connNum+" internal error");
     }
     
     void resp(Object str, int status) {
-    	out.println("" + status + " " + str);
-    	System.out.println("Response: " + status + " " + str);
+    	out.print("" + status + " " + str + "\r\n");
+    	System.out.println(""+connNum+" Response: " + status + " " + str);
     }
     void resp(Object str) {
     	resp(str, 200);
@@ -97,6 +101,7 @@ public class JServer extends Thread
 			return true;
 		}
     }
+    
 
     public static void main( String[] args ) throws IOException
     {
