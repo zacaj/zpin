@@ -4,5 +4,14 @@
     "@types/rpio": "0.0.2",
     "readline-sync": "^1.4.9",
     "rpio": "^1.0.13"
+  },
+  "devDependencies": {
+    "scp2": "^0.5.0",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.3"
+  },
+  "scripts": {
+    "build:watch": "tsc --watch",
+    "sync": "ts-node syncr.ts"
   }
 }
