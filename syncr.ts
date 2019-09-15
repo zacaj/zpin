@@ -17,7 +17,7 @@ copyFile('./**').then(() =>*/ {
 	}, async (eventType, filename) => {
 		if (filename && filename.startsWith('.')) return;
 
-		console.log(eventType, filename);
+		console.log(new Date().getHours()+':'+new Date().getMinutes(), eventType, filename);
 		try {
 			if (filename) {
 				await copyFile(filename);
@@ -31,8 +31,9 @@ copyFile('./**').then(() =>*/ {
 .catch(err => console.error('fatal error', err));*/
 
 function copyFile(filename: string): Promise<void> {
+	const remote = path.join(remotePath, filename);
 	return new Promise((resolve, reject) => {
-		scp(filename, `${username}:${password}@${address}:${remotePath}`, (err: Error) => {
+		scp(filename, `${username}:${password}@${address}:${remote}`, (err: Error) => {
 			if (err) reject(err);
 			else resolve();
 		});
