@@ -25,18 +25,21 @@ public class JServer extends Thread
         this.start();
     }
     
-    void error(String str) throws Exception {
+    void error(String str) throws ZError {
     	out.print("400 " + str + "\r\n");
+    	out.flush();
     	System.out.println(""+connNum+" Error: 400 " + str);
-    	throw new Exception("Client error " + str);
+    	throw new ZError("Client error " + str);
     }
     void internalError() {
     	out.print("500" + "\r\n");
+    	out.flush();
     	System.out.println(""+connNum+" internal error");
     }
     
     void resp(Object str, int status) {
     	out.print("" + status + " " + str + "\r\n");
+    	out.flush();
     	System.out.println(""+connNum+" Response: " + status + " " + str);
     }
     void resp(Object str) {
@@ -54,6 +57,7 @@ public class JServer extends Thread
         try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	        out.println("owo?");
 	        {
 	        	String first = in.readLine();
 	        	if (!first.equals(version))
@@ -75,10 +79,15 @@ public class JServer extends Thread
     
 	int curBoard = -1;
 	Board[] boards = new Board[8];
+	JPiIO io = JPiIO.get();
     
     private boolean handleCommand() {
     	try {
     		String input = in.readLine();
+    		if (!io.waitLock(10)) {
+    			error("Board busy");
+    		}
+    		
 			try {
 				System.out.println("Received command '" + input + "'");
 				String[] parts = input.split(" ");
@@ -112,13 +121,28 @@ public class JServer extends Thread
 						case "time":
 							resp(new Date().getTime());
 							return true;
+						case "i":
+						case "init":
+							expect(2);
+							String type = parts[2];
+							switch (type) {
+							case "s16":
+								boards[num(1)] = new Solenoid16(num(1));
+								break;
+							default:
+								error("unknown board type");
+							}
+							curBoard = num(1);
+							return true;
+						case "end":
 						case "q":
-						case "quit":
 				        	ack();
 				        	System.out.println("Connection closed amicably");
 							return false;
+						case "kill":
+							System.exit(0);
 						}
-		    			if (curBoard != -1 && boards[curBoard].type.equals(Board.Type.Solenoid16)) {
+		    			if (curBoard != -1 && boards[curBoard] != null && boards[curBoard].type.equals(Board.Type.Solenoid16)) {
 		    				Solenoid16 board = (Solenoid16)boards[curBoard];
 		    				switch (parts[0]) {
 		    				case "f":
@@ -128,8 +152,8 @@ public class JServer extends Thread
 								else
 									board.fireSolenoid(byt(1));
 								return true;
-							case "i":
-							case "init":
+							case "is":
+							case "inits":
 								switch (parts[1]) {
 									case "m":
 									case "momentary":
@@ -174,22 +198,26 @@ public class JServer extends Thread
 						return true;
 		    		}
 		    	}).process();
+			} catch (ZError e) {
+				return true;
 			} catch (Exception e) {
 				System.err.println("Error handling command: '" + input + "'");
 				e.printStackTrace();
 				internalError();
 				return true;
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.err.println("Error reading command");
 			e.printStackTrace();
 			internalError();
 			return true;
+		} finally {
+			io.unlock();
 		}
     }
     
 
-    public static void main( String[] args ) throws IOException
+    public static void main( String[] args) throws IOException
     {
         ServerSocket socket = null;
         try {

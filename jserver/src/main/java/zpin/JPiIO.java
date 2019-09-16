@@ -2,6 +2,8 @@ package zpin;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Scanner;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -14,6 +16,7 @@ import com.pi4j.io.gpio.RaspiPin;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 public class JPiIO {
@@ -129,6 +132,18 @@ public class JPiIO {
 	public byte[] sendCommand(byte ...bytes) throws Error {
 		checkLock();
 		
+		if (System.getenv("PI4J_PLATFORM").equals("Simulated")) {
+			System.out.println("send command "+bytes);
+			System.out.print("> ");
+			Scanner s = new Scanner(System.in);
+			String[] ss = s.nextLine().split(" ");
+			byte[] ret = new byte[ss.length];
+			for (int i=0; i<ss.length; i++)
+				ret[i] = Byte.parseByte(ss[i]);
+			s.close();
+			return ret;
+		}
+		
 		spiWrite(
 			(byte)'S',
 			(byte)bytes.length
@@ -140,6 +155,7 @@ public class JPiIO {
 		);
 		byte ready = 0;
 		clk.low();
+		Date waitStart = new Date();
 		while (ready != 'R') {
 			clk.high();
 			ready <<= miso.isHigh()? 1:0;
@@ -150,6 +166,8 @@ public class JPiIO {
 			if (ready == 'C') {
 				throw new Error("checksum fail from board");
 			}
+			if (new Date().getTime() - waitStart.getTime() > 10)
+				throw new Error("timeout waiting for board");
 		}
 		byte numInputBytes = spiRead(1)[0];
 		if (numInputBytes > 0) {

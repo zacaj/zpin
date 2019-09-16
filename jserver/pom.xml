@@ -25,6 +25,13 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-gpio-extension -->
+	<dependency>
+	    <groupId>com.pi4j</groupId>
+	    <artifactId>pi4j-gpio-extension</artifactId>
+	    <version>1.2</version>
+	</dependency>
+	    
   </dependencies>
 
   <build>
