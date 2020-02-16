@@ -192,7 +192,7 @@ public class JPiIO {
 			if (new Date().getTime() - waitStart.getTime() > 1001)
 				throw new Error("timeout waiting for board");
 		}
-		System.out.println("got ready signal");
+		System.out.println("\ngot ready signal");
 		byte numInputBytes = spiRead(1)[0];
 		if (numInputBytes > 0) {
 			byte[] input = spiRead(numInputBytes);
@@ -230,10 +230,10 @@ public class JPiIO {
 		public CommandBuilder ints(int ...ints) {
 			for (int i=0; i<ints.length; i++) {
 				bytes(new int[] {
-					(i >> 0) & 0xFF,
-					(i >> 8) & 0xFF,
-					(i >> 16) & 0xFF,
-					(i >> 24) & 0xFF,
+					(ints[i] >> 0) & 0xFF,
+					(ints[i] >> 8) & 0xFF,
+					(ints[i] >> 16) & 0xFF,
+					(ints[i] >> 24) & 0xFF,
 				});
 			}
 			return this;
@@ -255,8 +255,7 @@ public class JPiIO {
 	
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		new JPiIO().buildCommand().ints(255);
 	}
 	
 	public class Error extends RuntimeException {

@@ -27,12 +27,12 @@ public class Solenoid16 extends Board {
 		System.out.println("Identified S16 board at "+board);
 
 		for (int i=0; i<16; i++) {
-			this.disableSolenoid((byte) (i+1));
+			this.disableSolenoid((byte) (i));
 		}
 	}
 
 	byte startCommand(byte num, int cmd) {
-		return (byte) (cmd << 4 | (num - 1));
+		return (byte) (cmd << 4 | (num));
 	}
 
 	void fireSolenoid(byte num) throws Error {

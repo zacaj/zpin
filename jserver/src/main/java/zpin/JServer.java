@@ -122,6 +122,7 @@ public class JServer extends Thread
 						case "s":
 						case "select":
 							curBoard = num(1);
+							ack();
 							return true;
 						case "time":
 							resp(new Date().getTime());
@@ -138,6 +139,7 @@ public class JServer extends Thread
 								error("unknown board type");
 							}
 							curBoard = num(1);
+							resp("init board "+num(1));
 							return true;
 						case "end":
 						case "q":
@@ -152,10 +154,13 @@ public class JServer extends Thread
 		    				switch (parts[0]) {
 		    				case "f":
 		    				case "fire":
-								if (parts.length >= 2)
+								if (parts.length > 2)
 									board.fireSolenoidFor(byt(1), byt(2));
-								else
+								else if (parts.length == 2)
 									board.fireSolenoid(byt(1));
+								else 
+									error("usage: fire <num> [fire time]");
+								resp("fired solenoid "+byt(1));
 								return true;
 							case "is":
 							case "inits":
@@ -168,6 +173,7 @@ public class JServer extends Thread
 											board.initMomentary(byt(2));
 										else 
 											error("usage: init momentary <num> [fire time|50]");
+										resp("solenoid "+byt(2)+" = momentary");
 										break;
 									case "i":
 									case "input":
@@ -196,7 +202,8 @@ public class JServer extends Thread
 							case "d":
 							case "disable":
 								board.disableSolenoid(byt(1));
-								break;
+								resp("solenoid "+byt(1)+" disabled");
+								return true;
 		    				}
 		    			}
 						error("unknown command '"+parts[0]+"'");
@@ -230,7 +237,7 @@ public class JServer extends Thread
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);
-            System.out.println( "Listening on port 2908..." );
+            System.out.println( "Listening on port 2908.." );
             while(true) {
                 Socket connection = socket.accept();
                 System.out.println("New connection from " + connection.getInetAddress());
