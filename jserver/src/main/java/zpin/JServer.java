@@ -222,7 +222,7 @@ public class JServer extends Thread
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);
-            System.out.println( "Listening on port 2908" );
+            System.out.println( "Listening on port 2908..." );
             while(true) {
                 Socket connection = socket.accept();
                 System.out.println("New connection from " + connection.getInetAddress());

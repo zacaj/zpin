@@ -1,5 +1,6 @@
 package zpin;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
@@ -77,6 +78,25 @@ public class JPiIO {
 			selects[i].setState(n != i);
 	}
 	
+	public Closeable selectWith(int n) {
+		this.select(n);
+		return new Closeable() {
+			public void close() {
+				JPiIO.this.select(-1);
+			}
+		};
+	}
+	
+	public void selectAnd(int n, Runnable a) {
+		this.select(n);
+		try {
+			a.run();
+		}
+		finally {
+			this.select(-1);
+		}
+	}
+	
 	public void spiWrite(byte ...data) {
 		checkLock();
 		for (byte b : data) {
@@ -132,7 +152,7 @@ public class JPiIO {
 	public byte[] sendCommand(byte ...bytes) throws Error {
 		checkLock();
 		
-		if (System.getenv("PI4J_PLATFORM").equals("Simulated")) {
+		if ("Simulated".equals(System.getenv("PI4J_PLATFORM"))) {
 			System.out.println("send command "+bytes);
 			System.out.print("> ");
 			Scanner s = new Scanner(System.in);
@@ -153,12 +173,16 @@ public class JPiIO {
 			checkSum(bytes),
 			(byte)'E'
 		);
+		System.out.println("begin wait for ready signal");
 		byte ready = 0;
 		clk.low();
 		Date waitStart = new Date();
 		while (ready != 'R') {
+			System.out.print("w"+ready);
 			clk.high();
-			ready <<= miso.isHigh()? 1:0;
+			int in = miso.isState(PinState.HIGH)? 1:0;
+			ready = (byte) ((ready<<1) | in);
+			System.out.print(" "+in);
 			clk.low();
 			if (ready == 'L') {
 				throw new Error("sent wrong length command ("+bytes.length+"), board wanted "+spiRead(1)[0]);
@@ -166,9 +190,10 @@ public class JPiIO {
 			if (ready == 'C') {
 				throw new Error("checksum fail from board");
 			}
-			if (new Date().getTime() - waitStart.getTime() > 10)
+			if (new Date().getTime() - waitStart.getTime() > 3001)
 				throw new Error("timeout waiting for board");
 		}
+		System.out.println("got ready signal");
 		byte numInputBytes = spiRead(1)[0];
 		if (numInputBytes > 0) {
 			byte[] input = spiRead(numInputBytes);

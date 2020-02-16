@@ -12,6 +12,7 @@
   },
   "scripts": {
     "build:watch": "tsc --watch",
-    "sync": "ts-node syncr.ts"
+    "sync": "ts-node syncr.ts",
+    "jserver": "java -cp jserver/target/classes/:jserver/jars/* zpin.JServer"
   }
 }

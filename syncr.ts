@@ -15,8 +15,8 @@ copyFile('./**').then(() =>*/ {
 	fs.watch('./', {
 		recursive: true,
 	}, async (eventType, filename) => {
-		if (filename && filename.startsWith('.')) return;
-		if (filename && fs.statSync(filename).isDirectory) return;
+		if (filename && filename.startsWith('.')) { /*console.log('skip dot');*/ return;}
+		if (filename && fs.statSync(path.resolve('./', filename)).isDirectory()) { console.log('skip dir'); return;}
 
 		console.log(new Date().getHours()+':'+new Date().getMinutes(), eventType, filename);
 		try {

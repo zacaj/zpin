@@ -26,6 +26,7 @@ public class Solenoid16 extends Board {
 			throw new RuntimeException("wrong board type "+type);
 		if (apiRev != apiRevision)
 			throw new RuntimeException("wrong api revision "+apiRevision);
+		System.out.println("Identified S16 board at "+board);
 
 		for (int i=0; i<16; i++) {
 			this.disableSolenoid((byte) (i+1));
