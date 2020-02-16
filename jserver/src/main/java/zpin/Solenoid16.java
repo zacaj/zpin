@@ -1,7 +1,5 @@
 package zpin;
 
-import java.io.ByteArrayOutputStream;
-
 import zpin.JPiIO.Error;
 
 public class Solenoid16 extends Board {
@@ -34,60 +32,69 @@ public class Solenoid16 extends Board {
 	}
 
 	byte startCommand(byte num, int cmd) {
-		io.select(this.boardNum);
 		return (byte) (cmd << 4 | (num - 1));
 	}
 
 	void fireSolenoid(byte num) throws Error {
-		io.sendCommand0(
-			this.startCommand(num, 0)
-		);
+		io.selectAnd(boardNum, () -> {
+			io.sendCommand0(
+				this.startCommand(num, 0)
+			);
+		});
 	}
 
 	void fireSolenoidFor(byte num, byte onTime) {
-		io.sendCommand0(
-			this.startCommand(num, 0b0001),
-			onTime
-		);
+		io.selectAnd(boardNum, () -> {
+			io.sendCommand0(
+				this.startCommand(num, 0b0001),
+				onTime
+			);
+		});
 	}
 
 	void disableSolenoid(byte num) {
-		io.buildCommand()
-		.bytes(
-			this.startCommand(num, 0b0110),
-			SolenoidMode.Disabled.getValue()
-		).ints(
-			0
-		).send0();
+		io.selectAnd(boardNum, () -> {
+			io.buildCommand()
+			.bytes(
+				this.startCommand(num, 0b0110),
+				SolenoidMode.Disabled.getValue()
+			).ints(
+				0
+			).send0();
+		});
 	}
 
 	void initMomentary(byte num) {
 		initMomentary(num, (byte)50);
 	}
 	void initMomentary(byte num, int onTime) {
-		io.buildCommand()
-		.bytes(
-			this.startCommand(num, 0b0110),
-			SolenoidMode.Momentary.getValue()
-		).ints(
-			0,
-			onTime
-		).send0();
+		io.selectAnd(boardNum, () -> {
+			io.buildCommand()
+			.bytes(
+				this.startCommand(num, 0b0110),
+				SolenoidMode.Momentary.getValue()
+			).ints(
+				0,
+				onTime
+			).send0();
+		});
 	}
 
 	void initInput(byte num) {
 		initInput(num, 3);
 	}
 	void initInput(byte num, int settleTime) {
-		io.buildCommand()
-		.bytes(
-			this.startCommand(num, 0b0110),
-			SolenoidMode.Input.getValue()
-		).ints(
-			0
-		).bytes(
-			settleTime
-		).send0();
+		io.selectAnd(boardNum, () -> {
+			io.buildCommand()
+			.bytes(
+				this.startCommand(num, 0b0110),
+				SolenoidMode.Input.getValue()
+			).ints(
+				0
+			).bytes(
+				settleTime
+			).send0();
+		});
 	}
 
 	void initTriggered(byte num, byte triggeredBy) {
@@ -97,18 +104,20 @@ public class Solenoid16 extends Board {
 		initTriggered(num, triggeredBy, 0, 50);		
 	}
 	void initTriggered(byte num, byte triggeredBy, int minOnTime, int maxOnTime) {
-		io.buildCommand()
-		.bytes(
-			this.startCommand(num, 0b0110),
-			SolenoidMode.Input.getValue()
-		).ints(
-			0
-		).bytes(
-			triggeredBy - 1
-		).ints(
-			minOnTime,
-			maxOnTime
-		).send0();
+		io.selectAnd(boardNum, () -> {
+			io.buildCommand()
+			.bytes(
+				this.startCommand(num, 0b0110),
+				SolenoidMode.Input.getValue()
+			).ints(
+				0
+			).bytes(
+				triggeredBy - 1
+			).ints(
+				minOnTime,
+				maxOnTime
+			).send0();
+		});
 	}
 }
 

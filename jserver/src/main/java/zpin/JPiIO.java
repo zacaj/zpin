@@ -1,10 +1,10 @@
 package zpin;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
@@ -14,11 +14,6 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
-import java.util.stream.StreamSupport;
 
 public class JPiIO {
 	GpioController gpio = GpioFactory.getInstance();
@@ -104,6 +99,8 @@ public class JPiIO {
 				clk.low();
 				mosi.setState((b & (1<<i)) != 0);
 				clk.high();
+//				int j=0;
+//				while(j++<1000);
 			}
 			System.out.println("write byte " + b);
 		}
@@ -163,6 +160,7 @@ public class JPiIO {
 			s.close();
 			return ret;
 		}
+		long start = System.nanoTime();
 		
 		spiWrite(
 			(byte)'S',
@@ -173,12 +171,13 @@ public class JPiIO {
 			checkSum(bytes),
 			(byte)'E'
 		);
+		System.out.println("Send command in "+(((float)(System.nanoTime()-start))/1000000.0)+" ms");
 		System.out.println("begin wait for ready signal");
 		byte ready = 0;
 		clk.low();
 		Date waitStart = new Date();
 		while (ready != 'R') {
-			System.out.print("w"+ready);
+			System.out.print("w");
 			clk.high();
 			int in = miso.isState(PinState.HIGH)? 1:0;
 			ready = (byte) ((ready<<1) | in);
@@ -190,7 +189,7 @@ public class JPiIO {
 			if (ready == 'C') {
 				throw new Error("checksum fail from board");
 			}
-			if (new Date().getTime() - waitStart.getTime() > 3001)
+			if (new Date().getTime() - waitStart.getTime() > 1001)
 				throw new Error("timeout waiting for board");
 		}
 		System.out.println("got ready signal");
@@ -212,7 +211,7 @@ public class JPiIO {
 	public byte[] sendCommandExpect(int expectedLength, byte ...bytes) throws Error {
 		byte[] output = sendCommand(bytes);
 		if (output.length != expectedLength)
-			throw new Error("got wrong identify message back (length "+output.length+")");
+			throw new Error("got wrong message length back (length "+output.length+")");
 		return output;
 	}
 	

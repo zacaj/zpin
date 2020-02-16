@@ -1,9 +1,11 @@
 package zpin;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Date;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.io.*;
 
 
 /**
@@ -80,6 +82,7 @@ public class JServer extends Thread
 	int curBoard = -1;
 	Board[] boards = new Board[8];
 	JPiIO io = JPiIO.get();
+	String lastCommand = "";
     
     private boolean handleCommand() {
     	try {
@@ -89,6 +92,8 @@ public class JServer extends Thread
     		}
     		
 			try {
+				if (input.length() == 0)
+					input = lastCommand;
 				System.out.println("Received command '" + input + "'");
 				String[] parts = input.split(" ");
 				return (new Object() {
@@ -205,6 +210,9 @@ public class JServer extends Thread
 				e.printStackTrace();
 				internalError();
 				return true;
+			}
+			finally {
+				lastCommand = input;
 			}
 		} catch (Exception e) {
 			System.err.println("Error reading command");
