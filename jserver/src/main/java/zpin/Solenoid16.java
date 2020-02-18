@@ -35,7 +35,7 @@ public class Solenoid16 extends Board {
 		return (byte) (cmd << 4 | (num));
 	}
 
-	void fireSolenoid(byte num) throws Error {
+	void fireSolenoid(byte num) {
 		io.selectAnd(boardNum, () -> {
 			io.sendCommand0(
 				this.startCommand(num, 0)
@@ -48,6 +48,21 @@ public class Solenoid16 extends Board {
 			io.sendCommand0(
 				this.startCommand(num, 0b0001),
 				onTime
+			);
+		});
+	}
+
+	void turnOnSolenoid(byte num){
+		io.selectAnd(boardNum, () -> {
+			io.sendCommand0(
+				this.startCommand(num, 0b0011)
+			);
+		});
+	}
+	void turnOffSolenoid(byte num){
+		io.selectAnd(boardNum, () -> {
+			io.sendCommand0(
+				this.startCommand(num, 0b0100)
 			);
 		});
 	}
@@ -112,9 +127,25 @@ public class Solenoid16 extends Board {
 			).ints(
 				0
 			).bytes(
-				triggeredBy - 1
+				triggeredBy
 			).ints(
 				minOnTime,
+				maxOnTime
+			).send0();
+		});
+	}
+
+	void initOnOff(byte num) {
+		initOnOff(num, 0);
+	}
+	void initOnOff(byte num, int maxOnTime) {
+		io.selectAnd(boardNum, () -> {
+			io.buildCommand()
+			.bytes(
+				this.startCommand(num, 0b0110),
+				SolenoidMode.OnOff.getValue()
+			).ints(
+				0,
 				maxOnTime
 			).send0();
 		});

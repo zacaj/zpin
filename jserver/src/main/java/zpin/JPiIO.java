@@ -1,6 +1,8 @@
 package zpin;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -14,14 +16,18 @@ import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.spi.SpiChannel;
+import com.pi4j.io.spi.SpiDevice;
+import com.pi4j.io.spi.SpiFactory;
 
 public class JPiIO {
 	GpioController gpio = GpioFactory.getInstance();
 	
 	GpioPinDigitalOutput[] selects = new GpioPinDigitalOutput[8];
-	GpioPinDigitalOutput mosi = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, PinState.LOW);
-	GpioPinDigitalInput miso = gpio.provisionDigitalInputPin(RaspiPin.GPIO_13, PinPullResistance.OFF);
-	GpioPinDigitalOutput clk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, PinState.LOW);
+//	GpioPinDigitalOutput mosi = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, PinState.LOW);
+//	GpioPinDigitalInput miso = gpio.provisionDigitalInputPin(RaspiPin.GPIO_13, PinPullResistance.OFF);
+//	GpioPinDigitalOutput clk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, PinState.LOW);
+	SpiDevice spi;
 	
 	private JPiIO() {
 		Pin[] ss = {
@@ -36,6 +42,11 @@ public class JPiIO {
 		};
 		for (int i = 0; i<ss.length; i++) {
 			selects[i] = gpio.provisionDigitalOutputPin(ss[i], PinState.HIGH);
+		}
+		try {
+			spi = SpiFactory.getInstance(SpiChannel.CS0, 5000000); // 25000000
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -94,32 +105,46 @@ public class JPiIO {
 	
 	public void spiWrite(byte ...data) {
 		checkLock();
-		for (byte b : data) {
-			for (int i=7; i>=0; i--) {
-				clk.low();
-				mosi.setState((b & (1<<i)) != 0);
-				clk.high();
-//				int j=0;
-//				while(j++<1000);
-			}
-			System.out.println("write byte " + b);
+		//System.out.print("write byte");
+//		for (byte b : data) {
+//			for (int i=7; i>=0; i--) {
+//				clk.low();
+//				mosi.setState((b & (1<<i)) != 0);
+//				clk.high();
+//			}
+//		//	System.out.print(" " + b);
+//		}
+		//System.out.println();
+
+		System.out.println("write bytes "+Arrays.toString(data));
+		try {
+			spi.write(data);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-		clk.low();
+//		clk.low();
 	}
 	public byte[] spiRead(int bytes) {
 		checkLock();
-		byte[] data = new byte[bytes];
-		clk.low();
-	
-		for (int j=0; j<bytes; j++) {
-			byte b = 0;
-			for (int i=7; i>=0; i--) {
-				clk.high();
-				b |= (miso.isState(PinState.HIGH)? 1:0) << i;
-				clk.low();
-			}
-			System.out.println("read byte " + b);
-			data[j] = b;
+//		clk.low();
+//		byte[] data = new byte[bytes];
+//	
+//		for (int j=0; j<bytes; j++) {
+//			byte b = 0;
+//			for (int i=7; i>=0; i--) {
+//				clk.high();
+//				b |= (miso.isState(PinState.HIGH)? 1:0) << i;
+//				clk.low();
+//			}
+//			System.out.println("read byte " + b);
+//			data[j] = b;
+//		}
+		byte[] data;
+		try {
+			data = spi.write(new byte[bytes]);
+			System.out.println("read bytes "+Arrays.toString(data));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 		return data;
 	}
@@ -160,47 +185,53 @@ public class JPiIO {
 			s.close();
 			return ret;
 		}
-		long start = System.nanoTime();
 		
-		spiWrite(
-			(byte)'S',
-			(byte)bytes.length
-		);
-		spiWrite(bytes);
-		spiWrite(
-			checkSum(bytes),
-			(byte)'E'
-		);
-		System.out.println("Send command in "+(((float)(System.nanoTime()-start))/1000000.0)+" ms");
+		byte[] out = new byte[bytes.length + 4];
+		out[0] = 'S';
+		out[1] = (byte)bytes.length;
+		System.arraycopy(bytes, 0, out, 2, bytes.length);
+		out[bytes.length + 2] = checkSum(bytes);
+		out[bytes.length + 3] = 'E';
+		long start = System.nanoTime();
+		spiWrite(out);
+		long end = System.nanoTime();
+		System.out.println("Send command in "+(((float)(end-start))/1000000.0)+" ms");
 		System.out.println("begin wait for ready signal");
 		byte ready = 0;
-		clk.low();
+		//clk.low();
 		Date waitStart = new Date();
-		while (ready != 'R') {
+		while ((ready&0xFF) != 'R') {
 			System.out.print("w");
-			clk.high();
-			int in = miso.isState(PinState.HIGH)? 1:0;
-			ready = (byte) ((ready<<1) | in);
-			System.out.print(" "+in);
-			clk.low();
-			if (ready == 'L') {
+//			clk.high();
+//			int in = miso.isState(PinState.HIGH)? 1:0;
+//			ready = (byte) ((ready<<1) | in);
+//			System.out.print(" "+in);
+//			clk.low();
+			try {
+				ready = spi.write(new byte[1])[0];
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			System.out.print("r "+Integer.toBinaryString((ready&0xFF))+".  ");
+			if ((ready&0xFF) == 'L') {
 				throw new Error("sent wrong length command ("+bytes.length+"), board wanted "+spiRead(1)[0]);
 			}
-			if (ready == 'C') {
+			if ((ready&0xFF) == 'C') {
 				throw new Error("checksum fail from board");
 			}
-			if (new Date().getTime() - waitStart.getTime() > 1001)
+			if (new Date().getTime() - waitStart.getTime() > 200)
 				throw new Error("timeout waiting for board");
 		}
 		System.out.println("\ngot ready signal");
 		byte numInputBytes = spiRead(1)[0];
 		if (numInputBytes > 0) {
-			byte[] input = spiRead(numInputBytes);
-			byte sum = checkSum(input);
-			byte inputSum = spiRead(1)[0];
+			byte[] input = spiRead(numInputBytes+1);
+			byte[] in = Arrays.copyOf(input, numInputBytes);
+			byte sum = checkSum(in);
+			byte inputSum = input[numInputBytes];
 			if (sum != inputSum)
-				throw new Error("checksum fail, input "+input+" != "+sum+" for bytes "+input);
-			return input;
+				throw new Error("checksum fail, input "+inputSum+" != "+sum+" for bytes "+Arrays.toString(in));
+			return in;
 		}
 		return new byte[0];
 	}

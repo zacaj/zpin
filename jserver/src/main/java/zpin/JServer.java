@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Date;
 
 
@@ -86,7 +87,7 @@ public class JServer extends Thread
     
     private boolean handleCommand() {
     	try {
-    		String input = in.readLine();
+    		String input = in.readLine().trim();
     		if (!io.waitLock(10)) {
     			error("Board busy");
     		}
@@ -95,8 +96,16 @@ public class JServer extends Thread
 				if (input.length() == 0)
 					input = lastCommand;
 				System.out.println("Received command '" + input + "'");
-				String[] parts = input.split(" ");
-				return (new Object() {
+				int oldCurBoard = -2;
+				if (input.matches("^\\d+:.*")) {
+					String[] p = input.split(":", 2);
+					input = p[1].trim();
+					oldCurBoard = curBoard;
+					curBoard = Integer.parseInt(p[0]);
+					System.out.print("board "+curBoard+": ");
+				}
+				final String[] parts = input.split(" ");
+				boolean success = (new Object() {
 		    		void expect(int args) throws Exception {
 						if (parts.length-1 < args) 
 							error("Expected at least "+args+" arguments");
@@ -162,6 +171,20 @@ public class JServer extends Thread
 									error("usage: fire <num> [fire time]");
 								resp("fired solenoid "+byt(1));
 								return true;
+		    				case "on":
+								if (parts.length == 2)
+									board.turnOnSolenoid(byt(1));
+								else 
+									error("usage: on <num>");
+								resp("solenoid "+byt(1)+" on");
+								return true;
+		    				case "off":
+								if (parts.length == 2)
+									board.turnOffSolenoid(byt(1));
+								else 
+									error("usage: off <num>");
+								resp("solenoid "+byt(1)+" off");
+								return true;
 							case "is":
 							case "inits":
 								switch (parts[1]) {
@@ -175,6 +198,16 @@ public class JServer extends Thread
 											error("usage: init momentary <num> [fire time|50]");
 										resp("solenoid "+byt(2)+" = momentary");
 										break;
+									case "oo":
+									case "on-off":
+										if (parts.length > 3)
+											board.initOnOff(byt(2), num(3));
+										else if (parts.length > 2)
+											board.initOnOff(byt(2));
+										else 
+											error("usage: init on-off <num> [max on time|0]");
+										resp("solenoid "+byt(2)+" = on-off");
+										break;									
 									case "i":
 									case "input":
 										if (parts.length > 3)
@@ -210,6 +243,10 @@ public class JServer extends Thread
 						return true;
 		    		}
 		    	}).process();
+				
+				if (oldCurBoard != -2)
+					curBoard = oldCurBoard;
+				return success;
 			} catch (ZError e) {
 				return true;
 			} catch (Exception e) {
@@ -237,7 +274,7 @@ public class JServer extends Thread
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);
-            System.out.println( "Listening on port 2908.." );
+            System.out.println( "Listening on port 2908..." );
             while(true) {
                 Socket connection = socket.accept();
                 System.out.println("New connection from " + connection.getInetAddress());
