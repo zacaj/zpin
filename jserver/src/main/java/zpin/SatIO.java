@@ -20,16 +20,13 @@ import com.pi4j.io.spi.SpiChannel;
 import com.pi4j.io.spi.SpiDevice;
 import com.pi4j.io.spi.SpiFactory;
 
-public class JPiIO {
+public class SatIO {
 	GpioController gpio = GpioFactory.getInstance();
 	
 	GpioPinDigitalOutput[] selects = new GpioPinDigitalOutput[8];
-//	GpioPinDigitalOutput mosi = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_12, PinState.LOW);
-//	GpioPinDigitalInput miso = gpio.provisionDigitalInputPin(RaspiPin.GPIO_13, PinPullResistance.OFF);
-//	GpioPinDigitalOutput clk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, PinState.LOW);
 	SpiDevice spi;
 	
-	private JPiIO() {
+	private SatIO() {
 		Pin[] ss = {
 			RaspiPin.GPIO_09,
 			RaspiPin.GPIO_07,
@@ -42,7 +39,9 @@ public class JPiIO {
 		};
 		for (int i = 0; i<ss.length; i++) {
 			selects[i] = gpio.provisionDigitalOutputPin(ss[i], PinState.HIGH);
-		}
+		}		
+		
+		if ("Simulated".equals(System.getenv("PI4J_PLATFORM"))) return;
 		try {
 			spi = SpiFactory.getInstance(SpiChannel.CS0, 5000000); // 25000000
 		} catch (IOException e) {
@@ -50,32 +49,33 @@ public class JPiIO {
 		}
 	}
 	
-	private static JPiIO instance = null;
-	public static JPiIO get() {
+	private static SatIO instance = null;
+	public static SatIO get() {
 		if (instance == null) {
-			instance = new JPiIO();
+			instance = new SatIO();
 		}
 		return instance;
 	}
 	
-	private ReentrantLock lock = new ReentrantLock();
+	static private ReentrantLock lock = new ReentrantLock();
 	
-	void checkLock() {
+	static void checkLock() {
 		if (!lock.isHeldByCurrentThread())
 			throw new RuntimeException("IO Locked");
 	}
 	
-	boolean waitLock(long timeout) throws InterruptedException {
+	static boolean waitLock(long timeout) throws InterruptedException {
 		return lock.tryLock(timeout, TimeUnit.MILLISECONDS);
 	}
 	
-	void lock() {
+	static void lock() {
 		if (!lock.tryLock())
 			throw new RuntimeException("IO Locked");
 	}
 	
-	void unlock() {
-		lock.unlock();
+	static void unlock() {
+		if (lock.isLocked())
+			lock.unlock();
 	}
 
 	public void select(int n) {
@@ -88,7 +88,7 @@ public class JPiIO {
 		this.select(n);
 		return new Closeable() {
 			public void close() {
-				JPiIO.this.select(-1);
+				SatIO.this.select(-1);
 			}
 		};
 	}
@@ -105,16 +105,6 @@ public class JPiIO {
 	
 	public void spiWrite(byte ...data) {
 		checkLock();
-		//System.out.print("write byte");
-//		for (byte b : data) {
-//			for (int i=7; i>=0; i--) {
-//				clk.low();
-//				mosi.setState((b & (1<<i)) != 0);
-//				clk.high();
-//			}
-//		//	System.out.print(" " + b);
-//		}
-		//System.out.println();
 
 		System.out.println("write bytes "+Arrays.toString(data));
 		try {
@@ -122,23 +112,9 @@ public class JPiIO {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-//		clk.low();
 	}
 	public byte[] spiRead(int bytes) {
 		checkLock();
-//		clk.low();
-//		byte[] data = new byte[bytes];
-//	
-//		for (int j=0; j<bytes; j++) {
-//			byte b = 0;
-//			for (int i=7; i>=0; i--) {
-//				clk.high();
-//				b |= (miso.isState(PinState.HIGH)? 1:0) << i;
-//				clk.low();
-//			}
-//			System.out.println("read byte " + b);
-//			data[j] = b;
-//		}
 		byte[] data;
 		try {
 			data = spi.write(new byte[bytes]);
@@ -175,7 +151,7 @@ public class JPiIO {
 		checkLock();
 		
 		if ("Simulated".equals(System.getenv("PI4J_PLATFORM"))) {
-			System.out.println("send command "+bytes);
+			System.out.println("send command "+Arrays.toString(bytes));
 			System.out.print("> ");
 			Scanner s = new Scanner(System.in);
 			String[] ss = s.nextLine().split(" ");
@@ -286,7 +262,7 @@ public class JPiIO {
 	
 
 	public static void main(String[] args) {
-		new JPiIO().buildCommand().ints(255);
+		new SatIO().buildCommand().ints(255);
 	}
 	
 	public class Error extends RuntimeException {

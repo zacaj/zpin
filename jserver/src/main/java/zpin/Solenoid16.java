@@ -1,6 +1,6 @@
 package zpin;
 
-import zpin.JPiIO.Error;
+import zpin.SatIO.Error;
 
 public class Solenoid16 extends Board {
 	final int apiRev = 1;

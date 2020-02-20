@@ -10,7 +10,7 @@
   "devDependencies": {
     "scp2": "^0.5.0",
     "ts-node": "^8.3.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.7.5"
   },
   "scripts": {
     "build:watch": "tsc --watch",

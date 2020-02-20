@@ -1,18 +1,30 @@
 import * as readline from 'readline-sync';
-import { Solenoid16, init } from './boards';
+import { Solenoid16 } from './boards';
+import { MPU } from './mpu';
+import { Events } from './events';
+import { SwitchEvent, matrix } from './switch-matrix';
+import { Game } from './game';
+import { StateEvent } from './state';
 
 console.log('Initializing....');
-init().then(async () => {
+MPU.init().then(async () => {
 const board = new Solenoid16(0);
-await board.init();
+//await board.init();
 
 console.log('ready:');
+
+const game = new Game();
 
 while(true) {
 	try {
 		const cmd = readline.question('>').split(' ');
 		let result: Promise<any>;
 		switch (cmd[0]) {
+			case 'fakesw':
+				// Events.fire(new StateEvent());
+				Events.fire(new SwitchEvent(matrix[0][0]));
+				result = Promise.resolve('fired');
+				break;
 			case 'f':
 				if (cmd.length >= 2)
 					result = board.fireSolenoidFor(num(cmd[1]), num(cmd[2]));
@@ -62,6 +74,7 @@ while(true) {
 })
 .catch(err => {
 	console.error('fatal error ', err);
+	process.exit(1);
 });
 
 function num(str: string): number {

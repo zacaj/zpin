@@ -3,7 +3,7 @@ package zpin;
 import java.util.Arrays;
 import java.util.Optional;
 
-import zpin.JPiIO.Error;
+import zpin.SatIO.Error;
 
 public class Board {
 	public enum Type {
@@ -37,5 +37,5 @@ public class Board {
 		});
 	}
 	
-	JPiIO io = JPiIO.get();
+	SatIO io = SatIO.get();
 }

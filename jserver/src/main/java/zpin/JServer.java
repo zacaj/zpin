@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -22,6 +23,8 @@ public class JServer extends Thread
     private PrintWriter out;
     private BufferedReader in;
     public int connNum = ++nConnections;
+    
+    static SwitchMatrix matrix = SwitchMatrix.get();
 
     public JServer(Socket socket) throws IOException {
         this.socket = socket;
@@ -82,15 +85,12 @@ public class JServer extends Thread
     
 	int curBoard = -1;
 	Board[] boards = new Board[8];
-	JPiIO io = JPiIO.get();
+	SatIO io = SatIO.get();
 	String lastCommand = "";
     
     private boolean handleCommand() {
     	try {
     		String input = in.readLine().trim();
-    		if (!io.waitLock(10)) {
-    			error("Board busy");
-    		}
     		
 			try {
 				if (input.length() == 0)
@@ -128,6 +128,27 @@ public class JServer extends Thread
 		    		}
 		    		public boolean process() throws Exception {
 		    			switch (parts[0]) {
+						case "sw":
+						case "switch-event":
+							if (matrix.events.isEmpty())
+								resp("empty");
+							else {
+								SwitchMatrix.Event e = matrix.events.remove();
+								resp(e.toString(), matrix.events.isEmpty()? 200:201);
+							}
+							return true;
+						case "sw-state":
+							String response = "";
+							int num = 0;
+							for (int i=0; i<matrix.state.length; i++) {
+								num = (num<<1)|(matrix.state[i]? 1:0);
+								if ((i+1)%32 == 0) {
+									response += num+" ";
+									num = 0;
+								}
+							}
+							resp(response);
+							return true;
 						case "s":
 						case "select":
 							curBoard = num(1);
@@ -136,20 +157,6 @@ public class JServer extends Thread
 						case "time":
 							resp(new Date().getTime());
 							return true;
-						case "i":
-						case "init":
-							expect(2);
-							String type = parts[2];
-							switch (type) {
-							case "s16":
-								boards[num(1)] = new Solenoid16(num(1));
-								break;
-							default:
-								error("unknown board type");
-							}
-							curBoard = num(1);
-							resp("init board "+num(1));
-							return true;
 						case "end":
 						case "q":
 				        	ack();
@@ -157,90 +164,114 @@ public class JServer extends Thread
 							return false;
 						case "kill":
 							System.exit(0);
-						}
-		    			if (curBoard != -1 && boards[curBoard] != null && boards[curBoard].type.equals(Board.Type.Solenoid16)) {
-		    				Solenoid16 board = (Solenoid16)boards[curBoard];
-		    				switch (parts[0]) {
-		    				case "f":
-		    				case "fire":
-								if (parts.length > 2)
-									board.fireSolenoidFor(byt(1), byt(2));
-								else if (parts.length == 2)
-									board.fireSolenoid(byt(1));
-								else 
-									error("usage: fire <num> [fire time]");
-								resp("fired solenoid "+byt(1));
-								return true;
-		    				case "on":
-								if (parts.length == 2)
-									board.turnOnSolenoid(byt(1));
-								else 
-									error("usage: on <num>");
-								resp("solenoid "+byt(1)+" on");
-								return true;
-		    				case "off":
-								if (parts.length == 2)
-									board.turnOffSolenoid(byt(1));
-								else 
-									error("usage: off <num>");
-								resp("solenoid "+byt(1)+" off");
-								return true;
-							case "is":
-							case "inits":
-								switch (parts[1]) {
-									case "m":
-									case "momentary":
-										if (parts.length > 3)
-											board.initMomentary(byt(2), num(3));
-										else if (parts.length > 2)
-											board.initMomentary(byt(2));
-										else 
-											error("usage: init momentary <num> [fire time|50]");
-										resp("solenoid "+byt(2)+" = momentary");
-										break;
-									case "oo":
-									case "on-off":
-										if (parts.length > 3)
-											board.initOnOff(byt(2), num(3));
-										else if (parts.length > 2)
-											board.initOnOff(byt(2));
-										else 
-											error("usage: init on-off <num> [max on time|0]");
-										resp("solenoid "+byt(2)+" = on-off");
-										break;									
-									case "i":
-									case "input":
-										if (parts.length > 3)
-											board.initInput(byt(2), num(3));
-										else if (parts.length > 2)
-											board.initInput(byt(2));
-										else 
-											error("usage: init input <num> [settle time|30]");
-										break;
-									case "t":
-									case "triggered":
-										if (parts.length > 5)
-											board.initTriggered(byt(2), byt(3), num(4), num(5));
-										else if (parts.length > 4)
-											board.initTriggered(byt(2), byt(3), num(4));
-										else if (parts.length > 3)
-											board.initTriggered(byt(2), byt(3));
-										else 
-											error("usage: init triggered <num> <triggered by> [min time|0] [max time|50]");
-										break;
-									default:
-										error("unknown type '"+parts[1]+"'");
-								}
-								return true;
-							case "d":
-							case "disable":
-								board.disableSolenoid(byt(1));
-								resp("solenoid "+byt(1)+" disabled");
-								return true;
-		    				}
 		    			}
-						error("unknown command '"+parts[0]+"'");
-						return true;
+		    			
+		    			try {
+			        		if (!SatIO.waitLock(10)) {
+			        			error("Board busy");
+			        		}
+			    			switch (parts[0]) {
+							case "i":
+							case "init":
+								expect(2);
+								String type = parts[2];
+								switch (type) {
+								case "s16":
+									boards[num(1)] = new Solenoid16(num(1));
+									break;
+								default:
+									error("unknown board type");
+								}
+								curBoard = num(1);
+								resp("init board "+num(1));
+								return true;
+							}
+			    			if (curBoard != -1 && boards[curBoard] != null && boards[curBoard].type.equals(Board.Type.Solenoid16)) {
+			    				Solenoid16 board = (Solenoid16)boards[curBoard];
+			    				switch (parts[0]) {
+			    				case "f":
+			    				case "fire":
+									if (parts.length > 2)
+										board.fireSolenoidFor(byt(1), byt(2));
+									else if (parts.length == 2)
+										board.fireSolenoid(byt(1));
+									else 
+										error("usage: fire <num> [fire time]");
+									resp("fired solenoid "+byt(1));
+									return true;
+			    				case "on":
+									if (parts.length == 2)
+										board.turnOnSolenoid(byt(1));
+									else 
+										error("usage: on <num>");
+									resp("solenoid "+byt(1)+" on");
+									return true;
+			    				case "off":
+									if (parts.length == 2)
+										board.turnOffSolenoid(byt(1));
+									else 
+										error("usage: off <num>");
+									resp("solenoid "+byt(1)+" off");
+									return true;
+								case "is":
+								case "inits":
+									switch (parts[1]) {
+										case "m":
+										case "momentary":
+											if (parts.length > 3)
+												board.initMomentary(byt(2), num(3));
+											else if (parts.length > 2)
+												board.initMomentary(byt(2));
+											else 
+												error("usage: init momentary <num> [fire time|50]");
+											resp("solenoid "+byt(2)+" = momentary");
+											break;
+										case "oo":
+										case "on-off":
+											if (parts.length > 3)
+												board.initOnOff(byt(2), num(3));
+											else if (parts.length > 2)
+												board.initOnOff(byt(2));
+											else 
+												error("usage: init on-off <num> [max on time|0]");
+											resp("solenoid "+byt(2)+" = on-off");
+											break;									
+										case "i":
+										case "input":
+											if (parts.length > 3)
+												board.initInput(byt(2), num(3));
+											else if (parts.length > 2)
+												board.initInput(byt(2));
+											else 
+												error("usage: init input <num> [settle time|30]");
+											break;
+										case "t":
+										case "triggered":
+											if (parts.length > 5)
+												board.initTriggered(byt(2), byt(3), num(4), num(5));
+											else if (parts.length > 4)
+												board.initTriggered(byt(2), byt(3), num(4));
+											else if (parts.length > 3)
+												board.initTriggered(byt(2), byt(3));
+											else 
+												error("usage: init triggered <num> <triggered by> [min time|0] [max time|50]");
+											break;
+										default:
+											error("unknown type '"+parts[1]+"'");
+									}
+									return true;
+								case "d":
+								case "disable":
+									board.disableSolenoid(byt(1));
+									resp("solenoid "+byt(1)+" disabled");
+									return true;
+			    				}
+			    			}
+							error("unknown command '"+parts[0]+"'");
+							return true;
+			    		} finally {
+			    			SatIO.unlock();
+			    		}
 		    		}
 		    	}).process();
 				
@@ -258,19 +289,20 @@ public class JServer extends Thread
 			finally {
 				lastCommand = input;
 			}
+    	} catch (SocketException e) {
+    		throw new RuntimeException(e);
 		} catch (Exception e) {
 			System.err.println("Error reading command");
 			e.printStackTrace();
 			internalError();
 			return true;
-		} finally {
-			io.unlock();
 		}
     }
     
 
     public static void main( String[] args) throws IOException
     {
+    	matrix.start();
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);
