@@ -36,3 +36,9 @@ export type JSONPrimitive = string | number | boolean | null;
 export type JSONValue = JSONPrimitive | JSONObject | JSONArray;
 export type JSONObject = { [member: string]: JSONValue|undefined };
 export type JSONArray = JSONValue[];
+
+export type OrArray<T> = T|(T[]);
+
+export interface Obj { [prop: string]: any }
+export type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? never : K }[keyof T] &
+        string;

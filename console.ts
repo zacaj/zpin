@@ -13,9 +13,11 @@ const board = new Solenoid16(0);
 
 console.log('ready:');
 
-const game = new Game();
+//const game = new Game();
+//game.rampUp = !game.rampUp;
 
 while(true) {
+	break;
 	try {
 		const cmd = readline.question('>').split(' ');
 		let result: Promise<any>;

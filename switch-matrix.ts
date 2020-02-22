@@ -1,7 +1,7 @@
 import { MPU } from "./mpu";
 import assert from 'assert';
 import { time, Time, split, nums, JSONValue } from "./util";
-import { Event, Events } from "./events";
+import { Event, Events, EventPredicate, EventTypePredicate } from "./events";
 export class Switch {
     _state = false;
     get state() {
@@ -38,6 +38,18 @@ export class SwitchEvent extends Event {
 
         this.then = Object.assign({}, sw);
     }
+}
+
+export function onSwitch(sw: Switch): EventTypePredicate<SwitchEvent> {
+    return e => e instanceof SwitchEvent && e.sw === sw;
+}
+
+export function onClose(): EventTypePredicate<SwitchEvent> {
+    return e => e instanceof SwitchEvent && e.then._state;
+}
+
+export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
+    return [onSwitch(sw), onClose()];
 }
 
 export const SWITCH_MATRIX_WIDTH = 8;
