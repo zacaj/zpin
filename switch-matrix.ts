@@ -96,17 +96,22 @@ export async function getSwitchState(): Promise<boolean[][]> {
     const encoded = await MPU.sendCommand('sw-state');
     const state: boolean[][] = [];
     let row: boolean[] = [];
-    for (let int of encoded.split(' ').map(s => parseInt(s, 10))) {
-        const sw = int&(1<<31);
-        int = int << 1;
-        row.push(!!sw);
-        if (row.length === SWITCH_MATRIX_WIDTH) {
-            state.push(row);
-            row = [];
+    const ints = encoded.split(' ').map(s => parseInt(s, 10));
+    for (let int of ints) {
+        for (let i=0; i<32; i++) {
+            const sw = int&(1<<31);
+            int = int << 1;
+            row.push(!!sw);
+            if (row.length === SWITCH_MATRIX_WIDTH) {
+                state.push(row);
+                row = [];
+            }
         }
     }
 
-    assert(state.length === SWITCH_MATRIX_HEIGHT);
+    //assert(state.length === SWITCH_MATRIX_HEIGHT);
+    if (state.length !== SWITCH_MATRIX_HEIGHT)
+        console.error('got non-square matrix');
 
     return state;
 }

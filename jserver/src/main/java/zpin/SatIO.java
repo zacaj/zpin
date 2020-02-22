@@ -27,6 +27,8 @@ public class SatIO {
 	SpiDevice spi;
 	
 	private SatIO() {
+		if (SatIO.instance != null) throw new RuntimeException("SatIO already initialized!");
+		
 		Pin[] ss = {
 			RaspiPin.GPIO_09,
 			RaspiPin.GPIO_07,

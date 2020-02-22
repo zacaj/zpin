@@ -19,10 +19,11 @@ export const MPU = {
         // socket.connect(2908, '192.168.2.4');
         // socket.on('error', )
         try {
-            await socket.connect(2908, 'localhost');
+            // await socket.connect(2908, 'localhost');
+            await socket.connect(2908, '192.168.2.4');
             console.log('connected to MPU');
-            const greeting = await socket.read();
-            console.log('MPU: ', greeting!.toString());
+            const greeting = await this.readLine();
+            console.log('MPU: ', greeting);
             socket.setTimeout(1000);
             await this.sendCommand(apiVersion);
             socket.socket.on('error', err => {
@@ -48,7 +49,7 @@ export const MPU = {
 
     async sendCommandCode(cmd: string): Promise<{code: number; resp: string}> {
         await socket.write(cmd+'\n');
-        const resp = (await socket.read())!.toString().trim();
+        const resp = await this.readLine();
         let firstSpace = resp.indexOf(' ');
         if (firstSpace === -1) firstSpace = resp.length;
         const code = parseInt(resp.slice(0, firstSpace), 10);
@@ -59,6 +60,15 @@ export const MPU = {
             };
         }
         throw new Error(resp);
+    },
+
+    extraRead: [] as string[],
+    async readLine(): Promise<string> {
+        if (!this.extraRead.length) {
+            const resp = (await socket.read())!.toString().split('\n').map(s=>s.trim()).filter(s => !!s);
+            this.extraRead = [...this.extraRead, ...resp];
+        }
+        return this.extraRead.shift()!;
     },
 
     async sendCommand(cmd: string): Promise<string> {
