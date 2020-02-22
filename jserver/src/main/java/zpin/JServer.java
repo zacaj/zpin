@@ -31,20 +31,25 @@ public class JServer extends Thread
         this.start();
     }
     
+    String seqPrefix() {
+    	if (seq != 0) return "#"+seq+" ";
+    	return "";
+    }
+    
     void error(String str) throws ZError {
-    	out.print("400 " + str + "\r\n");
+    	out.print(seqPrefix()+"400 " + str + "\r\n");
     	out.flush();
     	System.out.println(""+connNum+" Error: 400 " + str);
     	throw new ZError("Client error " + str);
     }
     void internalError() {
-    	out.print("500" + "\r\n");
+    	out.print(seqPrefix()+"500" + "\r\n");
     	out.flush();
     	System.out.println(""+connNum+" internal error");
     }
     
     void resp(Object str, int status) {
-    	out.print("" + status + " " + str + "\r\n");
+    	out.print(seqPrefix()+"" + status + " " + str + "\r\n");
     	out.flush();
     	System.out.println(""+connNum+" Response: " + status + " " + str);
     }
@@ -66,9 +71,15 @@ public class JServer extends Thread
 	        out.println("owo?");
 	        {
 	        	String first = in.readLine();
+	        	seq = 0;
+	    		if ( first.startsWith("#")) {
+	    			String[] p = first.split(" ", 2);
+	    			seq = Integer.parseInt(p[0].substring(1));
+	    			first = p[1];
+	    		}
 	        	if (!first.equals(version))
 	        		error("Incorrect version "+first);
-	        	out.println("200");
+	        	out.println((seq!=0? "#"+seq+" ":"")+"200");
 	        	while (this.handleCommand());
 	        }
 	        
@@ -87,11 +98,22 @@ public class JServer extends Thread
 	Board[] boards = new Board[8];
 	SatIO io = SatIO.get();
 	String lastCommand = "";
+	int seq = 0;
     
     private boolean handleCommand() {
     	try {
-    		String input = in.readLine().trim();
+    		String input = in.readLine();
+    		if (input == null) throw new RuntimeException("null line");
+    		input = input.trim();
     		
+    		seq = 0;
+    		if ( input.startsWith("#")) {
+    			String[] p = input.split(" ", 2);
+    			seq = Integer.parseInt(p[0].substring(1));
+    			input = p[1];
+    		}
+    		
+    			
 			try {
 				if (input.length() == 0)
 					input = lastCommand;

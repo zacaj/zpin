@@ -11,6 +11,9 @@ export function split(input: string, ...on: string[]): string[] {
     const ret: string[] = [];
     for (const x of on) {
         const next = input.indexOf(x, at);
+        if (next === -1) {
+            break;
+        }
         ret.push(input.slice(at, next));
         at = next + x.length;
     }

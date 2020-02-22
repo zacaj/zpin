@@ -1,9 +1,8 @@
 import {Socket} from 'net';
-import {PromiseSocket, TimeoutError} from "promise-socket"
-import { Time, time, num } from './util';
+import { Time, time, num, split } from './util';
 
 const apiVersion = '0.0.1';
-let socket = new PromiseSocket();
+let socket = new Socket();
 export const MPU = {
     timeOffset: 0 as Time, // add to remote time to get local
 
@@ -14,42 +13,91 @@ export const MPU = {
         return (time + this.timeOffset) as Time;
     },
 
+    lines: {} as {[seq: number]: {
+        promise: Promise<string>,
+        cb: (resp: string) => void,
+        when: Date,
+        context: string,
+    }},
+
     async init() {
         // const socket = new Socket();
         // socket.connect(2908, '192.168.2.4');
         // socket.on('error', )
         try {
             // await socket.connect(2908, 'localhost');
-            await socket.connect(2908, '192.168.2.4');
-            console.log('connected to MPU');
-            const greeting = await this.readLine();
-            console.log('MPU: ', greeting);
             socket.setTimeout(1000);
-            await this.sendCommand(apiVersion);
-            socket.socket.on('error', err => {
+            socket.setNoDelay(true);
+            socket.on('error', err => {
                 console.log('socket error: ', err);
             });
-            socket.socket.on('close', err => {
+            socket.on('close', err => {
                 this.isConnected = false;
                 process.exit(err? 1:0);
             });
+            socket.on('data', data => {
+                const lines = data.toString().split('\n').map(s => s.trim()).filter(s => !!s);
+                for (const line of lines) {
+                    const parts = split(line, ' ');
+                    const seq = line.startsWith('#')? num(parts[0].slice(1)) : 0;
+                    const resp = line.startsWith('#')? parts[1] : line;
+                    if (this.lines[seq]) {
+                        this.lines[seq].cb(resp);
+                        delete this.lines[seq];
+                    } else
+                        throw new Error(`unknown seq # '${seq}'`);
+                }
+            })
+            socket.connect(2908, '192.168.2.4', async () => {
+                console.log('connected to MPU');
+                this.lines[0] = {
+                    promise: null as any,
+                    cb: null as any,
+                    when: new Date(),
+                    context: 'greet',
+                };
+                this.lines[0].promise = new Promise(resolve => this.lines[0].cb = resolve);
+                const greeting = await this.lines[0].promise;
 
-            {
-                const local = time();
-                const remote = parseInt(await this.sendCommand('time'), 10);
-                this.timeOffset = (local - remote) as Time;
-            }
+                console.log('MPU: ', greeting);
+                await this.sendCommand(apiVersion);
 
-            this.isConnected = true;
+                {
+                    const local = time();
+                    const remote = parseInt(await this.sendCommand('time'), 10);
+                    this.timeOffset = (local - remote) as Time;
+                }
+
+                this.isConnected = true;
+            });
+            
         } catch (err) {
             console.error('fatal MPU connect error ', err);
             this.isConnected = false;
         }
     },
 
+
+
     async sendCommandCode(cmd: string): Promise<{code: number; resp: string}> {
-        await socket.write(cmd+'\n');
-        const resp = await this.readLine();
+        let seq: number = 0;
+        do {
+            seq = (Math.random()*1000)|0;
+            if (!seq) continue;
+            if (this.lines[seq]) continue;
+            break;
+        } while(true);
+        this.lines[seq] = {
+            promise: null as any,
+            cb: null as any,
+            when: new Date(),
+            context: cmd,
+        };
+        this.lines[seq].promise = new Promise(resolve => this.lines[seq].cb = resolve);
+        socket.write(`#${seq} `+cmd+'\n');
+
+        const resp = await this.lines[seq].promise;
+
         let firstSpace = resp.indexOf(' ');
         if (firstSpace === -1) firstSpace = resp.length;
         const code = parseInt(resp.slice(0, firstSpace), 10);
@@ -60,15 +108,6 @@ export const MPU = {
             };
         }
         throw new Error(resp);
-    },
-
-    extraRead: [] as string[],
-    async readLine(): Promise<string> {
-        if (!this.extraRead.length) {
-            const resp = (await socket.read())!.toString().split('\n').map(s=>s.trim()).filter(s => !!s);
-            this.extraRead = [...this.extraRead, ...resp];
-        }
-        return this.extraRead.shift()!;
     },
 
     async sendCommand(cmd: string): Promise<string> {
