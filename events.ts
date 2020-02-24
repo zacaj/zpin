@@ -1,16 +1,16 @@
-import { Time, time, OrArray } from "./util";
+import { Time, time, OrArray } from './util';
 
 export abstract class Event {
     constructor(
         public when = time(),
-    ){
+    ) {
         
     }
 }
 
 export type EventPredicate<E extends Event = Event> = (e: E) => boolean;
 export type EventTypePredicate<E extends Event = Event> = (e: Event) => boolean;//e is E;
-export type EventListener<E extends Event = Event> = ((e: E) => void)|{[func: string]: {}}
+export type EventListener<E extends Event = Event> = ((e: E) => void)|{[func: string]: {}};
 
 export const Events = {
     listeners: [] as {
@@ -38,7 +38,7 @@ export const Events = {
             listener: l as any,
             predicates: [typepred, ...preds].flat(),
         });
-    }
+    },
 };
 
 

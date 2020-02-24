@@ -3,3 +3,4 @@ node_modules
 *.js.map
 .metadata/
 _gsdata_/
+!.eslintrc.js

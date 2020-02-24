@@ -1,5 +1,5 @@
-import { Event, EventPredicate, EventTypePredicate, Events } from "./events";
-import { JSONObject, NonFunctionPropertyNames } from "./util";
+import { Event, EventPredicate, EventTypePredicate, Events } from './events';
+import { JSONObject, NonFunctionPropertyNames } from './util';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
     constructor(
@@ -13,8 +13,7 @@ export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends
         super();
     }
 }
-export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>
-        (on: T, prop: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
+export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T, prop: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
     return ((e: Event) => e instanceof StateEvent && e.on === on && e.prop === prop && (to === undefined || e.value === to)) as any;
 }
 

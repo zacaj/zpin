@@ -1,8 +1,8 @@
-import { SwitchEvent, onSwitchClose } from "./switch-matrix";
-import { Events, onType } from "./events";
-import { State, StateEvent, onChange, Tree } from "./state";
-import { Machine } from "./machine";
-import { Obj } from "./util";
+import { SwitchEvent, onSwitchClose } from './switch-matrix';
+import { Events, onType } from './events';
+import { State, StateEvent, onChange, Tree } from './state';
+import { Machine } from './machine';
+import { Obj } from './util';
 
 export class Mode implements Tree {
     children: Mode[] = [];

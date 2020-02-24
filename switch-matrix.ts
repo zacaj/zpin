@@ -1,7 +1,7 @@
-import { MPU } from "./mpu";
+import { MPU } from './mpu';
 import assert from 'assert';
-import { time, Time, split, nums, JSONValue } from "./util";
-import { Event, Events, EventPredicate, EventTypePredicate } from "./events";
+import { time, Time, split, nums, JSONValue } from './util';
+import { Event, Events, EventPredicate, EventTypePredicate } from './events';
 export class Switch {
     _state = false;
     get state() {
@@ -15,7 +15,7 @@ export class Switch {
     constructor(
         public row: number,
         public column: number,
-        public name = `${row},${column}`
+        public name = `${row},${column}`,
     ) {
     }
 
@@ -63,10 +63,10 @@ for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++) {
     matrix.push(row);
 }
 
-setInterval(async() => {
+setInterval(async () => {
     if (!MPU.isConnected) return;
 
-    const start = time()
+    const start = time();
     while (time() - start < 5) {
         const resp = await getSwitchEvent();
         if (!resp || !resp.more) break;

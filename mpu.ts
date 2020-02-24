@@ -2,7 +2,7 @@ import {Socket} from 'net';
 import { Time, time, num, split } from './util';
 
 const apiVersion = '0.0.1';
-let socket = new Socket();
+const socket = new Socket();
 export const MPU = {
     timeOffset: 0 as Time, // add to remote time to get local
 
@@ -10,15 +10,15 @@ export const MPU = {
 
     adjust(time: number|string): Time {
         if (typeof time === 'string') time = num(time);
-        return (time + this.timeOffset) as Time;
+        return (time + (this.timeOffset as number)) as Time;
     },
 
     lines: {} as {[seq: number]: {
-        promise: Promise<string>,
-        cb: (resp: string) => void,
-        when: Date,
-        context: string,
-    }},
+        promise: Promise<string>;
+        cb: (resp: string) => void;
+        when: Date;
+        context: string;
+    };},
 
     async init() {
         // const socket = new Socket();
@@ -47,7 +47,7 @@ export const MPU = {
                     } else
                         throw new Error(`unknown seq # '${seq}'`);
                 }
-            })
+            });
             socket.connect(2908, '192.168.2.4', async () => {
                 console.log('connected to MPU');
                 this.lines[0] = {
@@ -86,7 +86,7 @@ export const MPU = {
             if (!seq) continue;
             if (this.lines[seq]) continue;
             break;
-        } while(true);
+        } while (true);
         this.lines[seq] = {
             promise: null as any,
             cb: null as any,
@@ -113,5 +113,5 @@ export const MPU = {
     async sendCommand(cmd: string): Promise<string> {
         const resp = await this.sendCommandCode(cmd);
         return resp.resp;
-    }
-}
+    },
+};

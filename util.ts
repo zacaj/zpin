@@ -24,7 +24,7 @@ export function split(input: string, ...on: string[]): string[] {
 
 export function num(input: string, def?: number): number {
     const num = parseInt(input, 10);
-    if (isNaN(num)){
+    if (isNaN(num)) {
         if (def !== undefined) return def;
         else throw new Error(`could not parse '${input}' as number`);
     }
