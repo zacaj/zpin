@@ -4,3 +4,4 @@ node_modules
 .metadata/
 _gsdata_/
 !.eslintrc.js
+!jest.config.js
