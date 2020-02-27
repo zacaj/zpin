@@ -1,4 +1,4 @@
-import { Event, onType } from './events';
+import { Event, onType, Events } from './events';
 
 describe('events', () => {
     test('onType', () => {
@@ -7,5 +7,13 @@ describe('events', () => {
         const pred = onType(E1);
         expect(pred(new E1())).toBe(true);
         expect(pred(new E2())).toBe(false);
+    });
+    test('removes listener', () => {
+        const spy = Events.listen(jest.fn().mockReturnValue('remove'), e => true);
+        Events.fire(new class extends Event { });
+        expect(spy).toBeCalled();
+        spy.mockClear();
+        Events.fire(new class extends Event { });
+        expect(spy).not.toBeCalled();
     });
 });
