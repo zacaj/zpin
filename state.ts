@@ -1,5 +1,6 @@
 import { Event, EventPredicate, EventTypePredicate, Events } from './events';
 import { JSONObject, NonFunctionPropertyNames } from './util';
+import { Outputs, stateAccessRecorder } from './outputs';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
     constructor(
@@ -17,19 +18,25 @@ export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T,
     return ((e: Event) => e instanceof StateEvent && e.on === on && e.prop === prop && (to === undefined || e.value === to)) as any;
 }
 
-export interface Tree {
+export type Tree = {
     children: Tree[];
-}
+    parent?: Tree;
+    out?: Outputs;
+};
+
 
 export class State {
     data: JSONObject = {};
 
-    static declare<T extends {}>(obj: T, props: NonFunctionPropertyNames<T>[]) {
+    static declare<T extends Tree>(obj: T, props: ((keyof T)&string)[]) {
         const state = new State();
         for (const prop of props) {
             state.data[prop] = (obj as any)[prop];
             Object.defineProperty(obj, prop, {
                 get() {
+                    if (stateAccessRecorder) {
+                        stateAccessRecorder(obj, prop);
+                    }
                     return state.data[prop];
                 },
                 set(val) {
@@ -41,7 +48,8 @@ export class State {
         }
     }
 
-    static inherit<T extends JSONObject>(obj: T, props: ((keyof T)&string)[]) {
+    static inherit<T extends {}>(obj: T, props: ((keyof T)&string)[]) {
+
     }
 }
 

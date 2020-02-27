@@ -45,3 +45,37 @@ export type OrArray<T> = T|(T[]);
 export interface Obj { [prop: string]: any }
 export type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? never : K }[keyof T] &
         string;
+
+export type ReadWrite<T> = {
+    -readonly [P in keyof T]: T[P];
+};
+
+declare global {
+    interface Array<T> {
+        remove(elem: T): Array<T>;
+    }
+}
+Array.prototype.remove = function<T>(this: T[], element: T): T[] {
+    let index: number;
+    while ((index = this.indexOf(element)) !== -1) {
+        this.splice(index, 1);
+    }
+    return this;
+};
+// polyfill flatmap for jest
+if (!Array.prototype.flatMap) {
+  Object.defineProperty(Array.prototype, 'flatMap', {
+    value: function(callback: any, thisArg: any) {
+      const self = thisArg || this;
+      return self.reduce((acc: any, x: any) => acc.concat(callback(x)), []);
+    },
+  });
+}
+if (!Array.prototype.flat) {
+  Object.defineProperty(Array.prototype, 'flat', {
+    value: function(thisArg: any) {
+      const self = thisArg || this;
+      return self.reduce((acc: any, x: any) => acc.concat(x), []);
+    },
+  });
+}

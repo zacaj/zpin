@@ -6,6 +6,18 @@ import { Obj } from './util';
 
 export class Mode implements Tree {
     children: Mode[] = [];
+    parent?: Mode;
+
+    addChild(mode: Mode) {
+        if (mode.parent)
+            mode.parent.removeChild(mode);
+        mode.parent = this;
+        this.children.push(mode);
+    }
+    removeChild(mode: Mode) {
+        this.children.remove(mode);
+        mode.parent = undefined;
+    }
 }
 
 export class Game extends Mode {

@@ -71,8 +71,8 @@ module.exports = {
     "consistent-return": on,
     "default-param-last": on,
     "eqeqeq": on,
-    "no-invalid-this": on,
-    "no-loop-func": on,
+    "no-invalid-this": off,
+    "no-loop-func": off,
     "no-return-await": on,
     "no-return-assign": off,
     "no-self-compare": on,
@@ -85,7 +85,7 @@ module.exports = {
     "radix": on,
 
     "no-label-var": on,
-    "no-use-before-define": [on, {
+    "no-use-before-define": [off, {
       "functions": false,
       "classes": false,
     }],
