@@ -43,11 +43,12 @@ public class Solenoid16 extends Board {
 		});
 	}
 
-	void fireSolenoidFor(byte num, byte onTime) {
+	void fireSolenoidFor(byte num, short onTime) {
 		io.selectAnd(boardNum, () -> {
 			io.sendCommand0(
 				this.startCommand(num, 0b0001),
-				onTime
+				onTime>>8,
+				onTime&0xFF
 			);
 		});
 	}
@@ -75,6 +76,8 @@ public class Solenoid16 extends Board {
 				SolenoidMode.Disabled.getValue()
 			).ints(
 				0
+			).bytes(
+				0
 			).send0();
 		});
 	}
@@ -89,7 +92,10 @@ public class Solenoid16 extends Board {
 				this.startCommand(num, 0b0110),
 				SolenoidMode.Momentary.getValue()
 			).ints(
-				0,
+				0
+			).bytes(
+				0
+			).ints(
 				onTime
 			).send0();
 		});
@@ -107,6 +113,7 @@ public class Solenoid16 extends Board {
 			).ints(
 				0
 			).bytes(
+				0,
 				settleTime
 			).send0();
 		});
@@ -119,6 +126,9 @@ public class Solenoid16 extends Board {
 		initTriggered(num, triggeredBy, 0, 50);		
 	}
 	void initTriggered(byte num, byte triggeredBy, int minOnTime, int maxOnTime) {
+		initTriggered(num, triggeredBy, minOnTime, maxOnTime, (byte) 0);		
+	}
+	void initTriggered(byte num, byte triggeredBy, int minOnTime, int maxOnTime, byte pulseOffTime) {
 		io.selectAnd(boardNum, () -> {
 			io.buildCommand()
 			.bytes(
@@ -127,6 +137,7 @@ public class Solenoid16 extends Board {
 			).ints(
 				0
 			).bytes(
+				pulseOffTime,
 				triggeredBy
 			).ints(
 				minOnTime,
@@ -139,13 +150,19 @@ public class Solenoid16 extends Board {
 		initOnOff(num, 0);
 	}
 	void initOnOff(byte num, int maxOnTime) {
+		initOnOff(num, maxOnTime, (byte) 0);
+	}
+	void initOnOff(byte num, int maxOnTime, byte pulseOffTime) {
 		io.selectAnd(boardNum, () -> {
 			io.buildCommand()
 			.bytes(
 				this.startCommand(num, 0b0110),
 				SolenoidMode.OnOff.getValue()
 			).ints(
-				0,
+				0
+			).bytes(
+					pulseOffTime
+			).ints(
 				maxOnTime
 			).send0();
 		});

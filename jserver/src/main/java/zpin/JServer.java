@@ -250,12 +250,14 @@ public class JServer extends Thread
 											break;
 										case "oo":
 										case "on-off":
-											if (parts.length > 3)
+											if (parts.length == 5)
+												board.initOnOff(byt(2), num(3), byt(4));
+											else if (parts.length == 4)
 												board.initOnOff(byt(2), num(3));
-											else if (parts.length > 2)
+											else if (parts.length == 3)
 												board.initOnOff(byt(2));
 											else 
-												error("usage: init on-off <num> [max on time|0]");
+												error("usage: init on-off <num> [max on time|0] [pulseOffTime|0]");
 											resp("solenoid "+byt(2)+" = on-off");
 											break;									
 										case "i":
