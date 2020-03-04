@@ -43,12 +43,11 @@ public class Solenoid16 extends Board {
 		});
 	}
 
-	void fireSolenoidFor(byte num, short onTime) {
+	void fireSolenoidFor(byte num, byte onTime) {
 		io.selectAnd(boardNum, () -> {
 			io.sendCommand0(
 				this.startCommand(num, 0b0001),
-				onTime>>8,
-				onTime&0xFF
+				onTime
 			);
 		});
 	}
