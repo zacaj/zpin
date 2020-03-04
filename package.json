@@ -5,7 +5,8 @@
     "promise-readable": "^5.0.4",
     "promise-socket": "^6.0.3",
     "readline-sync": "^1.4.9",
-    "rpio": "^1.0.13"
+    "rpio": "^1.0.13",
+    "yargs": "^15.1.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",

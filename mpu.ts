@@ -20,60 +20,65 @@ export const MPU = {
         context: string;
     };},
 
-    async init() {
+    async init(ip = '192.168.2.4') {
+        console.info('connecting to %s', ip);
         // const socket = new Socket();
         // socket.connect(2908, '192.168.2.4');
         // socket.on('error', )
         try {
-            // await socket.connect(2908, 'localhost');
-            socket.setTimeout(1000);
-            socket.setNoDelay(true);
-            socket.on('error', err => {
-                console.log('socket error: ', err);
-            });
-            socket.on('close', err => {
-                this.isConnected = false;
-                process.exit(err? 1:0);
-            });
-            socket.on('data', data => {
-                const lines = data.toString().split('\n').map(s => s.trim()).filter(s => !!s);
-                for (const line of lines) {
-                    const parts = split(line, ' ');
-                    const seq = line.startsWith('#')? num(parts[0].slice(1)) : 0;
-                    const resp = line.startsWith('#')? parts[1] : line;
-                    if (this.lines[seq]) {
-                        this.lines[seq].cb(resp);
-                        delete this.lines[seq];
-                    } else
-                        throw new Error(`unknown seq # '${seq}'`);
-                }
-            });
-            socket.connect(2908, '192.168.2.4', async () => {
-                console.log('connected to MPU');
-                this.lines[0] = {
-                    promise: null as any,
-                    cb: null as any,
-                    when: new Date(),
-                    context: 'greet',
-                };
-                this.lines[0].promise = new Promise(resolve => this.lines[0].cb = resolve);
-                const greeting = await this.lines[0].promise;
+            await new Promise((resolve, reject) => {
+                // await socket.connect(2908, 'localhost');
+                socket.setTimeout(1000);
+                socket.setNoDelay(true);
+                socket.on('error', err => {
+                    console.log('socket error: ', err);
+                    reject(err);
+                });
+                socket.on('close', err => {
+                    this.isConnected = false;
+                    process.exit(err? 1:0);
+                });
+                socket.on('data', data => {
+                    const lines = data.toString().split('\n').map(s => s.trim()).filter(s => !!s);
+                    for (const line of lines) {
+                        const parts = split(line, ' ');
+                        const seq = line.startsWith('#')? num(parts[0].slice(1)) : 0;
+                        const resp = line.startsWith('#')? parts[1] : line;
+                        if (this.lines[seq]) {
+                            this.lines[seq].cb(resp);
+                            delete this.lines[seq];
+                        } else
+                            throw new Error(`unknown seq # '${seq}'`);
+                    }
+                });
+                socket.connect(2908, ip, async () => {
+                    console.log('connected to MPU');
+                    this.lines[0] = {
+                        promise: null as any,
+                        cb: null as any,
+                        when: new Date(),
+                        context: 'greet',
+                    };
+                    this.lines[0].promise = new Promise(resolve => this.lines[0].cb = resolve);
+                    const greeting = await this.lines[0].promise;
 
-                console.log('MPU: ', greeting);
-                await this.sendCommand(apiVersion);
+                    console.log('MPU: ', greeting);
+                    await this.sendCommand(apiVersion);
 
-                {
-                    const local = time();
-                    const remote = parseInt(await this.sendCommand('time'), 10);
-                    this.timeOffset = (local - remote) as Time;
-                }
+                    {
+                        const local = time();
+                        const remote = parseInt(await this.sendCommand('time'), 10);
+                        this.timeOffset = (local - remote) as Time;
+                    }
 
-                this.isConnected = true;
+                    this.isConnected = true;
+                    resolve();
+                });
             });
-            
         } catch (err) {
             console.error('fatal MPU connect error ', err);
             this.isConnected = false;
+            throw err;
         }
     },
 

@@ -1,0 +1,13 @@
+source p3
+f 12
+wait 1000
+f 0
+wait 500
+f 1
+wait 500
+f 2
+wait 500
+f 4
+wait 500
+f 5
+wait 500
