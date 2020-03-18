@@ -1,6 +1,7 @@
 import { MPU } from './mpu';
 
 export class Solenoid16 {
+    
     constructor(
         public board: number,
     ) {

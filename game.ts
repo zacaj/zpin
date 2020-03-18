@@ -1,45 +1,37 @@
 import { SwitchEvent, onSwitchClose } from './switch-matrix';
-import { Events, onType } from './events';
+import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
-import { Machine } from './machine';
-import { Obj } from './util';
+import { machine } from './machine';
+import { makeOutputs } from './outputs';
+import { time } from './util';
+import { Mode } from './mode';
 
-export class Mode implements Tree {
-    children: Mode[] = [];
-    parent?: Mode;
-
-    addChild(mode: Mode) {
-        if (mode.parent)
-            mode.parent.removeChild(mode);
-        mode.parent = this;
-        this.children.push(mode);
-    }
-    removeChild(mode: Mode) {
-        this.children.remove(mode);
-        mode.parent = undefined;
-    }
-}
 
 export class Game extends Mode {
     rampUp = true;
     lowerRampLit = false;
 
+    out = makeOutputs({
+        upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250),
+    }, this);
+
     constructor() {
         super();
-        State.declare<Game>(this, ['rampUp']);
+        State.declare<Game>(this, ['rampUp', 'lowerRampLit']);
         Events.listen({onSwitch: this}, onType(SwitchEvent));
 
         Events.listen(e => {
             if (this.lowerRampLit)
                 this.rampUp = false;
-        }, onSwitchClose(Machine.rightInlane));
-        Events.listen(e => this.lowerRampLit = !this.lowerRampLit, onSwitchClose(Machine.shooterLane2));
-        Events.listen(e => this.rampUp = true, onSwitchClose(Machine.popBumper));
-        Events.listen(e => Machine.ramp.set(e.value), onChange(this, 'rampUp'));
+        }, onSwitchClose(machine.sRightInlane));
+        Events.listen(e => this.lowerRampLit = !this.lowerRampLit, onSwitchClose(machine.sShooterLane2));
+        Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPopBumper));
     }
 
-    onSwitch(e: SwitchEvent) {
-        console.log('sw event ', e);
+    static start(): Game {
+        const game = new Game();
+        machine.addChild(game);
+        return game;
     }
 }
 

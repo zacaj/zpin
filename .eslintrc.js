@@ -109,13 +109,14 @@ module.exports = {
       "ignoreComments": true,
       "ignorePattern": "^import.*",
     }],
-    "max-params": [on, {
+    "max-params": [off, {
       "max": 6,
     }],
     "newline-per-chained-call": off,
     "no-nested-ternary": on,
     "no-new-object": on,
     "no-tabs": on,
+    "no-debugger": off,
     "no-unneeded-ternary": [on, {
       "defaultAssignment": false,
     }],

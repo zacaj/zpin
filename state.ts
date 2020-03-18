@@ -22,6 +22,7 @@ export type Tree = {
     children: Tree[];
     parent?: Tree;
     out?: Outputs;
+    priority?: number;
 };
 
 
