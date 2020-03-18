@@ -4,6 +4,7 @@ import zpin.SatIO.Error;
 
 public class Solenoid16 extends Board {
 	final int apiRev = 1;
+	boolean[] state = new boolean[16];
 	
 	enum SolenoidMode {
 		Disabled(0),
@@ -58,6 +59,7 @@ public class Solenoid16 extends Board {
 				this.startCommand(num, 0b0011)
 			);
 		});
+		this.state[num] = true;
 	}
 	void turnOffSolenoid(byte num){
 		io.selectAnd(boardNum, () -> {
@@ -65,6 +67,12 @@ public class Solenoid16 extends Board {
 				this.startCommand(num, 0b0100)
 			);
 		});
+		this.state[num] = false;
+	}
+	void toggleSolenoid(byte num){
+		this.state[num] = !this.state[num];
+		if (this.state[num]) this.turnOnSolenoid(num);
+		else this.turnOffSolenoid(num);
 	}
 
 	void disableSolenoid(byte num) {
@@ -79,6 +87,7 @@ public class Solenoid16 extends Board {
 				0
 			).send0();
 		});
+		this.state[num] = false;
 	}
 
 	void initMomentary(byte num) {

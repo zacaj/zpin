@@ -95,7 +95,7 @@ public class JServer extends Thread
     }
     
 	int curBoard = -1;
-	Board[] boards = new Board[8];
+	static Board[] boards = new Board[8];
 	SatIO io = SatIO.get();
 	String lastCommand = "";
 	int seq = 0;
@@ -103,7 +103,7 @@ public class JServer extends Thread
     private boolean handleCommand() {
     	try {
     		String input = in.readLine();
-    		if (input == null) throw new RuntimeException("null line");
+    		if (input == null) return false;
     		input = input.trim();
     		
     		seq = 0;
@@ -235,6 +235,13 @@ public class JServer extends Thread
 										error("usage: off <num>");
 									resp("solenoid "+byt(1)+" off");
 									return true;
+			    				case "toggle":
+									if (parts.length == 2)
+										board.toggleSolenoid(byt(1));
+									else 
+										error("usage: toggle <num>");
+									resp("solenoid "+byt(1)+(board.state[byt(1)]? " on":" off"));
+									return true;
 								case "is":
 								case "inits":
 									switch (parts[1]) {
@@ -313,7 +320,7 @@ public class JServer extends Thread
 			finally {
 				lastCommand = input;
 			}
-    	} catch (SocketException e) {
+    	} catch (SocketException|RuntimeException e) {
     		throw new RuntimeException(e);
 		} catch (Exception e) {
 			System.err.println("Error reading command");
