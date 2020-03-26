@@ -2,6 +2,7 @@ import { MPU } from './mpu';
 import assert from 'assert';
 import { time, Time, split, nums, JSONValue, clone } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate } from './events';
+import { State } from './state';
 export class Switch {
     _state = false;
     get state() {
@@ -17,6 +18,7 @@ export class Switch {
         public column: number,
         public name = `${row},${column}`,
     ) {
+        State.declare<Switch>(this, ['_state', 'lastChange']);
     }
 
     changeState(val: boolean, when = time()) {

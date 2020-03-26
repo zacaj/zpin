@@ -1,6 +1,6 @@
-import { ReadWrite, JSONObject } from './util';
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, Tree, TreeEvent } from './state';
+import { Utils } from './util';
 
 type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]: (prev?: OutputTypes[key]) => OutputTypes[key];
@@ -13,9 +13,6 @@ type OutputFuncsOrValues<OutputTypes extends {}> = {
 //     currentValues: Partial<OutputTypes>;
 //     owner: Tree;
 // };
-
-// obj: the state object whose key was changed
-export let stateAccessRecorder: (<T extends {}>(obj: T, key: (keyof T)&string) => void) | undefined; 
 
 export class Outputs<Outs extends {}> {
     ownValues!: Outs;
@@ -74,7 +71,7 @@ export class Outputs<Outs extends {}> {
         for (const key of Object.keys(origFuncs) as (keyof Outs)[]) {
             this.funcs[key] = ((prev: any) => {
                 { // begin recording
-                    stateAccessRecorder = (state, k) => {
+                    Utils.stateAccessRecorder = (state, k) => {
                         if (!listeners.has(state))
                             listeners.set(state, new Map());
                         if (!listeners.get(state)!.has(k))
@@ -85,7 +82,7 @@ export class Outputs<Outs extends {}> {
                 const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
                 const ret = func(prev);
                 { // end recording
-                    stateAccessRecorder = undefined;
+                    Utils.stateAccessRecorder = undefined;
                     // unrecorded.get(outputs)!.delete(key);
                 }
                 return ret;

@@ -174,4 +174,84 @@ describe('outputs', () => {
         expect(root.out!.treeValues.num).toBe(2);
         expect(root.out!.computeTreeValue('num')).toBe(2);
     });
+    test('compute 3', () => {
+        const root = new class extends Mode<{num: number}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                });
+            }
+        };
+        const c1 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 1);
+
+                this.out = new Outputs(this, {
+                    num: 1,
+                });
+            }
+        };
+        const c2 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root);
+
+                this.out = new Outputs(this, {
+                    num: 2,
+                });
+            }
+        };
+        const c3 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(c2, 3);
+
+                this.out = new Outputs(this, {
+                    num: 3,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(1);
+        expect(root.out!.computeTreeValue('num')).toBe(1);
+    });
+    test('compute 4', () => {
+        const root = new class extends Mode<{num: number}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                });
+            }
+        };
+        const c1 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 1);
+
+                this.out = new Outputs(this, {
+                    num: 1,
+                });
+            }
+        };
+        const c2 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 2);
+
+                this.out = new Outputs(this, {
+                    num: 2,
+                });
+            }
+        };
+        const c3 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(c2, 0);
+
+                this.out = new Outputs(this, {
+                    num: 3,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(3);
+        expect(root.out!.computeTreeValue('num')).toBe(3);
+    });
 });

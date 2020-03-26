@@ -1,6 +1,6 @@
 import { Event, EventPredicate, EventTypePredicate, Events } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone } from './util';
-import { Outputs, stateAccessRecorder } from './outputs';
+import { JSONObject, NonFunctionPropertyNames, clone, Utils, time } from './util';
+import { Outputs } from './outputs';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
     constructor(
@@ -104,14 +104,14 @@ export class TreeEvent<T> extends Event {
 export class State {
     data: JSONObject = {};
 
-    static declare<T extends Tree<any>>(obj: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
+    static declare<T extends {}>(obj: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         const state = new State();
         for (const prop of props) {
             state.data[prop] = (obj as any)[prop];
             Object.defineProperty(obj, prop, {
                 get() {
-                    if (stateAccessRecorder) {
-                        stateAccessRecorder(obj, prop);
+                    if (Utils.stateAccessRecorder) {
+                        Utils.stateAccessRecorder(obj, prop);
                     }
                     return state.data[prop];
                 },
@@ -129,3 +129,10 @@ export class State {
     }
 }
 
+
+let lastTime = time();
+setInterval(() => {
+    const tim = time();
+    Events.fire(new StateEvent(Utils, 'time', tim, lastTime));
+    lastTime = tim;
+}, 5);
