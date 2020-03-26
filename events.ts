@@ -1,4 +1,4 @@
-import { time, OrArray } from './util';
+import { time, OrArray, assert } from './util';
 
 export abstract class Event {
     constructor(
@@ -25,6 +25,7 @@ export const Events = {
                 for (const funcName of Object.keys(l.listener)) {
                     const obj = l.listener[funcName] as any;
                     const func = obj[funcName] as (e: Event) => 'remove'|any;
+                    assert(func);
                     if (func.apply(obj, [event]) === 'remove') {
                         delete l.listener[funcName];
                     }
@@ -48,6 +49,10 @@ export const Events = {
             predicates: [typepred, ...preds].flat(),
         });
         return l;
+    },
+
+    resetAll() {
+        this.listeners.splice(0, this.listeners.length);
     },
 };
 

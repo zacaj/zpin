@@ -1,5 +1,5 @@
 import { Event, EventPredicate, EventTypePredicate, Events } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, Utils, time } from './util';
+import { JSONObject, NonFunctionPropertyNames, clone, Utils, time, Time, assert } from './util';
 import { Outputs } from './outputs';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
@@ -136,3 +136,12 @@ setInterval(() => {
     Events.fire(new StateEvent(Utils, 'time', tim, lastTime));
     lastTime = tim;
 }, 5);
+export function setTime(ms?: number) {
+    const lastTime = Utils.mockTime;
+    Utils.mockTime = ms;
+    Events.fire(new StateEvent(Utils, 'time', ms as Time ?? time(), lastTime as Time));
+}
+export function passTime(ms = 1) {
+    assert(!!Utils.mockTime);
+    setTime(Utils.mockTime! + ms);
+}

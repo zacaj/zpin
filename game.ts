@@ -11,17 +11,15 @@ export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
     rampUp = true;
     lowerRampLit = false;    
 
-    constructor() {
+    private constructor() {
         super();
         State.declare<Game>(this, ['rampUp', 'lowerRampLit']);
 
         this.out = new Outputs(this, {
-            upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250),
+            upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250)
+                        || (machine.cUpper3.val && !machine.sUpper3.every(sw => !sw.state && time() > sw.lastChange + 250)),
             rampUp: () => this.rampUp,
         });
-
-
-        Events.listen({onSwitch: this}, onType(SwitchEvent));
 
         Events.listen(e => {
             if (this.lowerRampLit)

@@ -14,18 +14,21 @@ export class Switch {
     lastChange = 0 as Time;
 
     constructor(
-        public row: number,
-        public column: number,
-        public name = `${row},${column}`,
+        public readonly row: number,
+        public readonly column: number,
+        public readonly name = `${row},${column}`,
     ) {
         State.declare<Switch>(this, ['_state', 'lastChange']);
+
+        assert(!matrix[row][column]);
+        matrix[row][column] = this;
     }
 
     changeState(val: boolean, when = time()) {
         if (this._state === val) return;
         this._state = val;
         this.lastChange = when;
-        console.info('switch %s state -> %s', this.name, this._state);
+        console.info('switch \'%s\' state -> %s', this.name, this._state);
         Events.fire(new SwitchEvent(this, when));
     }
 }
@@ -57,12 +60,18 @@ export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
 export const SWITCH_MATRIX_WIDTH = 8;
 export const SWITCH_MATRIX_HEIGHT = 8;
 
-export const matrix: Switch[][] = []; // row,col
+export const matrix: (Switch|undefined)[][] = []; // row,col
 for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++) {
-    const row: Switch[] = [];
+    const row: (Switch|undefined)[] = [];
     for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
-        row.push(new Switch(i, j));
+        row.push(undefined);
     matrix.push(row);
+}
+
+export function resetSwitchMatrix() {
+    for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)
+        for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
+            matrix[j][i] = undefined;
 }
 
 setInterval(async () => {
@@ -72,7 +81,8 @@ setInterval(async () => {
     while (time() - start < 5) {
         const resp = await getSwitchEvent();
         if (!resp || !resp.more) break;
-        matrix[resp.row][resp.col].changeState(resp.state, resp.when);
+        if (matrix[resp.row][resp.col])
+            matrix[resp.row][resp.col]!.changeState(resp.state, resp.when);
     }
 
     const newState = await getSwitchState();
@@ -84,7 +94,8 @@ setInterval(async () => {
 export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
     for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)
         for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
-            cb(i, j, matrix[i][j]);
+            if (matrix[j][i])
+                cb(i, j, matrix[i][j]!);
 }
 
 export async function getSwitchEvent(): Promise<{

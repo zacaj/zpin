@@ -1,29 +1,33 @@
 import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
-import { matrix } from './switch-matrix';
+import { matrix, Switch } from './switch-matrix';
 import { Time, time } from './util';
 import { Events } from './events';
 import { Mode } from './mode';
-import { Outputs, TreeOutputEvent } from './outputs';
+import { Outputs, TreeOutputEvent, OwnOutputEvent } from './outputs';
 
 abstract class MachineOutput<T> {
-    inSync = false;
+    actual!: T;
 
     constructor(
+        public val: T,
         public name: keyof MachineOutputs,
     ) {
-        Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value), machine.out!.onOutputChange(name));
+        this.actual = val;
+        Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value),
+            ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
     }
 
     async trySet(val: T) {
         try {
+            this.val = val;
+            if (this.actual === val) return;
             const success = await this.set(val);
             if (!success) MachineOutput.retryQueue.push([this, val]);
-            this.inSync = success;
+            this.actual = val;
         } catch (err) {
             console.error('error setting output %s to ', this.name, val, err);
             MachineOutput.retryQueue.push([this, val]);
-            this.inSync = false;
         }
     }
 
@@ -48,7 +52,7 @@ abstract class Solenoid extends MachineOutput<boolean> {
         public num: number,
         public board: Solenoid16,
     ) {
-        super(name);
+        super(false, name);
     }
 }
 
@@ -149,14 +153,23 @@ class Machine extends Mode<MachineOutputs> {
     cRamp = new OnOffSolenoid('rampUp', 0, this.solenoidBank1);
     cUpper3 = new IncreaseSolenoid('upper3', 7, this.solenoidBank1, 30, 100);
 
-    sRightInlane = matrix[0][0];
-    sShooterLane2 = matrix[0][1];
-    sPopBumper = matrix[0][1];
+    sRightInlane = new Switch(0, 4, 'right inlane');
+    sShooterLane2 = new Switch(2, 0, 'shooter lane star');
+    sPopBumper = new Switch(4, 7, 'pop bumper');
 
-    sUpper3 = [ matrix[0][1], matrix[0][1], matrix[0][1] ];
+    sUpper3 = [
+        new Switch(5, 2, 'upper3 1'),
+        new Switch(5, 1, 'upper3 2'),
+        new Switch(5, 0, 'upper3 3'),
+    ];
 
 }
 
-export const machine = new Machine();
+export let machine = new Machine();
+
+export function resetMachine() {
+    MachineOutput.retryQueue = [];
+    machine = new Machine();
+}
 
 export type MachineMode = Mode<MachineOutputs>;

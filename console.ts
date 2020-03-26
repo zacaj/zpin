@@ -37,11 +37,11 @@ async function parseCommand(input: string) {
     const cmd = input.split(' ');
     let result: Promise<any>;
     switch (cmd[0]) {
-        case 'fakesw':
-            // Events.fire(new StateEvent());
-            Events.fire(new SwitchEvent(matrix[0][0]));
-            result = Promise.resolve('fired');
-            break;
+        // case 'fakesw':
+        //     // Events.fire(new StateEvent());
+        //     Events.fire(new SwitchEvent(matrix[0][0]));
+        //     result = Promise.resolve('fired');
+        //     break;
         case 'wait':
             result = new Promise(r => setTimeout(r, num(cmd[1])));
             break;

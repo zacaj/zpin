@@ -119,7 +119,7 @@ export class Outputs<Outs extends {}> {
         const oldValue = this.treeValues[key];
         this.treeValues[key] = this.computeTreeValue(key, this.defaults[key])!;
         if (oldValue === this.treeValues[key]) return;
-        Events.fire(new TreeOutputEvent(this.tree, key, this.ownValues[key], oldValue));
+        Events.fire(new TreeOutputEvent(this.tree, key, this.treeValues[key], oldValue));
     }
     
 

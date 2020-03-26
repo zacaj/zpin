@@ -34,6 +34,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'json'],
   restoreMocks: true,
   setupFilesAfterEnv: [
+    './jest.ts',
   ],
   testPathIgnorePatterns: [
       '/node_modules/',
