@@ -1,41 +1,55 @@
 import { Events } from './events';
 import { State, Tree } from './state';
 import { Mode } from './mode';
-import { makeOutputs, outputs, Outputs, computeOutputValue } from './outputs';
+import { Outputs } from './outputs';
 
 describe('outputs', () => {
     test('creates outputs', () => {
-        const obj = new class extends Mode implements Tree {
+        const obj = new class extends Mode<{rampUp: boolean}> {
             up = false;
-            out = makeOutputs({
-                rampUp: () => this.up,
-            }, this);
-        };
-        expect(obj.out.rampUp).toBe(false);
-        obj.up = true;
-        expect(obj.out.rampUp).toBe(true);
-    });
-    test('watches outputs', () => {
-        const fire = jest.spyOn(Events, 'fire');
-        const obj = new class extends Mode implements Tree {
-            up = false;
-            out = makeOutputs({
-                rampUp: () => this.up,
-            }, this);
+
             constructor() {
                 super();
-                State.declare(this, ['up']);
+
+                this.out = new Outputs(this, {
+                    rampUp: () => this.up,
+                });
             }
         };
-        expect(obj.out.rampUp).toBe(false);
+        expect(obj.out!.computeTreeValue('rampUp')).toBe(false);
+        obj.up = true;
+        expect(obj.out!.computeTreeValue('rampUp')).toBe(true);
+    });
+    test('watches state', () => {
+        const fire = jest.spyOn(Events, 'fire');
+        const obj = new class extends Mode<{rampUp: boolean}> {
+            up = false;
+
+            constructor() {
+                super();
+
+                State.declare<any>(this, ['up']);
+
+                this.out = new Outputs(this, {
+                    rampUp: () => this.up,
+                });
+            }
+        };
+
+        expect(obj.out!.treeValues.rampUp).toBe(false);
         expect(fire).toBeCalledWith(expect.objectContaining({
             on: obj.out,
             prop: 'rampUp',
             value: false,
         }));
+        expect(fire).toBeCalledWith(expect.objectContaining({
+            tree: obj,
+            prop: 'rampUp',
+            value: false,
+        }));
         fire.mockClear();
         obj.up = true;
-        expect(obj.out.rampUp).toBe(true);
+        expect(obj.out!.treeValues.rampUp).toBe(true);
         expect(fire).toBeCalledWith(expect.objectContaining({
             on: obj,
             prop: 'up',
@@ -46,55 +60,118 @@ describe('outputs', () => {
             prop: 'rampUp',
             value: true,
         }));
-        // expect(fire).toBeCalledWith(expect.objectContaining({
-        //     on: outputs,
-        //     prop: 'rampUp',
-        //     value: true,
-        // }));
-        // expect(outputs.rampUp).toBe(true);
+        expect(fire).toBeCalledWith(expect.objectContaining({
+            tree: obj,
+            prop: 'rampUp',
+            value: true,
+        }));
     });
-    test('inherits outputs', () => {
+    test('inherits outputs 1', () => {
         const fire = jest.spyOn(Events, 'fire');
-        const parent = new class extends Mode implements Tree {
-            out: Outputs = {
-                currentValues: outputs,
-                owner: this,
-            };
-        
+        const parent = new class extends Mode<{rampUp: boolean}> {
             constructor() {
                 super();
+
+                this.out = new Outputs(this, {
+                    rampUp: false,
+                });
             }
         };
-        const c1 = new class extends Mode implements Tree {
-            out = makeOutputs({
-                rampUp: () => true,
-            }, this);
+        const c1 = new class extends Mode<{rampUp: boolean}> {
+            constructor() {
+                super(parent);
+
+                this.out = new Outputs(this, {
+                    rampUp: true,
+                });
+            }
+        };
+        expect(parent.out!.treeValues.rampUp).toBe(true);
+    });
+    test('inherits outputs 2', () => {
+        const fire = jest.spyOn(Events, 'fire');
+        const parent = new class extends Mode<{rampUp: boolean}> {
             constructor() {
                 super();
+
+                this.out = new Outputs(this, {
+                    rampUp: false,
+                });
+            }
+        };
+        const c1 = new class extends Mode<{rampUp: boolean}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    rampUp: true,
+                });
             }
         };
         parent.addChild(c1);
-        expect(outputs.rampUp).toBe(true);
+        expect(parent.out!.treeValues['rampUp']).toBe(true);
     });
 
-    test('compute', () => {
-        const root: Tree = {
-            children: [
-                {
-                    children: [],
-                    out: {
-                        rampUp: () => true,
-                    } as any,
-                    priority: 1,
-                },
-                {
-                    children: [],
-                    out: {
-                        rampUp: () => false,
-                    } as any,
-                },
-            ],
+    test('compute 1', () => {
+        const root = new class extends Mode<{num: number}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                });
+            }
         };
-        expect(computeOutputValue(root, 'rampUp')).toBe(true);
+        const c1 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 1);
+
+                this.out = new Outputs(this, {
+                    num: 1,
+                });
+            }
+        };
+        const c2 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root);
+
+                this.out = new Outputs(this, {
+                    num: 2,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(1);
+        expect(root.out!.computeTreeValue('num')).toBe(1);
+    });
+    test('compute 2', () => {
+        const root = new class extends Mode<{num: number}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                });
+            }
+        };
+        const c1 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 1);
+
+                this.out = new Outputs(this, {
+                    num: 1,
+                });
+            }
+        };
+        const c2 = new class extends Mode<{num: number}> {
+            constructor() {
+                super(root, 2);
+
+                this.out = new Outputs(this, {
+                    num: 2,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(2);
+        expect(root.out!.computeTreeValue('num')).toBe(2);
     });
 });

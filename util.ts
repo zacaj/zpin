@@ -79,3 +79,10 @@ if (!Array.prototype.flat) {
     },
   });
 }
+
+export function clone<T>(obj: T): T {
+    return Object.create(
+      Object.getPrototypeOf(obj), 
+      Object.getOwnPropertyDescriptors(obj),
+    );
+  }

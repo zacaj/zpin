@@ -2,49 +2,49 @@ import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
 import { matrix } from './switch-matrix';
 import { Time, time } from './util';
-import { outputs, Outputs, OutputTypes, onOutput, OutputEvent, setRoot } from './outputs';
 import { Events } from './events';
 import { Mode } from './mode';
+import { Outputs, TreeOutputEvent } from './outputs';
 
-abstract class Output<T> {
+abstract class MachineOutput<T> {
     inSync = false;
 
     constructor(
-        public name: keyof OutputTypes,
+        public name: keyof MachineOutputs,
     ) {
-        Events.listen<OutputEvent<any>>(ev => this.trySet(ev.value), onOutput(null as any, name));
+        Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value), machine.out!.onOutputChange(name));
     }
 
     async trySet(val: T) {
         try {
             const success = await this.set(val);
-            if (!success) Output.retryQueue.push([this, val]);
+            if (!success) MachineOutput.retryQueue.push([this, val]);
             this.inSync = success;
         } catch (err) {
             console.error('error setting output %s to ', this.name, val, err);
-            Output.retryQueue.push([this, val]);
+            MachineOutput.retryQueue.push([this, val]);
             this.inSync = false;
         }
     }
 
-    static retryQueue: [Output<any>, any][] = [];
+    static retryQueue: [MachineOutput<any>, any][] = [];
 
     abstract async init(): Promise<void>;
 
     abstract async set(val: T): Promise<boolean>;
 }
 setInterval(() => {
-    const queue = Output.retryQueue;
-    Output.retryQueue = [];
+    const queue = MachineOutput.retryQueue;
+    MachineOutput.retryQueue = [];
     for (const [out, val] of queue) {
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         out.trySet(val);
     }
 }, 5);
 
-abstract class Solenoid extends Output<boolean> {
+abstract class Solenoid extends MachineOutput<boolean> {
     constructor(
-        name: keyof OutputTypes,
+        name: keyof MachineOutputs,
         public num: number,
         public board: Solenoid16,
     ) {
@@ -56,7 +56,7 @@ class MomentarySolenoid extends Solenoid {
     lastFired?: Time;
 
     constructor(
-        name: keyof OutputTypes,
+        name: keyof MachineOutputs,
         num: number,
         board: Solenoid16,
         public ms = 25,
@@ -90,7 +90,7 @@ class IncreaseSolenoid extends MomentarySolenoid {
     i = 0;
 
     constructor(
-        name: keyof OutputTypes,
+        name: keyof MachineOutputs,
         num: number,
         board: Solenoid16,
         public initial: number,
@@ -132,7 +132,19 @@ class OnOffSolenoid extends Solenoid {
     }
 }
 
-class Machine extends Mode {
+export type MachineOutputs = {
+    rampUp: boolean;
+    upper3: boolean;
+    temp: number;
+};
+
+class Machine extends Mode<MachineOutputs> {
+    outs = new Outputs<MachineOutputs>(this, {
+        rampUp: false,
+        upper3: false,
+        temp: () => 0,
+    });
+
     solenoidBank1 = new Solenoid16(0);
     cRamp = new OnOffSolenoid('rampUp', 0, this.solenoidBank1);
     cUpper3 = new IncreaseSolenoid('upper3', 7, this.solenoidBank1, 30, 100);
@@ -146,5 +158,5 @@ class Machine extends Mode {
 }
 
 export const machine = new Machine();
-setRoot(machine);
 
+export type MachineMode = Mode<MachineOutputs>;

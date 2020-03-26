@@ -1,23 +1,26 @@
 import { SwitchEvent, onSwitchClose } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
-import { machine } from './machine';
-import { makeOutputs } from './outputs';
+import { machine, MachineOutputs } from './machine';
 import { time } from './util';
 import { Mode } from './mode';
+import { Outputs } from './outputs';
 
-
-export class Game extends Mode {
+// eslint-disable-next-line no-undef
+export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
     rampUp = true;
-    lowerRampLit = false;
-
-    out = makeOutputs({
-        upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250),
-    }, this);
+    lowerRampLit = false;    
 
     constructor() {
         super();
         State.declare<Game>(this, ['rampUp', 'lowerRampLit']);
+
+        this.out = new Outputs(this, {
+            upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250),
+            rampUp: () => this.rampUp,
+        });
+
+
         Events.listen({onSwitch: this}, onType(SwitchEvent));
 
         Events.listen(e => {
@@ -35,6 +38,14 @@ export class Game extends Mode {
     }
 }
 
-export class LockLit extends Mode {
+export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
     rampUp = false;
+
+    constructor() {
+        super();
+
+        this.out = new Outputs(this, {
+            rampUp: () => this.rampUp,
+        });
+    }
 }

@@ -1,16 +1,17 @@
 import { Events } from './events';
 import { State, Tree } from './state';
-import { Mode } from './mode';
-import { makeOutputs, outputs, Outputs } from './outputs';
 
 describe('state', () => {
     test('fires events', () => {
         const fire = jest.spyOn(Events, 'fire').mockReturnValue();
-        const obj = {
-            data: 1,
-            children: [],
+        const obj = new class extends Tree {
+            data = 1;
+
+            constructor() {
+                super();
+                State.declare<any>(this, ['data']);
+            }
         };
-        State.declare(obj, ['data']);
         expect(obj.data).toBe(1);
         obj.data = 2;
         expect(obj.data).toBe(2);

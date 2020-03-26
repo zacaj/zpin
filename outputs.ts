@@ -1,163 +1,156 @@
 import { ReadWrite, JSONObject } from './util';
 import { Event, Events, onType, EventTypePredicate } from './events';
-import { StateEvent, Tree } from './state';
-import { TreeEvent } from './mode';
+import { StateEvent, Tree, TreeEvent } from './state';
 
-export type OutputTypes = {
-    rampUp: boolean;
-    upper3: boolean;
-    num: number;
-};
-type OutputFuncs = {
-    [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;
-};
-export type Outputs = OutputFuncs & {
-    currentValues: Partial<OutputTypes>;
-    owner: Tree;
+type OutputFuncs<OutputTypes extends {}> = {
+    [key in keyof OutputTypes]: (prev?: OutputTypes[key]) => OutputTypes[key];
 };
 
-export const outputs: Required<ReadWrite<OutputTypes>> = {
-    rampUp: false,
-    upper3: false,
-    num: 0,
+type OutputFuncsOrValues<OutputTypes extends {}> = {
+    [key in keyof OutputTypes]: ((prev?: OutputTypes[key]) => OutputTypes[key])|OutputTypes[key];
 };
-export let root: Tree;
-export function setRoot(node: Tree) {
-    node.out = {
-        currentValues: outputs,
-        owner: node,
-    };
-    root = node;
-}
+// type Outputs<OutputTypes extends {}> = OutputFuncs<OutputTypes> & {
+//     currentValues: Partial<OutputTypes>;
+//     owner: Tree;
+// };
 
-const defaults = Object.assign({}, outputs);
+// obj: the state object whose key was changed
+export let stateAccessRecorder: (<T extends {}>(obj: T, key: (keyof T)&string) => void) | undefined; 
 
-export let stateAccessRecorder: ((obj: JSONObject, key: string) => void) | undefined; 
+export class Outputs<Outs extends {}> {
+    ownValues!: Outs;
+    treeValues!: Outs;
+    defaults!: Outs;
+    funcs!: OutputFuncs<Outs>;
 
-const unrecorded = new Map<Outputs, Set<keyof Outputs>>();
+    // state -> stateKey -> our key that listens to it
+    listeners = new Map<{}, Map<string, Set<keyof Outs>>>();
 
-export function makeOutputs(
-    outs: { [P in keyof OutputTypes]?: (prev: OutputTypes[P]|undefined) => OutputTypes[P]|undefined},
-    owner: Tree,
-): Outputs {
-    const outputs: Outputs = {
-        currentValues: {} as any,
-        owner,
-    };
-    // if (!unrecorded.has(outputs)) unrecorded.set(outputs, new Set());
-
-    for (const key of Object.keys(outs) as (keyof OutputTypes)[]) {
-        outputs[key] = ((prev: any) => {
-            { // begin recording
-                stateAccessRecorder = (o, k) => {
-                    if (!listeners.has(o))
-                        listeners.set(o, new Map());
-                    if (!listeners.get(o)!.has(k))
-                        listeners.get(o)!.set(k, new Map());
-                    if (!listeners.get(o)!.get(k)!.has(outputs))
-                        listeners.get(o)!.get(k)!.set(outputs, new Set());
-                    listeners.get(o)!.get(k)!.get(outputs)!.add(key);
-                };
-            }
-            const ret = (outs)[key]!(prev);
-            { // end recording
-                stateAccessRecorder = undefined;
-                // unrecorded.get(outputs)!.delete(key);
-            }
-            return ret;
-        }) as any;
-
-        outputs.currentValues[key] = outputs[key]!(undefined) as any;
-
-        Events.fire(new OutputEvent(outputs, key, outputs.currentValues[key]));
-
-        // unrecorded.get(outputs)!.add(key as any);
-    }
-    return outputs;
-}
-
-const listeners = new Map<{}, Map<string, Map<Outputs, Set<keyof OutputTypes>>>>();
-
-Events.listen<StateEvent<any, any>>(ev => {
-    // if not recorded, then always check it
-    // for (const [out, keys] of unrecorded.entries())
-    //     for (const key of keys) 
-    //         outputChanged(out, key);
-
-    const l1 = listeners.get(ev.on);
-    if (!l1) return;
-    const l2 = l1.get(ev.prop);
-    if (!l2) return;
-
-    for (const [o, keys] of l2) {
-        for (const key of keys) {
-            outputChanged(o, key);
-        }
-    }
-}, e => e instanceof StateEvent);
-
-Events.listen<TreeEvent>(ev => {
-    if (ev.after.parent && ev.after.out)
-        for (const key of Object.keys(outputs)) {
-            if (!(key in ev.after.out)) continue;
-            recomputeBaseOutputValue(key as any);
-        }
-    if (ev.before.parent && ev.before.out)
-        for (const key of Object.keys(outputs)) {
-            if (!(key in ev.before.out)) continue;
-            recomputeBaseOutputValue(key as any);
-        }
-}, e => e instanceof TreeEvent);
-
-function outputChanged<Prop extends keyof OutputTypes>(out: Outputs, key: Prop) {
-    if (!(key in out) || !out[key]) debugger;
-    const oldValue = out.currentValues[key];
-    const newValue = out[key]!() as OutputTypes[Prop];
-    if (oldValue === newValue) return;
-    out.currentValues[key] = newValue;
-    Events.fire(new OutputEvent(out, key, newValue));
-}
-
-export function computeOutputValue<Prop extends keyof OutputTypes>(node: Tree, key: Prop, prev?: OutputTypes[Prop]): OutputTypes[Prop]|undefined {
-    const func = node.out? node.out[key] : undefined;
-    let value = func? func(prev as any) as OutputTypes[Prop] : undefined;
-    const children = node.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
-    for (const child of children) {
-        value = computeOutputValue(child, key, value);
-    }
-    return value;
-}
-
-export function recomputeBaseOutputValue(key: keyof OutputTypes) {
-    const oldValue = outputs[key];
-    (outputs[key] as any) = computeOutputValue(root, key, defaults[key])!;
-    if (oldValue === outputs[key]) return;
-    Events.fire(new BaseOutputEvent(key, outputs[key], oldValue));
-}
-Events.listen((ev: OutputEvent) => recomputeBaseOutputValue(ev.prop), (e: Event) => e instanceof OutputEvent && e.on.currentValues !== outputs);
-
-export class OutputEvent<Prop extends keyof OutputTypes = keyof OutputTypes> extends Event {
     constructor(
-        public on: Outputs, 
+        public readonly tree: Tree<Outs>,
+        origFuncs: OutputFuncsOrValues<Outs>,
+    ) {
+        this.defaults = {} as any;
+        this.funcs = {} as any;
+        this.ownValues = {} as any;
+        this.treeValues = {} as any;
+        tree.out = this;
+
+        Events.listen<StateEvent<any, any>>(ev => {
+            // if not recorded, then always check it
+            // for (const [out, keys] of unrecorded.entries())
+            //     for (const key of keys) 
+            //         outputChanged(out, key);
+
+            const l1 = this.listeners.get(ev.on); // keys on state we listen to
+            if (!l1) return;
+            const outs = l1.get(ev.prop); // which of our funcs listen
+            if (!outs) return;
+
+            for (const key of outs) {
+                this.ownValueMayHaveChanged(key);
+            }
+        }, e => e instanceof StateEvent);
+
+        // catch child tree structure changes
+        Events.listen<TreeEvent<Outs>>(ev => {
+            if (ev.after.parent && ev.after.out)
+                for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
+                    if (!(key in ev.after.out.funcs)) continue;
+                    this.updateTreeValue(key);
+                }
+            if (ev.before.parent && ev.before.out)
+                for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
+                    if (!(key in ev.before.out.funcs)) continue;
+                    this.updateTreeValue(key);
+                }
+        }, e => e instanceof TreeEvent && (this.tree.hasChild(e.before) || this.tree.hasChild(e.after)));
+
+        // catch child tree value changes
+        Events.listen((ev: OwnOutputEvent<Outs>) => this.updateTreeValue(ev.prop),
+            (e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree));
+
+        const listeners = this.listeners;
+        for (const key of Object.keys(origFuncs) as (keyof Outs)[]) {
+            this.funcs[key] = ((prev: any) => {
+                { // begin recording
+                    stateAccessRecorder = (state, k) => {
+                        if (!listeners.has(state))
+                            listeners.set(state, new Map());
+                        if (!listeners.get(state)!.has(k))
+                            listeners.get(state)!.set(k, new Set());
+                        listeners.get(state)!.get(k)!.add(key);
+                    };
+                }
+                const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
+                const ret = func(prev);
+                { // end recording
+                    stateAccessRecorder = undefined;
+                    // unrecorded.get(outputs)!.delete(key);
+                }
+                return ret;
+            }) as any;
+    
+            // do initial record
+            this.defaults[key] = this.ownValues[key] = this.funcs[key]!(undefined);
+            Events.fire(new OwnOutputEvent(this, key, this.ownValues[key], undefined));
+    
+            // unrecorded.get(outputs)!.add(key as any);
+        }
+    }
+
+    ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
+        if (!(key in this.funcs) || !this.funcs[key]) debugger;
+        const oldValue = this.ownValues[key];
+        const newValue = this.funcs[key]!();
+        if (oldValue === newValue) return;
+        this.ownValues[key] = newValue;
+        Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
+    }
+
+    computeTreeValue<Prop extends keyof Outs>(key: Prop, prev?: Outs[Prop]): Outs[Prop] {
+        let value = this.funcs[key](prev);
+        const children = this.tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
+        for (const child of children) {
+            if (!child.out || !child.out.funcs[key]) continue;
+            value = child.out.computeTreeValue(key, value)!;
+        }
+        return value;
+    }
+
+    updateTreeValue(key: keyof Outs) {
+        const oldValue = this.treeValues[key];
+        this.treeValues[key] = this.computeTreeValue(key, this.defaults[key])!;
+        if (oldValue === this.treeValues[key]) return;
+        Events.fire(new TreeOutputEvent(this.tree, key, this.ownValues[key], oldValue));
+    }
+    
+
+    onOwnOutput<Prop extends keyof Outs>(prop: Prop, to?: any): EventTypePredicate<OwnOutputEvent<Prop>> {
+        return ((e: Event) => e instanceof OwnOutputEvent && e.on === this && e.prop === prop && (to === undefined || e.value === to)) as any;
+    }
+    onOutputChange<Prop extends keyof Outs>(prop?: Prop, to?: any): EventTypePredicate<OwnOutputEvent<Prop>> {
+        return ((e: Event) => e instanceof TreeOutputEvent && e.tree === this.tree && (!prop || e.prop === prop) && (to === undefined || e.value === to)) as any;
+    }
+}
+
+export class OwnOutputEvent<OutputTypes extends {}, Prop extends keyof OutputTypes = keyof OutputTypes> extends Event {
+    constructor(
+        public on: Outputs<OutputTypes>, 
         public prop: Prop,
         public value?: OutputTypes[Prop],
+        public oldValue?: OutputTypes[Prop],
     ) {
         super();
     }
 }
-export class BaseOutputEvent<Prop extends keyof OutputTypes = keyof OutputTypes> extends Event {
+export class TreeOutputEvent<OutputTypes extends {}, Prop extends keyof OutputTypes = keyof OutputTypes> extends Event {
     constructor(
+        public tree: Tree<OutputTypes>, 
         public prop: Prop,
         public value: OutputTypes[Prop],
         public oldValue: OutputTypes[Prop],
     ) {
         super();
     }
-}
-
-export function onSubOutput<Prop extends keyof OutputTypes>(on: Tree, prop: Prop, to?: any): EventTypePredicate<OutputEvent<Prop>> {
-    return ((e: Event) => e instanceof OutputEvent && e.on === on.out && e.prop === prop && (to === undefined || e.value === to)) as any;
-}
-export function onOutput<Prop extends keyof OutputTypes>(prop: Prop, to?: any): EventTypePredicate<OutputEvent<Prop>> {
-    return ((e: Event) => e instanceof BaseOutputEvent && e.prop === prop && (to === undefined || e.value === to)) as any;
 }

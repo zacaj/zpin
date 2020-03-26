@@ -1,6 +1,6 @@
 import { MPU } from './mpu';
 import assert from 'assert';
-import { time, Time, split, nums, JSONValue } from './util';
+import { time, Time, split, nums, JSONValue, clone } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate } from './events';
 export class Switch {
     _state = false;
@@ -36,7 +36,7 @@ export class SwitchEvent extends Event {
     ) {
         super(when);
 
-        this.then = Object.assign({}, sw);
+        this.then = clone(sw);
     }
 }
 
