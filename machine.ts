@@ -1,10 +1,11 @@
 import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
 import { matrix, Switch } from './switch-matrix';
-import { Time, time } from './util';
 import { Events } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent } from './outputs';
+import { safeSetInterval, Time, time, Timer } from './timer';
+import { assert } from './util';
 
 abstract class MachineOutput<T> {
     actual!: T;
@@ -22,29 +23,23 @@ abstract class MachineOutput<T> {
         try {
             this.val = val;
             if (this.actual === val) return;
-            const success = await this.set(val);
-            if (!success) MachineOutput.retryQueue.push([this, val]);
-            this.actual = val;
+            let success = await this.set(val);
+            if (!success) success = 5;
+            else if (success === true)
+                this.actual = val;
+            else
+                Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
+
         } catch (err) {
             console.error('error setting output %s to ', this.name, val, err);
-            MachineOutput.retryQueue.push([this, val]);
+            Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
         }
     }
 
-    static retryQueue: [MachineOutput<any>, any][] = [];
-
     abstract async init(): Promise<void>;
 
-    abstract async set(val: T): Promise<boolean>;
+    abstract async set(val: T): Promise<boolean|number>;
 }
-setInterval(() => {
-    const queue = MachineOutput.retryQueue;
-    MachineOutput.retryQueue = [];
-    for (const [out, val] of queue) {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        out.trySet(val);
-    }
-}, 5);
 
 abstract class Solenoid extends MachineOutput<boolean> {
     constructor(
@@ -56,32 +51,32 @@ abstract class Solenoid extends MachineOutput<boolean> {
     }
 }
 
-class MomentarySolenoid extends Solenoid {
+export class MomentarySolenoid extends Solenoid {
     lastFired?: Time;
 
     constructor(
         name: keyof MachineOutputs,
         num: number,
         board: Solenoid16,
-        public ms = 25,
-        public wait = 500,
+        public ms = 25, // fire time
+        public wait = 500, // min time between fire attempts
     ) {
         super(name, num, board);
     }
 
     async init() {
-        await this.board.initMomentary(this.num, 25);
+        await this.board.initMomentary(this.num, this.ms);
     }
 
-    async fire(ms?: number): Promise<boolean> {
-        if (this.lastFired && time() < this.lastFired + this.wait) return false;
+    async fire(ms?: number): Promise<boolean|number> {
+        if (this.lastFired && time() < this.lastFired + this.wait) return this.lastFired + this.wait - time() + 3;
 
         this.lastFired = time();
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
             await this.board.fireSolenoid(this.num);
-        return true;
+        return (ms ?? this.ms) + this.wait + 3;
     }
 
     async set(on: boolean) {
@@ -90,7 +85,7 @@ class MomentarySolenoid extends Solenoid {
     }
 }
 
-class IncreaseSolenoid extends MomentarySolenoid {
+export class IncreaseSolenoid extends MomentarySolenoid {
     i = 0;
 
     constructor(
@@ -103,22 +98,24 @@ class IncreaseSolenoid extends MomentarySolenoid {
         public resetPeriod = 2000,
     ) {
         super(name, num, board);
+        assert(steps >= 2);
     }
 
-    async fire(): Promise<boolean> {
+    async fire(): Promise<boolean|number> {
+        let fired: boolean|number = false;
         if (!this.lastFired)
-            return super.fire();
+            fired = await super.fire(this.initial);
         else {
             if (time() > (this.lastFired + this.resetPeriod)) {
                 this.i = 0;
-                return super.fire();
+                fired = await super.fire(this.initial);
             } else {
-                const fired = super.fire((this.max - this.initial)/(this.steps-1) * this.i + this.initial);
-                if (fired && this.i < this.steps - 1)
-                    this.i++;
-                return fired;
+                fired = await super.fire((this.max - this.initial)/(this.steps-1) * this.i + this.initial);
             }
-        }
+        } 
+        if (fired && this.i < this.steps - 1)
+            this.i++;
+        return fired;
     }
 }
 
@@ -168,7 +165,6 @@ class Machine extends Mode<MachineOutputs> {
 export let machine = new Machine();
 
 export function resetMachine() {
-    MachineOutput.retryQueue = [];
     machine = new Machine();
 }
 

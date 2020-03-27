@@ -6,6 +6,7 @@ import { SwitchEvent, matrix } from './switch-matrix';
 import { Game } from './game';
 import { StateEvent } from './state';
 import * as fs from 'fs';
+import { safeSetTimeout } from './timer';
 
 const argv = require('yargs').argv;
 
@@ -43,7 +44,7 @@ async function parseCommand(input: string) {
         //     result = Promise.resolve('fired');
         //     break;
         case 'wait':
-            result = new Promise(r => setTimeout(r, num(cmd[1])));
+            result = new Promise(r => safeSetTimeout(r, num(cmd[1])));
             break;
         case 'source':
             result = source(cmd[1]);

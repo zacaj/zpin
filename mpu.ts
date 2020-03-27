@@ -1,5 +1,6 @@
 import {Socket} from 'net';
-import { Time, time, num, split } from './util';
+import { num, split } from './util';
+import { Time, time } from './timer';
 
 const apiVersion = '0.0.1';
 const socket = new Socket();

@@ -1,4 +1,5 @@
-import { time, OrArray, assert } from './util';
+import { OrArray, assert } from './util';
+import { time } from './timer';
 
 export abstract class Event {
     constructor(

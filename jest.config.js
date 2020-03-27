@@ -12,7 +12,7 @@ module.exports = {
     '**/*.spec.ts',
   ],
   automock: false,
-  bail: 1,
+  // bail: 1,
   clearMocks: true,
   collectCoverage: true,
   collectCoverageFrom: [

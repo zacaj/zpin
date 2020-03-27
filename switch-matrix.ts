@@ -1,8 +1,9 @@
 import { MPU } from './mpu';
 import assert from 'assert';
-import { time, Time, split, nums, JSONValue, clone } from './util';
+import { split, nums, JSONValue, clone } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate } from './events';
 import { State } from './state';
+import { Time, time, safeSetInterval } from './timer';
 export class Switch {
     _state = false;
     get state() {
@@ -74,7 +75,7 @@ export function resetSwitchMatrix() {
             matrix[j][i] = undefined;
 }
 
-setInterval(async () => {
+safeSetInterval(async () => {
     if (!MPU.isConnected) return;
 
     const start = time();

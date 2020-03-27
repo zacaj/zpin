@@ -1,31 +1,12 @@
-export function time() {
-    return Utils.time;
-}
+
 
 export const Utils = {
-    
     // obj: the state object whose key was changed
-    stateAccessRecorder: undefined as (<T extends {}>(obj: T, key: (keyof T)&string) => void)|undefined,
-
-    mockTime: undefined as number|undefined,
-    get time(): Time {
-        if (Utils.stateAccessRecorder) {
-            Utils.stateAccessRecorder(Utils, 'time');
-        }
-
-        if (Utils.mockTime) return Utils.mockTime as Time;
-        
-        return new Date().getTime() as Time;
-    },
+    stateAccessRecorder: undefined as undefined|(<T extends {}>(obj: T, key: (keyof T)&string) => void),
 };
-
-export async function wait(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 // makes a special type which acts just like T but isn't assignable to T
 export type Opaque<T, Name> = T & { __opaque__: Name };
-export type Time = Opaque<number, 'Time'>;
 
 export function split(input: string, ...on: string[]): string[] {
     let at = 0;

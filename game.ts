@@ -2,9 +2,9 @@ import { SwitchEvent, onSwitchClose } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
 import { machine, MachineOutputs } from './machine';
-import { time } from './util';
 import { Mode } from './mode';
 import { Outputs } from './outputs';
+import { time } from './timer';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
