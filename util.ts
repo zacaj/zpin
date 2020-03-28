@@ -1,3 +1,4 @@
+import { time } from "./timer";
 
 
 export const Utils = {

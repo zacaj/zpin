@@ -52,12 +52,12 @@ export class Timer {
 
     static curTime = time();
 
-    static fireTimers(before = time()) {
+    static async fireTimers(before = time()) {
         for (const entry of Timer.queue.slice()) {
             if (entry.time <= before) {
                 Timer.cancel(entry);
                 try {
-                    entry.func(entry);
+                    await entry.func(entry);
                 } catch (err) {
                     console.error('error running entry %o: ', entry, err);
                 }
@@ -78,10 +78,11 @@ setInterval(() => {
     const tim = time();
     Events.fire(new StateEvent(Timer, 'time', tim, Timer.curTime));
     Timer.curTime = tim;
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Timer.fireTimers(tim);
 }, 5);
 
-export type TimerCallback = (entry: TimerQueueEntry) => void;
+export type TimerCallback = (entry: TimerQueueEntry) => Promise<any>|any;
 export type TimerQueueEntry = {
     time: Time;
     func: TimerCallback;
@@ -104,15 +105,15 @@ export function safeSetTimeout(func: () => any, ms: number) {
 export function time() {
     return Timer.time;
 }
-export function setTime(ms?: number) {
+export async function setTime(ms?: number) {
     const lastTime = Timer.mockTime;
     Timer.mockTime = ms;
-    Timer.fireTimers(time());
+    await Timer.fireTimers(time());
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));
 }
-export function passTime(ms = 1) {
+export async function passTime(ms = 1) {
     assert(!!Timer.mockTime);
-    setTime(Timer.mockTime! + ms);
+    await setTime(Timer.mockTime! + ms);
 }
 
 export async function wait(ms: number) {

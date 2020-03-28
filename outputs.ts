@@ -1,6 +1,7 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, Tree, TreeEvent } from './state';
 import { Utils } from './util';
+import { time } from './timer';
 
 type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]: (prev?: OutputTypes[key]) => OutputTypes[key];
@@ -150,4 +151,31 @@ export class TreeOutputEvent<OutputTypes extends {}, Prop extends keyof OutputTy
     ) {
         super();
     }
+}
+
+
+
+export function toggle(opts: {
+    on: () => boolean;
+    off: () => boolean;
+    maxOn?: number;
+    initial?: boolean;
+}): () => boolean {
+    let state =  opts.initial ?? false;
+    let changed = time();
+    return () => {
+        const oldState = state;
+        if (!state) {
+            if (opts.on())
+                state = true;
+        } else {
+            if (opts.off())
+                state = false;
+            else if (opts.maxOn && time() - changed > opts.maxOn)
+                state = false;
+        }
+        if (oldState !== state)
+            changed = time();
+        return state;
+    };
 }

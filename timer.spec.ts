@@ -4,7 +4,7 @@ import { Outputs } from './outputs';
 
 describe('Timer', () => {
     test('time should trigger outputs', async () => {
-        setTime();
+        await setTime();
         const obj = new class extends Tree<{time: number}> {
 
             constructor() {

@@ -27,10 +27,18 @@ export class Switch {
 
     changeState(val: boolean, when = time()) {
         if (this._state === val) return;
-        this._state = val;
         this.lastChange = when;
+        this._state = val;
         console.info('switch \'%s\' state -> %s', this.name, this._state);
         Events.fire(new SwitchEvent(this, when));
+    }
+
+    onFor(ms: number): boolean {
+        return this.state && time()-this.lastChange >= ms;
+    }
+
+    offFor(ms: number): boolean {
+        return !this.state && time()-this.lastChange >= ms;
     }
 }
 
@@ -58,13 +66,13 @@ export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
     return [onSwitch(sw), onClose()];
 }
 
-export const SWITCH_MATRIX_WIDTH = 8;
+export const SWITCH_MATRIX_WIDTH = 16;
 export const SWITCH_MATRIX_HEIGHT = 8;
 
 export const matrix: (Switch|undefined)[][] = []; // row,col
-for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++) {
+for (let i=0; i<SWITCH_MATRIX_WIDTH; i++) {
     const row: (Switch|undefined)[] = [];
-    for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
+    for (let j=0; j<SWITCH_MATRIX_HEIGHT; j++)
         row.push(undefined);
     matrix.push(row);
 }
@@ -136,8 +144,7 @@ export async function getSwitchState(): Promise<boolean[][]> {
     }
 
     //assert(state.length === SWITCH_MATRIX_HEIGHT);
-    if (state.length !== SWITCH_MATRIX_HEIGHT)
-        console.error('got non-square matrix');
+    assert(state.length === SWITCH_MATRIX_HEIGHT);
 
     return state;
 }

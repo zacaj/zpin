@@ -40,8 +40,8 @@ export class Solenoid16 {
         return this.send(`is m ${num} ${onTime}`);
     }
 
-    initOnOff(num: number, maxOnTime = 0) {
-        return this.send(`is oo ${num} ${maxOnTime}`);
+    initOnOff(num: number, maxOnTime = 0, pulseOffTime = 0) {
+        return this.send(`is oo ${num} ${maxOnTime} ${pulseOffTime}`);
     }
 
     initInput(num: number, settleTime = 3) {

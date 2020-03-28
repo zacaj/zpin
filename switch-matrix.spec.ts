@@ -5,7 +5,7 @@ import { Outputs } from './outputs';
 
 describe('switch-matrix', () => {
     test('switch triggers output change', () => {
-        const sw = new Switch(0, 0);
+        const sw = new Switch(0, 15);
         const obj = new class extends Mode<{rampUp: boolean}> {
             constructor() {
                 super();

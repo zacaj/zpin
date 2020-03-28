@@ -3,7 +3,7 @@ import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
 import { machine, MachineOutputs } from './machine';
 import { Mode } from './mode';
-import { Outputs } from './outputs';
+import { Outputs, toggle } from './outputs';
 import { time } from './timer';
 
 // eslint-disable-next-line no-undef
@@ -16,8 +16,10 @@ export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
         State.declare<Game>(this, ['rampUp', 'lowerRampLit']);
 
         this.out = new Outputs(this, {
-            upper3: () => machine.sUpper3.every(sw => sw.state && time() > sw.lastChange + 250)
-                        || (machine.cUpper3.val && !machine.sUpper3.every(sw => !sw.state && time() > sw.lastChange + 250)),
+            upper3: toggle({
+                on: () => machine.sUpper3.every(sw => sw.onFor(250)),
+                off: () => machine.sUpper3.every(sw => sw.offFor(250)),
+            }),
             rampUp: () => this.rampUp,
         });
 
@@ -25,8 +27,8 @@ export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
             if (this.lowerRampLit)
                 this.rampUp = false;
         }, onSwitchClose(machine.sRightInlane));
-        Events.listen(e => this.lowerRampLit = !this.lowerRampLit, onSwitchClose(machine.sShooterLane2));
-        Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPopBumper));
+        Events.listen(e => this.lowerRampLit = !this.lowerRampLit, onSwitchClose(machine.sShooterLower));
+        Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPop));
     }
 
     static start(): Game {
