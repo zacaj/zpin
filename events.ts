@@ -62,3 +62,6 @@ export function onType<T extends Event>(type: any): EventTypePredicate<T> {
     return e => e instanceof type;
 }
 
+export function onAny<T extends Event>(...preds: EventPredicate[]): EventPredicate {
+    return e => preds.some(p => p(e));
+}

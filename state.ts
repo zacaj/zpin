@@ -20,7 +20,7 @@ export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T,
 }
 
 export abstract class Tree<Outs extends {} = {}> {
-    children: Tree<Partial<Outs>>[] = [];
+    children: Tree<Outs>[] = [];
     out?: Outputs<Outs>;
     parent?: Tree<Outs>;
 
@@ -35,7 +35,7 @@ export abstract class Tree<Outs extends {} = {}> {
             parent.addChild(this);
     }
 
-    addChild(node: Tree<Partial<Outs>>) {
+    addChild(node: Tree<Outs>) {
         if (node.parent)
             node.parent.removeChild(node);
         const before = clone(node);
@@ -43,7 +43,7 @@ export abstract class Tree<Outs extends {} = {}> {
         this.children.push(node);
         Events.fire(new TreeEvent(before, node));
     }
-    removeChild(node: Tree<Partial<Outs>>) {
+    removeChild(node: Tree<Outs>) {
         if (!this.children.includes(node)) debugger;
         const before = clone(node);
         this.children.remove(node);
@@ -51,7 +51,7 @@ export abstract class Tree<Outs extends {} = {}> {
         Events.fire(new TreeEvent(before, node));
     }
 
-    getRoot<T extends Outs>(): Tree<Outs> {
+    getRoot(): Tree<Outs> {
         if (this.parent)
             return this.parent.getRoot();
         else
@@ -71,20 +71,20 @@ export abstract class Tree<Outs extends {} = {}> {
         return [this, ...this.getChildren()];
     }
 
-    getTree<T extends Outs>() {
+    getTree() {
         return this.getRoot().getAndChildren();
     }
 
-    isInTree(node: Tree<any>): boolean {
+    isInTree(node: Tree<Outs>): boolean {
         // return this.getTree().includes(node);
         return this.getRoot() === node.getRoot();
     }
 
-    hasChild(node: Tree<any>): boolean {
+    hasChild(node: Tree<Outs>): boolean {
         return this.getChildren().includes(node);
     }
 
-    isOrHasChild(node: Tree<any>): boolean {
+    isOrHasChild(node: Tree<Outs>): boolean {
         return node === this || this.getChildren().includes(node);
     }
 

@@ -1,4 +1,5 @@
 import { MPU } from './mpu';
+import { Log } from './log';
 
 export class Solenoid16 {
     
@@ -9,6 +10,7 @@ export class Solenoid16 {
     }
 
     init() {
+        Log.info(['mpu', 'solenoid'], 'init board %i as s16', this.board);
         return MPU.sendCommand(`i ${this.board} s16`);
     }
 
@@ -42,10 +44,12 @@ export class Solenoid16 {
     }
 
     initMomentary(num: number, onTime = 50) {
+        Log.info(['mpu', 'solenoid'], 'init momentary %i on board %i', num, this.board);
         return this.send(`is m ${num} ${onTime}`);
     }
 
     initOnOff(num: number, maxOnTime = 0, pulseOffTime = 0) {
+        Log.info(['mpu', 'solenoid'], 'init on-off %i on board %i', num, this.board);
         return this.send(`is oo ${num} ${maxOnTime} ${pulseOffTime}`);
     }
 

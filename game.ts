@@ -1,4 +1,4 @@
-import { SwitchEvent, onSwitchClose } from './switch-matrix';
+import { SwitchEvent, onSwitchClose, onAnySwitchClose } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
 import { machine, MachineOutputs } from './machine';
@@ -6,9 +6,11 @@ import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
 import { time } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete } from './util-modes';
+import { initMachine } from './init';
+import { Log } from './log';
 
 // eslint-disable-next-line no-undef
-export class Game extends Mode/*<Pick<MachineOutputs, 'rampUp'|'troughRelease'>>*/ {
+export class Game extends Mode<MachineOutputs> {
     rampUp = true;
     private constructor() {
         super();
@@ -17,12 +19,13 @@ export class Game extends Mode/*<Pick<MachineOutputs, 'rampUp'|'troughRelease'>>
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             troughRelease: () => machine.sTroughFull.onFor(400),
+            shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && !machine.sShooterMagnet.wasClosedWithin(1500),
         });
 
         Events.listen(e => {
             this.rampUp = false;
-        }, onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000));
-       Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
+        }, onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000));
+       Events.listen(e => this.rampUp = true, onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
        
        this.addChild(new ClearHoles());
        this.addChild(new ResetAnyDropOnComplete());
@@ -48,6 +51,9 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
 }
 
 if (require.main === module) {
-    console.info('starting game...');
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
+initMachine().then(() => {
+    Log.log(['console'], 'starting game...');
     const game = Game.start();
+});
 }

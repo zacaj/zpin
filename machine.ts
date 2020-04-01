@@ -7,6 +7,7 @@ import { Outputs, TreeOutputEvent, OwnOutputEvent } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
 import { assert, getTypeIn } from './util';
 import { DropBank } from './drop-bank';
+import { Log } from './log';
 
 abstract class MachineOutput<T> {
     actual!: T;
@@ -29,7 +30,9 @@ abstract class MachineOutput<T> {
         try {
             this.val = val;
             if (this.actual === val) return;
+            Log.trace(['machine'], 'try set %s to ', this.name, val);
             let success = await this.set(val);
+            Log.trace('machine', '%s set: ', this.name, success);
             if (!success) success = 5;
             else if (success === true) {
                 this.actual = val;
@@ -38,7 +41,8 @@ abstract class MachineOutput<T> {
                 this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
 
         } catch (err) {
-            console.error('error setting output %s to ', this.name, val, err);
+            Log.error(['machine'], 'error setting output %s to ', this.name, val, err);
+            debugger;
             if (!this.timer)
                 this.timer = Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
         }
@@ -56,7 +60,7 @@ abstract class MachineOutput<T> {
     abstract async set(val: T): Promise<boolean|number>;
 }
 
-abstract class Solenoid extends MachineOutput<boolean> {
+export abstract class Solenoid extends MachineOutput<boolean> {
     lastFired?: Time;
 
     constructor(
@@ -71,30 +75,45 @@ abstract class Solenoid extends MachineOutput<boolean> {
 export class MomentarySolenoid extends Solenoid {
     lastFired?: Time;
 
+    static firingUntil?: Time;
+
     constructor(
         name: keyof MachineOutputs,
         num: number,
         board: Solenoid16,
-        public ms = 25, // fire time
+        public readonly ms = 25, // fire time
         public wait = 1000, // min time between fire attempts
     ) {
         super(name, num, board);
     }
 
     async init() {
+        Log.info(['machine', 'solenoid'], 'init %s as momentary, pulse %i', this.name, this.ms);
         await this.board.initMomentary(this.num, this.ms);
     }
 
     async fire(ms?: number): Promise<boolean|number> {
-        if (this.lastFired && time() < this.lastFired + this.wait) return this.lastFired + this.wait - time() + 3;
+        if (this.lastFired && time() < this.lastFired + this.wait) {
+            Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, too soon', this.name);
+            return this.lastFired + this.wait - time() + 3;
+        }
+        if (MomentarySolenoid.firingUntil) {
+            if (time() <= MomentarySolenoid.firingUntil) {
+                Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, global too soon', this.name);
+                return MomentarySolenoid.firingUntil - time() + 1;
+            }
+            MomentarySolenoid.firingUntil = undefined;
+        }
 
         this.lastFired = time();
-        console.info('fire solenoid %s', this.name);
+        MomentarySolenoid.firingUntil = time() + (ms ?? this.ms) as Time;
+        Log.info(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
 
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
             await this.board.fireSolenoid(this.num);
+
         return (ms ?? this.ms) + this.wait + 3;
     }
 
@@ -150,11 +169,12 @@ export class OnOffSolenoid extends Solenoid {
         super(name, num, board);
     }
     async init() {
+        Log.info(['machine', 'solenoid'], 'init %s as on off, max %i %i', this.name, this.maxOnTime, this.pulseOffTime);
         await this.board.initOnOff(this.num, this.maxOnTime, this.pulseOffTime);
     }
 
     async set(on: boolean) {
-        console.info(`turn ${this.name} ` + (on? 'on':'off'));
+        Log.info(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else
@@ -222,7 +242,7 @@ class Machine extends Mode<MachineOutputs> {
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100);
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100);
-    cLeftMagnet = new OnOffSolenoid('centerBank', 9, this.solenoidBank1, 10000);
+    cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 10000);
     cLockPost = new IncreaseSolenoid('lockPost', 10, this.solenoidBank1, 200, 800, 4, 2000);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 4);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);
@@ -233,12 +253,12 @@ class Machine extends Mode<MachineOutputs> {
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100);
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 8, 4);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 5);
-    cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100);
+    cRightBank = new IncreaseSolenoid('rightBank', 14, this.solenoidBank2, 30, 100);
 
     sLeftInlane = new Switch(1, 2, 'left inlane');
     sLeftOutlane = new Switch(1, 1, 'left outlane');
-    sRightInlane = new Switch(0, 4, 'right inlane');
-    sRightOutlane = new Switch(0, 5, 'right outlane');
+    sRightInlane = new Switch(0, 5, 'right inlane');
+    sRightOutlane = new Switch(0, 4, 'right outlane');
     sMiniEntry = new Switch(1, 3, 'mini entry');
     sMiniOut = new Switch(0, 3, 'mini out');
     sMiniMissed = new Switch(1, 4, 'mini missed');
@@ -306,16 +326,60 @@ class Machine extends Mode<MachineOutputs> {
     rightBank = new DropBank(this.cRightBank, [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5]);
 
     async initOutputs() {
-        for (const out of getTypeIn<MachineOutput<any>>(this, MachineOutput)) {
-            await out.init();
+        Log.info(['machine', 'console'], 'initializing outputs...');
+        for (const key of Object.keys(this)) {
+            const obj = (this as any)[key];
+            if (typeof obj === 'object' && obj.init)
+                await obj.init();
         }
     }
+
+    constructor() {
+        super();
+        this.addChild(new EosPulse(this.cRamp, this.sRampDown));
+    }
 }
+
+export type MachineMode = Mode<MachineOutputs>;
+
+
+
+export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.SpyInstance[] {
+    const ret = [];
+    for (const out of getTypeIn<MachineOutput<any>>(machine, MachineOutput)) {
+        if (names.includes(out.name)) {
+            ret.push(jest.spyOn(out, 'set').mockResolvedValue(true));
+        }
+    }
+
+    return ret;
+}
+
+class EosPulse extends Mode<MachineOutputs> {
+    // pulse coil if switch closes
+    constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
+        super(undefined, 999);
+        this.out = new Outputs(this, {
+            rampUp: (up) => {
+                const wrong = (sw.wasClosedWithin(1) !== invert);
+                if (!up) return false;
+                if (wrong) {
+                    Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
+                    return false;
+                }
+                if (sw.state && coil.actual !== coil.val) return false;
+                return true;
+            },
+        });
+    }
+}
+
+
+
 
 export let machine = new Machine();
 
 export function resetMachine() {
     machine = new Machine();
+    MomentarySolenoid.firingUntil = undefined;
 }
-
-export type MachineMode = Mode<MachineOutputs>;

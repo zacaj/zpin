@@ -4,7 +4,7 @@ import { Outputs } from './outputs';
 import { getTypeIn } from './util';
 import { DropBank, DropBankResetter } from './drop-bank';
 
-export class ClearHoles extends Mode<Pick<MachineOutputs, 'upperEject'|'outhole'|'miniEject'|'shooterDiverter'>> {
+export class ClearHoles extends Mode<MachineOutputs> {
 
     constructor() {
         super();
@@ -18,10 +18,10 @@ export class ClearHoles extends Mode<Pick<MachineOutputs, 'upperEject'|'outhole'
     }
 }
 
-export class ResetAnyDropOnComplete extends Mode<Partial<MachineOutputs>> {
+export class ResetAnyDropOnComplete extends Mode<MachineOutputs> {
     constructor() {
         super();
-        for (const bank of getTypeIn<DropBank>(this, DropBank)) {
+        for (const bank of getTypeIn<DropBank>(machine, DropBank)) {
             this.addChild(new DropBankResetter(bank));
         }
     }

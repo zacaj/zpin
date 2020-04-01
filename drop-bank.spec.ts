@@ -50,4 +50,21 @@ describe('drops', () => {
 
         expect(cUpper3Fire).toBeCalledTimes(2);
     });
+    test('resets upper 3 bank even if it was up beforehand', async () => {
+        const cUpper3Fire = jest.spyOn(machine.cUpper3, 'fire');
+        jest.spyOn(machine.solenoidBank2, 'fireSolenoidFor').mockResolvedValue('');
+        await setTime(1);
+        machine.upper3Bank.switches[0].changeState(true);
+        machine.upper3Bank.switches[1].changeState(true);
+        machine.upper3Bank.switches[2].changeState(true);
+        await passTime(2);
+
+        const bank = new DropBankResetter(machine.upper3Bank);
+        machine.addChild(bank);
+        expect(bank.out!.treeValues.upper3).toBe(false);
+        await passTime(255);
+        expect(bank.out!.treeValues.upper3).toBe(true);
+
+        expect(cUpper3Fire).toBeCalledTimes(1);
+    });
 });

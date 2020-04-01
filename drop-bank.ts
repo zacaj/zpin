@@ -29,7 +29,7 @@ export class DropBank {
     }
 }
 
-export class DropBankResetter extends Mode {
+export class DropBankResetter extends Mode<MachineOutputs> {
     constructor(
         public bank: DropBank,
     ) {

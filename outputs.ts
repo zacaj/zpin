@@ -4,11 +4,11 @@ import { Utils } from './util';
 import { time } from './timer';
 
 type OutputFuncs<OutputTypes extends {}> = {
-    [key in keyof OutputTypes]: (prev?: OutputTypes[key]) => OutputTypes[key];
+    [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;
 };
 
 type OutputFuncsOrValues<OutputTypes extends {}> = {
-    [key in keyof OutputTypes]: ((prev?: OutputTypes[key]) => OutputTypes[key])|OutputTypes[key];
+    [key in keyof OutputTypes]?: ((prev?: OutputTypes[key]) => OutputTypes[key]|undefined)|OutputTypes[key];
 };
 // type Outputs<OutputTypes extends {}> = OutputFuncs<OutputTypes> & {
 //     currentValues: Partial<OutputTypes>;
@@ -16,9 +16,9 @@ type OutputFuncsOrValues<OutputTypes extends {}> = {
 // };
 
 export class Outputs<Outs extends {}> {
-    ownValues!: Outs;
+    ownValues!: Partial<Outs>;
     treeValues!: Outs;
-    defaults!: Outs;
+    defaults!: Partial<Outs>;
     funcs!: OutputFuncs<Outs>;
 
     // state -> stateKey -> our key that listens to it
@@ -51,17 +51,11 @@ export class Outputs<Outs extends {}> {
         }, e => e instanceof StateEvent);
 
         // catch child tree structure changes
-        Events.listen<TreeEvent<Outs>>(ev => {
-            if (ev.after.parent && ev.after.out)
-                for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
-                    if (!(key in ev.after.out.funcs)) continue;
-                    this.updateTreeValue(key);
-                }
-            if (ev.before.parent && ev.before.out)
-                for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
-                    if (!(key in ev.before.out.funcs)) continue;
-                    this.updateTreeValue(key);
-                }
+        Events.listen<TreeEvent<any>>(ev => {
+            if (ev.after.parent)
+                this.checkChildChange(ev.after);
+            if (ev.before.parent)
+                this.checkChildChange(ev.before);
         }, e => e instanceof TreeEvent && (this.tree.hasChild(e.before) || this.tree.hasChild(e.after)));
 
         // catch child tree value changes
@@ -97,30 +91,48 @@ export class Outputs<Outs extends {}> {
         }
     }
 
-    ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
+   /* ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
         if (!(key in this.funcs) || !this.funcs[key]) debugger;
         const oldValue = this.ownValues[key];
         const newValue = this.funcs[key]!();
         if (oldValue === newValue) return;
         this.ownValues[key] = newValue;
         Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
+    }*/
+    
+    ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
+        if (!(key in this.funcs) || !this.funcs[key]) debugger;
+        const func = this.funcs[key]! as Function;
+        const oldValue = this.ownValues[key];
+        const newValue = func();
+        if (oldValue === newValue && !func.length) return;
+        this.ownValues[key] = newValue;
+        Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
     }
 
-    computeTreeValue<Prop extends keyof Outs>(key: Prop, prev?: Outs[Prop]): Outs[Prop] {
-        let value = this.funcs[key](prev);
-        const children = this.tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
+    static computeTreeValue<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop, prev?: Outs[Prop]): Outs[Prop]|undefined {
+        let value = tree.out?.funcs[key]? tree.out.funcs[key]!(prev): (tree.out?.defaults[key] ?? prev);
+        const children = tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
         for (const child of children) {
-            if (!child.out || !child.out.funcs[key]) continue;
-            value = child.out.computeTreeValue(key, value)!;
+            value = Outputs.computeTreeValue(child, key, value)!;
         }
         return value;
     }
 
     updateTreeValue(key: keyof Outs) {
         const oldValue = this.treeValues[key];
-        this.treeValues[key] = this.computeTreeValue(key, this.defaults[key])!;
+        this.treeValues[key] = Outputs.computeTreeValue(this.tree, key, this.defaults[key])!;
         if (oldValue === this.treeValues[key]) return;
         Events.fire(new TreeOutputEvent(this.tree, key, this.treeValues[key], oldValue));
+    }
+
+    checkChildChange(child: Tree) {
+        if (child.out)
+            for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
+                if (!(key in child.out.funcs)) continue;
+                this.updateTreeValue(key);
+            }
+        child.children.forEach(c => this.checkChildChange(c));
     }
     
 

@@ -1,6 +1,7 @@
 import { Utils, Opaque, assert } from './util';
 import { Events } from './events';
 import { StateEvent } from './state';
+import { Log } from './log';
 
 export type Time = Opaque<number, 'Time'>;
 
@@ -59,7 +60,7 @@ export class Timer {
                 try {
                     await entry.func(entry);
                 } catch (err) {
-                    console.error('error running entry %o: ', entry, err);
+                    Log.error('console', 'error running entry %o: ', entry, err);
                 }
                 if (entry.repeat) {
                     entry.time = time() + entry.repeat as Time;

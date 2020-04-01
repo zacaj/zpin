@@ -1,8 +1,9 @@
 import { MPU } from './mpu';
 import { split, nums, JSONValue, clone, assert } from './util';
-import { Event, Events, EventPredicate, EventTypePredicate } from './events';
+import { Event, Events, EventPredicate, EventTypePredicate, onAny } from './events';
 import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
+import { Log } from './log';
 export class Switch {
     _state = false;
     get state() {
@@ -42,7 +43,7 @@ export class Switch {
         else
             this.lastOpened = time();
         this._state = val;
-        console.info('switch \'%s\' state -> %s (%i,%i)', this.name, this._state, this.column, this.row);
+        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i)', this.name, this._state, this.column, this.row);
         Events.fire(new SwitchEvent(this, when));
     }
 
@@ -79,8 +80,12 @@ export function onClose(): EventTypePredicate<SwitchEvent> {
     return e => e instanceof SwitchEvent && e.then._state;
 }
 
-export function onSwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
-    return [...sw.map(s => onSwitch(s)), onClose()];
+export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
+    return [onSwitch(sw), onClose()];
+}
+
+export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
+    return [onClose(), onAny(...sw.map(s => onSwitch(s)))];
 }
 
 export const SWITCH_MATRIX_WIDTH = 16;

@@ -2,21 +2,23 @@ import { Mode } from './mode';
 import { MachineOutputs, machine } from './machine';
 import { Outputs } from './outputs';
 import { initMachine } from './init';
-import { ClearHoles } from './util-modes';
+import { ClearHoles, ResetAnyDropOnComplete } from './util-modes';
+import { Log } from './log';
 
-export class AttractMode extends Mode<Pick<MachineOutputs, 'upperEject'|'outhole'|'miniEject'|'shooterDiverter'>> {
+export class AttractMode extends Mode<MachineOutputs> {
 
     constructor() {
         super();
 
         this.addChild(new ClearHoles());
+        this.addChild(new ResetAnyDropOnComplete());
     }
 }
 
 if (require.main === module) {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
 initMachine().then(() => {
-    console.info('starting attract mode...');
+    Log.log(['console'], 'starting attract mode...');
     machine.addChild(new AttractMode());
 });
 }

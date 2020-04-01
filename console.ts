@@ -8,6 +8,7 @@ import { safeSetTimeout, wait } from './timer';
 import { machine, MomentarySolenoid, OnOffSolenoid } from './machine';
 import { num } from './util';
 import { initMachine } from './init';
+import { Log } from './log';
 
 const argv = require('yargs').argv;
 
@@ -28,7 +29,7 @@ while (true) {
         const cmd: string = await new Promise(r => rl.question('>', r));
         await parseCommand(cmd);
     } catch (e) {
-        console.error(e);
+        Log.error(['console'], e);
     }
 }
 
@@ -121,6 +122,6 @@ async function source(path: string) {
 }
 })
 .catch(err => {
-    console.error('fatal error ', err);
+    Log.error(['console'], 'fatal error ', err);
     process.exit(1);
 });

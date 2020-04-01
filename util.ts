@@ -52,6 +52,10 @@ export type JSONObject = { [member: string]: JSONValue|undefined };
 export type JSONArray = JSONValue[];
 
 export type OrArray<T> = T|(T[]);
+export function arrayify<T>(data: OrArray<T>): T[] {
+  if (Array.isArray(data)) return data;
+  else return [data];
+}
 
 export interface Obj { [prop: string]: any }
 export type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? never : K }[keyof T] &

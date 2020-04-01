@@ -1,6 +1,7 @@
 import {Socket} from 'net';
 import { num, split } from './util';
 import { Time, time } from './timer';
+import { Log } from './log';
 
 const apiVersion = '0.0.1';
 const socket = new Socket();
@@ -9,7 +10,7 @@ export const MPU = {
 
     isConnected: false,
 
-    adjust(time: number|string): Time {
+    adjust(time: number|string): Time { // convert remote time to local
         if (typeof time === 'string') time = num(time);
         return (time + (this.timeOffset as number)) as Time;
     },
@@ -22,7 +23,7 @@ export const MPU = {
     };},
 
     async init(ip = '192.168.2.8') {
-        console.info('connecting to %s', ip);
+        Log.log(['mpu', 'console'], 'connecting to %s', ip);
         // const socket = new Socket();
         // socket.connect(2908, '192.168.2.4');
         // socket.on('error', )
@@ -32,7 +33,7 @@ export const MPU = {
                 socket.setTimeout(1000);
                 socket.setNoDelay(true);
                 socket.on('error', err => {
-                    console.log('socket error: ', err);
+                    Log.error(['mpu', 'console'],'socket error: ', err);
                     reject(err);
                 });
                 socket.on('close', err => {
@@ -53,7 +54,7 @@ export const MPU = {
                     }
                 });
                 socket.connect(2908, ip, async () => {
-                    console.log('connected to MPU');
+                    Log.info(['mpu', 'console'],'connected to MPU');
                     this.lines[0] = {
                         promise: null as any,
                         cb: null as any,
@@ -63,7 +64,7 @@ export const MPU = {
                     this.lines[0].promise = new Promise(resolve => this.lines[0].cb = resolve);
                     const greeting = await this.lines[0].promise;
 
-                    console.log('MPU: ', greeting);
+                    Log.info(['mpu'],'MPU: ', greeting);
                     await this.sendCommand(apiVersion);
 
                     {
@@ -77,7 +78,7 @@ export const MPU = {
                 });
             });
         } catch (err) {
-            console.error('fatal MPU connect error ', err);
+            Log.error(['mpu', 'console'], 'fatal MPU connect error ', err);
             this.isConnected = false;
             throw err;
         }
@@ -99,10 +100,12 @@ export const MPU = {
             when: new Date(),
             context: cmd,
         };
+        Log.info('mpu', 'send command %s', `#${seq} `+cmd+'\n');
         this.lines[seq].promise = new Promise(resolve => this.lines[seq].cb = resolve);
         socket.write(`#${seq} `+cmd+'\n');
 
         const resp = await this.lines[seq].promise;
+        Log.info('mpu', 'got response %s', resp);
 
         let firstSpace = resp.indexOf(' ');
         if (firstSpace === -1) firstSpace = resp.length;

@@ -16,9 +16,9 @@ describe('outputs', () => {
                 });
             }
         };
-        expect(obj.out!.computeTreeValue('rampUp')).toBe(false);
+        expect(Outputs.computeTreeValue(obj, 'rampUp')).toBe(false);
         obj.up = true;
-        expect(obj.out!.computeTreeValue('rampUp')).toBe(true);
+        expect(Outputs.computeTreeValue(obj, 'rampUp')).toBe(true);
     });
     test('watches state', () => {
         const fire = jest.spyOn(Events, 'fire');
@@ -141,7 +141,7 @@ describe('outputs', () => {
             }
         };
         expect(root.out!.treeValues.num).toBe(1);
-        expect(root.out!.computeTreeValue('num')).toBe(1);
+        expect(Outputs.computeTreeValue(root, 'num')).toBe(1);
     });
     test('compute 2', () => {
         const root = new class extends Mode<{num: number}> {
@@ -172,7 +172,7 @@ describe('outputs', () => {
             }
         };
         expect(root.out!.treeValues.num).toBe(2);
-        expect(root.out!.computeTreeValue('num')).toBe(2);
+        expect(Outputs.computeTreeValue(root, 'num')).toBe(2);
     });
     test('compute 3', () => {
         const root = new class extends Mode<{num: number}> {
@@ -212,7 +212,7 @@ describe('outputs', () => {
             }
         };
         expect(root.out!.treeValues.num).toBe(1);
-        expect(root.out!.computeTreeValue('num')).toBe(1);
+        expect(Outputs.computeTreeValue(root, 'num')).toBe(1);
     });
     test('compute 4', () => {
         const root = new class extends Mode<{num: number}> {
@@ -252,6 +252,6 @@ describe('outputs', () => {
             }
         };
         expect(root.out!.treeValues.num).toBe(3);
-        expect(root.out!.computeTreeValue('num')).toBe(3);
+        expect(Outputs.computeTreeValue(root, 'num')).toBe(3);
     });
 });
