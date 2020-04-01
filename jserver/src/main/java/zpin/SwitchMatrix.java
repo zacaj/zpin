@@ -25,10 +25,19 @@ public class SwitchMatrix extends Thread {
 	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
 	
 	int curCol = 0;
-	final int Width = 8;
+	final int Width = 16;
 	final int Height = 8;
 	
-	boolean[] state = new boolean[Width*Height];
+	class Switch {
+		boolean state = false;
+		boolean rawState = false;
+		int minOnTime = 1;
+		int minOffTime = 1;
+		long rawLastOnAt = 0;
+		long rawLastOffAt = 0;
+	}
+	
+	Switch[] switches = new Switch[Width*Height];
 	
 	Queue<Event> events = new ConcurrentLinkedQueue<>();
 	
@@ -47,7 +56,9 @@ public class SwitchMatrix extends Thread {
 			returns[i] = gpio.provisionDigitalInputPin(rets[i], PinPullResistance.PULL_UP);
 		}
 
-		Arrays.fill(state, false);
+		for (int x=0; x<Width; x++)
+			for (int y=0; y<Height; y++)
+				switches[x+y*Width] = new Switch();
 	}
 	
 	private static SwitchMatrix instance = null;
@@ -97,9 +108,16 @@ public class SwitchMatrix extends Thread {
 			try {
 				lock();
 				setCol(curCol);
+				Thread.sleep(0, 500);
 				for (int row = 0; row<Height; row++) {
 					boolean on = returns[row].isState(PinState.LOW);
-					if (on != state[row*Width+curCol]) {
+					Switch sw = switches[row*Width+curCol];
+					if (on != sw.rawState) {
+						sw.rawState = on;
+						if (on) sw.rawLastOnAt = new Date().getTime();
+						else sw.rawLastOffAt = new Date().getTime();
+						//System.out.println("raw switch change "+curCol+","+row+"->"+sw.rawState+" @"+new Date().getTime());
+					} else if (sw.rawState != sw.state && ((sw.rawState && new Date().getTime()-sw.rawLastOnAt>sw.minOnTime) || (!sw.rawState && new Date().getTime()-sw.rawLastOffAt>sw.minOffTime))) {
 						Event e = new Event();
 						e.col = curCol;
 						e.row = row;
@@ -107,7 +125,7 @@ public class SwitchMatrix extends Thread {
 						e.state = on;
 						events.add(e);
 						
-						state[row*Width+curCol] = on;
+						sw.state = sw.rawState;
 						
 						System.out.println("new switch event: "+e);
 					}
@@ -120,7 +138,7 @@ public class SwitchMatrix extends Thread {
 			
 			
 			curCol++;
-			if (curCol >= Width)
+			if (curCol >= 8)
 				curCol = 0;
 		}
 	}

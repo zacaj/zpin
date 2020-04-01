@@ -90,17 +90,17 @@ export type TimerQueueEntry = {
     context?: string;
 };
 
-export function safeSetInterval(func: () => any, ms: number) {
+export function safeSetInterval(func: () => any, ms: number, context: string) {
     // setInterval(() => {
     //     if (Timer.mockTime) return 'skipped';
     //     return func();
     // }, ms);
-    Timer.setInterval(func, ms);
+    Timer.setInterval(func, ms, context);
 }
-export function safeSetTimeout(func: () => any, ms: number) {
+export function safeSetTimeout(func: () => any, ms: number, context: string) {
     // assert(!Timer.mockTime);
     // setTimeout(func, ms);
-    Timer.callIn(func, ms);
+    Timer.callIn(func, ms, context);
 }
 export function time() {
     return Timer.time;
@@ -116,6 +116,6 @@ export async function passTime(ms = 1) {
     await setTime(Timer.mockTime! + ms);
 }
 
-export async function wait(ms: number) {
-    return new Promise(resolve => safeSetTimeout(resolve, ms));
+export async function wait(ms: number, context?: string) {
+    return new Promise(resolve => safeSetTimeout(resolve, ms, context ?? 'wait '+ms));
 }

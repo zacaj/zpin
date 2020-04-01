@@ -5,30 +5,27 @@ import { machine, MachineOutputs } from './machine';
 import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
 import { time } from './timer';
+import { ClearHoles, ResetAnyDropOnComplete } from './util-modes';
 
 // eslint-disable-next-line no-undef
-export class Game extends Mode<Pick<MachineOutputs, 'upper3'|'rampUp'>> {
+export class Game extends Mode/*<Pick<MachineOutputs, 'rampUp'|'troughRelease'>>*/ {
     rampUp = true;
-    lowerRampLit = false;    
-
     private constructor() {
         super();
-        State.declare<Game>(this, ['rampUp', 'lowerRampLit']);
+        State.declare<Game>(this, ['rampUp']);
 
         this.out = new Outputs(this, {
-            upper3: toggle({
-                on: () => machine.sUpper3.every(sw => sw.onFor(250)),
-                off: () => machine.sUpper3.every(sw => sw.offFor(250)),
-            }),
             rampUp: () => this.rampUp,
+            troughRelease: () => machine.sTroughFull.onFor(400),
         });
 
         Events.listen(e => {
-            if (this.lowerRampLit)
-                this.rampUp = false;
-        }, onSwitchClose(machine.sRightInlane));
-        Events.listen(e => this.lowerRampLit = !this.lowerRampLit, onSwitchClose(machine.sShooterLower));
-        Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPop));
+            this.rampUp = false;
+        }, onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000));
+       Events.listen(e => this.rampUp = true, onSwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
+       
+       this.addChild(new ClearHoles());
+       this.addChild(new ResetAnyDropOnComplete());
     }
 
     static start(): Game {
@@ -48,4 +45,9 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
             rampUp: () => this.rampUp,
         });
     }
+}
+
+if (require.main === module) {
+    console.info('starting game...');
+    const game = Game.start();
 }

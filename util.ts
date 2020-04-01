@@ -34,6 +34,14 @@ export function num(input: string, def?: number): number {
     return num;
 }
 
+export function tryNum(str: string): number|undefined {
+    try {
+        return num(str);
+    } catch (e) {
+        return undefined;
+    }
+}
+
 export function nums(input: string[], ...skip: boolean[]): number[] {
     return input.map((i, index) => skip[index]? -1:num(i));
 }
@@ -96,3 +104,12 @@ export function assert(cond: any) {
         throw new Error('assertion failed');
     }
 }
+
+export function getTypeIn<T>(obj: {}, type: any): T[] {
+    const ret: T[] = [];
+    for (const key of Object.keys(obj)) {
+        if ((obj as any)[key] instanceof type)
+            ret.push((obj as any)[key] as any);
+    }
+    return ret;
+} 

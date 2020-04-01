@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.Date;
 
 
@@ -24,6 +23,8 @@ public class JServer extends Thread
     private BufferedReader in;
     public int connNum = ++nConnections;
     
+    public PrintWriter logCmd = new PrintWriter("cmds.log");
+    
     static SwitchMatrix matrix = SwitchMatrix.get();
 
     public JServer(Socket socket) throws IOException {
@@ -39,19 +40,19 @@ public class JServer extends Thread
     void error(String str) throws ZError {
     	out.print(seqPrefix()+"400 " + str + "\r\n");
     	out.flush();
-    	System.out.println(""+connNum+" Error: 400 " + str);
+    	logCmd.println(""+connNum+" Error: 400 " + str);
     	throw new ZError("Client error " + str);
     }
     void internalError() {
     	out.print(seqPrefix()+"500" + "\r\n");
     	out.flush();
-    	System.out.println(""+connNum+" internal error");
+    	logCmd.println(""+connNum+" internal error");
     }
     
     void resp(Object str, int status) {
     	out.print(seqPrefix()+"" + status + " " + str + "\r\n");
     	out.flush();
-    	System.out.println(""+connNum+" Response: " + status + " " + str);
+    	logCmd.println(""+connNum+" Response: " + status + " " + str);
     }
     void resp(Object str) {
     	resp(str, 200);
@@ -117,14 +118,14 @@ public class JServer extends Thread
 			try {
 				if (input.length() == 0)
 					input = lastCommand;
-				System.out.println("Received command '" + input + "'");
+				logCmd.println("Received command '" + input + "'");
 				int oldCurBoard = -2;
 				if (input.matches("^\\d+:.*")) {
 					String[] p = input.split(":", 2);
 					input = p[1].trim();
 					oldCurBoard = curBoard;
 					curBoard = Integer.parseInt(p[0]);
-					System.out.print("board "+curBoard+": ");
+					logCmd.print("board "+curBoard+": ");
 				}
 				final String[] parts = input.split(" ");
 				boolean success = (new Object() {
@@ -162,8 +163,8 @@ public class JServer extends Thread
 						case "sw-state":
 							String response = "";
 							int num = 0;
-							for (int i=0; i<matrix.state.length; i++) {
-								num = (num<<1)|(matrix.state[i]? 1:0);
+							for (int i=0; i<matrix.switches.length; i++) {
+								num = (num<<1)|(matrix.switches[i].state? 1:0);
 								if ((i+1)%32 == 0) {
 									response += num+" ";
 									num = 0;
@@ -171,6 +172,16 @@ public class JServer extends Thread
 							}
 							resp(response);
 							return true;
+						case "sw-config":
+							if (parts.length != 4)
+								error("usage: sw-config row col minOnTime minOffTime");
+							int row = num(1);
+							int col = num(2);
+							int minOnTime = num(3);
+							int minOffTime = num(4);
+							matrix.switches[row*matrix.Width+col].minOnTime = minOnTime;
+							matrix.switches[row*matrix.Width+col].minOffTime = minOffTime;
+							ack();
 						case "s":
 						case "select":
 							curBoard = num(1);

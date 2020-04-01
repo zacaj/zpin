@@ -160,6 +160,8 @@ export function toggle(opts: {
     off: () => boolean;
     maxOn?: number;
     initial?: boolean;
+    onChange?: (state: boolean) => void;
+    onOn?: (state: boolean) => void;
 }): () => boolean {
     let state =  opts.initial ?? false;
     let changed = time();
@@ -174,8 +176,13 @@ export function toggle(opts: {
             else if (opts.maxOn && time() - changed > opts.maxOn)
                 state = false;
         }
-        if (oldState !== state)
+        if (oldState !== state) {
             changed = time();
+            if (opts.onChange)
+                opts.onChange(state);
+            if (opts.onOn && state)
+                opts.onOn(state);
+        }
         return state;
     };
 }

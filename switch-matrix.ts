@@ -1,6 +1,5 @@
 import { MPU } from './mpu';
-import assert from 'assert';
-import { split, nums, JSONValue, clone } from './util';
+import { split, nums, JSONValue, clone, assert } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate } from './events';
 import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
@@ -13,13 +12,23 @@ export class Switch {
         this.changeState(val);
     }
     lastChange = 0 as Time;
+    get lastOn(): Time|undefined {
+        if (this.state) return time();
+        return this.lastOpened;
+    }
+    get lastOff(): Time|undefined {
+        if (!this.state) return time();
+        return this.lastClosed;
+    }
+    lastClosed?: Time;
+    lastOpened?: Time;
 
     constructor(
         public readonly row: number,
         public readonly column: number,
         public readonly name = `${row},${column}`,
-    ) {
-        State.declare<Switch>(this, ['_state', 'lastChange']);
+) {
+        State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
 
         assert(!matrix[row][column]);
         matrix[row][column] = this;
@@ -28,8 +37,12 @@ export class Switch {
     changeState(val: boolean, when = time()) {
         if (this._state === val) return;
         this.lastChange = when;
+        if (val)
+            this.lastClosed = time();
+        else
+            this.lastOpened = time();
         this._state = val;
-        console.info('switch \'%s\' state -> %s', this.name, this._state);
+        console.info('switch \'%s\' state -> %s (%i,%i)', this.name, this._state, this.column, this.row);
         Events.fire(new SwitchEvent(this, when));
     }
 
@@ -39,6 +52,10 @@ export class Switch {
 
     offFor(ms: number): boolean {
         return !this.state && time()-this.lastChange >= ms;
+    }
+
+    wasClosedWithin(ms: number): boolean {
+        return !!this.lastClosed && time() - this.lastClosed <= ms;
     }
 }
 
@@ -62,8 +79,8 @@ export function onClose(): EventTypePredicate<SwitchEvent> {
     return e => e instanceof SwitchEvent && e.then._state;
 }
 
-export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
-    return [onSwitch(sw), onClose()];
+export function onSwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
+    return [...sw.map(s => onSwitch(s)), onClose()];
 }
 
 export const SWITCH_MATRIX_WIDTH = 16;
@@ -89,21 +106,23 @@ safeSetInterval(async () => {
     const start = time();
     while (time() - start < 5) {
         const resp = await getSwitchEvent();
-        if (!resp || !resp.more) break;
+        if (!resp || !resp.more || time() - resp.when > 1000/60*2) break;
         if (matrix[resp.row][resp.col])
             matrix[resp.row][resp.col]!.changeState(resp.state, resp.when);
+        else if (resp.state)
+            console.warn('got event for unregistered switch ', resp);
     }
 
     const newState = await getSwitchState();
     forRC((r,c,sw) => {
         sw.state = newState[r][c];
     });
-}, 1000/60);
+}, 1000/60, 'switch check');
 
 export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
     for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)
         for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
-            if (matrix[j][i])
+            if (matrix[i][j])
                 cb(i, j, matrix[i][j]!);
 }
 

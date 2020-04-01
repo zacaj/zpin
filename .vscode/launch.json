@@ -14,11 +14,24 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Program",
+			"name": "Console",
 			"program": "${workspaceFolder}/console.ts",
 			"console": "integratedTerminal",
 			"outFiles": [
-				"${workspaceFolder}/*.js"
+				"${workspaceFolder}/build/*.js"
+			],
+			"args": [
+				"zpin/"
+			]
+        },
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Attract",
+			"program": "${workspaceFolder}/attract.ts",
+			"console": "integratedTerminal",
+			"outFiles": [
+				"${workspaceFolder}/build/*.js"
 			],
 			"args": [
 				"zpin/"

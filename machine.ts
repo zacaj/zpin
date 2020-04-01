@@ -4,11 +4,13 @@ import { matrix, Switch } from './switch-matrix';
 import { Events } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent } from './outputs';
-import { safeSetInterval, Time, time, Timer } from './timer';
-import { assert } from './util';
+import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
+import { assert, getTypeIn } from './util';
+import { DropBank } from './drop-bank';
 
 abstract class MachineOutput<T> {
     actual!: T;
+    timer?: TimerQueueEntry;
 
     constructor(
         public val: T,
@@ -20,19 +22,32 @@ abstract class MachineOutput<T> {
     }
 
     async trySet(val: T) {
+        this.stopRetry();
+        if (val === this.actual) {
+            return;
+        }
         try {
             this.val = val;
             if (this.actual === val) return;
             let success = await this.set(val);
             if (!success) success = 5;
-            else if (success === true)
+            else if (success === true) {
                 this.actual = val;
-            else
-                Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
+            }
+            else if (!this.timer)
+                this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
 
         } catch (err) {
             console.error('error setting output %s to ', this.name, val, err);
-            Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
+            if (!this.timer)
+                this.timer = Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
+        }
+    }
+
+    private stopRetry() {
+        if (this.timer) {
+            Timer.cancel(this.timer);
+            this.timer = undefined;
         }
     }
 
@@ -42,6 +57,8 @@ abstract class MachineOutput<T> {
 }
 
 abstract class Solenoid extends MachineOutput<boolean> {
+    lastFired?: Time;
+
     constructor(
         name: keyof MachineOutputs,
         public num: number,
@@ -59,7 +76,7 @@ export class MomentarySolenoid extends Solenoid {
         num: number,
         board: Solenoid16,
         public ms = 25, // fire time
-        public wait = 500, // min time between fire attempts
+        public wait = 1000, // min time between fire attempts
     ) {
         super(name, num, board);
     }
@@ -72,42 +89,13 @@ export class MomentarySolenoid extends Solenoid {
         if (this.lastFired && time() < this.lastFired + this.wait) return this.lastFired + this.wait - time() + 3;
 
         this.lastFired = time();
+        console.info('fire solenoid %s', this.name);
+
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
             await this.board.fireSolenoid(this.num);
         return (ms ?? this.ms) + this.wait + 3;
-    }
-
-    async set(on: boolean) {
-        if (on) return this.fire();
-        return true;
-    }
-}
-
-export class SingleSolenoid extends Solenoid {
-    lastFired?: Time;
-
-    constructor(
-        name: keyof MachineOutputs,
-        num: number,
-        board: Solenoid16,
-        public ms = 25, // fire time
-    ) {
-        super(name, num, board);
-    }
-
-    async init() {
-        await this.board.initMomentary(this.num, this.ms);
-    }
-
-    async fire(ms?: number): Promise<boolean|number> {
-        this.lastFired = time();
-        if (ms)
-            await this.board.fireSolenoidFor(this.num, ms);
-        else
-            await this.board.fireSolenoid(this.num);
-        return true;
     }
 
     async set(on: boolean) {
@@ -151,7 +139,7 @@ export class IncreaseSolenoid extends MomentarySolenoid {
     }
 }
 
-class OnOffSolenoid extends Solenoid {
+export class OnOffSolenoid extends Solenoid {
     constructor(
         name: keyof MachineOutputs,
         num: number,
@@ -166,11 +154,16 @@ class OnOffSolenoid extends Solenoid {
     }
 
     async set(on: boolean) {
+        console.info(`turn ${this.name} ` + (on? 'on':'off'));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else
             await this.board.turnOffSolenoid(this.num);
         return true;
+    }
+
+    async toggle() {
+        return this.board.toggleSolenoid(this.num);
     }
 }
 
@@ -222,26 +215,25 @@ class Machine extends Mode<MachineOutputs> {
     });
 
     solenoidBank1 = new Solenoid16(0);
-    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 18, 40, 4);
+    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 25, 40, 4);
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 50, 500, 3, 1000);
-    cPopper = new SingleSolenoid('popper', 2, this.solenoidBank1, 40);
+    cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 25);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 25, 5);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100);
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100);
     cLeftMagnet = new OnOffSolenoid('centerBank', 9, this.solenoidBank1, 10000);
     cLockPost = new IncreaseSolenoid('lockPost', 10, this.solenoidBank1, 200, 800, 4, 2000);
-    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1);
+    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 4);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 30, 100);
 
-    solenoidBank2 = new Solenoid16(1);
-    cUpper2 = new IncreaseSolenoid('upper2', 6, this.solenoidBank2, 30, 100);
-    cUpper3 = new IncreaseSolenoid('upper3', 7, this.solenoidBank2, 30, 100);
-    cUpperEject = new IncreaseSolenoid('upperEject', 8, this.solenoidBank2, 15, 25, 4);
-    cLeftGate = new OnOffSolenoid('leftGate', 11, this.solenoidBank2, 25, 5);
+    solenoidBank2 = new Solenoid16(2);
+    cUpper2 = new IncreaseSolenoid('upper2', 11, this.solenoidBank2, 30, 100);
+    cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100);
+    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 8, 4);
+    cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 5);
     cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100);
-
 
     sLeftInlane = new Switch(1, 2, 'left inlane');
     sLeftOutlane = new Switch(1, 1, 'left outlane');
@@ -282,7 +274,7 @@ class Machine extends Mode<MachineOutputs> {
     sSingleStandup = new Switch(7, 3, 'single standup');
     sRampMini = new Switch(3, 7, 'ramp mini');
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer');
-    sRampUp = new Switch(7, 4, 'ramp up');
+    sRampDown = new Switch(7, 4, 'ramp down');
     sUnderRamp = new Switch(7, 7, 'under ramp');
     sLeftOrbit = new Switch(7, 2, 'left orbit');
     sSpinner = new Switch(6, 6, 'spinner');
@@ -306,12 +298,18 @@ class Machine extends Mode<MachineOutputs> {
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center');
     sRampMade = new Switch(7, 0, 'ramp made');
 
-    sUpper3 = [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ];
-    sUpper2 = [ this.sUpper2Left, this.sUpper2Right ];
-    sCenter = [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ];
-    sLeft = [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ];
-    sRight = [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5];
-    sMini = [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ];
+    upper3Bank = new DropBank(this.cUpper3, [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ]);
+    upper2Bank = new DropBank(this.cUpper2, [ this.sUpper2Left, this.sUpper2Right ]);
+    centerBank = new DropBank(this.cCenterBank, [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ]);
+    miniBank = new DropBank(this.cMiniBank, [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ]);
+    leftBank = new DropBank(this.cLeftBank, [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ]);
+    rightBank = new DropBank(this.cRightBank, [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5]);
+
+    async initOutputs() {
+        for (const out of getTypeIn<MachineOutput<any>>(this, MachineOutput)) {
+            await out.init();
+        }
+    }
 }
 
 export let machine = new Machine();

@@ -28,6 +28,11 @@ export class Solenoid16 {
         return this.send(`off ${num}`);
     }
 
+
+    toggleSolenoid(num: number) {
+        return this.send(`toggle ${num}`);
+    }
+
     fireSolenoidFor(num: number, onTime: number) {
         return this.send(`f ${num} ${onTime}`);
     }

@@ -14,6 +14,19 @@ describe('machine', () => {
             await passTime(9);
             expect(fire).toBeCalledTimes(2);
         });
+        test('stops firing', async () => {
+            const s = new MomentarySolenoid('rampUp', 1, new Solenoid16(0), 1, 5);
+            const fire = jest.spyOn(s.board, 'fireSolenoid').mockResolvedValue('');
+
+            await s.trySet(true);
+            expect(fire).toBeCalledTimes(1);
+
+            await passTime(9);
+            expect(fire).toBeCalledTimes(2);
+            await s.trySet(false);
+            await passTime(9);
+            expect(fire).toBeCalledTimes(2);
+        });
     });
     describe('increase solenoid', () => {
         test('doesnt fire too soon', async () => {

@@ -42,7 +42,7 @@ module.exports = {
     "@typescript-eslint/prefer-includes": on,
     "@typescript-eslint/prefer-nullish-coalescing": on,
     "@typescript-eslint/prefer-optional-chain": on,
-    "@typescript-eslint/prefer-string-starts-ends-with": on,
+    "@typescript-eslint/prefer-string-starts-ends-with": off,
     "@typescript-eslint/require-array-sort-compare": on,
     "@typescript-eslint/restrict-plus-operands": off,
     // "@typescript-eslint/restrict-template-expressions": [on, {
