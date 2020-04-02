@@ -225,7 +225,7 @@ public class JServer extends Thread
 			    				case "f":
 			    				case "fire":
 									if (parts.length > 2)
-										board.fireSolenoidFor(byt(1), byt(2));
+										board.fireSolenoidFor(byt(1), num(2));
 									else if (parts.length == 2)
 										board.fireSolenoid(byt(1));
 									else 
