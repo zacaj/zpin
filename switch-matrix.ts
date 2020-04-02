@@ -28,11 +28,20 @@ export class Switch {
         public readonly row: number,
         public readonly column: number,
         public readonly name = `${row},${column}`,
+        public minOnTime = 1,
+        public minOffTime = 1,
 ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
 
         assert(!matrix[row][column]);
         matrix[row][column] = this;
+    }
+
+    async init() {
+        if (this.minOffTime !== 1 || this.minOnTime !== 1) {
+            Log.info('switch', 'set %s settle to %i/%i', this.name, this.minOnTime, this.minOffTime);
+            await MPU.sendCommand(`sw-config ${this.row} ${this.column} ${this.minOnTime} ${this.minOffTime}`);
+        }
     }
 
     changeState(val: boolean, when = time()) {
@@ -56,9 +65,14 @@ export class Switch {
     }
 
     wasClosedWithin(ms: number): boolean {
-        return !!this.lastClosed && time() - this.lastClosed <= ms;
+        return this.state || (!!this.lastClosed && time() - this.lastClosed <= ms);
+    }
+
+    openForAtLeast(ms: number): boolean {
+        return !this.state && (!this.lastOn || time() - this.lastOn > ms);
     }
 }
+
 
 export class SwitchEvent extends Event {
     then: Switch; //Pick<Switch, Extract<keyof Switch, JSONValue>>;//{ [P in keyof Switch]: Switch[P] };

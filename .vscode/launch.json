@@ -37,6 +37,19 @@
 				"zpin/"
 			]
         },
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Game",
+			"program": "${workspaceFolder}/game.ts",
+			"console": "integratedTerminal",
+			"outFiles": [
+				"${workspaceFolder}/build/*.js"
+			],
+			"args": [
+				"zpin/"
+			]
+        },
         {
             "type": "node",
             "request": "launch",

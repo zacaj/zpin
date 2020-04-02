@@ -5,13 +5,16 @@ import { machine, MachineOutputs } from './machine';
 import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
 import { time } from './timer';
-import { ClearHoles, ResetAnyDropOnComplete } from './util-modes';
+import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
 import { initMachine } from './init';
 import { Log } from './log';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
+
+    chips = 1;
     rampUp = true;
+    
     private constructor() {
         super();
         State.declare<Game>(this, ['rampUp']);
@@ -19,16 +22,26 @@ export class Game extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             troughRelease: () => machine.sTroughFull.onFor(400),
-            shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && !machine.sShooterMagnet.wasClosedWithin(1500),
+            shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500),
         });
 
         Events.listen(e => {
             this.rampUp = false;
         }, onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000));
-       Events.listen(e => this.rampUp = true, onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
-       
-       this.addChild(new ClearHoles());
-       this.addChild(new ResetAnyDropOnComplete());
+        Events.listen(e => this.rampUp = true, onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
+        Events.listen(() => this.addChild(new KnockTarget()), onSwitchClose(machine.sLeftInlane));
+
+        Events.listen(() => this.chips++, onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini));
+        Events.listen(async () => {
+            if (this.chips === 0) return;
+            const fired = await machine.cPopper.fire();
+            if (fired === true) {
+                this.chips--;
+            }
+        }, onSwitchClose(machine.sPopperButton));
+
+        this.addChild(new ClearHoles());
+        this.addChild(new ResetAnyDropOnComplete());
     }
 
     static start(): Game {

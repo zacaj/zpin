@@ -1,9 +1,9 @@
 import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch } from './switch-matrix';
-import { Events } from './events';
+import { matrix, Switch, onSwitchClose } from './switch-matrix';
+import { Events, Event } from './events';
 import { Mode } from './mode';
-import { Outputs, TreeOutputEvent, OwnOutputEvent } from './outputs';
+import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
 import { assert, getTypeIn } from './util';
 import { DropBank } from './drop-bank';
@@ -107,7 +107,8 @@ export class MomentarySolenoid extends Solenoid {
 
         this.lastFired = time();
         MomentarySolenoid.firingUntil = time() + (ms ?? this.ms) as Time;
-        Log.info(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
+        Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
+        Events.fire(new SolenoidFireEvent(this));
 
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
@@ -120,6 +121,13 @@ export class MomentarySolenoid extends Solenoid {
     async set(on: boolean) {
         if (on) return this.fire();
         return true;
+    }
+}
+export class SolenoidFireEvent extends Event {
+    constructor(
+        public coil: MomentarySolenoid,
+    ) {
+        super();
     }
 }
 
@@ -174,7 +182,7 @@ export class OnOffSolenoid extends Solenoid {
     }
 
     async set(on: boolean) {
-        Log.info(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
+        Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else
@@ -208,6 +216,11 @@ export type MachineOutputs = {
     shooterDiverter: boolean;
     popper: boolean;
     temp: number;
+    right1: boolean;
+    right2: boolean;
+    right3: boolean;
+    right4: boolean;
+    right5: boolean;
 };
 
 class Machine extends Mode<MachineOutputs> {
@@ -231,6 +244,11 @@ class Machine extends Mode<MachineOutputs> {
         rightGate: false,
         shooterDiverter: false,
         popper: false,
+        right1: false,
+        right2: false,
+        right3: false,
+        right4: false,
+        right5: false,
         temp: () => 0,
     });
 
@@ -244,7 +262,7 @@ class Machine extends Mode<MachineOutputs> {
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100);
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 10000);
     cLockPost = new IncreaseSolenoid('lockPost', 10, this.solenoidBank1, 200, 800, 4, 2000);
-    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 4);
+    cRamp = new OnOffSolenoid('rampUp', 13, this.solenoidBank1, 100, 4);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 30, 100);
 
@@ -254,6 +272,13 @@ class Machine extends Mode<MachineOutputs> {
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 8, 4);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 5);
     cRightBank = new IncreaseSolenoid('rightBank', 14, this.solenoidBank2, 30, 100);
+    cRightDown = [
+        new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 250),
+        new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 250),
+        new IncreaseSolenoid('right3', 2, this.solenoidBank2, 25, 50, 3, 250),
+        new IncreaseSolenoid('right4', 4, this.solenoidBank2, 25, 50, 3, 250),
+        new IncreaseSolenoid('right5', 5, this.solenoidBank2, 25, 50, 3, 250),
+    ];
 
     sLeftInlane = new Switch(1, 2, 'left inlane');
     sLeftOutlane = new Switch(1, 1, 'left outlane');
@@ -262,35 +287,35 @@ class Machine extends Mode<MachineOutputs> {
     sMiniEntry = new Switch(1, 3, 'mini entry');
     sMiniOut = new Switch(0, 3, 'mini out');
     sMiniMissed = new Switch(1, 4, 'mini missed');
-    sOuthole = new Switch(0, 2, 'outhole');
+    sOuthole = new Switch(0, 2, 'outhole', 500, 500);
     sTroughFull = new Switch(0, 1, 'trough full');
     sLeftSling = new Switch(1, 0, 'left sling');
     sRightSling = new Switch(0, 7, 'right sling');
-    sMiniLeft = new Switch(1, 7, 'mini left');
-    sMiniCenter = new Switch(1, 6, 'mini center');
-    sMiniRight = new Switch(1, 5, 'mini right');
-    sCenterLeft = new Switch(4, 3, 'center left');
-    sCenterCenter = new Switch(4, 2, 'center center');
-    sCenterRight = new Switch(4, 1, 'center right');
-    sLeft1 = new Switch(3, 1, 'left 1');
-    sLeft2 = new Switch(3, 2, 'left 2');
-    sLeft3 = new Switch(3, 3, 'left 3');
-    sLeft4 = new Switch(3, 5, 'left 4');
-    sRight1 = new Switch(2, 5, 'right 1');
-    sRight2 = new Switch(2, 4, 'right 2');
-    sRight3 = new Switch(2, 3, 'right 3');
-    sRight4 = new Switch(2, 2, 'right 4');
-    sRight5 = new Switch(2, 1, 'right 5');
+    sMiniLeft = new Switch(1, 7, 'mini left', 100, 250);
+    sMiniCenter = new Switch(1, 6, 'mini center', 100, 250);
+    sMiniRight = new Switch(1, 5, 'mini right', 100, 250);
+    sCenterLeft = new Switch(4, 3, 'center left', 100, 250);
+    sCenterCenter = new Switch(4, 2, 'center center', 100, 250);
+    sCenterRight = new Switch(4, 1, 'center right', 100, 250);
+    sLeft1 = new Switch(3, 1, 'left 1', 100, 250);
+    sLeft2 = new Switch(3, 2, 'left 2', 100, 250);
+    sLeft3 = new Switch(3, 3, 'left 3', 100, 250);
+    sLeft4 = new Switch(3, 5, 'left 4', 100, 250);
+    sRight1 = new Switch(2, 5, 'right 1', 100, 250);
+    sRight2 = new Switch(2, 4, 'right 2', 100, 250);
+    sRight3 = new Switch(2, 3, 'right 3', 100, 250);
+    sRight4 = new Switch(2, 2, 'right 4', 100, 250);
+    sRight5 = new Switch(2, 1, 'right 5', 100, 250);
     sLeftBack1 = new Switch(3, 4, 'left back 1');
     sLeftBack2 = new Switch(3, 6, 'left back 2');
     sCenterBackLeft = new Switch(4, 6, 'center back left');
     sCenterBackCenter = new Switch(4, 5, 'center back center');
     sCenterBackRight = new Switch(4, 4, 'center back right');
-    sUpper3Left = new Switch(5, 2, 'upper 3 left');
-    sUpper3Center = new Switch(5, 1, 'upper 3 center');
-    sUpper3Right = new Switch(5, 0, 'upper 3 right');
-    sUpper2Left = new Switch(6, 4, 'upper 2 left');
-    sUpper2Right = new Switch(6, 3, 'upper 2 right');
+    sUpper3Left = new Switch(5, 2, 'upper 3 left', 100, 250);
+    sUpper3Center = new Switch(5, 1, 'upper 3 center', 100, 250);
+    sUpper3Right = new Switch(5, 0, 'upper 3 right', 100, 250);
+    sUpper2Left = new Switch(6, 4, 'upper 2 left', 100, 250);
+    sUpper2Right = new Switch(6, 3, 'upper 2 right', 100, 250);
     sSingleStandup = new Switch(7, 3, 'single standup');
     sRampMini = new Switch(3, 7, 'ramp mini');
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer');
@@ -336,7 +361,8 @@ class Machine extends Mode<MachineOutputs> {
 
     constructor() {
         super();
-        this.addChild(new EosPulse(this.cRamp, this.sRampDown));
+
+        this.addChild(new MachineOverrides());
     }
 }
 
@@ -355,22 +381,46 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
     return ret;
 }
 
+class MachineOverrides extends Mode<MachineOutputs> {
+    constructor() {
+        super(undefined, 999);
+        this.out = new Outputs(this, {
+            rampUp: toggle({
+                on: () => machine.sRampDown.state && machine.sUnderRamp.wasClosedWithin(250),
+                off: () => machine.sUnderRamp.openForAtLeast(1000),
+            }),
+        });
+
+        this.addChild(new EosPulse(machine.cRamp, machine.sRampDown));
+    }
+}
+
 class EosPulse extends Mode<MachineOutputs> {
     // pulse coil if switch closes
     constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
         super(undefined, 999);
-        this.out = new Outputs(this, {
-            rampUp: (up) => {
-                const wrong = (sw.wasClosedWithin(1) !== invert);
-                if (!up) return false;
-                if (wrong) {
-                    Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
-                    return false;
-                }
-                if (sw.state && coil.actual !== coil.val) return false;
-                return true;
-            },
-        });
+
+        Events.listen(() => coil.set(true), onSwitchClose(sw));
+        // this.out = new Outputs(this, {
+        //     rampUp: (up) => {
+        //         const wrong = (sw.state !== invert);
+        //         if (!up) return false;
+        //         if (wrong) {
+        //             Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
+        //             coil.set(true);
+        //             return true;
+        //         }
+        //         return true;
+        //         // const wrong = (sw.wasClosedWithin(1) !== invert);
+        //         // if (!up) return false;
+        //         // if (wrong) {
+        //         //     Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
+        //         //     return false;
+        //         // }
+        //         // if (sw.state && coil.actual !== coil.val) return false;
+        //         // return true;
+        //     },
+        // });
     }
 }
 

@@ -27,12 +27,21 @@ export abstract class Tree<Outs extends {} = {}> {
     static treeCount = 0;
     num = ++Tree.treeCount;
 
+    ended = false;
+
     constructor(
         parent?: Tree<Outs>,
         public readonly priority = 0,
     ) {
         if (parent)
             parent.addChild(this);
+    }
+
+    end(): 'remove' {
+        this.ended = true;
+        if (this.parent)
+            this.parent.removeChild(this);
+        return 'remove';
     }
 
     addChild(node: Tree<Outs>) {
