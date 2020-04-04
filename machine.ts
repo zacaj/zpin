@@ -1,6 +1,6 @@
 import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose } from './switch-matrix';
+import { matrix, Switch, onSwitchClose, onClose } from './switch-matrix';
 import { Events, Event } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
@@ -223,7 +223,7 @@ export type MachineOutputs = {
     right5: boolean;
 };
 
-class Machine extends Mode<MachineOutputs> {
+export class Machine extends Mode<MachineOutputs> {
     outs = new Outputs<MachineOutputs>(this, {
         rampUp: false,
         upper3: false,
@@ -342,13 +342,14 @@ class Machine extends Mode<MachineOutputs> {
     sLowerLaneRight = new Switch(5, 4, 'lower lane right');
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center');
     sRampMade = new Switch(7, 0, 'ramp made');
+    sPopperButton = new Switch(4, 8, 'popper button');
 
-    upper3Bank = new DropBank(this.cUpper3, [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ]);
-    upper2Bank = new DropBank(this.cUpper2, [ this.sUpper2Left, this.sUpper2Right ]);
-    centerBank = new DropBank(this.cCenterBank, [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ]);
-    miniBank = new DropBank(this.cMiniBank, [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ]);
-    leftBank = new DropBank(this.cLeftBank, [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ]);
-    rightBank = new DropBank(this.cRightBank, [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5]);
+    upper3Bank = new DropBank(this, this.cUpper3, [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ]);
+    upper2Bank = new DropBank(this, this.cUpper2, [ this.sUpper2Left, this.sUpper2Right ]);
+    centerBank = new DropBank(this, this.cCenterBank, [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ]);
+    miniBank = new DropBank(this, this.cMiniBank, [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ]);
+    leftBank = new DropBank(this, this.cLeftBank, [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ]);
+    rightBank = new DropBank(this, this.cRightBank, [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5]);
 
     async initOutputs() {
         Log.info(['machine', 'console'], 'initializing outputs...');
@@ -361,8 +362,7 @@ class Machine extends Mode<MachineOutputs> {
 
     constructor() {
         super();
-
-        this.addChild(new MachineOverrides());
+        // this.listen(onClose(), 'up');
     }
 }
 
@@ -427,9 +427,16 @@ class EosPulse extends Mode<MachineOutputs> {
 
 
 
-export let machine = new Machine();
 
-export function resetMachine() {
+export function resetMachine(): Machine {
     machine = new Machine();
     MomentarySolenoid.firingUntil = undefined;
+    
+
+    machine.addChild(new MachineOverrides());
+
+    Events.listen(e => machine.handleEvent(e), () => true);
+
+    return machine;
 }
+export let machine = resetMachine();

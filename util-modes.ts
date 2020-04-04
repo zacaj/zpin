@@ -43,6 +43,6 @@ export class KnockTarget extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             [coil.name]: !machine.rightBank.state[i],
         });
-        Events.listen(() => this.end(), machine.rightBank.onTargetDown(i));
+        this.listen(machine.rightBank.onTargetDown(i), 'end');
     }
 }

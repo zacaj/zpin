@@ -139,8 +139,13 @@ export class Outputs<Outs extends {}> {
     onOwnOutput<Prop extends keyof Outs>(prop: Prop, to?: any): EventTypePredicate<OwnOutputEvent<Prop>> {
         return ((e: Event) => e instanceof OwnOutputEvent && e.on === this && e.prop === prop && (to === undefined || e.value === to)) as any;
     }
-    onOutputChange<Prop extends keyof Outs>(prop?: Prop, to?: any): EventTypePredicate<OwnOutputEvent<Prop>> {
-        return ((e: Event) => e instanceof TreeOutputEvent && e.tree === this.tree && (!prop || e.prop === prop) && (to === undefined || e.value === to)) as any;
+    onOutputChange<Prop extends keyof Outs>(prop?: Prop, to?: any, from?: any): EventTypePredicate<OwnOutputEvent<Prop>> {
+        return ((e: Event) => e instanceof TreeOutputEvent 
+            && e.tree === this.tree 
+            && (!prop || e.prop === prop) 
+            && (to === undefined || e.value === to) 
+            && (from === undefined || e.oldValue === from)
+        ) as any;
     }
 }
 

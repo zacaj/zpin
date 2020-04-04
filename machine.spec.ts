@@ -79,45 +79,45 @@ describe('machine', () => {
         });
     });
 
-    test('eos pulse', async () => {
-        expectMachineOutputs('rampUp');
-        expect(machine.cRamp.actual).toBe(false);
-        await passTime(100);
-        const child = new class extends Mode<MachineOutputs> {
-            rampUp = true;
-            constructor() {
-                super();
-                State.declare<any>(this, ['rampUp']);
+    // test('eos pulse', async () => {
+    //     expectMachineOutputs('rampUp');
+    //     expect(machine.cRamp.actual).toBe(false);
+    //     await passTime(100);
+    //     const child = new class extends Mode<MachineOutputs> {
+    //         rampUp = true;
+    //         constructor() {
+    //             super();
+    //             State.declare<any>(this, ['rampUp']);
 
-                this.out = new Outputs(this, {
-                    rampUp: () => this.rampUp,
-                });
-            }
-        };
-        machine.addChild(child);
-        machine.sRampDown.state = false;
-        await passTime(5);
-        expect(machine.cRamp.actual).toBe(true);
-        const set = jest.spyOn(machine.cRamp, 'set').mockImplementation(async () => {
-            await wait(10);
-            return true;
-        });
-        set.mockClear();
+    //             this.out = new Outputs(this, {
+    //                 rampUp: () => this.rampUp,
+    //             });
+    //         }
+    //     };
+    //     machine.addChild(child);
+    //     machine.sRampDown.state = false;
+    //     await passTime(5);
+    //     expect(machine.cRamp.actual).toBe(true);
+    //     const set = jest.spyOn(machine.cRamp, 'set').mockImplementation(async () => {
+    //         await wait(10);
+    //         return true;
+    //     });
+    //     set.mockClear();
 
-        machine.sRampDown.state = true;
-        await passTime(1);
-        expect(set).toBeCalledWith(false);
-        expect(machine.cRamp.val).toBe(false);
-        expect(machine.cRamp.actual).toBe(true);
-        await passTime(10);
-        expect(machine.cRamp.actual).toBe(false);
-        expect(set).toBeCalledTimes(1);
-        set.mockClear();
+    //     machine.sRampDown.state = true;
+    //     await passTime(1);
+    //     expect(set).toBeCalledWith(false);
+    //     expect(machine.cRamp.val).toBe(false);
+    //     expect(machine.cRamp.actual).toBe(true);
+    //     await passTime(10);
+    //     expect(machine.cRamp.actual).toBe(false);
+    //     expect(set).toBeCalledTimes(1);
+    //     set.mockClear();
 
-        await passTime(1);
-        expect(set).toBeCalledWith(true);
-        await passTime(10);
-        expect(machine.cRamp.actual).toBe(true);
+    //     await passTime(1);
+    //     expect(set).toBeCalledWith(true);
+    //     await passTime(10);
+    //     expect(machine.cRamp.actual).toBe(true);
 
-    });
+    // });
 });

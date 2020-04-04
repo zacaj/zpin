@@ -34,7 +34,7 @@ export function num(input: string, def?: number): number {
     return num;
 }
 
-export function tryNum(str: string): number|undefined {
+export function tryNum(str: string|any): number|undefined {
     try {
         return num(str);
     } catch (e) {
@@ -44,6 +44,10 @@ export function tryNum(str: string): number|undefined {
 
 export function nums(input: string[], ...skip: boolean[]): number[] {
     return input.map((i, index) => skip[index]? -1:num(i));
+}
+
+export function isNum(input: any): boolean {
+    return (typeof input === 'number' && !Number.isNaN(input)) || tryNum(input) !== undefined;
 }
 
 export type JSONPrimitive = string | number | boolean | null;
@@ -59,6 +63,8 @@ export function arrayify<T>(data: OrArray<T>): T[] {
 
 export interface Obj { [prop: string]: any }
 export type NonFunctionPropertyNames<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? never : K }[keyof T] &
+        string;
+export type FunctionPropertyNames<T> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never }[keyof T] &
         string;
 
 export type ReadWrite<T> = {
@@ -117,3 +123,17 @@ export function getTypeIn<T>(obj: {}, type: any): T[] {
     }
     return ret;
 } 
+
+export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
+    let props: string[] = [];
+    let obj: any = toCheck;
+    do {
+        props = props.concat(Object.getOwnPropertyNames(obj));
+        obj = Object.getPrototypeOf(obj);
+    } while (obj);
+
+    // eslint-disable-next-line @typescript-eslint/require-array-sort-compare
+    return props.sort().filter((e, i, arr) => 
+       e !== arr[i+1] && typeof (toCheck as any)[e] === 'function',
+    ) as ((keyof T)&string)[];
+}

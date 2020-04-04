@@ -25,20 +25,26 @@ export class Game extends Mode<MachineOutputs> {
             shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500),
         });
 
-        Events.listen(e => {
-            this.rampUp = false;
-        }, onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000));
-        Events.listen(e => this.rampUp = true, onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling));
-        Events.listen(() => this.addChild(new KnockTarget()), onSwitchClose(machine.sLeftInlane));
+        this.listen(
+            [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],
+            e => {
+                this.rampUp = false;
+            });
+        this.listen(onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling),
+            e => this.rampUp = true);
+        this.listen(onSwitchClose(machine.sLeftInlane),
+            () => this.addChild(new KnockTarget()));
 
-        Events.listen(() => this.chips++, onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini));
-        Events.listen(async () => {
+        this.listen(
+            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
+            () => this.chips++);
+        this.listen(onSwitchClose(machine.sPopperButton), async () => {
             if (this.chips === 0) return;
             const fired = await machine.cPopper.fire();
             if (fired === true) {
                 this.chips--;
             }
-        }, onSwitchClose(machine.sPopperButton));
+        });
 
         this.addChild(new ClearHoles());
         this.addChild(new ResetAnyDropOnComplete());

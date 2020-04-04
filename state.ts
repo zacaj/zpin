@@ -1,6 +1,7 @@
 import { Event, EventPredicate, EventTypePredicate, Events } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, Utils } from './util';
+import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum } from './util';
 import { Outputs } from './outputs';
+import { onClose } from './switch-matrix';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
     constructor(
@@ -35,6 +36,8 @@ export abstract class Tree<Outs extends {} = {}> {
     ) {
         if (parent)
             parent.addChild(this);
+
+        this.findListeners();
     }
 
     end(): 'remove' {
@@ -97,7 +100,47 @@ export abstract class Tree<Outs extends {} = {}> {
         return node === this || this.getChildren().includes(node);
     }
 
+
+
+
+    listen<T extends Event>(pred: OrArray<EventTypePredicate<T>>, func: (keyof this)|((e: T) => 'remove'|any)) {
+        this.listeners.push({
+            callback: func as any,
+            predicates: arrayify(pred) as any,
+        });
+    }
+    private findListeners() {
+        for (const key of getFuncNames(this)) {
+            const prop = this[key];
+            if (prop instanceof Function && key.startsWith('on')) {
+                const types = key.slice(2).split('Or');
+                this.listen(e => types.includes(e.name.replace(/Event$/, '')), key);
+            }
+        }
+    }
+
+    listeners: TreeEventListener<any>[] = [];
+    handleEvent(e: Event) {
+        for (const l of this.listeners.slice()) {
+            if (l.predicates.some(p => !p(e))) continue;
+            let result: 'remove'|any;
+            if (typeof l.callback === 'function') {
+                result = l.callback(e);
+            } else {
+                result = ((this as any)[l.callback] as any)(e);
+            }
+            if (result === 'remove')
+                this.listeners.remove(l);
+        }
+
+        this.getChildren().forEach(c => c.handleEvent(e));
+    }
 }
+type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;
+type TreeEventListener<T extends Tree<any>> = {
+    callback: TreeEventCallback<T>;
+    predicates: EventPredicate[];
+};
 
 
 export class TreeEvent<T> extends Event {
@@ -127,13 +170,32 @@ export class State {
                 set(val) {
                     if (state.data[prop] === val) return;
                     const old = state.data[prop] as any;
-                    state.data[prop] = val;
+                    state.data[prop] = watchArray(val);
                     Events.fire(new StateEvent(obj, prop, val, old));
                 },
             });
+            state.data[prop] = watchArray(state.data[prop]);
 
             // initial
             Events.fire(new StateEvent(obj, prop, state.data[prop] as any, undefined as any));
+
+            function watchArray<T>(arr: T[]|any): T[]|any {
+                if (!Array.isArray(arr)) return arr;
+        
+                return new Proxy(arr, {
+                    set: (_, key, val) => {
+                        const num = tryNum(key);
+                        if (num !== undefined) {
+                            const old = arr[num];
+                            if (val !== old) {
+                                arr[num] = val;
+                                Events.fire(new StateEvent(obj, prop, val, old)); // `${prop}[${key}]` as any
+                            }
+                        }
+                        return true;
+                    },
+                });
+            }
         }
     }
 }

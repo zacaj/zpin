@@ -16,4 +16,9 @@ describe('events', () => {
         Events.fire(new class extends Event { });
         expect(spy).not.toBeCalled();
     });
+    test('gets name', () => {
+        class E1 extends Event {}
+        const e = new E1();
+        expect(e.name).toBe('E1');
+    });
 });

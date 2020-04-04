@@ -33,8 +33,9 @@ export class Switch {
 ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
 
-        assert(!matrix[row][column]);
-        matrix[row][column] = this;
+        const m = matrix;
+        assert(!matrix[column][row]);
+        matrix[column][row] = this;
     }
 
     async init() {
@@ -98,8 +99,8 @@ export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
     return [onSwitch(sw), onClose()];
 }
 
-export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
-    return [onClose(), onAny(...sw.map(s => onSwitch(s)))];
+export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent> {
+    return onAny(...sw.map(s => onSwitchClose(s)));
 }
 
 export const SWITCH_MATRIX_WIDTH = 16;
@@ -126,23 +127,23 @@ safeSetInterval(async () => {
     while (time() - start < 5) {
         const resp = await getSwitchEvent();
         if (!resp || !resp.more || time() - resp.when > 1000/60*2) break;
-        if (matrix[resp.row][resp.col])
-            matrix[resp.row][resp.col]!.changeState(resp.state, resp.when);
+        if (matrix[resp.col][resp.row])
+            matrix[resp.col][resp.row]!.changeState(resp.state, resp.when);
         else if (resp.state)
             console.warn('got event for unregistered switch ', resp);
     }
 
     const newState = await getSwitchState();
     forRC((r,c,sw) => {
-        sw.state = newState[r][c];
+        sw.state = newState[c][r];
     });
 }, 1000/60, 'switch check');
 
 export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
     for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)
         for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
-            if (matrix[i][j])
-                cb(i, j, matrix[i][j]!);
+            if (matrix[j][i])
+                cb(i, j, matrix[j][i]!);
 }
 
 export async function getSwitchEvent(): Promise<{
