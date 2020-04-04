@@ -50,6 +50,19 @@
 				"zpin/"
 			]
         },
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "GFX",
+			"program": "${workspaceFolder}/gfx.ts",
+			"console": "integratedTerminal",
+			"outFiles": [
+				"${workspaceFolder}/build/*.js"
+			],
+			"args": [
+				"zpin/"
+			]
+        },
         {
             "type": "node",
             "request": "launch",

@@ -61,6 +61,7 @@ export class Timer {
                     await entry.func(entry);
                 } catch (err) {
                     Log.error('console', 'error running entry %o: ', entry, err);
+                    debugger;
                 }
                 if (entry.repeat) {
                     entry.time = time() + entry.repeat as Time;

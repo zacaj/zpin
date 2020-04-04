@@ -8,6 +8,7 @@ import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
 import { assert, getTypeIn } from './util';
 import { DropBank } from './drop-bank';
 import { Log } from './log';
+import { Color } from './light';
 
 abstract class MachineOutput<T> {
     actual!: T;
@@ -168,7 +169,7 @@ export class IncreaseSolenoid extends MomentarySolenoid {
 
 export class OnOffSolenoid extends Solenoid {
     constructor(
-        name: keyof MachineOutputs,
+        name: keyof CoilOutputs,
         num: number,
         board: Solenoid16,
         public maxOnTime?: number,
@@ -195,7 +196,29 @@ export class OnOffSolenoid extends Solenoid {
     }
 }
 
-export type MachineOutputs = {
+
+
+export class Light extends MachineOutput<Color[]> {
+    constructor(
+        name: keyof LightOutputs,
+        public num: number,
+    ) {
+        super([], name);
+    }
+
+    async init() {
+
+    }
+
+    async set(state: Color[]) {
+
+        return true;
+    }
+}
+
+export type MachineOutputs = CoilOutputs&LightOutputs;
+
+export type CoilOutputs = {
     rampUp: boolean;
     upper3: boolean;
     outhole: boolean;
@@ -221,6 +244,10 @@ export type MachineOutputs = {
     right3: boolean;
     right4: boolean;
     right5: boolean;
+};
+
+export type LightOutputs = {
+    lLowerRamp: Color[];
 };
 
 export class Machine extends Mode<MachineOutputs> {
@@ -250,6 +277,7 @@ export class Machine extends Mode<MachineOutputs> {
         right4: false,
         right5: false,
         temp: () => 0,
+        lLowerRamp: [],
     });
 
     solenoidBank1 = new Solenoid16(0);
@@ -343,6 +371,8 @@ export class Machine extends Mode<MachineOutputs> {
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center');
     sRampMade = new Switch(7, 0, 'ramp made');
     sPopperButton = new Switch(4, 8, 'popper button');
+
+    lRampDown = new Light('lLowerRamp', 0);
 
     upper3Bank = new DropBank(this, this.cUpper3, [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ]);
     upper2Bank = new DropBank(this, this.cUpper2, [ this.sUpper2Left, this.sUpper2Right ]);

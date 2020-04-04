@@ -16,6 +16,7 @@ export type LogCategory =
     'mpu' |
     'solenoid' |
     'machine' |
+    'gfx' |
     'game';
 const files = [
     'console',
@@ -23,6 +24,7 @@ const files = [
     'mpu',
     'solenoid',
     'machine',
+    'gfx',
     'game',
 ];
 

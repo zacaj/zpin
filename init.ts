@@ -9,6 +9,7 @@ const argv = require('yargs').argv;
 export async function initMachine() {
     Log.init();
     Log.log(['console'], 'Initializing....');
+    resetSwitchMatrix();
     await MPU.init(argv.ip);
     
     await machine.initOutputs();
