@@ -9,14 +9,15 @@ import { assert, getTypeIn } from './util';
 import { DropBank } from './drop-bank';
 import { Log } from './log';
 import { Color } from './light';
+import { gfxLights } from './gfx';
 
-abstract class MachineOutput<T> {
+abstract class MachineOutput<T, Outs = MachineOutputs> {
     actual!: T;
     timer?: TimerQueueEntry;
 
     constructor(
         public val: T,
-        public name: keyof MachineOutputs,
+        public name: keyof Outs,
     ) {
         this.actual = val;
         Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value),
@@ -198,7 +199,7 @@ export class OnOffSolenoid extends Solenoid {
 
 
 
-export class Light extends MachineOutput<Color[]> {
+export class Light extends MachineOutput<Color[], LightOutputs> {
     constructor(
         name: keyof LightOutputs,
         public num: number,
@@ -211,7 +212,8 @@ export class Light extends MachineOutput<Color[]> {
     }
 
     async set(state: Color[]) {
-
+        const l = gfxLights[this.name];
+        if (l) l.l!.set(state);
         return true;
     }
 }
