@@ -138,7 +138,7 @@ public class SwitchMatrix extends Thread {
 			
 			
 			curCol++;
-			if (curCol >= 8)
+			if (curCol >= 9)
 				curCol = 0;
 		}
 	}
