@@ -8,7 +8,7 @@ import { Events } from './events';
 import { assert } from './util';
 import { Game } from './game';
 
-export let gfx: AminoGfx;
+export let gfx: AminoGfx = new AminoGfx();
 let screenW: number;
 let screenH: number;
 let root: Group;
@@ -16,11 +16,10 @@ let playfield: Playfield;
 export let screen: Screen;
 
 export async function initGfx() {
-    gfx = await new Promise((resolve, reject) => {
-        const g = new AminoGfx();
-        g.start((err) => {
+    await new Promise((resolve, reject) => {
+        gfx.start((err) => {
             if (err) reject(err);
-            else resolve(g);
+            else resolve();
         });
     });
     Log.info('gfx', 'amino initialized');
@@ -52,7 +51,7 @@ export async function initGfx() {
     playfield = new Playfield();
     root.add(playfield);
 
-    screen = new Screen();
+    // screen = new Screen();
     playfield.add(screen);
     screen.x(5.5+Screen.w/2);
     screen.y(22.7-Screen.h/2);
@@ -125,6 +124,7 @@ export class Screen extends Group {
         this.add(gfx.createCircle().radius(10).x(0).y(0));
     }
 }
+screen = new Screen();
 
 class Light extends Circle {
 
