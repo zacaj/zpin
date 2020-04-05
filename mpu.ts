@@ -105,7 +105,7 @@ export const MPU = {
         socket.write(`#${seq} `+cmd+'\n');
 
         const resp = await this.lines[seq].promise;
-        Log.info('mpu', 'got response %s', resp);
+        Log.info('mpu', 'got response #%i %s', seq, resp);
 
         let firstSpace = resp.indexOf(' ');
         if (firstSpace === -1) firstSpace = resp.length;

@@ -135,7 +135,7 @@ safeSetInterval(async () => {
 
     const newState = await getSwitchState();
     forRC((r,c,sw) => {
-        sw.state = newState[c][r];
+        sw.state = newState[r][c];
     });
 }, 1000/60, 'switch check');
 
@@ -144,6 +144,14 @@ export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
         for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
             if (matrix[j][i])
                 cb(i, j, matrix[j][i]!);
+}
+
+export function getSwitchByName(name: string): Switch|undefined {
+    for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)
+        for (let j=0; j<SWITCH_MATRIX_WIDTH; j++)
+            if (matrix[j][i] && matrix[j][i]?.name === name)
+                return matrix[j][i];
+    return undefined;
 }
 
 export async function getSwitchEvent(): Promise<{

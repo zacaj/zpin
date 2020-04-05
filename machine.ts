@@ -6,10 +6,10 @@ import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
 import { assert, getTypeIn } from './util';
-import { DropBank } from './drop-bank';
+import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Color } from './light';
-import { gfxLights } from './gfx';
+import { gfxLights, gfxImages } from './gfx';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     actual!: T;
@@ -35,12 +35,13 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
             Log.trace(['machine'], 'try set %s to ', this.name, val);
             let success = await this.set(val);
             Log.trace('machine', '%s set: ', this.name, success);
-            if (!success) success = 5;
-            else if (success === true) {
+            if (success === true) {
                 this.actual = val;
+            } else {
+                if (!success) success = 5;
+                if (!this.timer)
+                    this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
             }
-            else if (!this.timer)
-                this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
 
         } catch (err) {
             Log.error(['machine'], 'error setting output %s to ', this.name, val, err);
@@ -212,13 +213,40 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
     }
 
     async set(state: Color[]) {
+        if (!gfxLights) return false;
         const l = gfxLights[this.name];
-        if (l) l.l!.set(state);
-        return true;
+        if (l?.l) {
+            l.l!.set(state);
+            return true;
+        }
+        return false;
     }
 }
 
-export type MachineOutputs = CoilOutputs&LightOutputs;
+
+export class Image extends MachineOutput<string, ImageOutputs> {
+    constructor(
+        name: keyof ImageOutputs,
+    ) {
+        super('', name);
+    }
+
+    async init() {
+
+    }
+
+    async set(state: string) {
+        if (!gfxImages) return false;
+        const l = gfxImages[this.name];
+        if (l?.l) {
+            l.l!.set(state);
+            return true;
+        }
+        return false;
+    }
+}
+
+export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs;
 
 export type CoilOutputs = {
     rampUp: boolean;
@@ -251,6 +279,28 @@ export type CoilOutputs = {
 export type LightOutputs = {
     lLowerRamp: Color[];
 };
+export type ImageOutputs = {
+    iCenter1: string;
+    iCenter2: string;
+    iCenter3: string;
+    iUpper31: string;
+    iUpper32: string;
+    iUpper33: string;
+    iUpper21: string;
+    iUpper22: string;
+    iLeft1: string;
+    iLeft2: string;
+    iLeft3: string;
+    iLeft4: string;
+    iRight1: string;
+    iRight2: string;
+    iRight3: string;
+    iRight4: string;
+    iRight5: string;
+    iMini1: string;
+    iMini2: string;
+    iMini3: string;
+};
 
 export class Machine extends Mode<MachineOutputs> {
     outs = new Outputs<MachineOutputs>(this, {
@@ -280,6 +330,26 @@ export class Machine extends Mode<MachineOutputs> {
         right5: false,
         temp: () => 0,
         lLowerRamp: [],
+        iCenter1: '',
+        iCenter2: '',
+        iCenter3: '',
+        iUpper31: '',
+        iUpper32: '',
+        iUpper33: '',
+        iUpper21: '',
+        iUpper22: '',
+        iLeft1: '',
+        iLeft2: '',
+        iLeft3: '',
+        iLeft4: '',
+        iRight1: '',
+        iRight2: '',
+        iRight3: '',
+        iRight4: '',
+        iRight5: '',
+        iMini1: '',
+        iMini2: '',
+        iMini3: '',
     });
 
     solenoidBank1 = new Solenoid16(0);
@@ -376,12 +446,32 @@ export class Machine extends Mode<MachineOutputs> {
 
     lRampDown = new Light('lLowerRamp', 0);
 
-    upper3Bank = new DropBank(this, this.cUpper3, [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ]);
-    upper2Bank = new DropBank(this, this.cUpper2, [ this.sUpper2Left, this.sUpper2Right ]);
-    centerBank = new DropBank(this, this.cCenterBank, [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ]);
-    miniBank = new DropBank(this, this.cMiniBank, [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ]);
-    leftBank = new DropBank(this, this.cLeftBank, [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ]);
-    rightBank = new DropBank(this, this.cRightBank, [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5]);
+    dropTargets: DropTarget[] = [];
+
+    upper3Bank = new DropBank(this, this.cUpper3, 
+        [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ],
+        [14, 15, 16],
+        ['iUpper31', 'iUpper32', 'iUpper33']);
+    upper2Bank = new DropBank(this, this.cUpper2, 
+        [ this.sUpper2Left, this.sUpper2Right ],
+        [12, 13], 
+        ['iUpper21', 'iUpper22']);
+    centerBank = new DropBank(this, this.cCenterBank, 
+        [ this.sCenterLeft, this.sCenterCenter, this.sCenterRight ],
+        [0, 1, 2],
+        ['iCenter1', 'iCenter2', 'iCenter3']);
+    miniBank = new DropBank(this, this.cMiniBank,
+        [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ],
+        [17, 18, 19],
+        ['iMini1', 'iMini2', 'iMini3']);
+    leftBank = new DropBank(this, this.cLeftBank, 
+        [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ],
+        [8, 9, 10, 11],
+        ['iLeft1', 'iLeft2', 'iLeft3', 'iLeft4']);
+    rightBank = new DropBank(this, this.cRightBank,
+        [ this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5],
+        [3, 4, 5, 6, 7],
+        ['iRight1', 'iRight2', 'iRight3', 'iRight4', 'iRight5']);
 
     async initOutputs() {
         Log.info(['machine', 'console'], 'initializing outputs...');

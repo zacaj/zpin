@@ -9,7 +9,7 @@ describe('game', () => {
         expectMachineOutputs('rampUp', 'upper3', 'centerBank', 'leftBank', 'rightBank', 'upper2', 'miniBank');
         const game = Game.start();
         for (const bank of getTypeIn<DropBank>(machine, DropBank)) {
-            for (const sw of bank.switches) {
+            for (const sw of bank.targets.map(t => t.switch)) {
                 sw.state = true;
             }
             await passTime(255);

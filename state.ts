@@ -184,12 +184,13 @@ export class State {
         
                 return new Proxy(arr, {
                     set: (_, key, val) => {
+                        const oldArr = arr.slice();
                         const num = tryNum(key);
                         if (num !== undefined) {
                             const old = arr[num];
                             if (val !== old) {
                                 arr[num] = val;
-                                Events.fire(new StateEvent(obj, prop, val, old)); // `${prop}[${key}]` as any
+                                Events.fire(new StateEvent(obj, prop, arr as any, oldArr as any)); // `${prop}[${key}]` as any
                             }
                         }
                         return true;

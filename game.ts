@@ -8,12 +8,18 @@ import { time } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
 import { initMachine } from './init';
 import { Log } from './log';
+import { Poker } from './poker';
+import { Color } from './light';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
 
     chips = 1;
+
     rampUp = true;
+    lowerRampLit = false;
+
+    poker!: Poker;
     
     private constructor() {
         super();
@@ -23,6 +29,7 @@ export class Game extends Mode<MachineOutputs> {
             rampUp: () => this.rampUp,
             troughRelease: () => machine.sTroughFull.onFor(400),
             shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500),
+            lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
         });
 
         this.listen(
@@ -30,8 +37,16 @@ export class Game extends Mode<MachineOutputs> {
             e => {
                 this.rampUp = false;
             });
+        this.listen(
+            [...onSwitchClose(machine.sRightInlane), () => this.lowerRampLit],
+            e => {
+                this.rampUp = false;
+            });
         this.listen(onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling),
-            e => this.rampUp = true);
+            e => {
+                this.rampUp = true;
+                this.lowerRampLit = !this.lowerRampLit;
+            });
         this.listen(onSwitchClose(machine.sLeftInlane),
             () => this.addChild(new KnockTarget()));
 
@@ -48,6 +63,8 @@ export class Game extends Mode<MachineOutputs> {
 
         this.addChild(new ClearHoles());
         this.addChild(new ResetAnyDropOnComplete());
+        this.poker = new Poker();
+        this.addChild(this.poker);
     }
 
     static start(): Game {

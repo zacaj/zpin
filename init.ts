@@ -10,6 +10,7 @@ export async function initMachine() {
     Log.init();
     Log.log(['console'], 'Initializing....');
     resetSwitchMatrix();
+    resetMachine();
     await MPU.init(argv.ip);
     
     await machine.initOutputs();
