@@ -16,8 +16,14 @@ export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends
         super();
     }
 }
-export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T, prop: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
-    return ((e: Event) => e instanceof StateEvent && e.on === on && e.prop === prop && (to === undefined || e.value === to)) as any;
+export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T, prop?: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
+    if (prop) assert(State.isPropWatched(on, prop as any));
+    else assert(State.hasState(on));
+    return ((e: Event) => e instanceof StateEvent
+        && e.on === on
+        && (prop === undefined || e.prop === prop)
+        && (to === undefined || e.value === to)
+    ) as any;
 }
 
 export abstract class Tree<Outs extends {} = {}> {
@@ -107,11 +113,18 @@ export abstract class Tree<Outs extends {} = {}> {
 
 
 
-    listen<T extends Event>(pred: OrArray<EventTypePredicate<T>>, func: (keyof this)|((e: T) => 'remove'|any)) {
+    listen<T extends Event>(
+        pred: OrArray<EventTypePredicate<T>>,
+        func: (keyof this)|((e: T) => 'remove'|any),
+    ): (e: T) => 'remove'|any {
         this.listeners.push({
             callback: func as any,
             predicates: arrayify(pred) as any,
         });
+        if (typeof func === 'function') 
+            return func;
+        else 
+            return this[func] as any;
     }
     private findListeners() {
         for (const key of getFuncNames(this)) {
@@ -163,6 +176,7 @@ export class State {
 
     static declare<T extends {}>(obj: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         const state = new State();
+        (obj as any).$state = state;
         for (const prop of props) {
             state.data[prop] = (obj as any)[prop];
             Object.defineProperty(obj, prop, {
@@ -187,21 +201,38 @@ export class State {
             function watchArray<T>(arr: T[]|any): T[]|any {
                 if (!Array.isArray(arr)) return arr;
         
-                return new Proxy(arr, {
+                const newArr = new Proxy(arr, {
                     set: (_, key, val) => {
-                        const oldArr = arr.slice();
                         const num = tryNum(key);
                         if (num !== undefined) {
                             const old = arr[num];
                             if (val !== old) {
                                 arr[num] = val;
-                                Events.fire(new StateEvent(obj, prop, arr as any, oldArr as any)); // `${prop}[${key}]` as any
+                                Events.fire(new StateEvent(newArr, key as any, val, old)); // `${prop}[${key}]` as any
                             }
+                        } else {
+                            arr[key as any] = val;
                         }
                         return true;
                     },
+                    get: (_, key) => {        
+                        if (Utils.stateAccessRecorder) {
+                            Utils.stateAccessRecorder(newArr, key as any);
+                        }
+                        return arr[key as any];
+                    },
                 });
+                (newArr as any).$state = new State();
+                return newArr;
             }
         }
+    }
+
+    static hasState(obj: {}): boolean {
+        return !!(obj as any).$state;
+    }
+
+    static isPropWatched(obj: {}, prop: string|number|symbol): boolean {
+        return prop in ((obj as any).$state?.data ?? {});
     }
 }

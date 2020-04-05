@@ -3,6 +3,9 @@ import { Mode } from './mode';
 import { State } from './state';
 import { Outputs } from './outputs';
 import { DropDownEvent } from './drop-bank';
+import { Group } from 'aminogfx-gl';
+import { gfx, screen } from './gfx';
+import { PokerGfx } from './gfx/poker';
 
 export class Poker extends Mode<MachineOutputs> {
     player: (Card|null)[] = [];
@@ -13,6 +16,8 @@ export class Poker extends Mode<MachineOutputs> {
     step = 2;
 
     slots: (Card|null)[] = [];
+
+    gfx!: PokerGfx;
 
     constructor() {
         super();
@@ -38,12 +43,19 @@ export class Poker extends Mode<MachineOutputs> {
                 }
             }
         });
+
+        screen.add(this.gfx = new PokerGfx(this));
+    }
+
+    end() {
+        screen.remove(this.gfx);
+        return super.end();
     }
 
     deal() {
-        this.player = [];
-        this.dealer = [];
-        this.slots = [];
+        this.player.clear();
+        this.dealer.clear();
+        this.slots.clear();
         this.deck = makeDeck();
 
         this.player.push(this.deck.pop()!);
@@ -74,6 +86,7 @@ function getFile(card: Card|null) {
     if (num === '1') num = 'A';
     return num+card.suit.toUpperCase();
 }
+export const getFileForCard = getFile;
 
 function makeDeck(): Card[] {
     const deck: Card[] = [];
@@ -89,7 +102,7 @@ function makeDeck(): Card[] {
     return deck;
 }
 
-interface Card {
+export interface Card {
     num: number;
     suit: Suit; 
     flipped?: true;

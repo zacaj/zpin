@@ -74,6 +74,7 @@ export type ReadWrite<T> = {
 declare global {
     interface Array<T> {
         remove(elem: T): Array<T>;
+        clear(): Array<T>;
     }
 }
 Array.prototype.remove = function<T>(this: T[], element: T): T[] {
@@ -81,6 +82,10 @@ Array.prototype.remove = function<T>(this: T[], element: T): T[] {
     while ((index = this.indexOf(element)) !== -1) {
         this.splice(index, 1);
     }
+    return this;
+};
+Array.prototype.clear = function<T>(this: T[]): T[] {
+    this.splice(0, this.length);
     return this;
 };
 // polyfill flatmap for jest

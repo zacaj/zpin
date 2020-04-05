@@ -8,12 +8,12 @@ import { Events } from './events';
 import { assert } from './util';
 import { Game } from './game';
 
-let gfx: AminoGfx;
+export let gfx: AminoGfx;
 let screenW: number;
 let screenH: number;
 let root: Group;
 let playfield: Playfield;
-let screen: Screen;
+export let screen: Screen;
 
 export async function initGfx() {
     gfx = await new Promise((resolve, reject) => {
@@ -54,8 +54,8 @@ export async function initGfx() {
 
     screen = new Screen();
     playfield.add(screen);
-    screen.x(5.5);
-    screen.y(22.7);
+    screen.x(5.5+Screen.w/2);
+    screen.y(22.7-Screen.h/2);
 
     playfield.acceptsMouseEvents = true;
     gfx.on('press', playfield, (e) => {
@@ -69,7 +69,7 @@ export class Playfield extends Group {
     static readonly w = 20.25;
     static readonly h = 45;
 
-    bg = makeImage('pf.png', Playfield.w, Playfield.h);
+    bg = makeImage('pf', Playfield.w, Playfield.h);
 
     constructor() {
         super(gfx);
@@ -118,11 +118,11 @@ export class Screen extends Group {
         this.h(Screen.h);
         this.sx(Screen.w/Screen.sw);
         this.sy(-Screen.h/Screen.sh);
-        this.originY(1);
+        this.originX(0.5).originY(.5);
 
-        this.add(gfx.createRect().w(Screen.sw).h(Screen.sh).originX(0).originY(0).fill('#000000'));
+        this.add(gfx.createRect().w(Screen.sw).h(Screen.sh).originX(.5).originY(.5).fill('#000000'));
         
-        this.add(gfx.createCircle().radius(10).x(500).y(300));
+        this.add(gfx.createCircle().radius(10).x(0).y(0));
     }
 }
 
@@ -207,13 +207,14 @@ if (require.main === module) {
     resetMachine();
     Log.init();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    initGfx();
-    const game = Game.start();
+    initGfx().then(() => {
+        const game = Game.start();
+    });
 }
 
-function makeImage(name: string, w: number, h: number): ImageView {
+export function makeImage(name: string, w: number, h: number): ImageView {
     const img = gfx.createImageView().opacity(1.0).w(w).h(h);
-    img.src('media/'+name).top(1).bottom(0).size('stretch');
+    img.src('media/'+name+'.png').top(1).bottom(0).size('stretch');
     return img;
 }
 
