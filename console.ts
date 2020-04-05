@@ -24,13 +24,17 @@ const rl = readline.createInterface({
     output: process.stdout,
 });
 
+let lastCmd = '';
 while (true) {
+    let cmd: string = '';
     try {
-        const cmd: string = await new Promise(r => rl.question('>', r));
-        await parseCommand(cmd);
+        cmd = await new Promise(r => rl.question('>', r));
+        await parseCommand(cmd || lastCmd);
     } catch (e) {
         Log.error(['console'], e);
     }
+    if (cmd)
+        lastCmd = cmd;
 }
 
 function getCoil(str: string): OnOffSolenoid|MomentarySolenoid {

@@ -19,6 +19,7 @@ export type EventCallback<E extends Event = Event> = ((e: E) => 'remove'|any)|{[
 export type EventListener = {
     callback: EventCallback;
     predicates: EventPredicate[];
+    cancelled?: true;
 };
 
 export const Events = {
@@ -26,6 +27,7 @@ export const Events = {
 
     fire(event: Event) {
         for (const l of this.listeners.slice()) {
+            if (l.cancelled) continue;
             if (l.predicates.some(p => !p(event))) continue;
             if (typeof l.callback === 'object') {
                 for (const funcName of Object.keys(l.callback)) {
@@ -60,6 +62,7 @@ export const Events = {
 
     cancel(listener: EventListener) {
         this.listeners.remove(listener);
+        listener.cancelled = true;
     },
 
     resetAll() {
