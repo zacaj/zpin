@@ -32,14 +32,15 @@ export class ResetAnyDropOnComplete extends Mode<MachineOutputs> {
 export class KnockTarget extends Mode<MachineOutputs> {
     constructor() {
         super();
-        const i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).find(i => i !== undefined);
-        if (!i) {
+        const i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).slice().find(i => i !== undefined);
+        if (i === undefined) {
             Log.info('game', 'no target to knock down');
             this.end();
             return;
         }
 
         const coil = machine.cRightDown[i];
+        Log.info('game', 'knock down target %i', i);
         this.out = new Outputs(this, {
             [coil.name]: !machine.rightBank.targets[i].state,
         });

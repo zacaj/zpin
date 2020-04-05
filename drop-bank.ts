@@ -7,6 +7,7 @@ import { getTypeIn } from './util';
 import { time } from './timer';
 import { KnockTarget } from './util-modes';
 import { Tree, State } from './state';
+import { Log } from './log';
 
 export interface DropTarget {
     state: boolean;
@@ -45,16 +46,25 @@ export class DropBank extends Tree<MachineOutputs> {
         this.listen([onAnySwitchClose(...switches), () => !coil.val],
             e => {
                 const i = switches.indexOf(e.sw);
-                if (this.targets[i].state) return;
+                if (this.targets[i].state) {
+                    Log.info('switch', 'drop switch %s detected, but was already down', e.sw.name);
+                    return;
+                }
 
                 this.targets[i].state = true;
                 Events.fire(new DropDownEvent(this.targets[i]));
-                if (this.targets.every(t => t.state))
+                Log.info('switch', 'drop switch %s down', e.sw.name);
+                if (this.targets.every(t => t.state)) {
                     Events.fire(new DropBankCompleteEvent(this));
+                    Log.info('switch', 'drop bank %s complete', this.coil.name);
+                }
             });
 
         this.listen(machine.out!.onOutputChange(coil.name, false, true),
-            () => switches.forEach((_, i) => this.targets[i].state === false));
+            () => {
+                Log.info('switch', 'drop bank %s reset successfully', this.coil.name);
+                switches.forEach((_, i) => this.targets[i].state = false);
+            });
     }
 
     allAreUp(): boolean {
@@ -82,7 +92,7 @@ export class DropBankResetter extends Mode<MachineOutputs> {
 
         this.out = new Outputs(this, {
             [bank.coil.name]: toggle({
-                on: () => bank.targets.every(t => t.switch.state),
+                on: () => bank.targets.every(t => t.switch.onFor(250)),
                 off: () => bank.targets.every(t => !t.switch.state),
             }),
         });
