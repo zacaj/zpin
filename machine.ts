@@ -557,7 +557,7 @@ export function resetMachine(): Machine {
 
     machine.addChild(new MachineOverrides());
 
-    Events.listen(e => machine.handleEvent(e), () => true);
+    // Events.listen(e => machine.handleEvent(e), () => true);
 
     return machine;
 }

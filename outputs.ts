@@ -1,6 +1,6 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, Tree, TreeEvent } from './state';
-import { Utils } from './util';
+import { Utils, assert } from './util';
 import { time } from './timer';
 
 type OutputFuncs<OutputTypes extends {}> = {
@@ -34,33 +34,35 @@ export class Outputs<Outs extends {}> {
         this.treeValues = {} as any;
         tree.out = this;
 
-        Events.listen<StateEvent<any, any>>(ev => {
-            // if not recorded, then always check it
-            // for (const [out, keys] of unrecorded.entries())
-            //     for (const key of keys) 
-            //         outputChanged(out, key);
+        this.tree.listen<StateEvent<any, any>>(e => e instanceof StateEvent,
+            ev => {
+                // if not recorded, then always check it
+                // for (const [out, keys] of unrecorded.entries())
+                //     for (const key of keys) 
+                //         outputChanged(out, key);
 
-            const l1 = this.listeners.get(ev.on); // keys on state we listen to
-            if (!l1) return;
-            const outs = l1.get(ev.prop); // which of our funcs listen
-            if (!outs) return;
+                const l1 = this.listeners.get(ev.on); // keys on state we listen to
+                if (!l1) return;
+                const outs = l1.get(ev.prop); // which of our funcs listen
+                if (!outs) return;
 
-            for (const key of outs) {
-                this.ownValueMayHaveChanged(key);
-            }
-        }, e => e instanceof StateEvent);
+                for (const key of outs) {
+                    this.ownValueMayHaveChanged(key);
+                }
+            });
 
         // catch child tree structure changes
-        Events.listen<TreeEvent<any>>(ev => {
-            if (ev.after.parent)
-                this.checkChildChange(ev.after);
-            if (ev.before.parent)
-                this.checkChildChange(ev.before);
-        }, e => e instanceof TreeEvent && (this.tree.hasChild(e.before) || this.tree.hasChild(e.after)));
+        this.tree.listen<TreeEvent<any>>(e => e instanceof TreeEvent && (this.tree.hasChild(e.before) || this.tree.hasChild(e.after)),
+            ev => {
+                if (ev.after.parent)
+                    this.checkChildChange(ev.after);
+                if (ev.before.parent)
+                    this.checkChildChange(ev.before);
+            });
 
         // catch child tree value changes
-        Events.listen((ev: OwnOutputEvent<Outs>) => this.updateTreeValue(ev.prop),
-            (e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree));
+        this.tree.listen((e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree),
+            (ev: OwnOutputEvent<Outs>) => this.updateTreeValue(ev.prop));
 
         const listeners = this.listeners;
         for (const key of Object.keys(origFuncs) as (keyof Outs)[]) {
@@ -78,7 +80,6 @@ export class Outputs<Outs extends {}> {
                 const ret = func(prev);
                 { // end recording
                     Utils.stateAccessRecorder = undefined;
-                    // unrecorded.get(outputs)!.delete(key);
                 }
                 return ret;
             }) as any;
@@ -86,8 +87,6 @@ export class Outputs<Outs extends {}> {
             // do initial record
             this.defaults[key] = this.ownValues[key] = this.funcs[key]!(undefined);
             Events.fire(new OwnOutputEvent(this, key, this.ownValues[key], undefined));
-    
-            // unrecorded.get(outputs)!.add(key as any);
         }
     }
 
@@ -185,11 +184,15 @@ export function toggle(opts: {
     return () => {
         const oldState = state;
         if (!state) {
-            if (opts.on())
+            if (opts.on()) {
+                assert(!opts.off());
                 state = true;
+            }
         } else {
-            if (opts.off())
+            if (opts.off()) {
+                assert(!opts.on());
                 state = false;
+            }
             else if (opts.maxOn && time() - changed > opts.maxOn)
                 state = false;
         }

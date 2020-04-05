@@ -42,7 +42,7 @@ export class DropBank extends Tree<MachineOutputs> {
             machine.dropTargets.push(target);
         }
 
-        this.listen([onAnySwitchClose(...switches), () => !coil.lastFired || time() - coil.lastFired > coil.ms],
+        this.listen([onAnySwitchClose(...switches), () => !coil.val],
             e => {
                 const i = switches.indexOf(e.sw);
                 if (this.targets[i].state) return;
@@ -82,7 +82,7 @@ export class DropBankResetter extends Mode<MachineOutputs> {
 
         this.out = new Outputs(this, {
             [bank.coil.name]: toggle({
-                on: () => bank.allAreDown(),
+                on: () => bank.targets.every(t => t.switch.state),
                 off: () => bank.targets.every(t => !t.switch.state),
             }),
         });

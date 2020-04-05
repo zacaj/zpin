@@ -1,5 +1,5 @@
-import { Event, EventPredicate, EventTypePredicate, Events } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum } from './util';
+import { Event, EventPredicate, EventTypePredicate, Events, EventListener } from './events';
+import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert } from './util';
 import { Outputs } from './outputs';
 import { onClose } from './switch-matrix';
 
@@ -29,6 +29,7 @@ export abstract class Tree<Outs extends {} = {}> {
     num = ++Tree.treeCount;
 
     ended = false;
+    listener!: EventListener;
 
     constructor(
         parent?: Tree<Outs>,
@@ -38,12 +39,15 @@ export abstract class Tree<Outs extends {} = {}> {
             parent.addChild(this);
 
         this.findListeners();
+
+        this.listener = Events.listen(e => this.handleEvent(e), () => true);
     }
 
     end(): 'remove' {
         this.ended = true;
         if (this.parent)
             this.parent.removeChild(this);
+        Events.cancel(this.listener);
         return 'remove';
     }
 
@@ -121,6 +125,7 @@ export abstract class Tree<Outs extends {} = {}> {
 
     listeners: TreeEventListener<any>[] = [];
     handleEvent(e: Event) {
+        assert(!this.ended);
         for (const l of this.listeners.slice()) {
             if (l.predicates.some(p => !p(e))) continue;
             let result: 'remove'|any;

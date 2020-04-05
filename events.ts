@@ -16,29 +16,30 @@ export abstract class Event {
 export type EventPredicate<E extends Event = Event> = (e: E) => boolean;
 export type EventTypePredicate<E extends Event = Event> = (e: Event) => boolean;//e is E;
 export type EventCallback<E extends Event = Event> = ((e: E) => 'remove'|any)|{[func: string]: {}};
+export type EventListener = {
+    callback: EventCallback;
+    predicates: EventPredicate[];
+};
 
 export const Events = {
-    listeners: [] as {
-        listener: EventCallback;
-        predicates: EventPredicate[];
-    }[],
+    listeners: [] as EventListener[],
 
     fire(event: Event) {
         for (const l of this.listeners.slice()) {
             if (l.predicates.some(p => !p(event))) continue;
-            if (typeof l.listener === 'object') {
-                for (const funcName of Object.keys(l.listener)) {
-                    const obj = l.listener[funcName] as any;
+            if (typeof l.callback === 'object') {
+                for (const funcName of Object.keys(l.callback)) {
+                    const obj = l.callback[funcName] as any;
                     const func = obj[funcName] as (e: Event) => 'remove'|any;
                     assert(func);
                     if (func.apply(obj, [event]) === 'remove') {
-                        delete l.listener[funcName];
+                        delete l.callback[funcName];
                     }
                 }
-                if (Object.keys(l.listener).length === 0)
+                if (Object.keys(l.callback).length === 0)
                     this.listeners.remove(l);
             } else {
-                if (l.listener(event) === 'remove')
+                if (l.callback(event) === 'remove')
                     this.listeners.remove(l);
             }
         }
@@ -48,12 +49,17 @@ export const Events = {
         l: L,
         typepred: OrArray<EventTypePredicate<E>>,
         ...preds: OrArray<EventPredicate<E>>[]
-    ): L {
-        this.listeners.push({
-            listener: l as any,
+    ): EventListener {
+        const listener: EventListener = {
+            callback: l as any,
             predicates: [typepred, ...preds].flat(),
-        });
-        return l;
+        };
+        this.listeners.push(listener);
+        return listener;
+    },
+
+    cancel(listener: EventListener) {
+        this.listeners.remove(listener);
     },
 
     resetAll() {

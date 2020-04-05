@@ -9,7 +9,7 @@ describe('events', () => {
         expect(pred(new E2())).toBe(false);
     });
     test('removes listener', () => {
-        const spy = Events.listen(jest.fn().mockReturnValue('remove'), e => true);
+        const spy = Events.listen(jest.fn().mockReturnValue('remove'), e => true).callback as any as jest.SpyInstance;
         Events.fire(new class extends Event { });
         expect(spy).toBeCalled();
         spy.mockClear();

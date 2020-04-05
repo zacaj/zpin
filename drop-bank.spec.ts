@@ -36,6 +36,7 @@ describe('drops', () => {
         expect(cUpper3Fire).toBeCalledTimes(2);
         expect(bank.out!.treeValues.upper3).toBe(true);
         machine.upper3Bank.targets[2].switch.changeState(false);
+        await passTime();
         expect(bank.out!.treeValues.upper3).toBe(false);
 
         expect(cUpper3Fire).toBeCalledTimes(2);
