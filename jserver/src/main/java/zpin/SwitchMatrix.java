@@ -21,8 +21,8 @@ public class SwitchMatrix extends Thread {
 	
 	GpioPinDigitalInput[] returns = new GpioPinDigitalInput[8];
 	GpioPinDigitalOutput serOut = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_25, PinState.LOW);
-	GpioPinDigitalOutput serLatch = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.HIGH); // 11
-	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
+	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.HIGH); // 11
+	GpioPinDigitalOutput serLatch = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
 	
 	int curCol = 0;
 	final int Width = 16;
@@ -93,7 +93,7 @@ public class SwitchMatrix extends Thread {
 	void setCol(int col) {
 		checkLock();
 		serLatch.low();
-		for (int i=0; i<Height; i++) {
+		for (int i=Width-1; i>=0; i--) {
 			serClk.low();
 			serOut.setState(i != col);
 			serClk.high();

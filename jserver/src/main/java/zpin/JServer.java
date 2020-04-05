@@ -173,7 +173,7 @@ public class JServer extends Thread
 							resp(response);
 							return true;
 						case "sw-config":
-							if (parts.length != 4)
+							if (parts.length != 5)
 								error("usage: sw-config row col minOnTime minOffTime");
 							int row = num(1);
 							int col = num(2);
@@ -182,6 +182,7 @@ public class JServer extends Thread
 							matrix.switches[row*matrix.Width+col].minOnTime = minOnTime;
 							matrix.switches[row*matrix.Width+col].minOffTime = minOffTime;
 							ack();
+							return true;
 						case "s":
 						case "select":
 							curBoard = num(1);
