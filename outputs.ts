@@ -52,7 +52,12 @@ export class Outputs<Outs extends {}> {
             });
 
         // catch child tree structure changes
-        this.tree.listen<TreeEvent<any>>(e => e instanceof TreeEvent && (this.tree.hasChild(e.before) || this.tree.hasChild(e.after)),
+        this.tree.listen<TreeEvent<any>>(e => e instanceof TreeEvent
+            && (this.tree.hasChild(e.before)
+                || this.tree.hasChild(e.after)
+                || e.before.hasParent(this.tree)
+                || e.after.hasParent(this.tree)
+            ),
             ev => {
                 if (ev.after.parent)
                     this.checkChildChange(ev.after);

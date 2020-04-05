@@ -50,10 +50,10 @@ export abstract class Tree<Outs extends {} = {}> {
     }
 
     end(): 'remove' {
+        Events.cancel(this.listener);
         this.ended = true;
         if (this.parent)
             this.parent.removeChild(this);
-        Events.cancel(this.listener);
         return 'remove';
     }
 
@@ -109,6 +109,9 @@ export abstract class Tree<Outs extends {} = {}> {
     isOrHasChild(node: Tree<Outs>): boolean {
         return node === this || this.getChildren().includes(node);
     }
+    hasParent(node: Tree<Outs>): boolean {
+        return this.getParents().includes(node);
+    }
 
 
 
@@ -150,8 +153,6 @@ export abstract class Tree<Outs extends {} = {}> {
             if (result === 'remove')
                 this.listeners.remove(l);
         }
-
-        this.getChildren().forEach(c => c.handleEvent(e));
     }
 }
 type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;
@@ -216,7 +217,7 @@ export class State {
                         return true;
                     },
                     get: (_, key) => {        
-                        if (Utils.stateAccessRecorder) {
+                        if (Utils.stateAccessRecorder && tryNum(key) !== undefined) {
                             Utils.stateAccessRecorder(newArr, key as any);
                         }
                         return arr[key as any];

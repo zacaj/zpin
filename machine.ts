@@ -12,6 +12,8 @@ import { Color } from './light';
 import { gfxLights, gfxImages } from './gfx';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
+    static id = 1;
+    id = MachineOutput.id++;
     actual!: T;
     timer?: TimerQueueEntry;
 
@@ -22,16 +24,17 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         this.actual = val;
         Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value),
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
+
     }
 
     async trySet(val: T) {
+        if (val === this.val) return;
+        this.val = val;
         this.stopRetry();
         if (val === this.actual) {
             return;
         }
         try {
-            this.val = val;
-            if (this.actual === val) return;
             Log.trace(['machine'], 'try set %s to ', this.name, val);
             let success = await this.set(val);
             Log.trace('machine', '%s set: ', this.name, success);
@@ -371,14 +374,13 @@ export class Machine extends Mode<MachineOutputs> {
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100);
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 8, 4);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 5);
-    cRightBank = new IncreaseSolenoid('rightBank', 14, this.solenoidBank2, 30, 100);
-    cRightDown = [
-        new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 250),
-        new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 250),
-        new IncreaseSolenoid('right3', 2, this.solenoidBank2, 25, 50, 3, 250),
-        new IncreaseSolenoid('right4', 4, this.solenoidBank2, 25, 50, 3, 250),
-        new IncreaseSolenoid('right5', 5, this.solenoidBank2, 25, 50, 3, 250),
-    ];
+    cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100);
+    cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 500);
+    cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 500);
+    cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 25, 50, 3, 500);
+    cRightDown4 = new IncreaseSolenoid('right4', 4, this.solenoidBank2, 25, 50, 3, 500);
+    cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 25, 50, 3, 500);
+    cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
 
     sLeftInlane = new Switch(1, 2, 'left inlane');
     sLeftOutlane = new Switch(1, 1, 'left outlane');
@@ -522,7 +524,7 @@ class EosPulse extends Mode<MachineOutputs> {
     constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
         super(undefined, 999);
 
-        Events.listen(() => coil.set(true), onSwitchClose(sw));
+        this.listen(onSwitchClose(sw), () => coil.set(true));
         // this.out = new Outputs(this, {
         //     rampUp: (up) => {
         //         const wrong = (sw.state !== invert);

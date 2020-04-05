@@ -111,6 +111,31 @@ describe('outputs', () => {
         parent.addChild(c1);
         expect(parent.out!.treeValues['rampUp']).toBe(true);
     });
+    test('resets output if child is removed', () => {
+        const fire = jest.spyOn(Events, 'fire');
+        const parent = new class extends Mode<{rampUp: boolean}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    rampUp: false,
+                });
+            }
+        };
+        const c1 = new class extends Mode<{rampUp: boolean}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    rampUp: true,
+                });
+            }
+        };
+        parent.addChild(c1);
+        expect(parent.out!.treeValues['rampUp']).toBe(true);
+        c1.end();
+        expect(parent.out!.treeValues['rampUp']).toBe(false);
+    });
 
     test('compute 1', () => {
         const root = new class extends Mode<{num: number}> {
