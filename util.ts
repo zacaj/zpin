@@ -142,3 +142,14 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
        e !== arr[i+1] && typeof (toCheck as any)[e] === 'function',
     ) as ((keyof T)&string)[];
 }
+
+export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): string {
+    const err = new Error();
+    const lines = err.stack!.split("\n").slice(2);
+    const imm_caller_line = lines[0];
+    const file = (imm_caller_line.match(/([^/\\]+\.js)/) ?? [])[0];
+    const caller_line_index = lines.findIndex(l => (!file || (ignoreCurFile && !l.includes(file))) && (!ignorePattern || !l.match(ignorePattern)));
+    
+    const callers = caller_line_index === -1? [imm_caller_line] : lines.slice(caller_line_index, caller_line_index+3);
+    return callers.map(l => l.split('at', 2)[1] || l).join(' <- ');
+}

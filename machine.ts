@@ -563,4 +563,4 @@ export function resetMachine(): Machine {
 
     return machine;
 }
-export let machine = resetMachine();
+export let machine: Machine;

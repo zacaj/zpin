@@ -1,12 +1,14 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect } from 'aminogfx-gl';
+import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts } from 'aminogfx-gl';
 import { Log } from './log';
 import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine } from './machine';
 import { Color, colorToHex } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
 import { Events } from './events';
-import { assert } from './util';
+import { assert, num, tryNum } from './util';
 import { Game } from './game';
+import { MPU } from './mpu';
+import * as fs from 'fs';
 
 export let gfx: AminoGfx = new AminoGfx();
 let screenW: number;
@@ -23,6 +25,16 @@ export async function initGfx() {
         });
     });
     Log.info('gfx', 'amino initialized');
+
+    fonts.registerFont({
+        name: 'card',
+        path: './media/',
+        weights: {
+            400: {
+                normal: 'CARDC__.TTF',
+            },
+        },
+    });
 
     gfx.fill('#FFFF00');
     gfx.showFPS(false);
@@ -47,6 +59,7 @@ export async function initGfx() {
     }
 
     root.add(gfx.createCircle().radius(10));
+    root.acceptsKeyboardEvents = true;
 
     playfield = new Playfield();
     root.add(playfield);
@@ -57,9 +70,43 @@ export async function initGfx() {
     screen.y(22.7-Screen.h/2);
 
     playfield.acceptsMouseEvents = true;
+    playfield.acceptsKeyboardEvents = true;
     gfx.on('press', playfield, (e) => {
         console.log('playfield location: ', e.point);
     });
+    gfx.on('key.press', null, (e) => {
+        console.log('key press', e.char, e.keycode);
+        if (e.char) {
+            let letter: number|undefined;
+            let number: number|undefined;
+            const qwerty = [81, 87, 69, 82, 84, 89, 85, 73, 79, 80];
+            const numbers = [49, 50, 51, 52, 53, 54, 55, 56, 57, 48];
+            if (qwerty.includes(e.keycode))
+                letter = qwerty.indexOf(e.keycode);
+            if (numbers.includes(e.keycode))
+                number = numbers.indexOf(e.keycode);
+            if (!letter) 
+                letter = qwerty.findIndex(q => gfx.inputHandler.statusObjects.keyboard.state[q]);
+            if (!number)
+                number = numbers.findIndex(q => gfx.inputHandler.statusObjects.keyboard.state[q]);
+            if (letter >= 0 && number >= 0) {
+                const sw = matrix[letter][number];  
+                if (!sw) 
+                    Log.error(['gfx', 'switch'], 'no active switch at %i, %i', letter, number);
+                else {  
+                    Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
+                    sw.changeState(!sw.state);
+                }
+            }
+        }
+    });
+    // playfield.add(gfx.createText().fontName('card').text('test text').y(20).sy(-.05).sx(.05).fontSize(50));
+
+    Log.log('gfx', 'precaching images');
+    for (const file of fs.readdirSync('./media')) {
+        if (!file.endsWith('.png')) continue;
+        await Image.set(null, file.slice(0, file.length - 4));
+    }
 
     Log.log('gfx', 'graphics initialized');
 }
@@ -121,7 +168,15 @@ export class Screen extends Group {
 
         this.add(gfx.createRect().w(Screen.sw).h(Screen.sh).originX(.5).originY(.5).fill('#000000'));
         
-        this.add(gfx.createCircle().radius(10).x(0).y(0));
+        const circle = gfx.createCircle().radius(10).x(0).y(0);
+        circle.x.anim({
+            from: 0,
+            to: 400,
+            dur: 1000,
+            loop: -1,
+            autoreverse: true,
+        }).start();
+        this.add(circle);
     }
 }
 screen = new Screen();
@@ -149,7 +204,7 @@ class Light extends Circle {
     }
 }
 
-class Image extends ImageView {
+export class Image extends ImageView {
 
     constructor(
         public name: keyof ImageOutputs,
@@ -168,9 +223,45 @@ class Image extends ImageView {
     }
 
     set(val: string) {
-        if (val.length)
-            this.src('media/'+val+'.png');
-        this.visible(val.length > 0);
+        Image.set(this, val);
+    }
+
+    static cache: { [name: string]: AminoImage|Promise<AminoImage> } = {};
+    static async set(image: ImageView|null, val: string) {
+        if (image?.src() === val) {
+            Log.trace('gfx', 'image %s set to same image, ignoring', val);
+            return;
+        }
+        image?.visible(val.length > 0);
+        if (val.length > 0) {
+            if (Image.cache[val]) {
+                if ('then' in Image.cache[val])
+                    Log.info('gfx', 'wait for image "%s" to be cached', val);
+                else
+                    Log.info('gfx', 'use cached image for "%s"', val);
+                image?.src(await Image.cache[val]);
+            }
+            else {
+                Log.info('gfx', 'new image load for %s', val);
+                const img = new AminoImage();
+                Image.cache[val] = new Promise((resolve, reject) => {
+                    img.onload = (err) => {
+                        if (err) {
+                            Log.error('gfx', 'error loading image "%s": ', val, err);
+                            debugger;
+                            reject(err);
+                            return;
+                        }
+                        image?.src(img);
+                        Image.cache[val] = img;
+                        resolve(img);
+                        Log.info('gfx', 'image %s loaded', val);
+                    };
+                });
+                img.src = 'media/'+val+'.png';
+                await Image.cache[val];
+            }
+        }
     }
 }
 
@@ -207,16 +298,19 @@ if (require.main === module) {
     resetMachine();
     Log.init();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // MPU.init('localhost').then(() => 
     initGfx().then(() => {
         const game = Game.start();
-    });
+    })//);
 }
 
 export function makeImage(name: string, w: number, h: number): ImageView {
     const img = gfx.createImageView().opacity(1.0).w(w).h(h);
-    img.src('media/'+name+'.png').top(1).bottom(0).size('stretch');
+    img.top(1).bottom(0).size('stretch');
+    Image.set(img, name);
     return img;
 }
+
 
 export const gfxLights: { [name in keyof LightOutputs]: {
     x: number;

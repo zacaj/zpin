@@ -1,5 +1,6 @@
-import { OrArray, assert, arrayify } from './util';
+import { OrArray, assert, arrayify, getCallerLoc } from './util';
 import { time } from './timer';
+import { Log } from './log';
 
 export abstract class Event {
     constructor(
@@ -20,15 +21,18 @@ export type EventListener = {
     callback: EventCallback;
     predicates: EventPredicate[];
     cancelled?: true;
+    source?: string;
 };
 
 export const Events = {
     listeners: [] as EventListener[],
 
     fire(event: Event) {
+        Log.trace([], 'fire event %s: ', event.name, event);
         for (const l of this.listeners.slice()) {
             if (l.cancelled) continue;
             if (l.predicates.some(p => !p(event))) continue;
+            // if (l.source) Log.trace([], 'fire for listener at %s', l.source);
             if (typeof l.callback === 'object') {
                 for (const funcName of Object.keys(l.callback)) {
                     const obj = l.callback[funcName] as any;
@@ -55,6 +59,7 @@ export const Events = {
         const listener: EventListener = {
             callback: l as any,
             predicates: [typepred, ...preds].flat(),
+            source: getCallerLoc(true),
         };
         this.listeners.push(listener);
         return listener;

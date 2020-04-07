@@ -12,7 +12,7 @@ export class ClearHoles extends Mode<MachineOutputs> {
         super();
 
         this.out = new Outputs(this, {
-            shooterDiverter: false,
+            // shooterDiverter: false,
             outhole: () => machine.sOuthole.onFor(500),
             upperEject: () => machine.sUpperEject.onFor(500),
             miniEject: () => machine.sMiniOut.onFor(500),

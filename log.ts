@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as util from 'util';
-import { OrArray, arrayify } from './util';
+import { OrArray, arrayify, getCallerLoc } from './util';
 import { time, Time } from './timer';
 const truncate = require('truncate-logs');
 
@@ -38,7 +38,7 @@ export class Log {
 
     static logMessage(level: Levels, categories: OrArray<LogCategory>, message: string, ...params: any[]) {
         const ts = Log.timestamp()+' ';
-        if (categories.includes('console') || level >= Levels.Log)
+        if (categories.includes('switch') || categories.includes('game') || level >= Levels.Log)
             console[level >= Levels.Error? 'error' : 'log'](ts+message, ...params);
         Log.write(Log.files.all, ts+Log.format(message, params)+'; \t\t'+JSON.stringify(categories)+' ');
         Log.trace(categories, message, ...params);
@@ -50,7 +50,7 @@ export class Log {
     private static lastTrace: Time;
     static trace(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
         const ts = Log.timestamp()+' ';
-        Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params));
+        Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
         if (time() - Log.lastTrace > 5*60*60*1000)
             truncate('trace.log', {lines: 50000});
     }

@@ -34,19 +34,16 @@ export class Outputs<Outs extends {}> {
         this.treeValues = {} as any;
         tree.out = this;
 
-        this.tree.listen<StateEvent<any, any>>(e => e instanceof StateEvent,
-            ev => {
-                // if not recorded, then always check it
-                // for (const [out, keys] of unrecorded.entries())
-                //     for (const key of keys) 
-                //         outputChanged(out, key);
-
+        this.tree.listen<StateEvent<any, any>>(ev => {
+                if (!(ev instanceof StateEvent)) return false;
                 const l1 = this.listeners.get(ev.on); // keys on state we listen to
-                if (!l1) return;
+                if (!l1) return false;
                 const outs = l1.get(ev.prop); // which of our funcs listen
-                if (!outs) return;
-
-                for (const key of outs) {
+                if (!outs?.size) return false;
+                return true;
+            },
+            ev => {
+                for (const key of this.listeners.get(ev.on)!.get(ev.prop)!) {
                     this.ownValueMayHaveChanged(key);
                 }
             });

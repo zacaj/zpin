@@ -1,7 +1,8 @@
 import { Event, EventPredicate, EventTypePredicate, Events, EventListener } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert } from './util';
+import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc } from './util';
 import { Outputs } from './outputs';
 import { onClose } from './switch-matrix';
+import { Log } from './log';
 
 export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
     constructor(
@@ -57,12 +58,14 @@ export abstract class Tree<Outs extends {} = {}> {
         return 'remove';
     }
 
-    addChild(node: Tree<Outs>) {
+    addChild(node: Tree<Outs>, priority?: number) {
         if (node.parent)
             node.parent.removeChild(node);
         const before = clone(node);
         node.parent = this;
         this.children.push(node);
+        if (priority)
+            (node as any).priority = priority;
         Events.fire(new TreeEvent(before, node));
     }
     removeChild(node: Tree<Outs>) {
@@ -123,6 +126,7 @@ export abstract class Tree<Outs extends {} = {}> {
         this.listeners.push({
             callback: func as any,
             predicates: arrayify(pred) as any,
+            source: getCallerLoc(true),
         });
         if (typeof func === 'function') 
             return func;
@@ -142,8 +146,10 @@ export abstract class Tree<Outs extends {} = {}> {
     listeners: TreeEventListener<any>[] = [];
     handleEvent(e: Event) {
         assert(!this.ended);
+        // Log.trace([], 'fire event %s: %j', e.name, e);
         for (const l of this.listeners.slice()) {
             if (l.predicates.some(p => !p(e))) continue;
+            if (l.source) Log.trace([], '\tfor listener at %s', l.source);
             let result: 'remove'|any;
             if (typeof l.callback === 'function') {
                 result = l.callback(e);
@@ -159,6 +165,7 @@ type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | Fun
 type TreeEventListener<T extends Tree<any>> = {
     callback: TreeEventCallback<T>;
     predicates: EventPredicate[];
+    source?: string;
 };
 
 

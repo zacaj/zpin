@@ -4,7 +4,7 @@ import { State, StateEvent, onChange, Tree } from './state';
 import { machine, MachineOutputs } from './machine';
 import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
-import { time } from './timer';
+import { time, safeSetTimeout } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
 import { initMachine } from './init';
 import { Log } from './log';
@@ -28,7 +28,11 @@ export class Game extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             troughRelease: () => machine.sTroughFull.onFor(400),
-            shooterDiverter: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500),
+            shooterDiverter: toggle({
+                on: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500) && machine.sShooterLane.openForAtLeast(5000)
+                    || machine.sShooterLane.state,
+                off: () => machine.sShooterLower.state,
+            }),
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
         });
 
@@ -61,8 +65,8 @@ export class Game extends Mode<MachineOutputs> {
             }
         });
 
-        this.addChild(new ClearHoles());
-        this.addChild(new ResetAnyDropOnComplete());
+        this.addChild(new ClearHoles(), -1);
+        this.addChild(new ResetAnyDropOnComplete(), -1);
         this.poker = new Poker();
         this.addChild(this.poker);
     }
@@ -88,8 +92,15 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
 
 if (require.main === module) {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-initMachine().then(() => {
+initMachine(true, false, false).then(() => {
     Log.log(['console'], 'starting game...');
     const game = Game.start();
+
+    safeSetTimeout(() => {
+        Log.log('console', 'start');
+        machine.sCenterCenter.state = true;
+        Log.log('console', 'end');
+        setTimeout(() => process.exit(0), 500);
+    }, 200, '');
 });
 }

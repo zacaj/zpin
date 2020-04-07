@@ -21,6 +21,7 @@
     "ts-jest": "^24.2.0"
   },
   "scripts": {
+    "build": "tsc",
     "build:watch": "tsc --watch",
     "console": "ts-node console.ts",
     "sync": "ts-node syncr.ts",

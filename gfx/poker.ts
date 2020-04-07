@@ -1,6 +1,6 @@
-import { Group } from "aminogfx-gl";
+import { Group, ImageView } from "aminogfx-gl";
 import { Poker, Card, getFileForCard } from "../poker";
-import { gfx, makeImage, Screen } from "../gfx";
+import { gfx, makeImage, Screen, Image } from "../gfx";
 import { onChange } from "../state";
 
 export class PokerGfx extends Group {
@@ -23,18 +23,21 @@ class PokerHand extends Group {
     ) {
         super(gfx);
         this.originX(0.5).originY(0.5);
+        for (let i=0; i<7; i++) {
+            const img = makeImage('', 100, PokerHand.h);
+            img.x(PokerHand.w/7*this.children.length-PokerHand.w/2);
+            this.add(img);
+        }
 
         poker.listen(onChange(hand), () => this.refresh());
         this.refresh();
     }
 
     refresh() {
-        this.clear();
+        let i=0;
         for (const card of this.hand) {
             const file = getFileForCard(card);
-            const img = makeImage(file, 100, PokerHand.h);
-            img.x(PokerHand.w/7*this.children.length-PokerHand.w/2);
-            this.add(img);
+            Image.set(this.children[i++] as ImageView, file);
         }
     }
 }
