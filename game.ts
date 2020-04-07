@@ -1,10 +1,10 @@
-import { SwitchEvent, onSwitchClose, onAnySwitchClose } from './switch-matrix';
+import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
-import { machine, MachineOutputs } from './machine';
+import { machine, MachineOutputs, resetMachine } from './machine';
 import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
-import { time, safeSetTimeout } from './timer';
+import { time, safeSetTimeout, Timer } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
 import { initMachine } from './init';
 import { Log } from './log';
@@ -96,11 +96,19 @@ initMachine(true, false, false).then(() => {
     Log.log(['console'], 'starting game...');
     const game = Game.start();
 
-    safeSetTimeout(() => {
-        Log.log('console', 'start');
-        machine.sCenterCenter.state = true;
-        Log.log('console', 'end');
-        setTimeout(() => process.exit(0), 500);
-    }, 200, '');
+    // safeSetTimeout(() => {
+    //     for (let i=0; i<100; i++) {
+    //     Log.log('console', 'start');
+    //     console.time('start');
+    //     machine.sCenterCenter.state = !machine.sCenterCenter.state;
+    //     console.timeEnd('start');
+    //     Log.log('console', 'end');
+    //     Events.resetAll();
+    //     Timer.reset();
+    //     resetSwitchMatrix();
+    //     resetMachine();
+    //     }
+    //     setTimeout(() => process.exit(0), 500);
+    // }, 200, '');
 });
 }

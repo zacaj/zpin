@@ -33,10 +33,13 @@ export class Log {
 
     static timestamp(): string {
         const d = new Date();
-        return d.getMinutes().toFixed().padStart(2, '0')+':'+d.getSeconds().toFixed().padStart(2, '0')+'.'+d.getMilliseconds().toFixed().padStart(3, '0');
+        const hr = process.hrtime();
+        return d.getMinutes().toFixed().padStart(2, '0')+':'+d.getSeconds().toFixed().padStart(2, '0')+
+            '.'/*+d.getMilliseconds().toFixed().padStart(3, '0')*/+(hr[1]).toFixed(0).padStart(6, '0').slice(0, 5);
     }
 
     static logMessage(level: Levels, categories: OrArray<LogCategory>, message: string, ...params: any[]) {
+        // Log.write(Log.files.all, JSON.stringify({level, categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
         if (categories.includes('switch') || categories.includes('game') || level >= Levels.Log)
             console[level >= Levels.Error? 'error' : 'log'](ts+message, ...params);
@@ -49,6 +52,7 @@ export class Log {
 
     private static lastTrace: Time;
     static trace(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
+        Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
         Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
         if (time() - Log.lastTrace > 5*60*60*1000)

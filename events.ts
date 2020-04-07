@@ -32,7 +32,7 @@ export const Events = {
         for (const l of this.listeners.slice()) {
             if (l.cancelled) continue;
             if (l.predicates.some(p => !p(event))) continue;
-            // if (l.source) Log.trace([], 'fire for listener at %s', l.source);
+            if (l.source) Log.trace([], 'fire for listener at %s', l.source);
             if (typeof l.callback === 'object') {
                 for (const funcName of Object.keys(l.callback)) {
                     const obj = l.callback[funcName] as any;

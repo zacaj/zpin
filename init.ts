@@ -11,8 +11,8 @@ const argv = require('yargs').argv;
 
 export async function initMachine(mpu = true, gfx = false, game = false) {
     if (argv.mpu !== undefined) mpu = argv.mpu;
-    if (argv.gfx !== undefined) gfx = argv.mpu;
-    if (argv.game !== undefined) game = argv.mpu;
+    if (argv.gfx !== undefined) gfx = argv.gfx;
+    if (argv.game !== undefined) game = argv.game;
     Log.init();
     Log.log(['console'], 'Initializing....');
     Events.resetAll();

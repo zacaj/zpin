@@ -294,9 +294,9 @@ class FxSwitch extends Rect {
 if (require.main === module) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     // initMachine().then(() => initGfx());
+    Log.init();
     resetSwitchMatrix();
     resetMachine();
-    Log.init();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     // MPU.init('localhost').then(() => 
     initGfx().then(() => {
