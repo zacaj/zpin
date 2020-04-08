@@ -363,7 +363,7 @@ export class Machine extends Mode<MachineOutputs> {
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100);
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100);
-    cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 10000);
+    cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new IncreaseSolenoid('lockPost', 10, this.solenoidBank1, 200, 800, 4, 2000);
     cRamp = new OnOffSolenoid('rampUp', 13, this.solenoidBank1, 100, 4);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);

@@ -24,7 +24,7 @@ class PokerHand extends Group {
         super(gfx);
         this.originX(0.5).originY(0.5);
         for (let i=0; i<7; i++) {
-            const img = makeImage('', 100, PokerHand.h);
+            const img = makeImage('', 100, PokerHand.h, false);
             img.x(PokerHand.w/7*this.children.length-PokerHand.w/2);
             this.add(img);
         }

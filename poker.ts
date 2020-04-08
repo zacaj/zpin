@@ -6,6 +6,7 @@ import { DropDownEvent } from './drop-bank';
 import { Group } from 'aminogfx-gl';
 import { gfx, screen } from './gfx';
 import { PokerGfx } from './gfx/poker';
+import { onSwitchClose } from './switch-matrix';
 
 export class Poker extends Mode<MachineOutputs> {
     player: (Card|null)[] = [];
@@ -32,17 +33,14 @@ export class Poker extends Mode<MachineOutputs> {
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
             const target = e.target;
-            if (this.slots[target.num]) {
+            if (this.slots[target.num] && this.step < 7) {
                 this.player[this.step] = this.slots[target.num];
                 this.slots[target.num] = null;
                 this.dealer[this.step] = this.deck.pop()!;
                 this.step++;
-
-                if (this.step >= 7) {
-                    this.deal();
-                }
             }
         });
+        this.listen(onSwitchClose(machine.sRampMade), () => this.deal());
 
         screen.add(this.gfx = new PokerGfx(this));
     }
@@ -84,7 +82,7 @@ function getFile(card: Card|null) {
     let num = `${card.num}`;
     if (card.num>10) num = 'JQK'.charAt(card.num-11);
     if (num === '1') num = 'A';
-    return num+card.suit.toUpperCase();
+    return num+card.suit.toLowerCase();
 }
 export const getFileForCard = getFile;
 

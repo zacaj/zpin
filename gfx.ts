@@ -72,7 +72,7 @@ export async function initGfx() {
     playfield.acceptsMouseEvents = true;
     playfield.acceptsKeyboardEvents = true;
     gfx.on('press', playfield, (e) => {
-        console.log('playfield location: ', e.point);
+        console.log('playfield location: ', { x: e.point.x, y: e.point.y });
     });
     gfx.on('key.press', null, (e) => {
         console.log('key press', e.char, e.keycode);
@@ -168,13 +168,14 @@ export class Screen extends Group {
 
         this.add(gfx.createRect().w(Screen.sw).h(Screen.sh).originX(.5).originY(.5).fill('#000000'));
         
-        const circle = gfx.createCircle().radius(10).x(0).y(0);
+        const circle = gfx.createCircle().radius(11).x(0).y(0);
         circle.x.anim({
-            from: 0,
+            from: -400,
             to: 400,
             dur: 1000,
             loop: -1,
-            autoreverse: true,
+            timefunc: 'linear',
+            autoreverse: false,
         }).start();
         this.add(circle);
     }
@@ -304,9 +305,10 @@ if (require.main === module) {
     })//);
 }
 
-export function makeImage(name: string, w: number, h: number): ImageView {
+export function makeImage(name: string, w: number, h: number, flip = true): ImageView {
     const img = gfx.createImageView().opacity(1.0).w(w).h(h);
-    img.top(1).bottom(0).size('stretch');
+    if (flip) img.top(1).bottom(0)
+    img.size('stretch');
     Image.set(img, name);
     return img;
 }
@@ -339,14 +341,14 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iRight3: { x: 16.5, y: 23.25, r: -77.6 },
     iRight4: { x: 16.7, y: 22.17, r: -77.6 },
     iRight5: { x: 17.1, y: 21.1, r: -77.6 },
-    iUpper21: { x: 7.95, y: 38.37, r: -157 },
-    iUpper22: { x: 6.9, y: 38.0, r: -157 },
+    iUpper21: { x: 6.9, y: 38.0, r: -157-180 },
+    iUpper22: { x: 7.95, y: 38.37, r: -157-180 },
     iUpper31: { x: 9.8, y: 38.9, r: -42 },
     iUpper32: { x: 10.5, y: 38.1, r: -42 },
     iUpper33: { x: 11.5, y: 37.3, r: -42 },
-    iMini1: { x: 2.5, y: 6.8, r: 153 },
-    iMini2: { x: 3.6, y: 6.25, r: 153 },
-    iMini3: { x: 4.8, y: 5.78, r: 153 },
+    iMini1: { x: 2.5, y: 6.8, r: 153-180 },
+    iMini2: { x: 3.6, y: 6.25, r: 153-180 },
+    iMini3: { x: 4.8, y: 5.78, r: 153-180 },
 };
 
 const gfxSwitches: { [name: string]: {
@@ -403,4 +405,10 @@ const gfxSwitches: { [name: string]: {
         x: 2.64375,
         y: 25.650000000000002,
     },
+    'ramp made':  { x: 2.5875, y: 38.025 },
+    'upper 2 left':  { x: 6.2437499999999995, y: 39.15 },
+    'upper 2 right':  { x: 7.3687499999999995, y: 39.43125 },
+    'upper 3 left':  { x: 10.575, y: 39.825 },
+    'upper 3 center':  { x: 11.25, y: 38.925 },
+    'upper 3 right':  { x: 12.206249999999999, y: 38.025 },
 };
