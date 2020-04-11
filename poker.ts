@@ -7,6 +7,7 @@ import { Group } from 'aminogfx-gl';
 import { gfx, screen } from './gfx';
 import { PokerGfx } from './gfx/poker';
 import { onSwitchClose } from './switch-matrix';
+import { Log } from './log';
 
 export class Poker extends Mode<MachineOutputs> {
     player: (Card|null)[] = [];
@@ -51,6 +52,7 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     deal() {
+        Log.info('game', 'dealing cards...');
         this.player.clear();
         this.dealer.clear();
         this.slots.clear();
@@ -72,6 +74,8 @@ export class Poker extends Mode<MachineOutputs> {
         }
 
         this.step = 2;
+
+        Log.info('game', 'deal complete');
     }
 }
 

@@ -2,6 +2,7 @@ import { Group, ImageView } from "aminogfx-gl";
 import { Poker, Card, getFileForCard } from "../poker";
 import { gfx, makeImage, Screen, Image } from "../gfx";
 import { onChange } from "../state";
+import { tryNum } from "../util";
 
 export class PokerGfx extends Group {
     constructor(
@@ -29,7 +30,13 @@ class PokerHand extends Group {
             this.add(img);
         }
 
-        poker.listen(onChange(hand), () => this.refresh());
+        poker.listen(onChange(hand), (e) => {
+            const i = tryNum(e.prop);
+            if (i !== undefined)
+                Image.set(this.children[i] as ImageView, getFileForCard(this.hand[i]));
+            else
+                this.refresh();
+        });
         this.refresh();
     }
 
