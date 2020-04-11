@@ -64,7 +64,7 @@ export class Outputs<Outs extends {}> {
             });
 
         // catch child tree value changes
-        this.tree.listen((e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree),
+        this.tree.listen((e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree) && e.prop in this.funcs,
             (ev: OwnOutputEvent<Outs>) => this.updateTreeValue(ev.prop));
 
         const listeners = this.listeners;

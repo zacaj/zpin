@@ -20,6 +20,7 @@ describe('drops', () => {
         expect(bank.out!.treeValues.upper3).toBe(false);
         await passTime();
         machine.upper3Bank.targets[2].switch.changeState(true);
+        await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
         await passTime();
         expect(cUpper3Fire).toBeCalledTimes(1);
@@ -36,7 +37,7 @@ describe('drops', () => {
         expect(cUpper3Fire).toBeCalledTimes(2);
         expect(bank.out!.treeValues.upper3).toBe(true);
         machine.upper3Bank.targets[2].switch.changeState(false);
-        await passTime();
+        await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(false);
 
         expect(cUpper3Fire).toBeCalledTimes(2);
@@ -52,7 +53,7 @@ describe('drops', () => {
 
         const bank = new DropBankResetter(machine.upper3Bank);
         machine.addChild(bank);
-        await passTime(1);
+        await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
 
         expect(cUpper3Fire).toBeCalledTimes(1);

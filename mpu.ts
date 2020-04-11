@@ -87,6 +87,10 @@ export const MPU = {
 
 
     async sendCommandCode(cmd: string): Promise<{code: number; resp: string}> {
+        if (!this.isConnected) {
+            Log.error('mpu', 'ignoring command %s, not connected', cmd);
+            return { code: 200, resp: '' };
+        }
         let seq: number = 0;
         do {
             seq = (Math.random()*1000)|0;
