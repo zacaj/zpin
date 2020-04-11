@@ -1,4 +1,4 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts } from 'aminogfx-gl';
+import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture } from 'aminogfx-gl';
 import { Log } from './log';
 import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine } from './machine';
@@ -227,12 +227,12 @@ export class Image extends ImageView {
         Image.set(this, val);
     }
 
-    static cache: { [name: string]: AminoImage|Promise<AminoImage> } = {};
+    static cache: { [name: string]: Texture|Promise<Texture> } = {};
     static async set(image: ImageView|null, val: string) {
-        if (image?.src() === val) {
-            Log.trace('gfx', 'image %s set to same image, ignoring', val);
-            return;
-        }
+        // if (image?.src() === val) {
+        //     Log.trace('gfx', 'image %s set to same image, ignoring', val);
+        //     return;
+        // }
         image?.visible(val.length > 0);
         if (val.length > 0) {
             if (Image.cache[val]) {
@@ -240,7 +240,7 @@ export class Image extends ImageView {
                     Log.info('gfx', 'wait for image "%s" to be cached', val);
                 else
                     Log.info('gfx', 'use cached image for "%s"', val);
-                image?.src(await Image.cache[val]);
+                image?.image(await Image.cache[val]);
             }
             else {
                 Log.info('gfx', 'new image load for %s', val);
@@ -253,10 +253,21 @@ export class Image extends ImageView {
                             reject(err);
                             return;
                         }
-                        image?.src(img);
-                        Image.cache[val] = img;
-                        resolve(img);
+                        
+                        const texture = gfx.createTexture();
+                        texture.loadTextureFromImage(img, (err) => {
+                            if (err) {
+                                Log.error('gfx', 'error loading image "%s": ', val, err);
+                            debugger;
+                            reject(err);
+                            return;
+                        }
+
+                        image?.image(texture);
+                        Image.cache[val] = texture;
+                        resolve(texture);
                         Log.info('gfx', 'image %s loaded', val);
+                    });
                     };
                 });
                 img.src = 'media/'+val+'.png';
