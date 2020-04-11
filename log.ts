@@ -52,7 +52,8 @@ export class Log {
 
     private static lastTrace: Time;
     static trace(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
-        Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
+        if (!Log.files.trace) return;
+        // Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
         Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
         if (time() - Log.lastTrace > 5*60*60*1000)
@@ -81,7 +82,7 @@ export class Log {
         fs.writeSync(fil, message+'\n');
     }
 
-    static init() {
+    static init(trace = true) {
         Log.lastTrace = time();
         for (const f of files) {
             Log.files[f] = fs.openSync(f+'.log', 'w');
@@ -89,7 +90,9 @@ export class Log {
         }
         Log.files.all= fs.openSync('all.log', 'w');
         Log.write(Log.files.all, `${new Date()}`);
-        Log.files.trace= fs.openSync('trace.log', 'w');
-        Log.write(Log.files.trace, `${new Date()}`);
+        if (trace) {
+            Log.files.trace= fs.openSync('trace.log', 'w');
+            Log.write(Log.files.trace, `${new Date()}`);
+        }
     }
 }

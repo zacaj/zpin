@@ -9,10 +9,11 @@ import { Game } from './game';
 
 const argv = require('yargs').argv;
 
-export async function initMachine(mpu = true, gfx = false, game = false) {
+export async function initMachine(mpu = true, gfx = false, game = false, trace = true) {
     if (argv.mpu !== undefined) mpu = argv.mpu;
     if (argv.gfx !== undefined) gfx = argv.gfx;
     if (argv.game !== undefined) game = argv.game;
+    if (argv.trace !== undefined) trace = argv.trace;
     Log.init();
     Log.log(['console'], 'Initializing....');
     Events.resetAll();

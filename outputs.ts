@@ -2,6 +2,7 @@ import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, Tree, TreeEvent } from './state';
 import { Utils, assert } from './util';
 import { time } from './timer';
+import { Log } from './log';
 
 type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;
@@ -79,11 +80,15 @@ export class Outputs<Outs extends {}> {
                     };
                 }
                 const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
-                const ret = func(prev);
-                { // end recording
+                try {
+                    const ret = func(prev);
+                    return ret;
+                } catch (err) {
+                    Log.error(['game'], 'error getting value for %s on %o', key, this.tree);
+                }
+                finally { // end recording
                     Utils.stateAccessRecorder = undefined;
                 }
-                return ret;
             }) as any;
     
             // do initial record

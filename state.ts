@@ -4,7 +4,7 @@ import { Outputs } from './outputs';
 import { onClose } from './switch-matrix';
 import { Log } from './log';
 
-export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends Event {//<T> extends Event {//
+export class StateEvent<T, Prop extends keyof T> extends Event {//<T> extends Event {//
     constructor(
         // public on: any, 
         // public prop: string,
@@ -17,7 +17,7 @@ export class StateEvent<T, Prop extends { [ K in keyof T]: K }[keyof T]> extends
         super();
     }
 }
-export function onChange<T, Prop extends { [ K in keyof T]: K }[keyof T]>(on: T, prop?: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
+export function onChange<T, Prop extends keyof T>(on: T, prop?: keyof T, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
     if (prop) assert(State.isPropWatched(on, prop as any));
     else assert(State.hasState(on));
     return ((e: Event) => e instanceof StateEvent
@@ -216,7 +216,7 @@ export class State {
                             const old = arr[num];
                             if (val !== old) {
                                 arr[num] = val;
-                                Events.fire(new StateEvent(newArr, key as any, val, old)); // `${prop}[${key}]` as any
+                                Events.fire(new StateEvent(newArr, key as any, val, old), `change array index ${num} of array ${prop}`); // `${prop}[${key}]` as any
                             }
                         } else {
                             arr[key as any] = val;

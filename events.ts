@@ -15,7 +15,7 @@ export abstract class Event {
 }
 
 export type EventPredicate<E extends Event = Event> = (e: E) => boolean;
-export type EventTypePredicate<E extends Event = Event> = (e: Event) => boolean;//e is E;
+export type EventTypePredicate<E extends Event = Event> = (e: E) => boolean;//e is E;
 export type EventCallback<E extends Event = Event> = ((e: E) => 'remove'|any)|{[func: string]: {}};
 export type EventListener = {
     callback: EventCallback;
@@ -27,8 +27,8 @@ export type EventListener = {
 export const Events = {
     listeners: [] as EventListener[],
 
-    fire(event: Event) {
-        Log.trace([], 'fire event %s: ', event.name, event);
+    fire(event: Event, context = '') {
+        Log.trace([], 'fire event %s: ', event.name, event, context);
         for (const l of this.listeners.slice()) {
             if (l.cancelled) continue;
             if (l.predicates.some(p => !p(event))) continue;
@@ -80,6 +80,6 @@ export function onType<T extends Event>(type: any): EventTypePredicate<T> {
     return e => e instanceof type;
 }
 
-export function onAny<T extends Event>(...preds: OrArray<EventPredicate>[]): EventPredicate {
+export function onAny<T extends Event>(...preds: OrArray<EventPredicate<T>>[]): EventPredicate<T> {
     return e => preds.some(p => arrayify(p).every(q => q(e)));
 }
