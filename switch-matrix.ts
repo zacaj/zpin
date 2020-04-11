@@ -102,6 +102,9 @@ export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
 export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent> {
     return onAny(...sw.map(s => onSwitchClose(s)));
 }
+export function onAnySwitchExcept(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
+    return [onClose(), e => !sw.includes(e.sw)];
+}
 
 export const SWITCH_MATRIX_WIDTH = 16;
 export const SWITCH_MATRIX_HEIGHT = 8;

@@ -7,3 +7,4 @@ _gsdata_/
 !jest.config.js
 tsconfig.tsbuildinfo
 RemoteSystemsTempFiles/.project
+.clinic/

@@ -1,6 +1,6 @@
 import { State, Tree } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose } from './switch-matrix';
+import { matrix, Switch, onSwitchClose, onClose, onAnySwitchExcept } from './switch-matrix';
 import { Events, Event } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
@@ -67,7 +67,6 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 }
 
 export abstract class Solenoid extends MachineOutput<boolean> {
-    lastFired?: Time;
 
     constructor(
         name: keyof MachineOutputs,
@@ -173,6 +172,8 @@ export class IncreaseSolenoid extends MomentarySolenoid {
 }
 
 export class OnOffSolenoid extends Solenoid {
+    lastChange?: Time;
+
     constructor(
         name: keyof CoilOutputs,
         num: number,
@@ -188,6 +189,7 @@ export class OnOffSolenoid extends Solenoid {
     }
 
     async set(on: boolean) {
+        this.lastChange = time();
         Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         if (on)
             await this.board.turnOnSolenoid(this.num);
@@ -319,7 +321,7 @@ export class Machine extends Mode<MachineOutputs> {
         centerBank: false,
         upper2: false,
         upperEject: false,
-        lockPost: false,
+        lockPost: () => this.lockDown,
         upperMagnet: false,
         leftMagnet: false,
         leftGate: false,
@@ -358,14 +360,14 @@ export class Machine extends Mode<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 25, 40, 4);
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 50, 500, 3, 1000);
-    cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 25);
+    cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 25, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 25, 5);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100);
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100);
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
-    cLockPost = new IncreaseSolenoid('lockPost', 10, this.solenoidBank1, 200, 800, 4, 2000);
-    cRamp = new OnOffSolenoid('rampUp', 13, this.solenoidBank1, 100, 4);
+    cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 3);
+    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 4);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 30, 100);
 
@@ -445,6 +447,7 @@ export class Machine extends Mode<MachineOutputs> {
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center');
     sRampMade = new Switch(7, 0, 'ramp made');
     sPopperButton = new Switch(4, 8, 'popper button');
+    sMagnetButton = new Switch(5, 8, 'magnet button');
 
     lRampDown = new Light('lLowerRamp', 0);
 
@@ -484,9 +487,12 @@ export class Machine extends Mode<MachineOutputs> {
         }
     }
 
+    lockDown = false;
     constructor() {
         super();
-        // this.listen(onClose(), 'up');
+        State.declare<Machine>(this, ['lockDown']);
+        this.listen(onSwitchClose(this.sRampMade), () => this.lockDown = true);
+        this.listen(onAnySwitchExcept(this.sRampMade), () => this.lockDown = false);
     }
 }
 
@@ -509,10 +515,9 @@ class MachineOverrides extends Mode<MachineOutputs> {
     constructor() {
         super(undefined, 999);
         this.out = new Outputs(this, {
-            rampUp: toggle({
-                on: () => machine.sRampDown.state && machine.sUnderRamp.wasClosedWithin(250),
-                off: () => machine.sUnderRamp.openForAtLeast(1000),
-            }),
+            rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
+             || (machine.cRamp.actual && time() - machine.cRamp.lastChange! < 1000)?
+             true : up,
         });
 
         this.addChild(new EosPulse(machine.cRamp, machine.sRampDown));
@@ -524,7 +529,7 @@ class EosPulse extends Mode<MachineOutputs> {
     constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
         super(undefined, 999);
 
-        this.listen(onSwitchClose(sw), () => coil.set(true));
+        this.listen([...onSwitchClose(sw), () => coil.val], () => coil.set(true));
         // this.out = new Outputs(this, {
         //     rampUp: (up) => {
         //         const wrong = (sw.state !== invert);

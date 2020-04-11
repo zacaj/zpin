@@ -1,4 +1,4 @@
-import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix } from './switch-matrix';
+import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnySwitchExcept } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange, Tree } from './state';
 import { machine, MachineOutputs, resetMachine } from './machine';
@@ -17,23 +17,22 @@ export class Game extends Mode<MachineOutputs> {
     chips = 1;
 
     rampUp = true;
+    shooterOpen = true;
     lowerRampLit = false;
 
     poker!: Poker;
     
     private constructor() {
         super();
-        State.declare<Game>(this, ['rampUp']);
+        State.declare<Game>(this, ['rampUp', 'shooterOpen']);
 
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             troughRelease: () => machine.sTroughFull.onFor(400),
-            shooterDiverter: toggle({
-                on: () => machine.sShooterLower.wasClosedWithin(1000) && machine.sShooterMagnet.openForAtLeast(1500) && machine.sShooterLane.openForAtLeast(5000)
-                    || machine.sShooterLane.state,
-                off: () => machine.sShooterLower.state,
-            }),
+            shooterDiverter: () => this.shooterOpen,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
+            leftMagnet: () => machine.sMagnetButton.state,
+            popper: () => machine.sPopperButton.state,
         });
 
         this.listen(
@@ -51,6 +50,11 @@ export class Game extends Mode<MachineOutputs> {
                 this.rampUp = true;
                 this.lowerRampLit = !this.lowerRampLit;
             });
+
+        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.shooterOpen = false);
+        // this.listen([...onSwitchClose(machine.sShooterLower)/*, () => machine.sShooterLane.wasClosedWithin(400)*/], () => this.shooterOpen = false);
+        this.listen(onAnySwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.shooterOpen = true);
+
         this.listen(onSwitchClose(machine.sLeftInlane),
             () => this.addChild(new KnockTarget()));
 
