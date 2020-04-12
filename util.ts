@@ -1,4 +1,5 @@
 import { time } from "./timer";
+import { Log } from "./log";
 
 
 export const Utils = {
@@ -113,6 +114,13 @@ export function clone<T>(obj: T): T {
     );
 }
 
+export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {
+    const c = Object.create(Object.getPrototypeOf(obj));
+    for (const p of props)
+        c[p] = obj[p];
+    return c;
+}
+
 export function assert(cond: any) {
     if (!cond) {
         debugger;
@@ -144,7 +152,7 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
 }
 
 export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): string {
-    return '';
+    if (!Log.files.trace) return '';
     const err = new Error();
     const lines = err.stack!.split("\n").slice(2);
     const imm_caller_line = lines[0];

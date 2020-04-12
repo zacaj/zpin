@@ -69,7 +69,7 @@ export abstract class Tree<Outs extends {} = {}> {
         Events.fire(new TreeEvent(before, node));
     }
     removeChild(node: Tree<Outs>) {
-        if (!this.children.includes(node)) debugger;
+        assert(this.children.includes(node));
         const before = clone(node);
         this.children.remove(node);
         node.parent = undefined;
@@ -146,10 +146,10 @@ export abstract class Tree<Outs extends {} = {}> {
     listeners: TreeEventListener<any>[] = [];
     handleEvent(e: Event) {
         assert(!this.ended);
-        // Log.trace([], 'fire event %s: %j', e.name, e);
+        // Log.trace([], 'tree fire event %s: %j', e.name, e);
         for (const l of this.listeners.slice()) {
             if (l.predicates.some(p => !p(e))) continue;
-            if (l.source) Log.trace([], '\tfor listener at %s', l.source);
+            Log.trace([], '\tfor listener at %s', l.source ?? '?');
             let result: 'remove'|any;
             if (typeof l.callback === 'function') {
                 result = l.callback(e);
@@ -159,6 +159,11 @@ export abstract class Tree<Outs extends {} = {}> {
             if (result === 'remove')
                 this.listeners.remove(l);
         }
+    }
+
+    cleanLog(): string {
+        return `${this.constructor.name} #${this.num}` + 
+            (State.hasState(this)? ' '+JSON.stringify((this as any).$state) : '');
     }
 }
 type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;
@@ -216,7 +221,7 @@ export class State {
                             const old = arr[num];
                             if (val !== old) {
                                 arr[num] = val;
-                                Events.fire(new StateEvent(newArr, key as any, val, old), `change array index ${num} of array ${prop}`); // `${prop}[${key}]` as any
+                                Events.fire(new StateEvent(newArr, key as any, val, old), `change index ${num} of array ${prop}`); // `${prop}[${key}]` as any
                             }
                         } else {
                             arr[key as any] = val;

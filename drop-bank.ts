@@ -82,6 +82,10 @@ export class DropBank extends Tree<MachineOutputs> {
     onAllDown(): EventTypePredicate<DropBankCompleteEvent> {
         return e => e instanceof DropBankCompleteEvent && e.bank === this;
     }
+
+    cleanLog() {
+        return `DropBank ${this.coil?.name}`;
+    }
 }
 
 export class DropBankResetter extends Mode<MachineOutputs> {

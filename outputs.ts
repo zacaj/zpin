@@ -1,6 +1,6 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, Tree, TreeEvent } from './state';
-import { Utils, assert } from './util';
+import { Utils, assert, selectiveClone } from './util';
 import { time } from './timer';
 import { Log } from './log';
 
@@ -110,7 +110,7 @@ export class Outputs<Outs extends {}> {
     }*/
     
     ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
-        if (!(key in this.funcs) || !this.funcs[key]) debugger;
+        assert((key in this.funcs) && this.funcs[key]);
         const func = this.funcs[key]! as Function;
         const oldValue = this.ownValues[key];
         const newValue = func();
@@ -155,6 +155,10 @@ export class Outputs<Outs extends {}> {
             && (to === undefined || e.value === to) 
             && (from === undefined || e.oldValue === from)
         ) as any;
+    }
+
+    cleanLog() {
+        return selectiveClone(this, 'tree', 'ownValues', 'treeValues');
     }
 }
 

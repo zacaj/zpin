@@ -233,14 +233,18 @@ export class Image extends ImageView {
         //     Log.trace('gfx', 'image %s set to same image, ignoring', val);
         //     return;
         // }
+        // const n = Math.random();
+        // console.time('set image'+n);
         image?.visible(val.length > 0);
         if (val.length > 0) {
             if (Image.cache[val]) {
-                if ('then' in Image.cache[val])
+                if ('then' in Image.cache[val]) {
                     Log.info('gfx', 'wait for image "%s" to be cached', val);
-                else
+                    image?.image(await Image.cache[val]);
+                } else {
                     Log.info('gfx', 'use cached image for "%s"', val);
-                image?.image(await Image.cache[val]);
+                    image?.image(Image.cache[val] as Texture);
+                }
             }
             else {
                 Log.info('gfx', 'new image load for %s', val);
@@ -249,7 +253,7 @@ export class Image extends ImageView {
                     img.onload = (err) => {
                         if (err) {
                             Log.error('gfx', 'error loading image "%s": ', val, err);
-                            debugger;
+                            // debugger;
                             reject(err);
                             return;
                         }
@@ -258,7 +262,7 @@ export class Image extends ImageView {
                         texture.loadTextureFromImage(img, (err) => {
                             if (err) {
                                 Log.error('gfx', 'error loading image "%s": ', val, err);
-                            debugger;
+                            // debugger;
                             reject(err);
                             return;
                         }
@@ -274,6 +278,7 @@ export class Image extends ImageView {
                 await Image.cache[val];
             }
         }
+        // console.timeEnd('set image'+n);
     }
 }
 

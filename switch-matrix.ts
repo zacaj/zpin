@@ -1,5 +1,5 @@
 import { MPU } from './mpu';
-import { split, nums, JSONValue, clone, assert } from './util';
+import { split, nums, JSONValue, clone, assert, selectiveClone } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate, onAny } from './events';
 import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
@@ -30,7 +30,7 @@ export class Switch {
         public readonly name = `${row},${column}`,
         public minOnTime = 1,
         public minOffTime = 1,
-) {
+    ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
 
         const m = matrix;
@@ -71,6 +71,10 @@ export class Switch {
 
     openForAtLeast(ms: number): boolean {
         return !this.state && (!this.lastOn || time() - this.lastOn > ms);
+    }
+
+    cleanLog() {
+        return selectiveClone(this, 'name', '_state', 'row', 'column');
     }
 }
 

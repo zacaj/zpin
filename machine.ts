@@ -28,7 +28,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     }
 
     async trySet(val: T) {
-        if (val === this.val) return;
+        // if (val === this.val) return;
         this.val = val;
         this.stopRetry();
         if (val === this.actual) {
