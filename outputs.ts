@@ -21,6 +21,7 @@ export class Outputs<Outs extends {}> {
     treeValues!: Outs;
     defaults!: Partial<Outs>;
     funcs!: OutputFuncs<Outs>;
+    funcParam!: { [key in keyof Outs]: boolean};
 
     // state -> stateKey -> our key that listens to it
     listeners = new Map<{}, Map<string, Set<keyof Outs>>>();
@@ -32,6 +33,7 @@ export class Outputs<Outs extends {}> {
         this.defaults = {} as any;
         this.funcs = {} as any;
         this.ownValues = {} as any;
+        this.funcParam = {} as any;
         this.treeValues = {} as any;
         tree.out = this;
 
@@ -80,6 +82,7 @@ export class Outputs<Outs extends {}> {
                     };
                 }
                 const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
+                this.funcParam[key] = typeof origFuncs[key] === 'function' && (origFuncs[key] as Function).length > 0;
                 try {
                     const ret = func(prev);
                     return ret;
@@ -111,7 +114,7 @@ export class Outputs<Outs extends {}> {
         const func = this.funcs[key]! as Function;
         const oldValue = this.ownValues[key];
         const newValue = func();
-        if (oldValue === newValue && !func.length) return;
+        if (oldValue === newValue && !this.funcParam[key]) return;
         this.ownValues[key] = newValue;
         Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
     }
