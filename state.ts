@@ -216,16 +216,16 @@ export class State {
         
                 const newArr = new Proxy(arr, {
                     set: (_, key, val) => {
-                        const num = tryNum(key);
-                        if (num !== undefined) {
+                        const num = key as number; //tryNum(key);
+                        // if (num !== undefined) {
                             const old = arr[num];
                             if (val !== old) {
                                 arr[num] = val;
                                 Events.fire(new StateEvent(newArr, key as any, val, old), `change index ${num} of array ${prop}`); // `${prop}[${key}]` as any
                             }
-                        } else {
-                            arr[key as any] = val;
-                        }
+                        // } else {
+                        //     arr[key as any] = val;
+                        // }
                         return true;
                     },
                     get: (_, key) => {        
