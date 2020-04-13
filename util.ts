@@ -1,7 +1,3 @@
-import { time } from "./timer";
-import { Log } from "./log";
-
-
 export const Utils = {
     // obj: the state object whose key was changed
     stateAccessRecorder: undefined as undefined|(<T extends {}>(obj: T, key: (keyof T)&string) => void),
@@ -35,7 +31,10 @@ export function num(input: string, def?: number): number {
     return num;
 }
 
-export function tryNum(str: string|any): number|undefined {
+export function tryNum(str: any): number|undefined {
+    if (typeof str === 'number') return str as number;
+    const first = (str as string).charCodeAt(0);
+    if (first >= 48 && first <= 57) return str as number;
     try {
         return num(str);
     } catch (e) {
