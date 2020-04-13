@@ -152,7 +152,7 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
 }
 
 export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): string {
-    if (!Log.files.trace) return '';
+    if (!require('./log').Log.files.trace) return '';
     const err = new Error();
     const lines = err.stack!.split("\n").slice(2);
     const imm_caller_line = lines[0];
