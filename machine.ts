@@ -5,7 +5,7 @@ import { Events, Event } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
-import { assert, getTypeIn } from './util';
+import { assert, getTypeIn, then } from './util';
 import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Color } from './light';
@@ -27,31 +27,31 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 
     }
 
-    async trySet(val: T) {
+    trySet(val: T): Promise<void>|void {
         // if (val === this.val) return;
         this.val = val;
         this.stopRetry();
         if (val === this.actual) {
-            return;
+            return undefined;
         }
-        try {
-            Log.trace(['machine'], 'try set %s to ', this.name, val);
-            let success = await this.set(val);
-            Log.trace('machine', '%s set: ', this.name, success);
-            if (success === true) {
-                this.actual = val;
-            } else {
-                if (!success) success = 5;
+        Log.trace(['machine'], 'try set %s to ', this.name, val);
+        return then(this.set(val), success => {
+            try {
+                Log.trace('machine', '%s set: ', this.name, success);
+                if (success === true) {
+                    this.actual = val;
+                } else {
+                    if (!success) success = 5;
+                    if (!this.timer)
+                        this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
+                }
+            } catch (err) {
+                Log.error(['machine'], 'error setting output %s to ', this.name, val, err);
+                debugger;
                 if (!this.timer)
-                    this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
+                    this.timer = Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
             }
-
-        } catch (err) {
-            Log.error(['machine'], 'error setting output %s to ', this.name, val, err);
-            debugger;
-            if (!this.timer)
-                this.timer = Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
-        }
+        });
     }
 
     private stopRetry() {
@@ -63,7 +63,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 
     abstract async init(): Promise<void>;
 
-    abstract async set(val: T): Promise<boolean|number>;
+    abstract set(val: T): Promise<boolean|number>|boolean|number;
 }
 
 export abstract class Solenoid extends MachineOutput<boolean> {
@@ -217,7 +217,7 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
 
     }
 
-    async set(state: Color[]) {
+    set(state: Color[]): boolean {
         if (!gfxLights) return false;
         const l = gfxLights[this.name];
         if (l?.l) {
@@ -240,7 +240,7 @@ export class Image extends MachineOutput<string, ImageOutputs> {
 
     }
 
-    async set(state: string) {
+    set(state: string): boolean {
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
         if (l?.l) {

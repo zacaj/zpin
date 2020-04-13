@@ -161,3 +161,7 @@ export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): str
     const callers = caller_line_index === -1? [imm_caller_line] : lines.slice(caller_line_index, caller_line_index+3);
     return callers.map(l => split(l, 'at')[1] || l).join(' <- ');
 }
+export function then<T, U = undefined>(val: Promise<T>|T, cb: (x: T) => U): Promise<U>|U {
+    if ((val as any).then) return (val as Promise<T>).then(cb);
+    return cb(val as T);
+}
