@@ -224,11 +224,11 @@ export class Image extends ImageView {
     }
 
     set(val: string) {
-        Image.set(this, val);
+        return Image.set(this, val);
     }
 
     static cache: { [name: string]: Texture|Promise<Texture> } = {};
-    static async set(image: ImageView|null, val: string) {
+    static set(image: ImageView|null, val: string): Promise<any>|undefined {
         // if (image?.src() === val) {
         //     Log.trace('gfx', 'image %s set to same image, ignoring', val);
         //     return;
@@ -240,9 +240,9 @@ export class Image extends ImageView {
             if (Image.cache[val]) {
                 if ('then' in Image.cache[val]) {
                     Log.info('gfx', 'wait for image "%s" to be cached', val);
-                    image?.image(await Image.cache[val]);
+                    return (Image.cache[val] as Promise<Texture>).then(tex => image?.image(tex));
                 } else {
-                    Log.info('gfx', 'use cached image for "%s"', val);
+                    Log.trace('gfx', 'use cached image for "%s"', val);
                     image?.image(Image.cache[val] as Texture);
                 }
             }
@@ -275,10 +275,11 @@ export class Image extends ImageView {
                     };
                 });
                 img.src = 'media/'+val+'.png';
-                await Image.cache[val];
+                return Image.cache[val] as Promise<Texture>;
             }
         }
         // console.timeEnd('set image'+n);
+        return undefined;
     }
 }
 
