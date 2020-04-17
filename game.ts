@@ -57,6 +57,7 @@ export class Game extends Mode<MachineOutputs> {
         this.playerUp = 0;
         this.ballNum = 1;
         this.addChild(this.curPlayer);
+        this.curPlayer.startBall();
     }
 
     onBallEnd() {

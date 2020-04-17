@@ -427,6 +427,8 @@ const gfxCoils: { [name: string]: {
     'rightBank':  { x: 17.943749999999998, y: 23.7375 },
     'right1': { x: 17.49375, y: 26.1 },
     'right2': { x: 17.83125, y: 25.087500000000002 },
+    'miniBank': { x: 4.3875, y: 8.100000000000001 },
+    'rampUp': { x: 3.15, y: 31.725 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
@@ -494,4 +496,7 @@ const gfxSwitches: { [name: string]: {
     'shooter magnet': { x: 19.18125, y: 33.69375},
     'outhole': { x: 9.5625, y: 3.2062500000000043 },
     'trough full': { x: 15.1875, y: 4.893750000000004 },
+    'mini left': { x: 2.925, y: 7.818750000000001 },
+    'mini center': { x: 3.8812499999999996, y: 7.481250000000003 },
+    'mini right': { x: 5.23125, y: 6.918750000000003 },
 };

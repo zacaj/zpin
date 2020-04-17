@@ -8,6 +8,7 @@ import { Events, onType } from './events';
 import { Tree } from './tree';
 import { onSwitchClose } from './switch-matrix';
 import { MPU } from './mpu';
+import { wait } from './timer';
 
 export class ClearHoles extends Mode<MachineOutputs> {
 
@@ -40,6 +41,10 @@ export class ResetMechs extends Mode<MachineOutputs> {
         for (const bank of machine.dropBanks) {
             if (!bank.targets.some(t => t.switch.state)) continue;
             outs[bank.coil.name] = () => bank.targets.some(t => t.switch.state);
+        }
+        if (Object.keys(outs).length === 0) {
+            wait(1).then(() => this.end());
+            return;
         }
         this.out = new Outputs(this, outs);
 

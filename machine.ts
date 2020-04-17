@@ -322,7 +322,7 @@ export type ImageOutputs = {
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 25, 40, 4, undefined, undefined, () => this.sOuthole.state = false);
-    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => this.sTroughFull.state = false);
+    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => { this.sTroughFull.state = false; this.sShooterLane.state = true; });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 2);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
