@@ -161,6 +161,11 @@ export class Playfield extends Group {
             gfxSwitches[name].s = new FxSwitch(getSwitchByName(name)!);
             this.add(gfxSwitches[name].s!);
         }
+
+        for (const name of Object.keys(gfxCoils)) {
+            gfxCoils[name].c = new FxCoil(Object.values(machine).find(v => v instanceof Solenoid && v.name === name));
+            this.add(gfxCoils[name].c!);
+        }
     }
 }
 
@@ -320,6 +325,27 @@ class FxSwitch extends Rect {
     }
 }
 
+class FxCoil extends Rect {
+    constructor(
+        public coil: Solenoid,
+    ) {
+        super(gfx);
+        assert(coil);
+
+        this.originX(0.5).originY(0.5);
+        this.w(0.5).h(0.5);
+        this.rz(45);
+
+        const {x,y} = gfxCoils[coil.name];
+        this.x(x).y(y);
+
+        this.fill(coil.val? '#ff0000' : '#ffffff');
+        Events.listen(() => {
+            this.fill(coil.val? '#ff0000' : '#fffff');
+        }, machine.out!.onOutputChange(coil.name));
+    }
+}
+
 if (require.main === module) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     // initMachine().then(() => initGfx());
@@ -379,6 +405,20 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iMini3: { x: 4.8, y: 5.78, r: 153-180 },
 };
 
+const gfxCoils: { [name: string]: {
+    x: number;
+    y: number;
+    c?: FxCoil;
+}} = {
+    'shooterDiverter': { x: 17.75, y: 18.45625 },
+    'lockPost': { x: 1.74375, y: 29.64375 },
+    'miniDiverter': { x: 2.30625, y: 9.731250000000003 },
+    'centerBank':  { x: 11.19375, y: 27.337500000000002 },
+    'leftBank':  { x: 1.4625, y: 23.90625 },
+    'rightBank':  { x: 17.943749999999998, y: 23.7375 },
+    'right1': { x: 17.49375, y: 26.1 },
+    'right2': { x: 17.83125, y: 25.087500000000002 },
+};
 const gfxSwitches: { [name: string]: {
     x: number;
     y: number;
