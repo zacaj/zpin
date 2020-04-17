@@ -65,11 +65,11 @@ export const MPU = {
                     const greeting = await this.lines[0].promise;
 
                     Log.info(['mpu'],'MPU: ', greeting);
-                    await this.sendCommand(apiVersion);
+                    await this.sendCommand(apiVersion, true);
 
                     {
                         const local = time();
-                        const remote = parseInt(await this.sendCommand('time'), 10);
+                        const remote = parseInt(await this.sendCommand('time', true), 10);
                         this.timeOffset = (local - remote) as Time;
                     }
 
@@ -86,8 +86,8 @@ export const MPU = {
 
 
 
-    async sendCommandCode(cmd: string): Promise<{code: number; resp: string}> {
-        if (!this.isConnected) {
+    async sendCommandCode(cmd: string, force = false): Promise<{code: number; resp: string}> {
+        if (!this.isConnected && !force) {
             Log.error('mpu', 'ignoring command %s, not connected', cmd);
             return { code: 200, resp: '' };
         }
@@ -123,8 +123,8 @@ export const MPU = {
         throw new Error(resp);
     },
 
-    async sendCommand(cmd: string): Promise<string> {
-        const resp = await this.sendCommandCode(cmd);
+    async sendCommand(cmd: string, force = false): Promise<string> {
+        const resp = await this.sendCommandCode(cmd, force);
         return resp.resp;
     },
 };
