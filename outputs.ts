@@ -1,8 +1,9 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
-import { StateEvent, Tree, TreeEvent } from './state';
+import { StateEvent } from './state';
 import { Utils, assert, selectiveClone } from './util';
 import { time } from './timer';
 import { Log } from './log';
+import { Tree, TreeEvent } from './tree';
 
 type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;

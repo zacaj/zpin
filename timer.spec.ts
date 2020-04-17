@@ -1,5 +1,5 @@
 import { Timer, Time, setTime, time, wait } from './timer';
-import { Tree } from './state';
+import { Tree } from './tree';
 import { Outputs } from './outputs';
 
 describe('Timer', () => {

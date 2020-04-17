@@ -1,6 +1,7 @@
 import { Events } from './events';
-import { State, Tree, StateEvent } from './state';
+import { State, StateEvent } from './state';
 import { SwitchEvent } from './switch-matrix';
+import { Tree } from './tree';
 
 describe('state', () => {
     test('fires events', () => {

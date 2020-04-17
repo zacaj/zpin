@@ -1,5 +1,5 @@
 import { Utils, split } from './util'
-import { Tree } from './state';
+import { Tree } from './tree';
 import { Outputs } from './outputs';
 import { setTime, time, wait } from './timer';
 

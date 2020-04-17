@@ -1,6 +1,6 @@
-import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnySwitchExcept } from './switch-matrix';
+import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnyPfSwitchExcept } from './switch-matrix';
 import { Events, onType, Event } from './events';
-import { State, StateEvent, onChange, Tree } from './state';
+import { State, StateEvent, onChange } from './state';
 import { machine, MachineOutputs, resetMachine } from './machine';
 import { Mode } from './mode';
 import { Outputs, toggle } from './outputs';
@@ -8,76 +8,81 @@ import { time, safeSetTimeout, Timer } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
 import { initMachine } from './init';
 import { Log } from './log';
-import { Poker } from './poker';
-import { Color } from './light';
+import { DropBankCompleteEvent } from './drop-bank';
+import { GameGfx } from './gfx/game';
+import { screen } from './gfx';
+import { Player } from './modes/player';
+import { assert } from './util';
+import { Ball } from './modes/ball';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
 
-    chips = 1;
-
-    rampUp = true;
     shooterOpen = true;
-    lowerRampLit = false;
 
-    poker!: Poker;
+    players = [new Player(this)];
+    playerUp = 0;
+    get curPlayer(): Player {
+        return this.players[this.playerUp];
+    }
+    ballNum = 0;
     
     private constructor() {
         super();
-        State.declare<Game>(this, ['rampUp', 'shooterOpen']);
+        // assert(machine.sTroughFull.state);
+        State.declare<Game>(this, ['shooterOpen', 'ballNum']);
 
         this.out = new Outputs(this, {
-            rampUp: () => this.rampUp,
-            troughRelease: () => machine.sTroughFull.onFor(400),
             shooterDiverter: () => this.shooterOpen,
-            lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             leftMagnet: () => machine.sMagnetButton.state,
             popper: () => machine.sPopperButton.state,
+            kickerEnable: true,
         });
 
-        this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],
-            e => {
-                this.rampUp = false;
-            });
-        this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => this.lowerRampLit],
-            e => {
-                this.rampUp = false;
-            });
-        this.listen(onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling),
-            e => {
-                this.rampUp = true;
-                this.lowerRampLit = !this.lowerRampLit;
-            });
+        this.gfx.add(new GameGfx(this));
+
 
         this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.shooterOpen = false);
-        // this.listen([...onSwitchClose(machine.sShooterLower)/*, () => machine.sShooterLane.wasClosedWithin(400)*/], () => this.shooterOpen = false);
-        this.listen(onAnySwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.shooterOpen = true);
+        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.shooterOpen = true);
+
+        
 
         this.listen(onSwitchClose(machine.sLeftInlane),
             () => this.addChild(new KnockTarget()));
 
-        this.listen(
-            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
-            () => this.chips++);
-        this.listen(onSwitchClose(machine.sPopperButton), async () => {
-            if (this.chips === 0) return;
-            const fired = await machine.cPopper.fire();
-            if (fired === true) {
-                this.chips--;
-            }
-        });
+
 
         this.addChild(new ClearHoles(), -1);
-        this.addChild(new ResetAnyDropOnComplete(), -1);
-        this.poker = new Poker();
-        this.addChild(this.poker);
+
+        this.playerUp = 0;
+        this.ballNum = 1;
+        this.addChild(this.curPlayer);
+    }
+
+    onBallEnd() {
+        const lastPlayer = this.curPlayer;
+        this.removeChild(lastPlayer);
+        this.playerUp++;
+        if (this.playerUp === this.players.length) {
+            this.playerUp = 0;
+            this.ballNum++;
+            if (this.ballNum > 3) {
+                if (require.main === module) {
+                    debugger;
+                    process.exit(0);
+                }
+                else
+                    this.end();
+            }
+        }
+        this.addChild(this.curPlayer);
+        this.curPlayer.startBall();
     }
 
     static start(): Game {
         const game = new Game();
         machine.addChild(game);
+        screen?.add(game.gfx);
         return game;
     }
 }

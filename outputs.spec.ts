@@ -1,11 +1,12 @@
 import { Events } from './events';
-import { State, Tree } from './state';
+import { State } from './state';
 import { Mode } from './mode';
 import { Outputs } from './outputs';
+import { Tree } from './tree';
 
 describe('outputs', () => {
     test('creates outputs', () => {
-        const obj = new class extends Mode<{rampUp: boolean}> {
+        const obj = new class extends Tree<{rampUp: boolean}> {
             up = false;
 
             constructor() {
@@ -22,7 +23,7 @@ describe('outputs', () => {
     });
     test('watches state', () => {
         const fire = jest.spyOn(Events, 'fire');
-        const obj = new class extends Mode<{rampUp: boolean}> {
+        const obj = new class extends Tree<{rampUp: boolean}> {
             up = false;
 
             constructor() {
@@ -68,7 +69,7 @@ describe('outputs', () => {
     });
     test('inherits outputs 1', () => {
         const fire = jest.spyOn(Events, 'fire');
-        const parent = new class extends Mode<{rampUp: boolean}> {
+        const parent = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
@@ -77,7 +78,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{rampUp: boolean}> {
+        const c1 = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super(parent);
 
@@ -90,7 +91,7 @@ describe('outputs', () => {
     });
     test('inherits outputs 2', () => {
         const fire = jest.spyOn(Events, 'fire');
-        const parent = new class extends Mode<{rampUp: boolean}> {
+        const parent = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
@@ -99,7 +100,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{rampUp: boolean}> {
+        const c1 = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
@@ -113,7 +114,7 @@ describe('outputs', () => {
     });
     test('resets output if child is removed', () => {
         const fire = jest.spyOn(Events, 'fire');
-        const parent = new class extends Mode<{rampUp: boolean}> {
+        const parent = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
@@ -122,7 +123,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{rampUp: boolean}> {
+        const c1 = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
@@ -138,7 +139,7 @@ describe('outputs', () => {
     });
 
     test('compute 1', () => {
-        const root = new class extends Mode<{num: number}> {
+        const root = new class extends Tree<{num: number}> {
             constructor() {
                 super();
 
@@ -147,7 +148,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{num: number}> {
+        const c1 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 1);
 
@@ -156,7 +157,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c2 = new class extends Mode<{num: number}> {
+        const c2 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root);
 
@@ -169,7 +170,7 @@ describe('outputs', () => {
         expect(Outputs.computeTreeValue(root, 'num')).toBe(1);
     });
     test('compute 2', () => {
-        const root = new class extends Mode<{num: number}> {
+        const root = new class extends Tree<{num: number}> {
             constructor() {
                 super();
 
@@ -178,7 +179,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{num: number}> {
+        const c1 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 1);
 
@@ -187,7 +188,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c2 = new class extends Mode<{num: number}> {
+        const c2 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 2);
 
@@ -200,7 +201,7 @@ describe('outputs', () => {
         expect(Outputs.computeTreeValue(root, 'num')).toBe(2);
     });
     test('compute 3', () => {
-        const root = new class extends Mode<{num: number}> {
+        const root = new class extends Tree<{num: number}> {
             constructor() {
                 super();
 
@@ -209,7 +210,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{num: number}> {
+        const c1 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 1);
 
@@ -218,7 +219,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c2 = new class extends Mode<{num: number}> {
+        const c2 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root);
 
@@ -227,7 +228,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c3 = new class extends Mode<{num: number}> {
+        const c3 = new class extends Tree<{num: number}> {
             constructor() {
                 super(c2, 3);
 
@@ -240,7 +241,7 @@ describe('outputs', () => {
         expect(Outputs.computeTreeValue(root, 'num')).toBe(1);
     });
     test('compute 4', () => {
-        const root = new class extends Mode<{num: number}> {
+        const root = new class extends Tree<{num: number}> {
             constructor() {
                 super();
 
@@ -249,7 +250,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c1 = new class extends Mode<{num: number}> {
+        const c1 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 1);
 
@@ -258,7 +259,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c2 = new class extends Mode<{num: number}> {
+        const c2 = new class extends Tree<{num: number}> {
             constructor() {
                 super(root, 2);
 
@@ -267,7 +268,7 @@ describe('outputs', () => {
                 });
             }
         };
-        const c3 = new class extends Mode<{num: number}> {
+        const c3 = new class extends Tree<{num: number}> {
             constructor() {
                 super(c2, 0);
 

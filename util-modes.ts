@@ -69,5 +69,14 @@ export class KnockTarget extends Tree<MachineOutputs> {
         this.listen(onSwitchClose(machine.rightBank.targets[i].switch), 'end');
     }
 }
+
+export class ReleaseBall extends Tree<MachineOutputs> {
+    constructor() {
+        super();
+        assert(!machine.sShooterLane.state);
+        this.out = new Outputs(this, {
+            troughRelease: true,
+        });
+        this.listen(onSwitchClose(machine.sShooterLane), 'end');
     }
 }
