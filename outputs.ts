@@ -123,7 +123,9 @@ export class Outputs<Outs extends {}> {
         let value = tree.out?.funcs[key]? tree.out.funcs[key]!(prev): (tree.out?.defaults[key] ?? prev);
         const children = tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
         for (const child of children) {
-            value = Outputs.computeTreeValue(child, key, value)!;
+            const newValue = Outputs.computeTreeValue(child, key, value)!;
+            if (newValue !== undefined)
+                value = newValue;
         }
         return value;
     }

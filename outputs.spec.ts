@@ -279,4 +279,29 @@ describe('outputs', () => {
         expect(root.out!.treeValues.num).toBe(3);
         expect(Outputs.computeTreeValue(root, 'num')).toBe(3);
     });
+    test('compute 5', () => {
+        const root = new class extends Tree<{num: number}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                });
+            }
+        };
+        const c1 = new class extends Tree<{num: number}> {
+            n?: number = 1;
+            constructor() {
+                super(root, 1);
+                State.declare<any>(this, ['n']);
+
+                this.out = new Outputs(this, {
+                    num: () => this.n,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(1);
+        c1.n = undefined;
+        expect(root.out!.treeValues.num).toBe(0);
+    });
 });
