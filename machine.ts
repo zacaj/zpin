@@ -1,15 +1,17 @@
-import { State, Tree } from './state';
+import { State } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose, onAnySwitchExcept } from './switch-matrix';
+import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose } from './switch-matrix';
 import { Events, Event } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
-import { safeSetInterval, Time, time, Timer, TimerQueueEntry } from './timer';
+import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { assert, getTypeIn, then } from './util';
 import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Color } from './light';
-import { gfxLights, gfxImages } from './gfx';
+import { gfxLights, gfxImages, gfx, screen } from './gfx';
+import { Tree } from './tree';
+import { MPU } from './mpu';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -37,7 +39,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         Log.trace(['machine'], 'try set %s to ', this.name, val);
         return then(this.set(val), success => {
             try {
-                Log.trace('machine', '%s set: ', this.name, success);
+                Log.log('machine', '%s set: ', this.name, success);
                 if (success === true) {
                     this.actual = val;
                 } else {
@@ -248,6 +250,7 @@ export class Image extends MachineOutput<string, ImageOutputs> {
     }
 
     set(state: string): boolean {
+        if (!gfx) return true;
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
         if (l?.l) {
@@ -280,6 +283,7 @@ export type CoilOutputs = {
     rightGate: boolean;
     shooterDiverter: boolean;
     popper: boolean;
+    kickerEnable: boolean;
     temp: number;
     right1: boolean;
     right2: boolean;
@@ -290,6 +294,7 @@ export type CoilOutputs = {
 
 export type LightOutputs = {
     lLowerRamp: Color[];
+    lMiniReady: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string;
@@ -314,56 +319,7 @@ export type ImageOutputs = {
     iMini3: string;
 };
 
-export class Machine extends Mode<MachineOutputs> {
-    outs = new Outputs<MachineOutputs>(this, {
-        rampUp: false,
-        upper3: false,
-        outhole: false,
-        troughRelease: false,
-        miniEject: false,
-        miniBank: false,
-        miniDiverter: false,
-        leftBank: false,
-        rightBank: false,
-        centerBank: false,
-        upper2: false,
-        upperEject: false,
-        lockPost: () => this.lockDown,
-        upperMagnet: false,
-        leftMagnet: false,
-        leftGate: false,
-        rightGate: false,
-        shooterDiverter: false,
-        popper: false,
-        right1: false,
-        right2: false,
-        right3: false,
-        right4: false,
-        right5: false,
-        temp: () => 0,
-        lLowerRamp: [],
-        iCenter1: '',
-        iCenter2: '',
-        iCenter3: '',
-        iUpper31: '',
-        iUpper32: '',
-        iUpper33: '',
-        iUpper21: '',
-        iUpper22: '',
-        iLeft1: '',
-        iLeft2: '',
-        iLeft3: '',
-        iLeft4: '',
-        iRight1: '',
-        iRight2: '',
-        iRight3: '',
-        iRight4: '',
-        iRight5: '',
-        iMini1: '',
-        iMini2: '',
-        iMini3: '',
-    });
-
+export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 25, 40, 4, undefined, undefined, () => this.sOuthole.state = false);
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => this.sTroughFull.state = false);
@@ -403,31 +359,31 @@ export class Machine extends Mode<MachineOutputs> {
     sTroughFull = new Switch(0, 1, 'trough full');
     sLeftSling = new Switch(1, 0, 'left sling');
     sRightSling = new Switch(0, 7, 'right sling');
-    sMiniLeft = new Switch(1, 7, 'mini left', 100, 250);
-    sMiniCenter = new Switch(1, 6, 'mini center', 100, 250);
-    sMiniRight = new Switch(1, 5, 'mini right', 100, 250);
-    sCenterLeft = new Switch(4, 3, 'center left', 100, 250);
-    sCenterCenter = new Switch(4, 2, 'center center', 100, 250);
-    sCenterRight = new Switch(4, 1, 'center right', 100, 250);
-    sLeft1 = new Switch(3, 1, 'left 1', 100, 250);
-    sLeft2 = new Switch(3, 2, 'left 2', 100, 250);
-    sLeft3 = new Switch(3, 3, 'left 3', 100, 250);
-    sLeft4 = new Switch(3, 5, 'left 4', 100, 250);
-    sRight1 = new Switch(2, 5, 'right 1', 100, 250);
-    sRight2 = new Switch(2, 4, 'right 2', 100, 250);
-    sRight3 = new Switch(2, 3, 'right 3', 100, 250);
-    sRight4 = new Switch(2, 2, 'right 4', 100, 250);
-    sRight5 = new Switch(2, 1, 'right 5', 100, 250);
+    sMiniLeft = new Switch(1, 7, 'mini left', 5, 250);
+    sMiniCenter = new Switch(1, 6, 'mini center', 5, 250);
+    sMiniRight = new Switch(1, 5, 'mini right', 5, 250);
+    sCenterLeft = new Switch(4, 3, 'center left', 5, 250);
+    sCenterCenter = new Switch(4, 2, 'center center', 5, 250);
+    sCenterRight = new Switch(4, 1, 'center right', 5, 250);
+    sLeft1 = new Switch(3, 1, 'left 1', 5, 250);
+    sLeft2 = new Switch(3, 2, 'left 2', 5, 250);
+    sLeft3 = new Switch(3, 3, 'left 3', 5, 250);
+    sLeft4 = new Switch(3, 5, 'left 4', 5, 250);
+    sRight1 = new Switch(2, 5, 'right 1', 5, 250);
+    sRight2 = new Switch(2, 4, 'right 2', 5, 250);
+    sRight3 = new Switch(2, 3, 'right 3', 5, 250);
+    sRight4 = new Switch(2, 2, 'right 4', 5, 250);
+    sRight5 = new Switch(2, 1, 'right 5', 5, 250);
     sLeftBack1 = new Switch(3, 4, 'left back 1');
     sLeftBack2 = new Switch(3, 6, 'left back 2');
     sCenterBackLeft = new Switch(4, 6, 'center back left');
     sCenterBackCenter = new Switch(4, 5, 'center back center');
     sCenterBackRight = new Switch(4, 4, 'center back right');
-    sUpper3Left = new Switch(5, 2, 'upper 3 left', 100, 250);
-    sUpper3Center = new Switch(5, 1, 'upper 3 center', 100, 250);
-    sUpper3Right = new Switch(5, 0, 'upper 3 right', 100, 250);
-    sUpper2Left = new Switch(6, 4, 'upper 2 left', 100, 250);
-    sUpper2Right = new Switch(6, 3, 'upper 2 right', 100, 250);
+    sUpper3Left = new Switch(5, 2, 'upper 3 left', 5, 250);
+    sUpper3Center = new Switch(5, 1, 'upper 3 center', 5, 250);
+    sUpper3Right = new Switch(5, 0, 'upper 3 right', 5, 250);
+    sUpper2Left = new Switch(6, 4, 'upper 2 left', 5, 250);
+    sUpper2Right = new Switch(6, 3, 'upper 2 right', 5, 250);
     sSingleStandup = new Switch(7, 3, 'single standup');
     sRampMini = new Switch(3, 7, 'ramp mini');
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer');
@@ -454,10 +410,71 @@ export class Machine extends Mode<MachineOutputs> {
     sLowerLaneRight = new Switch(5, 4, 'lower lane right');
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center');
     sRampMade = new Switch(7, 0, 'ramp made');
-    sPopperButton = new Switch(4, 8, 'popper button');
-    sMagnetButton = new Switch(5, 8, 'magnet button');
+    sPopperButton = new Switch(5, 8, 'popper button');
+    sMagnetButton = new Switch(6, 8, 'magnet button');
+
+    pfSwitches = [
+        this.sLeftInlane,
+        this.sLeftOutlane,
+        this.sRightInlane,
+        this.sRightOutlane,
+        this.sMiniEntry,
+        this.sMiniMissed,
+        this.sLeftSling,
+        this.sRightSling,
+        this.sMiniLeft,
+        this.sMiniCenter,
+        this.sMiniRight,
+        this.sCenterLeft,
+        this.sCenterCenter,
+        this.sCenterRight,
+        this.sLeft1,
+        this.sLeft2,
+        this.sLeft3,
+        this.sLeft4,
+        this.sRight1,
+        this.sRight2,
+        this.sRight3,
+        this.sRight4,
+        this.sRight5,
+        this.sLeftBack1,
+        this.sLeftBack2,
+        this.sCenterBackLeft,
+        this.sCenterBackCenter,
+        this.sCenterBackRight,
+        this.sUpper3Left,
+        this.sUpper3Center,
+        this.sUpper3Right,
+        this.sUpper2Left,
+        this.sUpper2Right,
+        this.sSingleStandup,
+        this.sRampMini,
+        this.sRampMiniOuter,
+        this.sUnderRamp,
+        this.sLeftOrbit,
+        this.sSpinner,
+        this.sSpinnerMini,
+        this.sUpperPopMini,
+        this.sSidePopMini,
+        this.sShooterUpper,
+        this.sShooterMagnet,
+        this.sShooterLower,
+        this.sBackLane,
+        this.sPop,
+        this.sUpperInlane,
+        this.sUnderUpperFlipper,
+        this.sUpperSideTarget,
+        this.sUpperEject,
+        this.sUpperLaneLeft,
+        this.sUpperLaneRight,
+        this.sLowerLaneLeft,
+        this.sLowerLaneRight,
+        this.sLowerLaneCenter,
+        this.sRampMade,
+    ];
 
     lRampDown = new Light('lLowerRamp', 0);
+    lMiniReady = new Light('lMiniReady', 0);
 
     dropTargets: DropTarget[] = [];
     dropBanks: DropBank[] = [];
@@ -497,11 +514,70 @@ export class Machine extends Mode<MachineOutputs> {
     }
 
     lockDown = false;
+    miniDown = false;
     constructor() {
         super();
-        State.declare<Machine>(this, ['lockDown']);
+        State.declare<Machine>(this, ['lockDown', 'miniDown']);
+
+        this.out = new Outputs<MachineOutputs>(this, {
+            rampUp: false,
+            upper3: false,
+            outhole: false,
+            troughRelease: false,
+            miniEject: false,
+            miniBank: false,
+            miniDiverter: () => this.miniDown,
+            leftBank: false,
+            rightBank: false,
+            centerBank: false,
+            upper2: false,
+            upperEject: false,
+            lockPost: () => this.lockDown,
+            upperMagnet: false,
+            leftMagnet: false,
+            leftGate: false,
+            rightGate: false,
+            shooterDiverter: false,
+            kickerEnable: false,
+            popper: false,
+            right1: false,
+            right2: false,
+            right3: false,
+            right4: false,
+            right5: false,
+            temp: () => 0,
+            lLowerRamp: [],
+            lMiniReady: [Color.Red],
+            iCenter1: '',
+            iCenter2: '',
+            iCenter3: '',
+            iUpper31: '',
+            iUpper32: '',
+            iUpper33: '',
+            iUpper21: '',
+            iUpper22: '',
+            iLeft1: '',
+            iLeft2: '',
+            iLeft3: '',
+            iLeft4: '',
+            iRight1: '',
+            iRight2: '',
+            iRight3: '',
+            iRight4: '',
+            iRight5: '',
+            iMini1: '',
+            iMini2: '',
+            iMini3: '',
+        });
+    
+
         this.listen(onSwitchClose(this.sRampMade), () => this.lockDown = true);
-        this.listen(onAnySwitchExcept(this.sRampMade), () => this.lockDown = false);
+        this.listen(onAnyPfSwitchExcept(this.sRampMade), () => this.lockDown = false);
+
+        this.listen([...onSwitchClose(this.sLeftOutlane), () => this.out!.treeValues.lMiniReady.includes(Color.Green)], () => {
+            this.miniDown = true;
+        });
+        this.listen(onAnySwitchClose(this.sMiniMissed, this.sMiniEntry, this.sOuthole), () => this.miniDown = false);
     }
 }
 
@@ -520,7 +596,7 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
     return ret;
 }
 
-class MachineOverrides extends Mode<MachineOutputs> {
+class MachineOverrides extends Tree<MachineOutputs> {
     constructor() {
         super(undefined, 999);
         this.out = new Outputs(this, {
@@ -533,32 +609,12 @@ class MachineOverrides extends Mode<MachineOutputs> {
     }
 }
 
-class EosPulse extends Mode<MachineOutputs> {
+class EosPulse extends Tree<MachineOutputs> {
     // pulse coil if switch closes
     constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
         super(undefined, 999);
 
         this.listen([...onSwitchClose(sw), () => coil.val], () => coil.set(true));
-        // this.out = new Outputs(this, {
-        //     rampUp: (up) => {
-        //         const wrong = (sw.state !== invert);
-        //         if (!up) return false;
-        //         if (wrong) {
-        //             Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
-        //             coil.set(true);
-        //             return true;
-        //         }
-        //         return true;
-        //         // const wrong = (sw.wasClosedWithin(1) !== invert);
-        //         // if (!up) return false;
-        //         // if (wrong) {
-        //         //     Log.log(['machine', 'console'], 'coil %s needed eos pulse', coil.name);
-        //         //     return false;
-        //         // }
-        //         // if (sw.state && coil.actual !== coil.val) return false;
-        //         // return true;
-        //     },
-        // });
     }
 }
 
@@ -572,8 +628,6 @@ export function resetMachine(): Machine {
     
 
     machine.addChild(new MachineOverrides());
-
-    // Events.listen(e => machine.handleEvent(e), () => true);
 
     return machine;
 }
