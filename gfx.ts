@@ -10,7 +10,7 @@ import { Game } from './game';
 import { MPU } from './mpu';
 import * as fs from 'fs';
 
-export let gfx: AminoGfx = new AminoGfx();
+export let gfx: AminoGfx;
 let screenW: number;
 let screenH: number;
 let root: Group;
@@ -18,6 +18,7 @@ let playfield: Playfield;
 export let screen: Screen;
 
 export async function initGfx() {
+    gfx = new AminoGfx();
     await new Promise((resolve, reject) => {
         gfx.start((err) => {
             if (err) reject(err);
@@ -47,27 +48,39 @@ export async function initGfx() {
         screenW = gfx.h();
         screenH = gfx.w();
     } else {
-        gfx.w(400);
+        gfx.w(400+Screen.w/2+10);
         gfx.h(800);
         // gfx.h(360);
         // gfx.w(640);
         screenW = 400;
         screenH = 800;
     }
-    if (gfx.w() > gfx.h()) {
+    if (gfx.screen.fullscreen) {
         root.rz(90);
     }
 
-    root.add(gfx.createCircle().radius(10));
+    root.add(gfx.createCircle().radius(10).x(screenW).y(screenH/-2));
     root.acceptsKeyboardEvents = true;
 
     playfield = new Playfield();
     root.add(playfield);
 
-    // screen = new Screen();
-    playfield.add(screen);
-    screen.x(5.5+Screen.w/2);
-    screen.y(22.7-Screen.h/2);
+    screen = new Screen();
+    if (!gfx.screen.fullscreen) {
+        root.add(screen);
+        screen.w(Screen.w/2);
+        screen.h(Screen.h/2);
+        screen.x(screenW+screen.w()/2);
+        screen.y(-screenH/2);
+    } else {
+        playfield.add(screen);
+        screen.w(Screen.pw);
+        screen.h(Screen.ph);
+        screen.x(5.5+Screen.w/2);
+        screen.y(22.7-Screen.h/2);
+    }
+    screen.sx(screen.w()/Screen.w);
+    screen.sy(-screen.h()/Screen.h);
 
     playfield.acceptsMouseEvents = true;
     playfield.acceptsKeyboardEvents = true;
@@ -124,7 +137,7 @@ export class Playfield extends Group {
         this.originX(0).originY(1);
         this.sx(screenH/Playfield.h);
         this.sy(screenH/Playfield.h);
-        if (gfx.w() > gfx.h()) {
+        if (gfx.screen.fullscreen) {
             this.x(-((Playfield.w*screenH/Playfield.h)+gfx.h())/2);
             this.y(0);
         } else {
@@ -132,8 +145,6 @@ export class Playfield extends Group {
         }
         this.add(gfx.createRect().w(Playfield.w).h(Playfield.h).originX(0).originY(0));
         this.add(this.bg);
-
-        this.add(new Screen());
 
         for (const name of Object.keys(gfxLights) as (keyof LightOutputs)[]) {
             gfxLights[name].l = new Light(name);
@@ -153,22 +164,20 @@ export class Playfield extends Group {
 }
 
 export class Screen extends Group {
-    static readonly w = 8.26;
-    static readonly h = 4.96;
-    static readonly sw = 1024;
-    static readonly sh = 600;
+    static readonly w = 1024;
+    static readonly h = 600;
+    static readonly pw = 8.26;
+    static readonly ph = 4.96;
 
     constructor() {
         super(gfx);
-        this.w(Screen.w);
-        this.h(Screen.h);
-        this.sx(Screen.w/Screen.sw);
-        this.sy(-Screen.h/Screen.sh);
-        this.originX(0.5).originY(.5);
+        // this.sx(this.w()/Screen.sw);
+        // this.sy(-this.h()/Screen.sh);
+        // this.originX(0.5).originY(.5);
 
-        this.add(gfx.createRect().w(Screen.sw).h(Screen.sh).originX(.5).originY(.5).fill('#000000'));
+        this.add(gfx.createRect().w(Screen.w).h(Screen.h).originX(.5).originY(.5).fill('#000000'));
         
-        const circle = gfx.createCircle().radius(11).x(0).y(0);
+        const circle = gfx.createCircle().radius(11).x(0).y(Screen.h/2);
         circle.x.anim({
             from: -400,
             to: 400,
@@ -180,7 +189,6 @@ export class Screen extends Group {
         this.add(circle);
     }
 }
-screen = new Screen();
 
 class Light extends Circle {
 
