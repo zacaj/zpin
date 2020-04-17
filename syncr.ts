@@ -5,8 +5,8 @@ const scp = require('scp2').Client;
 // if (!process.argv[2]) {
 //     throw 'remote path required';
 // }
-const remotePath = 'zpin' || process.argv[2];
-const address = '192.168.2.45' || process.argv[3];
+const remotePath = 'zpin';
+const address = process.argv[2] || '192.168.2.45';
 const username = 'pi' || process.argv[4];
 const password = 'pass' || process.argv[5];
 const toCopy: string[] = [];

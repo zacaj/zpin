@@ -17,10 +17,10 @@ beforeEach(async () => {
     resetSwitchMatrix();
     resetMachine();
     await setTime(1);
-    jest.spyOn(MPU, 'sendCommandCode').mockImplementation(async () => {
+    jest.spyOn(MPU, 'sendCommandCode').mockImplementation(async (cmd) => {
         debugger;
         
-        expect('command').toBe('mocked');
+        expect(cmd).toBe('mocked');
 
         return {
             code: 200,

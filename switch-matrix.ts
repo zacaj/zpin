@@ -4,6 +4,7 @@ import { Event, Events, EventPredicate, EventTypePredicate, onAny } from './even
 import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
 import { Log } from './log';
+import { machine } from './machine';
 export class Switch {
     _state = false;
     get state() {
@@ -47,13 +48,13 @@ export class Switch {
 
     changeState(val: boolean, when = time()) {
         if (this._state === val) return;
+        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i)', this.name, val, this.column, this.row);
         this.lastChange = when;
         if (val)
             this.lastClosed = time();
         else
             this.lastOpened = time();
         this._state = val;
-        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i)', this.name, this._state, this.column, this.row);
         Events.fire(new SwitchEvent(this, when));
     }
 
@@ -109,6 +110,9 @@ export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEven
 export function onAnySwitchExcept(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
     return [onClose(), e => !sw.includes(e.sw)];
 }
+export function onAnyPfSwitchExcept(...sw: Switch[]): EventTypePredicate<SwitchEvent>[] {
+    return [onClose(), e => !sw.includes(e.sw) && machine.pfSwitches.includes(e.sw)];
+}
 
 export const SWITCH_MATRIX_WIDTH = 16;
 export const SWITCH_MATRIX_HEIGHT = 8;
@@ -133,7 +137,7 @@ safeSetInterval(async () => {
     const start = time();
     while (time() - start < 5) {
         const resp = await getSwitchEvent();
-        if (!resp || !resp.more || time() - resp.when > 1000/60*2) break;
+        if (!resp || !resp.more || time() - resp.when > 1000/60*2) continue;
         if (matrix[resp.col][resp.row])
             matrix[resp.col][resp.row]!.changeState(resp.state, resp.when);
         else if (resp.state)
@@ -144,7 +148,7 @@ safeSetInterval(async () => {
     forRC((r,c,sw) => {
         sw.state = newState[r][c];
     });
-}, 1000/60, 'switch check');
+}, 1, 'switch check');
 
 export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
     for (let i=0; i<SWITCH_MATRIX_HEIGHT; i++)

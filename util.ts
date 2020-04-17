@@ -73,19 +73,30 @@ export type ReadWrite<T> = {
 
 declare global {
     interface Array<T> {
-        remove(elem: T): Array<T>;
+        remove(...elems: T[]): Array<T>;
         clear(): Array<T>;
+        unique(): Array<T>;
+        set(arr: T[]): Array<T>;
     }
 }
-Array.prototype.remove = function<T>(this: T[], element: T): T[] {
-    let index: number;
-    while ((index = this.indexOf(element)) !== -1) {
-        this.splice(index, 1);
+Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
+    for (const element of elems) {
+        let index: number;
+        while ((index = this.indexOf(element)) !== -1) {
+            this.splice(index, 1);
+        }
     }
     return this;
 };
 Array.prototype.clear = function<T>(this: T[]): T[] {
     this.splice(0, this.length);
+    return this;
+};
+Array.prototype.unique = function<T>(this: T[]): T[] {
+    return [...new Set<T>(this)];
+};
+Array.prototype.set = function<T>(this: T[], that: T[]): T[] {
+    this.splice(0, this.length, ...that);
     return this;
 };
 // polyfill flatmap for jest
@@ -140,7 +151,7 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
     let props: string[] = [];
     let obj: any = toCheck;
     do {
-        props = props.concat(Object.getOwnPropertyNames(obj));
+        props = props.concat(Object.getOwnPropertyNames(obj).filter(e => !Object.getOwnPropertyDescriptor(obj, e)?.get));
         obj = Object.getPrototypeOf(obj);
     } while (obj);
 

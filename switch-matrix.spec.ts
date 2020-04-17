@@ -2,11 +2,12 @@ import { Switch } from './switch-matrix';
 import { Mode } from './mode';
 import { State } from './state';
 import { Outputs } from './outputs';
+import { Tree } from './tree';
 
 describe('switch-matrix', () => {
     test('switch triggers output change', () => {
         const sw = new Switch(0, 15);
-        const obj = new class extends Mode<{rampUp: boolean}> {
+        const obj = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
 
