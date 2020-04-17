@@ -452,6 +452,7 @@ export class Machine extends Mode<MachineOutputs> {
     lRampDown = new Light('lLowerRamp', 0);
 
     dropTargets: DropTarget[] = [];
+    dropBanks: DropBank[] = [];
 
     upper3Bank = new DropBank(this, this.cUpper3, 
         [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ],

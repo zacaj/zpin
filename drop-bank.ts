@@ -1,13 +1,14 @@
 import { MachineOutputs, MomentarySolenoid, SolenoidFireEvent, Machine, ImageOutputs, Image } from './machine';
 import { Mode } from './mode';
 import { Switch, SwitchEvent, onSwitchClose, onAnySwitchClose } from './switch-matrix';
-import { Outputs, toggle } from './outputs';
+import { Outputs, toggle, OwnOutputEvent, TreeOutputEvent } from './outputs';
 import { Event, Events, EventCallback, EventTypePredicate } from './events';
 import { getTypeIn } from './util';
 import { time } from './timer';
 import { KnockTarget } from './util-modes';
-import { Tree, State } from './state';
+import { State } from './state';
 import { Log } from './log';
+import { Tree } from './tree';
 
 export interface DropTarget {
     state: boolean;
@@ -42,6 +43,7 @@ export class DropBank extends Tree<MachineOutputs> {
             this.targets.push(target);
             machine.dropTargets.push(target);
         }
+        machine.dropBanks.push(this);
 
         this.listen([onAnySwitchClose(...switches), () => !coil.val],
             e => {
@@ -60,10 +62,11 @@ export class DropBank extends Tree<MachineOutputs> {
                 }
             });
 
-        this.listen(machine.out!.onOutputChange(coil.name, false, true),
+        this.listen(e => e instanceof TreeOutputEvent && e.tree === machine && e.prop === coil.name && e.value === false && e.oldValue === true,
             () => {
                 Log.info('switch', 'drop bank %s reset successfully', this.coil.name);
                 switches.forEach((_, i) => this.targets[i].state = false);
+                Events.fire(new DropBankResetEvent(this));
             });
     }
 
@@ -88,7 +91,7 @@ export class DropBank extends Tree<MachineOutputs> {
     }
 }
 
-export class DropBankResetter extends Mode<MachineOutputs> {
+export class DropBankResetter extends Tree<MachineOutputs> {
     constructor(
         public bank: DropBank,
     ) {
@@ -104,6 +107,13 @@ export class DropBankResetter extends Mode<MachineOutputs> {
 }
 
 export class DropBankCompleteEvent extends Event {
+    constructor(
+        public bank: DropBank,
+    ) {
+        super();
+    }
+}
+export class DropBankResetEvent extends Event {
     constructor(
         public bank: DropBank,
     ) {

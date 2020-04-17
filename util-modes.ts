@@ -1,10 +1,13 @@
 import { Mode } from './mode';
 import { MachineOutputs, machine } from './machine';
 import { Outputs, toggle } from './outputs';
-import { getTypeIn } from './util';
-import { DropBank, DropBankResetter } from './drop-bank';
+import { getTypeIn, assert } from './util';
+import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent } from './drop-bank';
 import { Log } from './log';
-import { Events } from './events';
+import { Events, onType } from './events';
+import { Tree } from './tree';
+import { onSwitchClose } from './switch-matrix';
+import { MPU } from './mpu';
 
 export class ClearHoles extends Mode<MachineOutputs> {
 
@@ -29,10 +32,28 @@ export class ResetAnyDropOnComplete extends Mode<MachineOutputs> {
     }
 }
 
-export class KnockTarget extends Mode<MachineOutputs> {
+export class ResetMechs extends Mode<MachineOutputs> {
     constructor() {
         super();
-        const i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).slice().find(i => i !== undefined);
+
+        const outs: any  = {};
+        for (const bank of machine.dropBanks) {
+            if (!bank.targets.some(t => t.switch.state)) continue;
+            outs[bank.coil.name] = () => bank.targets.some(t => t.switch.state);
+        }
+        this.out = new Outputs(this, outs);
+
+        this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
+    }
+}
+
+export class KnockTarget extends Tree<MachineOutputs> {
+    constructor(i?: number) {
+        super();
+        if (i === undefined)
+            i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).slice().find(i => i !== undefined);
+        else
+            assert(!machine.rightBank.targets[i].state);
         if (i === undefined) {
             Log.info('game', 'no target to knock down');
             this.end();
@@ -41,9 +62,12 @@ export class KnockTarget extends Mode<MachineOutputs> {
 
         const coil = machine.cRightDown[i];
         Log.info('game', 'knock down target %i', i);
+        machine.rightBank.targets[i].state = true;
         this.out = new Outputs(this, {
-            [coil.name]: !machine.rightBank.targets[i].state,
+            [coil.name]: !machine.rightBank.targets[i].switch.state,
         });
-        this.listen(machine.rightBank.onTargetDown(i), 'end');
+        this.listen(onSwitchClose(machine.rightBank.targets[i].switch), 'end');
+    }
+}
     }
 }
