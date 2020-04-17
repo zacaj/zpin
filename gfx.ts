@@ -9,6 +9,7 @@ import { assert, num, tryNum } from './util';
 import { Game } from './game';
 import { MPU } from './mpu';
 import * as fs from 'fs';
+import { wait } from './timer';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -313,6 +314,8 @@ class FxSwitch extends Rect {
         gfx.on('press', this, (e) => {
             Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
             sw.changeState(!sw.state);
+            if (e.button === 1)
+                wait(250).then(() => sw.changeState(!sw.state));
         });
     }
 }
