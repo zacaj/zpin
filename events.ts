@@ -32,6 +32,7 @@ export const Events = {
         const listeners = this.listeners.filter(l => !l.predicates.some(p => !p(event)) && !l.cancelled);
         Log.trace([], 'fire event %s: %s %j at %i/%i listeners', event.name, context, event, listeners.length, this.listeners.length);
         for (const l of listeners) {
+            if (l.cancelled) continue;
             // if (l.source) Log.trace([], 'fire for listener at %s', l.source);
             if (typeof l.callback === 'object') {
                 for (const funcName of Object.keys(l.callback)) {
@@ -42,7 +43,7 @@ export const Events = {
                         delete l.callback[funcName];
                     }
                 }
-                if (Object.keys(l.callback).length === 0)
+                if (Object.keys(l.callback).length === 0) 
                     this.listeners.remove(l);
             } else {
                 if (l.callback(event) === 'remove')
