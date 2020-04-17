@@ -1,7 +1,7 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture } from 'aminogfx-gl';
+import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text } from 'aminogfx-gl';
 import { Log } from './log';
 import { initMachine } from './init';
-import { LightOutputs, ImageOutputs, resetMachine } from './machine';
+import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
 import { Color, colorToHex } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
 import { Events } from './events';
@@ -361,12 +361,20 @@ if (require.main === module) {
 
 export function makeImage(name: string, w: number, h: number, flip = true): ImageView {
     const img = gfx.createImageView().opacity(1.0).w(w).h(h);
-    if (flip) img.top(1).bottom(0)
+    if (flip) img.top(1).bottom(0);
     img.size('stretch');
     Image.set(img, name);
     return img;
 }
 
+export function makeText(text: string, height: number,
+    align: 'corner'|'center'|'left'|'right' = 'center',
+    vAlign: 'baseline'|'top'|'middle'|'bottom'|undefined = undefined,
+): Text {
+    return gfx.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
+        .align(align==='corner'? 'left' : align)
+        .vAlign(align==='corner'? 'top' : (vAlign!==undefined? vAlign: 'middle'));
+}
 
 export const gfxLights: { [name in keyof LightOutputs]: {
     x: number;
@@ -375,6 +383,7 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     l?: Light;
 }} = {
     lLowerRamp: { x: 15.6, y: 17.3, d: 5/8 },
+    lMiniReady: { x: 2.53125, y: 11.25, d: 5/8 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {
@@ -474,9 +483,15 @@ const gfxSwitches: { [name: string]: {
         y: 25.650000000000002,
     },
     'ramp made':  { x: 2.5875, y: 38.025 },
+    'pop':  { x: 12.487499999999999, y: 33.8625 },
     'upper 2 left':  { x: 6.2437499999999995, y: 39.15 },
     'upper 2 right':  { x: 7.3687499999999995, y: 39.43125 },
     'upper 3 left':  { x: 10.575, y: 39.825 },
     'upper 3 center':  { x: 11.25, y: 38.925 },
     'upper 3 right':  { x: 12.206249999999999, y: 38.025 },
+    'shooter lane': { x: 19.18125, y: 5.625 },
+    'shooter lower': { x: 19.18125, y: 21.65625 },
+    'shooter magnet': { x: 19.18125, y: 33.69375},
+    'outhole': { x: 9.5625, y: 3.2062500000000043 },
+    'trough full': { x: 15.1875, y: 4.893750000000004 },
 };
