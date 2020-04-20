@@ -48,9 +48,9 @@ export class Solenoid16 {
         return this.send(`is m ${num} ${onTime.toFixed()}`);
     }
 
-    initOnOff(num: number, maxOnTime = 0, pulseOffTime = 0) {
+    initOnOff(num: number, maxOnTime = 0, pulseOffTime = 0, pulseOnTime = 1) {
         Log.info(['mpu', 'solenoid'], 'init on-off %i on board %i', num, this.board);
-        return this.send(`is oo ${num} ${maxOnTime.toFixed()} ${pulseOffTime.toFixed()}`);
+        return this.send(`is oo ${num} ${maxOnTime.toFixed()} ${pulseOffTime.toFixed()} ${pulseOnTime.toFixed()}`);
     }
 
     initInput(num: number, settleTime = 3) {

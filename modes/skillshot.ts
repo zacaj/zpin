@@ -17,8 +17,6 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             shooterDiverter: () => this.shooterOpen,
         });
-        
-        screen?.add(this.gfx = new SkillShotGfx(this));
 
         this.listen([...onAnyPfSwitchExcept(machine.sShooterLane), () => !machine.sShooterLane.state], () => this.shooterOpen = false);
         this.listen(onSwitchClose(machine.sShooterLane), () => this.shooterOpen = true);
