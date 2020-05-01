@@ -5,6 +5,8 @@ import { onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from "../util-modes";
 import { Event, Events } from "../events";
 import { Player } from "./player";
+import { MPU } from "../mpu";
+import { gfx } from "../gfx";
 
 export class Ball extends Mode<MachineOutputs> {
     get skillshot(): Skillshot|undefined {
@@ -25,8 +27,10 @@ export class Ball extends Mode<MachineOutputs> {
     }
 
     async start() {
-        await this.await(this.addChild(new ResetMechs()).onEnd());
-        await this.await(this.addChild(new ReleaseBall()).onEnd());
+        if (MPU.isConnected || gfx) {
+            await this.await(this.addChild(new ResetMechs()).onEnd());
+            await this.await(this.addChild(new ReleaseBall()).onEnd());
+        }
         
         this.addChild(new ResetAnyDropOnComplete(), -1);
         this.listen(onSwitchClose(machine.sTroughFull), 'end');

@@ -23,6 +23,6 @@ export class Skillshot extends Mode<MachineOutputs> {
 
         this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), 'end');
 
-        this.gfx.add(new SkillShotGfx(this));
+        this.gfx?.add(new SkillShotGfx(this));
     }
 }

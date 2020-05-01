@@ -500,3 +500,20 @@ const gfxSwitches: { [name: string]: {
     'mini center': { x: 3.8812499999999996, y: 7.481250000000003 },
     'mini right': { x: 5.23125, y: 6.918750000000003 },
 };
+
+class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
+    add(...nodes: Node[]): Group {
+        return this as any;
+    }
+    remove(...nodes: Node[]): Group {
+        return this as any;
+    }
+    clear(): Group {
+        return this as any;
+    }
+}
+
+export function createGroup(): Group|undefined {
+    if (gfx) return gfx.createGroup();
+    return undefined;
+}

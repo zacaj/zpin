@@ -3,12 +3,12 @@ import { Events, Event } from './events';
 import { MachineOutputs } from './machine';
 import { Log } from './log';
 import { Group } from 'aminogfx-gl';
-import { gfx as agfx } from './gfx';
+import { createGroup } from './gfx';
 
 export abstract class Mode<T extends {} = Partial<MachineOutputs>> extends Tree<T> {
     constructor(
         priority = 0,
-        public gfx: Group = new Group(agfx),
+        public gfx: Group|undefined = createGroup(),
     ) {
         super(undefined, priority);
 
@@ -18,13 +18,13 @@ export abstract class Mode<T extends {} = Partial<MachineOutputs>> extends Tree<
     addChild(node: Tree<T>, priority?: number): Tree<T> {
         super.addChild(node, priority);
         if (node instanceof Mode)
-            this.gfx.add(node.gfx);
+            this.gfx?.add(node.gfx!);
         return node;
     }
     removeChild(node: Tree<T>) {
         super.removeChild(node);
         if (node instanceof Mode)
-            this.gfx.remove(node.gfx);
+            this.gfx?.remove(node.gfx!);
     }
 
     end() {

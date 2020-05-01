@@ -84,7 +84,7 @@ export class Poker extends Mode<MachineOutputs> {
                     this.addChild(new KnockTarget(i));
             this.deal();
         });
-        this.gfx.add(new PokerGfx(this));
+        this.gfx?.add(new PokerGfx(this));
     }
 
     deal() {

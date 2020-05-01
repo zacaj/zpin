@@ -39,7 +39,7 @@ export class Game extends Mode<MachineOutputs> {
             kickerEnable: true,
         });
 
-        this.gfx.add(new GameGfx(this));
+        this.gfx?.add(new GameGfx(this));
 
 
         this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.shooterOpen = false);
@@ -83,7 +83,7 @@ export class Game extends Mode<MachineOutputs> {
     static start(): Game {
         const game = new Game();
         machine.addChild(game);
-        screen?.add(game.gfx);
+        screen?.add(game.gfx!);
         return game;
     }
 }
