@@ -63,6 +63,32 @@
 				"zpin/"
 			]
         },
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "sound",
+			"program": "${workspaceFolder}/sound.ts",
+			"console": "integratedTerminal",
+			"outFiles": [
+				"${workspaceFolder}/build/*.js"
+			],
+			"args": [
+                "A:\\source\\acnc\\code\\assets\\sound\\music\\alice\\Theme_From_Nightmare_Castle_M2.wav",
+			]
+        },
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "sync",
+			"program": "${workspaceFolder}/syncr.ts",
+			"console": "integratedTerminal",
+			"outFiles": [
+				"${workspaceFolder}/build/*.js"
+			],
+			"args": [
+				"zpin/"
+			]
+        },
         {
             "type": "node",
             "request": "launch",
