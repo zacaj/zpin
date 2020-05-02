@@ -1,4 +1,4 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text } from 'aminogfx-gl';
+import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text, Node } from 'aminogfx-gl';
 import { Log } from './log';
 import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
@@ -153,7 +153,7 @@ export class Playfield extends Group {
         }
 
         for (const name of Object.keys(gfxImages) as (keyof ImageOutputs)[]) {
-            gfxImages[name].l = new Image(name);
+            gfxImages[name].l = new Display(name);
             this.add(gfxImages[name].l!);
         }
 
@@ -219,28 +219,48 @@ class Light extends Circle {
     }
 }
 
-export class Image extends ImageView {
-
-    constructor(
-        public name: keyof ImageOutputs,
-    ) {
+export class Display extends Group {
+    image!: ImageView;
+    node?: Node;
+    constructor(public name: keyof ImageOutputs) {
         super(gfx);
         const {x,y,r} = gfxImages[name];
         this.x(x);
         this.y(y);
         this.rz(r ?? 0);
-        this.w(1);
-        this.h(1.5);
+        this.w(80);
+        this.h(160);
         this.originX(0.5);
         this.originY(0.5);
-        this.top(1).bottom(0).size('stretch');
-        this.set('empty');
+        this.sx(1/80).sy(1/80);
+
+        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#000000'));
+
+        this.image = new ImageView(gfx);
+        this.image.w(80);
+        this.image.h(120);
+        this.image.top(1).bottom(0).size('stretch');
+        this.add(this.image);
     }
 
-    set(val: string) {
-        return Image.set(this, val);
+    set(val: string|Node) {
+        if (this.node && val !== this.node) {
+            this.remove(this.node);
+            this.node = undefined;
+        }
+        if (typeof val === 'string') {
+            this.image.visible(true);
+            return Image.set(this.image, val);
+        } else {
+            this.image.visible(false);
+            this.node = val;
+            this.add(val);
+            return undefined;
+        }
     }
+}
 
+export class Image extends ImageView {
     static cache: { [name: string]: Texture|Promise<Texture> } = {};
     static set(image: ImageView|null, val: string): Promise<any>|undefined {
         // if (image?.src() === val) {
@@ -390,7 +410,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     x: number;
     y: number;
     r?: number;
-    l?: Image;
+    l?: Display;
 }} = {
     iCenter1: { x: 9.5, y: 25.65, r: -17 },
     iCenter2: { x: 10.7, y: 25.35, r: -17 },
@@ -412,6 +432,13 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iMini1: { x: 2.5, y: 6.8, r: 153-180 },
     iMini2: { x: 3.6, y: 6.25, r: 153-180 },
     iMini3: { x: 4.8, y: 5.78, r: 153-180 },
+    iSS1: { x: 19.8, y: 23.5125, r: 90 },
+    iSS2: { x: 18.05625, y: 31.725, r: 90 },
+    iSS3: { x: 19.912499999999998, y: 37.35, r: 90 },
+    iSS4: { x: 17.26875, y: 40.95, r: 90 },
+    iSS5: { x: 13.837499999999999, y: 43.70625, r: 90 },
+    iSS6: { x: 6.4125, y: 42.525, r: 90 },
+    iSS7: { x: 0.8999999999999999, y: 25.875, r: 90 },
 };
 
 const gfxCoils: { [name: string]: {
@@ -499,6 +526,17 @@ const gfxSwitches: { [name: string]: {
     'mini left': { x: 2.925, y: 7.818750000000001 },
     'mini center': { x: 3.8812499999999996, y: 7.481250000000003 },
     'mini right': { x: 5.23125, y: 6.918750000000003 },
+    'magnet button': { x: 0.39375, y: 3.3187500000000014 },
+    'popper button': { x: 18.95625, y: 4.387500000000003 },
+    'shooter upper':  { x: 19.125, y: 38.475 },
+    'back lane':  { x: 11.924999999999999, y: 40.33125 },
+    'upper lane left':  { x: 12.993749999999999, y: 41.5125 },
+    'upper lane right':  { x: 14.34375, y: 41.34375 },
+    'lower lane left':  { x: 14.34375, y: 39.4875 },
+    'lower lane center':  { x: 16.03125, y: 39.375 },
+    'lower lane right':  { x: 17.4375, y: 39.31875 },
+    'upper eject':  { x: 4.78125, y: 39.375 },
+    'left inlane':  { x: 1.18125, y: 15.693750000000001 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {

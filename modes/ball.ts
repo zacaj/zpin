@@ -20,7 +20,7 @@ export class Ball extends Mode<MachineOutputs> {
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
             if (!this.skillshot)
-                this.addChild(new Skillshot());
+                this.addChild(new Skillshot(player));
         });
 
         this.start();

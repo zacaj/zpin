@@ -45,7 +45,7 @@ export class Log {
                 case 'object':
                     if (p.cleanLog)
                         return p.cleanLog();
-                    else if (maxDepth || Object.keys(p).length < 5) {
+                    else if ((maxDepth || Object.keys(p).length < 5) && Object.keys(p).length < 10) {
                         const r = clone(p);
                         for (const key of Object.keys(p)) {
                             r[key] = this.cleanParams([p[key]], maxDepth - 1)[0];

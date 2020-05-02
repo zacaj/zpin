@@ -77,6 +77,7 @@ declare global {
         clear(): Array<T>;
         unique(): Array<T>;
         set(arr: T[]): Array<T>;
+        last(): T|undefined;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -98,6 +99,9 @@ Array.prototype.unique = function<T>(this: T[]): T[] {
 Array.prototype.set = function<T>(this: T[], that: T[]): T[] {
     this.splice(0, this.length, ...that);
     return this;
+};
+Array.prototype.last = function<T>(this: T[]): T|undefined {
+    return this[this.length - 1];
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {
@@ -175,4 +179,10 @@ export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): str
 export function then<T, U = undefined>(val: Promise<T>|T, cb: (x: T) => U): Promise<U>|U {
     if ((val as any).then) return (val as Promise<T>).then(cb);
     return cb(val as T);
+}
+
+export function wrap(i: number, max: number, min = 0): number {
+    if (i < 0) return wrap(max + i, max, min);
+    if (i >= max) return wrap(i - max, max, min);
+    return i;
 }

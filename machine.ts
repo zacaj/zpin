@@ -12,6 +12,7 @@ import { Color } from './light';
 import { gfxLights, gfxImages, gfx, screen } from './gfx';
 import { Tree } from './tree';
 import { MPU } from './mpu';
+import { Node } from 'aminogfx-gl';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -228,6 +229,7 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
     }
 
     set(state: Color[]): boolean {
+        if (!gfx) return true;
         if (!gfxLights) return false;
         const l = gfxLights[this.name];
         if (l?.l) {
@@ -250,7 +252,7 @@ export class Image extends MachineOutput<string, ImageOutputs> {
 
     }
 
-    set(state: string): boolean {
+    set(state: string|Node): boolean {
         if (!gfx) return true;
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
@@ -298,26 +300,33 @@ export type LightOutputs = {
     lMiniReady: Color[];
 };
 export type ImageOutputs = {
-    iCenter1: string;
-    iCenter2: string;
-    iCenter3: string;
-    iUpper31: string;
-    iUpper32: string;
-    iUpper33: string;
-    iUpper21: string;
-    iUpper22: string;
-    iLeft1: string;
-    iLeft2: string;
-    iLeft3: string;
-    iLeft4: string;
-    iRight1: string;
-    iRight2: string;
-    iRight3: string;
-    iRight4: string;
-    iRight5: string;
-    iMini1: string;
-    iMini2: string;
-    iMini3: string;
+    iCenter1: string|Node;
+    iCenter2: string|Node;
+    iCenter3: string|Node;
+    iUpper31: string|Node;
+    iUpper32: string|Node;
+    iUpper33: string|Node;
+    iUpper21: string|Node;
+    iUpper22: string|Node;
+    iLeft1: string|Node;
+    iLeft2: string|Node;
+    iLeft3: string|Node;
+    iLeft4: string|Node;
+    iRight1: string|Node;
+    iRight2: string|Node;
+    iRight3: string|Node;
+    iRight4: string|Node;
+    iRight5: string|Node;
+    iMini1: string|Node;
+    iMini2: string|Node;
+    iMini3: string|Node;
+    iSS1: string|Node;
+    iSS2: string|Node;
+    iSS3: string|Node;
+    iSS4: string|Node;
+    iSS5: string|Node;
+    iSS6: string|Node;
+    iSS7: string|Node;
 };
 
 export class Machine extends Tree<MachineOutputs> {
@@ -477,6 +486,14 @@ export class Machine extends Tree<MachineOutputs> {
     lRampDown = new Light('lLowerRamp', 0);
     lMiniReady = new Light('lMiniReady', 0);
 
+    iSS1 = new Image('iSS1');
+    iSS2 = new Image('iSS2');
+    iSS3 = new Image('iSS3');
+    iSS4 = new Image('iSS4');
+    iSS5 = new Image('iSS5');
+    iSS6 = new Image('iSS6');
+    iSS7 = new Image('iSS7');
+
     dropTargets: DropTarget[] = [];
     dropBanks: DropBank[] = [];
 
@@ -569,6 +586,13 @@ export class Machine extends Tree<MachineOutputs> {
             iMini1: '',
             iMini2: '',
             iMini3: '',
+            iSS1: '',
+            iSS2: '',
+            iSS3: '',
+            iSS4: '',
+            iSS5: '',
+            iSS6: '',
+            iSS7: '',
         });
     
 
