@@ -269,7 +269,9 @@ public class JServer extends Thread
 											break;
 										case "oo":
 										case "on-off":
-											if (parts.length == 5)
+											if (parts.length == 6)
+												board.initOnOff(byt(2), num(3), byt(4), byt(5));
+											else if (parts.length == 5)
 												board.initOnOff(byt(2), num(3), byt(4));
 											else if (parts.length == 4)
 												board.initOnOff(byt(2), num(3));

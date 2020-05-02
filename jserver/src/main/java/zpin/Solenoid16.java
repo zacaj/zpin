@@ -163,6 +163,9 @@ public class Solenoid16 extends Board {
 		initOnOff(num, maxOnTime, (byte) 0);
 	}
 	void initOnOff(byte num, int maxOnTime, byte pulseOffTime) {
+		initOnOff(num, maxOnTime, pulseOffTime, (byte) 1);
+	}
+	void initOnOff(byte num, int maxOnTime, byte pulseOffTime, byte pulseOnTime) {
 		io.selectAnd(boardNum, () -> {
 			io.buildCommand()
 			.bytes(
@@ -171,7 +174,8 @@ public class Solenoid16 extends Board {
 			).ints(
 				0
 			).bytes(
-					pulseOffTime
+					pulseOffTime,
+					pulseOnTime
 			).ints(
 				maxOnTime
 			).send0();
