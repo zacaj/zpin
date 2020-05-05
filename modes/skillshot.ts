@@ -3,7 +3,7 @@ import { MachineOutputs, machine } from "../machine";
 import { SkillShotGfx } from "../gfx/skillshot";
 import { State } from "../state";
 import { Outputs } from "../outputs";
-import { screen, makeText } from "../gfx";
+import { screen, makeText, alert } from "../gfx";
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from "../switch-matrix";
 import { wrap } from "../util";
 import { Text } from "aminogfx-gl";
@@ -34,7 +34,7 @@ export class Skillshot extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super(700);
+        super(70);
 
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
 
@@ -49,7 +49,7 @@ export class Skillshot extends Mode<MachineOutputs> {
             shooterDiverter: () => this.shooterOpen,
         });
         
-        this.setAward((Math.random()*this.awards.length)|0);
+        this.setAward(0);//(Math.random()*this.awards.length)|0);
 
         this.listen([...onAnyPfSwitchExcept(machine.sShooterLane), () => !machine.sShooterLane.state], () => this.shooterOpen = false);
         this.listen(onSwitchClose(machine.sShooterLane), () => this.shooterOpen = true);
@@ -81,10 +81,11 @@ export class Skillshot extends Mode<MachineOutputs> {
         Log.info('game', 'selected skillshot %i', i);
     }
 
-    made(i: number) {
+    made(i: number) { 
         Log.log('game', 'skillshot %i', i);
         if (i === this.curAward) {
             this.awards[i][3]();
+            alert('SKILLSHOT!', undefined, this.awards[i][1]);
         }
         this.player.poker.bet = this.awards[i][2];
         this.wasMade = true;

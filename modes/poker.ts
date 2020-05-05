@@ -32,7 +32,7 @@ export class Poker extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super(100);
+        super(10);
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bank', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed']);
         this.deal();
 

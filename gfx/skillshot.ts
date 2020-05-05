@@ -1,8 +1,10 @@
 import { Group, Text } from "aminogfx-gl";
 import { Skillshot } from "../modes/skillshot";
-import { gfx, makeText, Screen } from "../gfx";
+import { gfx, makeText, Screen, alert } from "../gfx";
 import { wrap } from "../util";
 import { onChange } from "../state";
+import { TreeEndEvent } from "../tree";
+import { GameGfx } from "./game";
 
 export class SkillShotGfx extends Group {
     award!: Text;
@@ -11,12 +13,12 @@ export class SkillShotGfx extends Group {
         public ss: Skillshot,
     ) {
         super(gfx);
-        this.z(-ss.priority);
+        this.z(ss.priority);
         this.w(Screen.w*.6);
-        this.h(Screen.h);
+        this.h(GameGfx.main);
         this.x(-(this.w()-Screen.w/2));
-        this.y(-this.h()/2);
-        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444'));
+        this.y(-this.h()/2+GameGfx.top/2);
+        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-1));
 
         this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.1));
         this.add(makeText('plunge to choose bet amount', 35, 'center', 'middle').x(this.w()/2).y(this.h()*.3));

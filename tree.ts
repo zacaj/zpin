@@ -29,6 +29,7 @@ export abstract class Tree<Outs extends {} = {}> {
     }
 
     end(): 'remove' {
+        Events.fire(new TreeWillEndEvent(this));
         for (const child of this.getChildren())
             child.end();
         Events.cancel(this.listener);
@@ -41,6 +42,7 @@ export abstract class Tree<Outs extends {} = {}> {
     onEnd(): EventTypePredicate<TreeEndEvent<any>> {
         return e => e instanceof TreeEndEvent && e.tree === this;
     }
+    onEnding = (e: Event) => e instanceof TreeWillEndEvent && e.tree === this;
     await<T extends Event>(predicate: EventTypePredicate<T>): Promise<T> {
         return new Promise(resolve => {
             this.listen(predicate, () => {
@@ -184,6 +186,14 @@ export class TreeEvent<T> extends Event {
 }
 
 export class TreeEndEvent<T extends Tree<any>> extends Event {
+    constructor(
+        public tree: T,
+    ) {
+        super();
+    }
+}
+
+export class TreeWillEndEvent<T extends Tree<any>> extends Event {
     constructor(
         public tree: T,
     ) {

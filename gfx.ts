@@ -9,7 +9,7 @@ import { assert, num, tryNum } from './util';
 import { Game } from './game';
 import { MPU } from './mpu';
 import * as fs from 'fs';
-import { wait } from './timer';
+import { wait, Timer } from './timer';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -123,6 +123,8 @@ export async function initGfx() {
     }
 
     Log.log('gfx', 'graphics initialized');
+
+    // alert('test text', undefined, 'more test text');
 }
 
 export class Playfield extends Group {
@@ -187,12 +189,24 @@ export class Screen extends Group {
         circle.x.anim({
             from: -400,
             to: 400,
-            dur: 1000,
+            duration: 1000,
             loop: -1,
-            timefunc: 'linear',
+            timeFunc: 'linear',
+            autoreverse: false,
+        }).start();
+        circle.z.anim({
+            from: 100,
+            to: -100,
+            duration: 1000,
+            loop: -1,
+            timeFunc: 'linear',
             autoreverse: false,
         }).start();
         this.add(circle);
+
+        this.depth(true);
+
+        // this.add(gfx.createRect().fill('#ffffff').w(100).h(100).z(100));
     }
 }
 
@@ -554,4 +568,43 @@ class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
 export function createGroup(): Group|undefined {
     if (gfx) return gfx.createGroup();
     return undefined;
+}
+
+export function popup(node: Node, ms = 750) {
+    if (!gfx) return;
+    // node.x(Screen.w/2);
+    // node.y(Screen.h/2);
+    node.z(100);
+    screen.add(node);
+    Timer.callIn(() => screen.remove(node), ms, 'popup');
+}
+
+export function alert(text: string, ms?: number, subtext?: string): Group {
+    if (!gfx) return new FakeGroup() as any;
+    const g = gfx.createGroup().y(-Screen.h * .2);
+    const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
+    const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
+
+    // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
+    const r = gfx.createRect().fill('#111111').z(-1);
+    function setW() {
+        r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
+        r.x((t.w()-r.w())/2 + t.x());
+    }
+    t.lineW.watch(setW);
+    t2?.lineW.watch(setW);
+    setW();
+    function setH() {
+        r.h(t.lineNr()*t.fontSize()+(t2?.lineNr()??0)*(t2?.fontSize()??0));
+        t2?.y(t.lineNr()*t.fontSize());
+    }
+    t.lineNr.watch(setH);
+    t2?.lineNr.watch(setH);
+    setH();
+    g.add(r, t);
+    if (t2)
+        g.add(t2);
+
+    popup(g, ms);
+    return g;    
 }
