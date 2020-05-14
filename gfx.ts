@@ -570,7 +570,7 @@ export function createGroup(): Group|undefined {
     return undefined;
 }
 
-export function popup(node: Node, ms = 750) {
+export function popup(node: Node, ms = 1100) {
     if (!gfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
