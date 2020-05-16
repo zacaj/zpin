@@ -327,6 +327,7 @@ export type ImageOutputs = {
     iSS5: string|Node;
     iSS6: string|Node;
     iSS7: string|Node;
+    iSpinner: string|Node;
 };
 
 export class Machine extends Tree<MachineOutputs> {
@@ -349,6 +350,7 @@ export class Machine extends Tree<MachineOutputs> {
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.state = false));
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 12, 6, undefined, undefined, () => machine.sUpperEject.state = false);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
+    cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2, 25, 50, 10);
     cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
     cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight1.state = true);
     cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight2.state = true);
@@ -483,6 +485,17 @@ export class Machine extends Tree<MachineOutputs> {
         this.sRampMade,
     ];
 
+    sTopLanes = [
+        this.sBackLane,
+        this.sUpperLaneLeft,
+        this.sUpperLaneRight,
+        this.sLowerLaneCenter,
+        this.sLowerLaneRight,
+        this.sLowerLaneLeft,
+    ];
+
+    lastSwitchHit?: Switch;
+
     lRampDown = new Light('lLowerRamp', 0);
     lMiniReady = new Light('lMiniReady', 0);
 
@@ -493,6 +506,7 @@ export class Machine extends Tree<MachineOutputs> {
     iSS5 = new Image('iSS5');
     iSS6 = new Image('iSS6');
     iSS7 = new Image('iSS7');
+    iSpinner = new Image('iSpinner');
 
     dropTargets: DropTarget[] = [];
     dropBanks: DropBank[] = [];
@@ -593,6 +607,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSS5: '',
             iSS6: '',
             iSS7: '',
+            iSpinner: '',
         });
     
 
@@ -603,6 +618,8 @@ export class Machine extends Tree<MachineOutputs> {
             this.miniDown = true;
         });
         this.listen(onAnySwitchClose(this.sMiniMissed, this.sMiniEntry, this.sOuthole), () => this.miniDown = false);
+
+        this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
     }
 }
 

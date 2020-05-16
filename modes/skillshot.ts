@@ -9,6 +9,7 @@ import { wrap } from "../util";
 import { Text } from "aminogfx-gl";
 import { Player } from "./player";
 import { Log } from "../log";
+import { time } from "../timer";
 
 
 export class Skillshot extends Mode<MachineOutputs> {
@@ -30,6 +31,7 @@ export class Skillshot extends Mode<MachineOutputs> {
 
     lastSw = 0;
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
+    startTime = time();
 
     constructor(
         public player: Player,
@@ -47,6 +49,7 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
+            leftGate: () => (time()-this.startTime) % 3000 > 1500,
         });
         
         this.setAward(0);//(Math.random()*this.awards.length)|0);

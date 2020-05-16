@@ -248,7 +248,7 @@ export class Display extends Group {
         this.originY(0.5);
         this.sx(1/80).sy(1/80);
 
-        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#000000'));
+        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#000000').z(-1));
 
         this.image = new ImageView(gfx);
         this.image.w(80);
@@ -453,6 +453,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iSS5: { x: 13.837499999999999, y: 43.70625, r: 90 },
     iSS6: { x: 6.4125, y: 42.525, r: 90 },
     iSS7: { x: 0.8999999999999999, y: 25.875, r: 90 },
+    iSpinner: { x: 16.837499999999999, y: 35.70625, r: 90 },
 };
 
 const gfxCoils: { [name: string]: {
@@ -470,6 +471,8 @@ const gfxCoils: { [name: string]: {
     'right2': { x: 17.83125, y: 25.087500000000002 },
     'miniBank': { x: 4.3875, y: 8.100000000000001 },
     'rampUp': { x: 3.15, y: 31.725 },
+    'leftGate': { x: 11.75625, y: 44.15625 },
+    'rightGate': { x: 19.0125, y: 41.5125 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;

@@ -1,13 +1,17 @@
-import { MachineOutputs, machine } from "../machine";
+import { MachineOutputs, machine, Machine } from "../machine";
 import { Mode } from "../mode";
 import { Poker } from "./poker";
-import { State } from "../state";
+import { State, onChange } from "../state";
 import { Game } from "../game";
 import { Outputs } from "../outputs";
 import { Color } from "../light";
 import { onSwitchClose, onAnySwitchClose } from "../switch-matrix";
-import { DropBankCompleteEvent } from "../drop-bank";
+import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from "../drop-bank";
 import { Ball } from "./ball";
+import { Tree } from "../tree";
+import { Event, Events } from "../events";
+import { Time, time } from "../timer";
+import { makeText } from "../gfx";
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -62,9 +66,84 @@ export class Player extends Mode<MachineOutputs> {
         
         this.poker = new Poker(this);
         this.addChild(this.poker);
+
+        this.addChild(new Spinner(this));
     }
     
     startBall() {
         this.addChild(new Ball(this));
     }
+}
+
+class Spinner extends Tree<MachineOutputs> {
+    lastSpinAt?: Time;
+    score = 10;
+    comboMult = 1;
+
+    rounds = 0;
+    maxRounds = 1;
+
+    display = makeText(`10  `, 70, 'corner').rz(90).x(80).y(160).sy(-1);
+
+    constructor(
+        public player: Player,
+    ) {
+        super();
+
+        State.declare<Spinner>(this, ['rounds', 'score', 'comboMult']);
+
+        this.out = new Outputs(this, {
+            leftGate: () => this.rounds > 0,
+            rightGate: () => machine.lastSwitchHit === machine.sSpinner? false : undefined,
+            iSpinner: () => this.display,
+        });
+
+        this.listen(onSwitchClose(machine.sSpinner), 'hit');
+
+        this.listen([...onSwitchClose(machine.sLeftOrbit), () => !!this.lastSpinAt && time()-this.lastSpinAt < 1200],
+        () => {
+            if (this.rounds > 0)
+                this.rounds--;
+            this.comboMult+=2;
+        });
+
+        this.listen([onAnySwitchClose(...machine.sTopLanes), () => this.rounds === 0], () => {
+            this.rounds = this.maxRounds;
+            this.maxRounds++;
+            if (this.maxRounds > 3)
+                this.maxRounds = 3;
+        });
+
+        this.listen(onAnySwitchClose(...machine.sTopLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
+
+        this.watch(onChange(this, 'score'), () => this.updateDisplay());
+        this.watch(onChange(this, 'comboMult'), () => this.updateDisplay());
+
+        this.listen(e => e instanceof DropDownEvent, () => this.calcScore());
+        this.listen(e => e instanceof DropBankResetEvent, () => this.calcScore());
+    }
+
+    hit() {
+        if (!this.lastSpinAt || time()-this.lastSpinAt > 100) {
+            Events.fire(new SpinnerHit());
+        }
+        this.player.score += this.score * this.comboMult;
+    }
+
+    updateDisplay() {
+        this.display.text(`${this.score} ${this.comboMult>1? `x${this.comboMult}` : '  '}`);
+    }
+
+    calcScore() {
+        const down = [3, 2, 1].map(num => ([num, machine.dropBanks.filter(bank => bank.targets.filter(t => t.state).length === num).length]));
+        const countValue = [0, 100, 400, 1000, 3000, 6000, 20000];
+        const best = down.find(([n, c]) => c > 0);
+        if (best)
+            this.score = best[0] * countValue[best[1]];
+        else
+            this.score = 10;
+    }
+}
+export class SpinnerHit extends Event {
+    
 }
