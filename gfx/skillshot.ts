@@ -1,10 +1,10 @@
-import { Group, Text } from "aminogfx-gl";
-import { Skillshot } from "../modes/skillshot";
-import { gfx, makeText, Screen, alert } from "../gfx";
-import { wrap } from "../util";
-import { onChange } from "../state";
-import { TreeEndEvent } from "../tree";
-import { GameGfx } from "./game";
+import { Group, Text } from 'aminogfx-gl';
+import { Skillshot } from '../modes/skillshot';
+import { gfx, makeText, Screen, alert } from '../gfx';
+import { wrap } from '../util';
+import { onChange } from '../state';
+import { TreeEndEvent } from '../tree';
+import { GameGfx } from './game';
 
 export class SkillShotGfx extends Group {
     award!: Text;

@@ -1,7 +1,7 @@
-import { Group, Text } from "aminogfx-gl";
-import { Game } from "../game";
-import { gfx, makeText, Screen } from "../gfx";
-import { onChange } from "../state";
+import { Group, Text } from 'aminogfx-gl';
+import { Game } from '../game';
+import { gfx, makeText, Screen } from '../gfx';
+import { onChange } from '../state';
 
 export class GameGfx extends Group {
     static top = 70;

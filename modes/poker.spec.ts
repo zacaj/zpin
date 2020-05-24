@@ -1,5 +1,5 @@
-import { Suit, Card, findPairs, findFlushes, findStraights, bestHand, compareHands } from "./poker"
-import { num } from "../util"
+import { Suit, Card, findPairs, findFlushes, findStraights, bestHand, compareHands } from './poker';
+import { num } from '../util';
 
 describe('poker', () => {
     function hand(str: string): Card[] {

@@ -1,4 +1,4 @@
-import { expectMachineOutputs, machine } from './machine'
+import { expectMachineOutputs, machine } from './machine';
 import { Game } from './game';
 import { getTypeIn } from './util';
 import { DropBank } from './drop-bank';

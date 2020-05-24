@@ -1,17 +1,18 @@
-import { MachineOutputs, machine, Machine } from "../machine";
-import { Mode } from "../mode";
-import { Poker } from "./poker";
-import { State, onChange } from "../state";
-import { Game } from "../game";
-import { Outputs } from "../outputs";
-import { Color } from "../light";
-import { onSwitchClose, onAnySwitchClose } from "../switch-matrix";
-import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from "../drop-bank";
-import { Ball } from "./ball";
-import { Tree } from "../tree";
-import { Event, Events } from "../events";
-import { Time, time } from "../timer";
-import { makeText } from "../gfx";
+import { MachineOutputs, machine, Machine } from '../machine';
+import { Mode } from '../mode';
+import { Poker } from './poker';
+import { State, onChange } from '../state';
+import { Game } from '../game';
+import { Outputs } from '../outputs';
+import { Color } from '../light';
+import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
+import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
+import { Ball } from './ball';
+import { Tree } from '../tree';
+import { Event, Events } from '../events';
+import { Time, time } from '../timer';
+import { makeText } from '../gfx';
+import { StraightMb } from './straight.mb';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;

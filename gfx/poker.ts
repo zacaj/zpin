@@ -1,8 +1,8 @@
-import { Group, ImageView } from "aminogfx-gl";
-import { Poker, Card, getFileForCard } from "../modes/poker";
-import { gfx, makeImage, Screen, Image, makeText } from "../gfx";
-import { onChange } from "../state";
-import { tryNum } from "../util";
+import { Group, ImageView } from 'aminogfx-gl';
+import { Poker, Card, getFileForCard } from '../modes/poker';
+import { gfx, makeImage, Screen, Image, makeText } from '../gfx';
+import { onChange } from '../state';
+import { tryNum } from '../util';
 
 export class PokerGfx extends Group {
     bet = makeText('BET: 0', 40);
@@ -15,7 +15,7 @@ export class PokerGfx extends Group {
         public poker: Poker,
     ) {
         super(gfx);
-        this.z(1)
+        this.z(1);
 
         this.add(this.playerHand = new PokerHand(poker, poker.playerHand).x(0).y(-PokerHand.h*1.05/2-20));
         poker.watch(onChange(poker, 'playerWins'), () => this.playerHand.visible(poker.playerWins === undefined));

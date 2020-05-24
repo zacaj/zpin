@@ -390,7 +390,7 @@ if (require.main === module) {
     // MPU.init('localhost').then(() => 
     initGfx().then(() => {
         const game = Game.start();
-    })//);
+    });//);
 }
 
 export function makeImage(name: string, w: number, h: number, flip = true): ImageView {
@@ -460,7 +460,7 @@ const gfxCoils: { [name: string]: {
     x: number;
     y: number;
     c?: FxCoil;
-}} = {
+};} = {
     'shooterDiverter': { x: 17.75, y: 18.45625 },
     'lockPost': { x: 1.74375, y: 29.64375 },
     'miniDiverter': { x: 2.30625, y: 9.731250000000003 },
@@ -478,15 +478,15 @@ const gfxSwitches: { [name: string]: {
     x: number;
     y: number;
     s?: FxSwitch;
-}} = {
+};} = {
     'right inlane': { x: 15.75, y: 14.45625 },
     'center left': {
         x: 9.7875,
-        y: 26.83125
+        y: 26.83125,
     },
     'center center': {
         x: 10.799999999999999,
-        y: 26.6625
+        y: 26.6625,
     },
     'center right': {
         x: 12.206249999999999,

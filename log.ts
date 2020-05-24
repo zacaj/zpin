@@ -80,7 +80,7 @@ export class Log {
         const ts = Log.timestamp()+' ';
         Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
         if (time() - Log.lastTrace > 5*60*60*1000)
-            truncate('trace.log', {lines: 50000});
+            truncate(['trace.log'], {lines: 50000});
     }
 
     static info(categories: OrArray<LogCategory>, message: string, ...params: any[]) {

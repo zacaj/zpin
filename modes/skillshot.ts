@@ -1,15 +1,15 @@
-import { Mode } from "../mode";
-import { MachineOutputs, machine } from "../machine";
-import { SkillShotGfx } from "../gfx/skillshot";
-import { State } from "../state";
-import { Outputs } from "../outputs";
-import { screen, makeText, alert } from "../gfx";
-import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from "../switch-matrix";
-import { wrap } from "../util";
-import { Text } from "aminogfx-gl";
-import { Player } from "./player";
-import { Log } from "../log";
-import { time } from "../timer";
+import { Mode } from '../mode';
+import { MachineOutputs, machine } from '../machine';
+import { SkillShotGfx } from '../gfx/skillshot';
+import { State } from '../state';
+import { Outputs } from '../outputs';
+import { screen, makeText, alert } from '../gfx';
+import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from '../switch-matrix';
+import { wrap } from '../util';
+import { Text } from 'aminogfx-gl';
+import { Player } from './player';
+import { Log } from '../log';
+import { time } from '../timer';
 
 
 export class Skillshot extends Mode<MachineOutputs> {
