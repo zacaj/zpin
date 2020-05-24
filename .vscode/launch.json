@@ -47,8 +47,14 @@
 				"${workspaceFolder}/build/*.js"
 			],
 			"args": [
-				"zpin/"
-			]
+                "zpin/",
+                "--no-mpu",
+                // "--no-trace",
+                // "--no-gfx",
+                "--ip",
+                "192.168.2.41",
+            ],
+            // "runtimeArgs": [ "--prof"]
         },
 		{
 			"type": "node",

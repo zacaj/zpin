@@ -92,7 +92,7 @@ module.exports = {
     "no-undefined": off,
     "no-unused-vars": off,
 
-    "brace-style": on,
+    "brace-style": off,
     "comma-dangle": [on, {
       "arrays": "always-multiline",
       "objects": "always-multiline",

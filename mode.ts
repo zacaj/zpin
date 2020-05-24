@@ -5,7 +5,7 @@ import { Log } from './log';
 import { Group } from 'aminogfx-gl';
 import { createGroup } from './gfx';
 
-export abstract class Mode<T extends {} = Partial<MachineOutputs>> extends Tree<T> {
+export abstract class Mode<Outs extends {} = Partial<MachineOutputs>> extends Tree<Outs> {
     constructor(
         priority = 0,
         public gfx: Group|undefined = createGroup(),
@@ -15,16 +15,17 @@ export abstract class Mode<T extends {} = Partial<MachineOutputs>> extends Tree<
         Log.log('game', 'start mode %s', this.constructor.name);
     }
 
-    addChild(node: Tree<T>, priority?: number): Tree<T> {
+    addChild<T extends Tree<Outs>>(node: T, priority?: number): T {
         super.addChild(node, priority);
         if (node instanceof Mode)
             this.gfx?.add(node.gfx!);
         return node;
     }
-    removeChild(node: Tree<T>) {
+    removeChild<T extends Tree<Outs>>(node: T): T {
         super.removeChild(node);
         if (node instanceof Mode)
             this.gfx?.remove(node.gfx!);
+        return node;
     }
 
     end() {

@@ -4,7 +4,7 @@ import { Poker } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
-import { Color } from '../light';
+import { Color, light } from '../light';
 import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
 import { Ball } from './ball';
@@ -13,26 +13,34 @@ import { Event, Events } from '../events';
 import { Time, time } from '../timer';
 import { makeText } from '../gfx';
 import { StraightMb } from './straight.mb';
+import { Multiball } from './multiball';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
     score = 0;
+    bank = 10000;
     
-    poker!: Poker;
+    poker?: Poker;
 
     lowerRampLit = false;
     miniReady = false;
     rampUp = true;
 
+    modesQualified: (boolean)[] = [];
+    mbsQualified: (typeof Multiball)[] = [];
+
     constructor(
         public game: Game,
     ) {
         super();
-        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit']);
+        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified']);
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
+            lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
+            lEjectStartMode: () => this.modesQualified.length>=0 && this.poker?.step === 7? [Color.White] : [],
+            lRampStartMb: light(this.mbsQualified.length>0 && this.poker?.step === 7),
         });
 
         this.listen(
@@ -84,7 +92,7 @@ class Spinner extends Tree<MachineOutputs> {
     rounds = 0;
     maxRounds = 1;
 
-    display = makeText(`10  `, 70, 'corner').rz(90).x(80).y(160).sy(-1);
+    display = makeText('10  ', 70, 'corner').rz(90).x(80).y(160).sy(-1);
 
     constructor(
         public player: Player,

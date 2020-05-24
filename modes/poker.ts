@@ -24,7 +24,6 @@ export class Poker extends Mode<MachineOutputs> {
 
     pot = 0;
     bet = 100;
-    bank = 10000;
     playerWins?: boolean;
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
@@ -33,7 +32,7 @@ export class Poker extends Mode<MachineOutputs> {
         public player: Player,
     ) {
         super(10);
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bank', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed']);
         this.deal();
 
         const outs: any  = {};
@@ -53,7 +52,7 @@ export class Poker extends Mode<MachineOutputs> {
                 this.slots[target.num] = null;
                 this.dealerHand[this.step] = this.deck.pop()!;
                 this.pot += this.bet * 2;
-                this.bank -= this.bank;
+                this.player.bank -= this.bet;
                 this.step++;
 
                 if (this.step === 7) {
@@ -72,7 +71,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (this.step !== 7) return;
             if (this.playerWins)
-                this.bank += this.pot;
+                this.player.bank += this.pot;
             this.pot = 0;
             this.bet = 100;
             await Promise.all([
@@ -229,42 +228,56 @@ export function findStraights(hand: Card[]): Card[][] {
     return straights;
 }
 
-export function bestHand(cards: Card[], max = 5): [Card[], number] {
+export enum Hand {
+    Card = 0,
+    Pair = 1,
+    TwoPair = 2,
+    ThreeOfAKind = 3,
+    Straight = 4,
+    Flush = 5,
+    FullHouse = 6,
+    FourOfAKind = 7,
+    StraightFlush = 8,
+    RoyalFlush = 9,
+    FiveOfAKind = 10,
+}
+
+export function bestHand(cards: Card[], max = 5): [Card[], Hand] {
     const flushes = findFlushes(cards);
     const straights = findStraights(cards);
     const pairs = findPairs(cards);
     if (max >= 5) {
-        if (pairs[0]?.length === 5) return [pairs[0], 10];
+        if (pairs[0]?.length === 5) return [pairs[0], Hand.FiveOfAKind];
         // if (straights[0]?[4]?.num === 1 && straights[0]?.map(c => c.suit).unique().length === 1) return [straights[0], 9];
         const straightFlushes = straights.filter(s => s.map(c => c.suit).unique().length === 1);
         if (straightFlushes.length > 0) {
-            if (straightFlushes[0][4].num === 1) return [straightFlushes[0], 9];
-            else return [straightFlushes[0], 8];
+            if (straightFlushes[0][4].num === 1) return [straightFlushes[0], Hand.RoyalFlush];
+            else return [straightFlushes[0], Hand.StraightFlush];
         }
     }
     if (max >= 4) {
-        if (pairs[0]?.length === 4) return [pairs[0], 7];
+        if (pairs[0]?.length === 4) return [pairs[0], Hand.FourOfAKind];
     }
     const three = pairs.find(p => p.length === 3);
     const two = pairs.find(p => p.length === 2);
     if (max >= 5) {
-        if (three && two) return [[...three, ...two], 6];
+        if (three && two) return [[...three, ...two], Hand.FullHouse];
 
-        if (flushes.length > 0) return [flushes[0], 5];
+        if (flushes.length > 0) return [flushes[0], Hand.Flush];
 
-        if (straights.length > 0) return [straights[0], 4];
+        if (straights.length > 0) return [straights[0], Hand.Straight];
     }
     if (max >= 3) {
-        if (three) return [three, 3];
+        if (three) return [three, Hand.ThreeOfAKind];
     }
     if (max >= 4) {
         const twos = pairs.filter(p => p.length === 2);
-        if (twos.length >= 2) return [twos.slice(0, 2).flat(), 2];
+        if (twos.length >= 2) return [twos.slice(0, 2).flat(), Hand.TwoPair];
     }
     if (max >= 2) {
-        if (two) return [two, 1];
+        if (two) return [two, Hand.Pair];
     }
-    return [[cards.reduce((prev, cur) => val(cur) > val(prev)? cur : prev, cards[0])], 0];
+    return [[cards.reduce((prev, cur) => val(cur) > val(prev)? cur : prev, cards[0])], Hand.Card];
 }
 
 // does a beat b

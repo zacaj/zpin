@@ -78,6 +78,7 @@ declare global {
         unique(): Array<T>;
         set(arr: T[]): Array<T>;
         last(): T|undefined;
+        minus(...elems: T[]): Array<T>;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -102,6 +103,10 @@ Array.prototype.set = function<T>(this: T[], that: T[]): T[] {
 };
 Array.prototype.last = function<T>(this: T[]): T|undefined {
     return this[this.length - 1];
+};
+Array.prototype.minus = function<T>(this: T[], ...elems: T[]): T[] {
+    const arr = this.slice();
+    return arr.remove(...elems);
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {
@@ -168,7 +173,7 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
 export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): string {
     if (!require('./log').Log.files.trace) return '';
     const err = new Error();
-    const lines = err.stack!.split("\n").slice(2);
+    const lines = err.stack!.split('\n').slice(2);
     const imm_caller_line = lines[0];
     const file = (imm_caller_line.match(/([^/\\]+\.js)/) ?? [])[0];
     const caller_line_index = lines.findIndex(l => (!file || (ignoreCurFile && !l.includes(file))) && (!ignorePattern || !l.match(ignorePattern)));
