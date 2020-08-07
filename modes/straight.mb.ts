@@ -7,7 +7,7 @@ export class StraightMb extends Multiball {
     }
 
     async start() {
-        const finish = await queueDisplay(this.gfx!, 'straight mb start');
+        const finish = await queueDisplay(this.gfx!, 3, 'straight mb start');
         await alert('Straight Multiball!', 3000)[1];
         await super.start();
         await this.releaseBallFromTrough();

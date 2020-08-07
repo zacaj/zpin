@@ -27,8 +27,11 @@ export type EventListener<E extends Event = Event> = {
 
 export const Events = {
     listeners: [] as EventListener<any>[],
+    baseEvent: undefined as Event|undefined,
 
     fire(event: Event, context = '') {
+        if (!this.baseEvent) this.baseEvent = event;
+
         const listeners = this.listeners.filter(l => !l.predicates.some(p => !p(event)) && !l.cancelled);
         Log.trace([], 'fire event %s: %s %j at %i/%i listeners', event.name, context, event, listeners.length, this.listeners.length);
         for (const l of listeners) {
@@ -49,6 +52,11 @@ export const Events = {
                 if (l.callback(event) === 'remove')
                     this.listeners.remove(l);
             }
+        }
+
+        if (this.baseEvent === event) {
+            this.firePriorities();
+            this.baseEvent = undefined;
         }
     },
 
@@ -73,6 +81,25 @@ export const Events = {
 
     resetAll() {
         this.listeners.splice(0, this.listeners.length);
+        this.waiting.splice(0, this.waiting.length);
+    },
+
+    waiting: [] as { resolve: (finish: () => void) => void; priority: number }[],
+    async waitPriority(priority: number): Promise<() => void> {
+        return new Promise(resolve => {
+            this.waiting.push({resolve, priority});
+        });
+    },
+
+    async firePriorities() {
+        const waiting = this.waiting.slice();
+        this.waiting.splice(0, this.waiting.length);
+        waiting.sort((a, b) => a.priority - b.priority);
+        for (const {resolve} of waiting) {
+            await new Promise(r => {
+                resolve(r);
+            });
+        }
     },
 };
 

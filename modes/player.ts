@@ -10,7 +10,7 @@ import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../dro
 import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events } from '../events';
-import { Time, time } from '../timer';
+import { Time, time, wait } from '../timer';
 import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
@@ -77,11 +77,14 @@ export class Player extends Mode<MachineOutputs> {
             this.addChild(new StraightMb());
         });
 
-        this.listen(onSwitchClose(machine.sShooterLane), () => {
+        this.listen(onSwitchClose(machine.sShooterLane), async () => {
+            const finish = await Events.waitPriority(2);
             if (!this.poker) {
                 this.poker = new Poker(this);
                 this.addChild(this.poker);
+                await wait(500);
             }
+            finish();
         });
         
         this.poker = new Poker(this);

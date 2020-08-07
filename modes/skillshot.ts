@@ -10,6 +10,7 @@ import { Text } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
 import { time } from '../timer';
+import { Events } from '../events';
 
 
 export class Skillshot extends Mode<MachineOutputs> {
@@ -43,9 +44,10 @@ export class Skillshot extends Mode<MachineOutputs> {
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
 
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        queueDisplay(this.gfx, 'skillshot').then((finish: any) => {
+        queueDisplay(this.gfx, 3, 'skillshot').then((finish: any) => {
             this.finishDisplay = finish;
         });
+            
 
         const outs = {} as any;
         for (const a of this.awards) {

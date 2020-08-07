@@ -594,17 +594,20 @@ const pendingDisplays: {
     node?: Node;
 }[] = [];
 
-export function queueDisplay(node: Node|undefined, name: string): Promise<() => void> {
-    if (pendingDisplays.length !== 0) {
+export async function queueDisplay(node: Node|undefined, priority: number, name: string): Promise<() => void> {
+    // if (pendingDisplays.length !== 0) {
         Log.info('gfx', 'enqueing display %s', name);
         node?.visible(false);
-    }
+    // }
+
+    const done = await Events.waitPriority(priority);
   
     return new Promise(resolve => {
         const cb = () => {
             const first = pendingDisplays[0] === disp;
             pendingDisplays.remove(disp);
             Log.info('gfx', 'display %s completed', name);
+            done();
             if (first && pendingDisplays.length > 0) {
                 pendingDisplays[0].start();
                 pendingDisplays[0].node?.visible(true);
@@ -619,6 +622,7 @@ export function queueDisplay(node: Node|undefined, name: string): Promise<() => 
         pendingDisplays.push(disp);
 
         if (pendingDisplays.length === 1) {
+            node?.visible(true);
             resolve(cb);
         }
 

@@ -12,6 +12,7 @@ import { KnockTarget, ResetMechs as ResetDropBanks } from '../util-modes';
 import { wait } from '../timer';
 import { Color } from '../light';
 import { StraightMb } from './straight.mb';
+import { Events } from '../events';
 
 
 export class Poker extends Mode<MachineOutputs> {
@@ -74,12 +75,14 @@ export class Poker extends Mode<MachineOutputs> {
         });
 
         this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
+            // const done = await Events.waitPriority(1);
             await this.showCards();
 
             // if (e.sw === machine.sShooterLane) {
             //     this.player.poker = new Poker(this.player);
             //     this.player.addChild(this.player.poker);
             // }
+            // done();
         });
 
         this.gfx?.add(new PokerGfx(this));
@@ -142,7 +145,7 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     async showCards() {
-        const finish = await queueDisplay(this.gfx!, 'poker winnings');
+        const finish = await queueDisplay(this.gfx!, 1, 'poker winnings');
         Log.info('game', 'showing hand');
         for (let i=0; i<7; i++) {
             if (this.dealerHand[i]?.flipped)
