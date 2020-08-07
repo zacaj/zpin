@@ -14,6 +14,7 @@ import { screen } from './gfx';
 import { Player } from './modes/player';
 import { assert } from './util';
 import { Ball } from './modes/ball';
+import { StraightMb } from './modes/straight.mb';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
@@ -26,6 +27,7 @@ export class Game extends Mode<MachineOutputs> {
         return this.players[this.playerUp];
     }
     ballNum = 0;
+    rightGate = true;
     
     private constructor() {
         super();
@@ -37,6 +39,9 @@ export class Game extends Mode<MachineOutputs> {
             leftMagnet: () => machine.sMagnetButton.state,
             popper: () => machine.sPopperButton.state,
             kickerEnable: true,
+            rightGate: () => this.rightGate,
+            magnetPost: () => machine.sShooterUpper.wasClosedWithin(500) && !machine.sShooterLower.wasClosedWithin(750),
+            upperMagnet: () => machine.sShooterUpper.wasClosedWithin(5000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
         this.gfx?.add(new GameGfx(this));
@@ -45,11 +50,11 @@ export class Game extends Mode<MachineOutputs> {
         this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.shooterOpen = false);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.shooterOpen = true);
 
+
         
 
         this.listen(onSwitchClose(machine.sLeftInlane),
             () => this.addChild(new KnockTarget()));
-
 
 
         this.addChild(new ClearHoles(), -1);

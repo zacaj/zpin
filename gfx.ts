@@ -6,8 +6,8 @@ import { Color, colorToHex } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
 import { Events } from './events';
 import { assert, num, tryNum } from './util';
-import { Game } from './game';
-import { MPU } from './mpu';
+// import { Game } from './game';
+// import { MPU } from './mpu';
 import * as fs from 'fs';
 import { wait, Timer } from './timer';
 
@@ -111,6 +111,10 @@ export async function initGfx() {
                     Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
                     sw.changeState(!sw.state);
                 }
+            }
+            
+            if (e.char === 'd') {
+                machine.out!.debugPrint();
             }
         }
     });
@@ -389,7 +393,7 @@ if (require.main === module) {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     // MPU.init('localhost').then(() => 
     initGfx().then(() => {
-        const game = Game.start();
+        // const game = Game.start();
     });//);
 }
 
@@ -418,6 +422,12 @@ export const gfxLights: { [name in keyof LightOutputs]: {
 }} = {
     lLowerRamp: { x: 15.6, y: 17.3, d: 5/8 },
     lMiniReady: { x: 2.53125, y: 11.25, d: 5/8 },
+    lShooterShowCards:  { x: 18.05625, y: 25.9875, d: 3/4 },
+    lShooterStartHand:  { x: 18.05625, y: 27.39375, d: 5/8 },
+    lEjectShowCards:  { x: 8.8875, y: 39.43125, d: 3/4 },
+    lEjectStartMode:  { x: 9, y: 37.2375, d: 5/8 },
+    lRampShowCards:  { x: 3.65625, y: 29.86875, d: 3/4 },
+    lRampStartMb:  { x: 3.99375, y: 28.29375, d: 5/8 } ,  
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {
@@ -473,6 +483,8 @@ const gfxCoils: { [name: string]: {
     'rampUp': { x: 3.15, y: 31.725 },
     'leftGate': { x: 11.75625, y: 44.15625 },
     'rightGate': { x: 19.0125, y: 41.5125 },
+    'upperMagnet': { x: 17.381249999999998, y: 36.5625 },
+    'magnetPost': { x: 18.61875, y: 34.65 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
@@ -554,6 +566,9 @@ const gfxSwitches: { [name: string]: {
     'lower lane right':  { x: 17.4375, y: 39.31875 },
     'upper eject':  { x: 4.78125, y: 39.375 },
     'left inlane':  { x: 1.18125, y: 15.693750000000001 },
+    'spinner': { x: 17.662499999999998, y: 33.35625 },
+    'under ramp': { x: 2.4187499999999997, y: 34.25625 },
+    'left orbit': { x: 1.0125, y: 39.76875 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
@@ -573,16 +588,55 @@ export function createGroup(): Group|undefined {
     return undefined;
 }
 
-export function popup(node: Node, ms = 1100) {
+const pendingDisplays: {
+    name: string;
+    start: () => void;
+    node?: Node;
+}[] = [];
+
+export function queueDisplay(node: Node|undefined, name: string): Promise<() => void> {
+    if (pendingDisplays.length !== 0) {
+        Log.info('gfx', 'enqueing display %s', name);
+        node?.visible(false);
+    }
+  
+    return new Promise(resolve => {
+        const cb = () => {
+            const first = pendingDisplays[0] === disp;
+            pendingDisplays.remove(disp);
+            Log.info('gfx', 'display %s completed', name);
+            if (first && pendingDisplays.length > 0) {
+                pendingDisplays[0].start();
+                pendingDisplays[0].node?.visible(true);
+            }
+        };
+        const disp = {
+            name,
+            start: () => resolve(cb),
+            node,
+        };
+
+        pendingDisplays.push(disp);
+
+        if (pendingDisplays.length === 1) {
+            resolve(cb);
+        }
+
+    });
+}
+
+export async function popup(node: Node, ms = 2000) {
     if (!gfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
     node.z(100);
     screen.add(node);
-    Timer.callIn(() => screen.remove(node), ms, 'popup');
+    await wait(ms, 'popup');
+    screen.remove(node);
+    return;
 }
 
-export function alert(text: string, ms?: number, subtext?: string): Group {
+export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
     if (!gfx) return new FakeGroup() as any;
     const g = gfx.createGroup().y(-Screen.h * .2);
     const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
@@ -608,6 +662,5 @@ export function alert(text: string, ms?: number, subtext?: string): Group {
     if (t2)
         g.add(t2);
 
-    popup(g, ms);
-    return g;    
+    return [g, popup(g, ms)]; 
 }

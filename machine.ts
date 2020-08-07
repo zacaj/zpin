@@ -5,7 +5,7 @@ import { Events, Event } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
-import { assert, getTypeIn, then } from './util';
+import { assert, getTypeIn, then, eq as eq } from './util';
 import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Color } from './light';
@@ -25,34 +25,36 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         public name: keyof Outs,
     ) {
         this.actual = val;
-        Events.listen<TreeOutputEvent<any>>(ev => this.trySet(ev.value),
+        Events.listen<TreeOutputEvent<any>>(ev => {
+            this.val = ev.value;
+            this.trySet();
+        }, 
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
 
     }
 
-    trySet(val: T): Promise<void>|void {
+    trySet(): Promise<void>|void {
         // if (val === this.val) return;
-        this.val = val;
         this.stopRetry();
-        if (val === this.actual) {
+        if (eq(this.val, this.actual)) {
             return undefined;
         }
-        Log.trace(['machine'], 'try set %s to ', this.name, val);
-        return then(this.set(val), success => {
+        Log.trace(['machine'], 'try set %s to ', this.name, this.val);
+        return then(this.set(this.val), success => {
             try {
                 Log.log('machine', '%s set: ', this.name, success);
                 if (success === true) {
-                    this.actual = val;
+                    this.actual = this.val;
                 } else {
                     if (!success) success = 5;
                     if (!this.timer)
-                        this.timer = Timer.callIn(() => this.trySet(val), success, `delayed retry set ${this.name} to ${val}`);
+                        this.timer = Timer.callIn(() => this.trySet(), success, `delayed retry set ${this.name} to ${this.val}`);
                 }
             } catch (err) {
-                Log.error(['machine'], 'error setting output %s to ', this.name, val, err);
+                Log.error(['machine'], 'error setting output %s to ', this.name, this.val, err);
                 debugger;
                 if (!this.timer)
-                    this.timer = Timer.callIn(() => this.trySet(val), 5, `delayed retry set ${this.name} to ${val}`);
+                    this.timer = Timer.callIn(() => this.trySet(), 5, `delayed retry set ${this.name} to ${this.val}`);
             }
         });
     }
@@ -119,7 +121,7 @@ export class MomentarySolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
-        if (!MPU.isConnected && this.fake) wait(100).then(() => this.fake!());
+        if (!MPU.isConnected && gfx && this.fake) wait(100).then(() => this.fake!());
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
@@ -201,7 +203,7 @@ export class OnOffSolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         
 
-        if (!MPU.isConnected && this.fake) wait(100).then(() => this.fake!(on));
+        if (!MPU.isConnected && gfx && this.fake) wait(100).then(() => this.fake!(on));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else
@@ -274,6 +276,7 @@ export type CoilOutputs = {
     miniEject: boolean;
     miniBank: boolean;
     miniDiverter: boolean;
+    magnetPost: boolean;
     leftBank: boolean;
     rightBank: boolean;
     centerBank: boolean;
@@ -298,6 +301,12 @@ export type CoilOutputs = {
 export type LightOutputs = {
     lLowerRamp: Color[];
     lMiniReady: Color[];
+    lShooterShowCards: Color[];
+    lShooterStartHand: Color[];
+    lEjectShowCards: Color[];
+    lEjectStartMode: Color[];
+    lRampShowCards: Color[];
+    lRampStartMb: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -337,6 +346,7 @@ export class Machine extends Tree<MachineOutputs> {
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
+    cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1, 100, 40, 10);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.state = false));
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.state = false));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
@@ -350,7 +360,7 @@ export class Machine extends Tree<MachineOutputs> {
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.state = false));
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 12, 6, undefined, undefined, () => machine.sUpperEject.state = false);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
-    cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2, 25, 50, 10);
+    cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
     cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
     cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight1.state = true);
     cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight2.state = true);
@@ -359,6 +369,7 @@ export class Machine extends Tree<MachineOutputs> {
     cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight5.state = true);
     cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
     cKickerEnable = new OnOffSolenoid('kickerEnable', 15, this.solenoidBank2);
+    cUpperMagnet = new OnOffSolenoid('upperMagnet', 13, this.solenoidBank2, 10000);
 
     sLeftInlane = new Switch(1, 2, 'left inlane');
     sLeftOutlane = new Switch(1, 1, 'left outlane');
@@ -498,6 +509,12 @@ export class Machine extends Tree<MachineOutputs> {
 
     lRampDown = new Light('lLowerRamp', 0);
     lMiniReady = new Light('lMiniReady', 0);
+    lShooterShowCards = new Light('lShooterShowCards', 0);
+    lShooterStartHand = new Light('lShooterStartHand', 0);
+    lEjectShowCards = new Light('lEjectShowCards', 0);
+    lEjectStartMode = new Light('lEjectStartMode', 0);
+    lRampShowCards = new Light('lRampShowCards', 0);
+    lRampStartMb = new Light('lRampStartMb', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -549,7 +566,7 @@ export class Machine extends Tree<MachineOutputs> {
     miniDown = false;
     constructor() {
         super();
-        State.declare<Machine>(this, ['lockDown', 'miniDown']);
+        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit']);
 
         this.out = new Outputs<MachineOutputs>(this, {
             rampUp: false,
@@ -577,9 +594,16 @@ export class Machine extends Tree<MachineOutputs> {
             right3: false,
             right4: false,
             right5: false,
+            magnetPost: false,
             temp: () => 0,
             lLowerRamp: [],
             lMiniReady: [Color.Red],
+            lShooterShowCards: [],
+            lShooterStartHand: [],
+            lEjectShowCards: [],
+            lEjectStartMode: [],
+            lRampShowCards: [],
+            lRampStartMb: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',
@@ -666,6 +690,7 @@ class EosPulse extends Tree<MachineOutputs> {
 
 export function resetMachine(): Machine {
     machine = new Machine();
+    (global as any).machine = machine;
     MomentarySolenoid.firingUntil = undefined;
     
 

@@ -3,7 +3,7 @@ import { MachineOutputs, machine } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
-import { screen, makeText, alert } from '../gfx';
+import { screen, makeText, alert, queueDisplay } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from '../switch-matrix';
 import { wrap } from '../util';
 import { Text } from 'aminogfx-gl';
@@ -33,12 +33,19 @@ export class Skillshot extends Mode<MachineOutputs> {
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
     startTime = time();
 
+    finishDisplay!: () => void;
+
     constructor(
         public player: Player,
     ) {
         super(70);
 
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
+
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        queueDisplay(this.gfx, 'skillshot').then((finish: any) => {
+            this.finishDisplay = finish;
+        });
 
         const outs = {} as any;
         for (const a of this.awards) {
@@ -50,9 +57,13 @@ export class Skillshot extends Mode<MachineOutputs> {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
             leftGate: () => (time()-this.startTime) % 3000 > 1500,
+            upperMagnet: () => machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 5000 && this.lastSw < 2,
         });
         
         this.setAward(0);//(Math.random()*this.awards.length)|0);
+
+        
+
 
         this.listen([...onAnyPfSwitchExcept(machine.sShooterLane), () => !machine.sShooterLane.state], () => this.shooterOpen = false);
         this.listen(onSwitchClose(machine.sShooterLane), () => this.shooterOpen = true);
@@ -90,7 +101,8 @@ export class Skillshot extends Mode<MachineOutputs> {
             this.awards[i][3]();
             alert('SKILLSHOT!', undefined, this.awards[i][1]);
         }
-        this.player.poker.bet = this.awards[i][2];
+        if (this.player.poker)
+            this.player.poker.bet = this.awards[i][2];
         this.wasMade = true;
     }
 
@@ -98,6 +110,7 @@ export class Skillshot extends Mode<MachineOutputs> {
         if (!this.wasMade) {
             this.made(this.lastSw);
         }
+        this.finishDisplay();
         return this.end();
     }
 }

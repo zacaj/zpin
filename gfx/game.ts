@@ -4,8 +4,8 @@ import { gfx, makeText, Screen } from '../gfx';
 import { onChange } from '../state';
 
 export class GameGfx extends Group {
-    static top = 70;
-    static main = Screen.h - GameGfx.top;
+    static readonly top = 70;
+    static readonly main = Screen.h - GameGfx.top;
 
     score = makeText('00', 60, 'center', 'top');
     ball = makeText('FREE PLAY', 40, 'right', 'top');

@@ -1,6 +1,6 @@
 import { Outputs } from './outputs';
 import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
-import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames } from './util';
+import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap } from './util';
 import { Log } from './log';
 import { State } from './state';
 
@@ -165,7 +165,12 @@ export abstract class Tree<Outs extends {} = {}> {
 
     cleanLog(): string {
         return `${this.constructor.name} #${this.num}` + 
-            (State.hasState(this)? ' '+JSON.stringify((this as any).$state) : '');
+            (State.hasState(this)? ' '+JSON.stringify(
+                objectMap((this as any).$state, (v,k) => typeof v==='object'? k : v)) : '');
+    }
+    
+    get name(): string {
+        return (this as any).constructor.name;
     }
 }
 type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;

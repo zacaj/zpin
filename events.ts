@@ -18,15 +18,15 @@ export abstract class Event {
 export type EventPredicate<E extends Event = Event> = (e: E) => boolean;
 export type EventTypePredicate<E extends Event = Event> = (e: E) => boolean;//e is E;
 export type EventCallback<E extends Event = Event> = ((e: E) => 'remove'|any)|{[func: string]: {}};
-export type EventListener = {
-    callback: EventCallback;
-    predicates: EventPredicate[];
+export type EventListener<E extends Event = Event> = {
+    callback: EventCallback<E>;
+    predicates: EventPredicate<E>[];
     cancelled?: true;
     source?: string;
 };
 
 export const Events = {
-    listeners: [] as EventListener[],
+    listeners: [] as EventListener<any>[],
 
     fire(event: Event, context = '') {
         const listeners = this.listeners.filter(l => !l.predicates.some(p => !p(event)) && !l.cancelled);
@@ -56,8 +56,8 @@ export const Events = {
         l: L,
         typepred: OrArray<EventTypePredicate<E>>,
         ...preds: OrArray<EventPredicate<E>>[]
-    ): EventListener {
-        const listener: EventListener = {
+    ): EventListener<E> {
+        const listener: EventListener<E> = {
             callback: l as any,
             predicates: [typepred, ...preds].flat(),
             source: getCallerLoc(true),

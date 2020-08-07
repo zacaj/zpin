@@ -4,12 +4,14 @@ import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent } from '../drop-bank';
-import { onSwitchClose } from '../switch-matrix';
-import { screen } from '../gfx';
+import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
+import { screen, queueDisplay, alert } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
 import { KnockTarget, ResetMechs as ResetDropBanks } from '../util-modes';
 import { wait } from '../timer';
+import { Color } from '../light';
+import { StraightMb } from './straight.mb';
 
 
 export class Poker extends Mode<MachineOutputs> {
@@ -32,7 +34,7 @@ export class Poker extends Mode<MachineOutputs> {
         public player: Player,
     ) {
         super(10);
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step']);
         this.deal();
 
         const outs: any  = {};
@@ -43,6 +45,9 @@ export class Poker extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             ...outs,
             lockPost: () => this.step===7? false : undefined,
+            lShooterShowCards: () => this.step === 7? [Color.Green] : [],
+            lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
+            lRampShowCards: () => this.step === 7 && player.mbsQualified.size>0? [Color.Green] : [],
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -50,39 +55,33 @@ export class Poker extends Mode<MachineOutputs> {
             if (this.slots[target.num] && this.step < 7) {
                 this.playerHand[this.step] = this.slots[target.num];
                 this.slots[target.num] = null;
-                this.dealerHand[this.step] = this.deck.pop()!;
+                this.dealerHand[this.step] = {
+                    ...this.deck.pop()!,
+                    flipped: this.step + 1 === 7,
+                };
                 this.pot += this.bet * 2;
                 this.player.bank -= this.bet;
                 this.step++;
 
+                this.qualifyModes();
+
                 if (this.step === 7) {
-                    // this.dealerHand[this.step-1]!.flipped = true;
-                    for (let i=0; i<7; i++) {
-                        if (this.dealerHand[i]?.flipped)
-                            this.dealerHand.splice(i, 1, {...this.dealerHand[i]!, flipped: undefined});
-                    }
-                    const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
-                    this.playerWins = result.aWon;
-                    this.playerCardsUsed.set(result.aHand);
-                    this.dealerCardsUsed.set(result.bHand);
+                    for (let i=0; i<3; i++)
+                        if (!machine.rightBank.targets[i].state)
+                            this.addChild(new KnockTarget(i));
                 }
             }
         });
-        this.listen(onSwitchClose(machine.sRampMade), async () => {
-            if (this.step !== 7) return;
-            if (this.playerWins)
-                this.player.bank += this.pot;
-            this.pot = 0;
-            this.bet = 100;
-            await Promise.all([
-                this.await(this.addChild(new ResetDropBanks()).onEnd()),
-                wait(1500),
-            ]);
-            for (let i=0; i<3; i++)
-                if (!machine.rightBank.targets[i].state)
-                    this.addChild(new KnockTarget(i));
-            this.deal();
+
+        this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
+            await this.showCards();
+
+            // if (e.sw === machine.sShooterLane) {
+            //     this.player.poker = new Poker(this.player);
+            //     this.player.addChild(this.player.poker);
+            // }
         });
+
         this.gfx?.add(new PokerGfx(this));
     }
 
@@ -97,7 +96,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.dealerHand.clear();
         this.slots.clear();
         this.deck = makeDeck();
-        this.step = 2;
+        this.step = 6;
 
         for (let i=0; i<this.step; i++) {
             this.playerHand.push(this.deck.pop()!);
@@ -112,9 +111,55 @@ export class Poker extends Mode<MachineOutputs> {
             this.slots.push(this.deck.pop()!);
         }
 
+        this.qualifyModes();
+
     // }
         Log.info('game', 'deal complete');
         // console.profileEnd();
+    }
+
+    qualifyModes() {
+        const result = bestHand(this.playerHand.filter(c => !!c) as any);
+        switch (result[1]) {
+            case Hand.Pair:
+            case Hand.TwoPair:
+            case Hand.ThreeOfAKind:
+            case Hand.FourOfAKind:
+                if (!this.player.modesQualified.has(result[0][0].num)) {
+                    Log.info('game', 'qualified mode %i', result[0][0].num);
+                    this.player.modesQualified.add(result[0][0].num);
+                    alert(`${result[0][0].num} mode qualified`);
+                }
+                break;
+            case Hand.Straight:
+                if (!this.player.mbsQualified.has(StraightMb)) {
+                    Log.info('game', 'qualified straight multiball');
+                    this.player.mbsQualified.add(StraightMb);
+                    alert(`straight multiball qualified`);
+                }
+                break;
+        }
+    }
+
+    async showCards() {
+        const finish = await queueDisplay(this.gfx!, 'poker winnings');
+        Log.info('game', 'showing hand');
+        for (let i=0; i<7; i++) {
+            if (this.dealerHand[i]?.flipped)
+                this.dealerHand.splice(i, 1, {...this.dealerHand[i]!, flipped: undefined});
+        }
+        const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
+        this.playerWins = result.aWon;
+        Log.info('game', 'poker results: %o', result);
+        this.playerCardsUsed.set(result.aCards);
+        this.dealerCardsUsed.set(result.bCards);
+        if (this.playerWins)
+            this.player.bank += this.pot;
+        
+        await wait(3000);
+        finish();
+        this.end();
+        this.player.poker = undefined;
     }
 }
 
@@ -146,7 +191,7 @@ function makeDeck(): Card[] {
 export interface Card {
     readonly num: number;
     readonly suit: Suit; 
-    readonly flipped?: true;
+    readonly flipped?: boolean;
 }
 
 export enum Suit {
@@ -242,7 +287,7 @@ export enum Hand {
     FiveOfAKind = 10,
 }
 
-export function bestHand(cards: Card[], max = 5): [Card[], Hand] {
+export function bestHand(cards: Card[], max = Math.min(5, cards.length)): [Card[], Hand] {
     const flushes = findFlushes(cards);
     const straights = findStraights(cards);
     const pairs = findPairs(cards);
@@ -281,27 +326,35 @@ export function bestHand(cards: Card[], max = 5): [Card[], Hand] {
 }
 
 // does a beat b
-export function compareHands(a: Card[], b: Card[], max = 5): {
+export function compareHands(a: Card[], b: Card[], max = Math.min(5, a.length, b.length)): {
     aWon: boolean;
-    aHand: Card[];
-    bHand: Card[];
+    aCards: Card[];
+    aHand: Hand;
+    bCards: Card[];
+    bHand: Hand;
 } {
     if (max <= 0) return {
         aWon: true,
-        aHand: [],
-        bHand: [],
+        aCards: [],
+        bCards: [],
+        aHand: Hand.Card,
+        bHand: Hand.Card,
     };
     const [aHand, aRank] = bestHand(a, max);
     const [bHand, bRank] = bestHand(b, max);
     if (bRank !== aRank || aHand.every((av, i) => av.num !== bHand[i].num)) return {
         aWon: aRank > bRank,
-        aHand,
-        bHand,
+        aCards: aHand,
+        bCards: bHand,
+        aHand: aRank,
+        bHand: bRank,
     };
     const sub = compareHands(a.remove(...aHand), b.remove(...bHand), max - aHand.length);
     return {
         aWon: sub.aWon,
-        aHand: [...aHand, ...sub.aHand],
-        bHand: [...bHand, ...sub.bHand],
+        aCards: [...aHand, ...sub.aCards],
+        bCards: [...bHand, ...sub.bCards],
+        aHand: aRank,
+        bHand: bRank,
     };
 }

@@ -1,6 +1,6 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent } from './state';
-import { Utils, assert, selectiveClone } from './util';
+import { Utils, assert, selectiveClone, eq } from './util';
 import { time } from './timer';
 import { Log } from './log';
 import { Tree, TreeEvent } from './tree';
@@ -100,23 +100,18 @@ export class Outputs<Outs extends {}> {
             Events.fire(new OwnOutputEvent(this, key, this.ownValues[key], undefined));
         }
     }
-
-   /* ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
-        if (!(key in this.funcs) || !this.funcs[key]) debugger;
-        const oldValue = this.ownValues[key];
-        const newValue = this.funcs[key]!();
-        if (oldValue === newValue) return;
-        this.ownValues[key] = newValue;
-        Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
-    }*/
     
     ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
         assert((key in this.funcs) && this.funcs[key]);
         const func = this.funcs[key]! as Function;
         const oldValue = this.ownValues[key];
         const newValue = func();
-        if (oldValue === newValue && !this.funcParam[key]) return;
+        if (eq(oldValue, newValue) && !this.funcParam[key]) return;
         this.ownValues[key] = newValue;
+        const debugValue = 'lEjectStartMode';
+        if (key === debugValue) {
+            Log.log('console', 'ownValue %s changed from %j to %j on %s', key, oldValue, newValue, this.tree.name);
+        }
         Events.fire(new OwnOutputEvent(this, key, newValue, oldValue));
     }
 
@@ -134,7 +129,11 @@ export class Outputs<Outs extends {}> {
     updateTreeValue(key: keyof Outs) {
         const oldValue = this.treeValues[key];
         this.treeValues[key] = Outputs.computeTreeValue(this.tree, key, this.defaults[key])!;
-        if (oldValue === this.treeValues[key]) return;
+        if (eq(oldValue, this.treeValues[key])) return;
+        const debugValue = 'lEjectStartMode';
+        if (key === debugValue) {
+            Log.log('console', 'child value %s changed from %j to %j on child of %s', key, oldValue, this.treeValues[key], this.tree.name);
+        }
         Events.fire(new TreeOutputEvent(this.tree, key, this.treeValues[key], oldValue));
     }
 
@@ -162,6 +161,33 @@ export class Outputs<Outs extends {}> {
 
     cleanLog() {
         return selectiveClone(this, 'tree', 'ownValues', 'treeValues');
+    }
+
+    static debugCalc<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop, prev?: Outs[Prop]): [Outs[Prop], Tree<Outs>][] {
+        const affected = tree.out?.funcs[key]?.(prev)!==undefined || tree.out?.defaults[key]!==undefined;
+        let value = tree.out?.funcs[key]? tree.out.funcs[key]!(prev): (tree.out?.defaults[key] ?? prev);
+        const children = tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
+        let winners: [Outs[Prop], Tree<Outs>][] = affected? [[value!, tree]] : [];
+        for (const child of children) {
+            const newWinners = Outputs.debugCalc(child, key, value)!;
+            if (newWinners.length) {
+                value = newWinners[0][0];
+            }
+            winners = [...newWinners, ...winners];
+        }
+        return winners;
+    }
+    debugPrint() {
+        for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
+            const winners = Outputs.debugCalc(this.tree, key);
+            const value = winners.length>0? winners[0][0] : undefined;
+            const diffWinners = winners.filter(([v, t]) => !eq(v, this.defaults[key]));
+            if (value === undefined || diffWinners.length === 0) continue;
+            const important = [...(winners[0][0]!==diffWinners[0][0]? [winners[0]]:[]), ...diffWinners];
+            Log.log('console', '%s set to %j by %s', key, value, 
+                typeof value === 'object'? important.map(([v, tree]) => ([v, tree!.name+tree!.num]))
+                : JSON.stringify(important.map(([v, tree]) => ([v, tree!.name+tree!.num]))));
+        }
     }
 }
 

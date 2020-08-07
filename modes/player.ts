@@ -11,7 +11,7 @@ import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events } from '../events';
 import { Time, time } from '../timer';
-import { makeText } from '../gfx';
+import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 
@@ -26,21 +26,21 @@ export class Player extends Mode<MachineOutputs> {
     miniReady = false;
     rampUp = true;
 
-    modesQualified: (boolean)[] = [];
-    mbsQualified: (typeof Multiball)[] = [];
+    modesQualified = new Set<(number)>();
+    mbsQualified = new Set<(typeof Multiball)>();
 
     constructor(
         public game: Game,
     ) {
         super();
-        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified']);
+        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker']);
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
-            lEjectStartMode: () => this.modesQualified.length>=0 && this.poker?.step === 7? [Color.White] : [],
-            lRampStartMb: light(this.mbsQualified.length>0 && this.poker?.step === 7),
+            lEjectStartMode: () => this.modesQualified.size>=0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
+            lRampStartMb: () => this.mbsQualified.size>=0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
         });
 
         this.listen(
@@ -72,6 +72,17 @@ export class Player extends Mode<MachineOutputs> {
         
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);
         this.listen(onAnySwitchClose(machine.sMiniEntry), () => this.miniReady = false);
+
+        this.listen([...onSwitchClose(machine.sRampMade), () => this.mbsQualified.size > 0], () => {
+            this.addChild(new StraightMb());
+        });
+
+        this.listen(onSwitchClose(machine.sShooterLane), () => {
+            if (!this.poker) {
+                this.poker = new Poker(this);
+                this.addChild(this.poker);
+            }
+        });
         
         this.poker = new Poker(this);
         this.addChild(this.poker);
@@ -92,7 +103,7 @@ class Spinner extends Tree<MachineOutputs> {
     rounds = 0;
     maxRounds = 1;
 
-    display = makeText('10  ', 70, 'corner').rz(90).x(80).y(160).sy(-1);
+    display = gfx? makeText('10  ', 70, 'corner').rz(90).x(80).y(160).sy(-1) : undefined;
 
     constructor(
         public player: Player,
@@ -140,7 +151,7 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     updateDisplay() {
-        this.display.text(`${this.score} ${this.comboMult>1? `x${this.comboMult}` : '  '}`);
+        this.display?.text(`${this.score} ${this.comboMult>1? `x${this.comboMult}` : '  '}`);
     }
 
     calcScore() {

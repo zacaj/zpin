@@ -191,3 +191,32 @@ export function wrap(i: number, max: number, min = 0): number {
     if (i >= max) return wrap(i - max, max, min);
     return i;
 }
+
+export function eq<T>(a: T, b: T): boolean {
+    if (Array.isArray(a) && Array.isArray(b)) {
+        return a.length === b.length && a.every((v,i) => eq(v, b[i]));
+    }
+
+    return a === b;
+}
+
+interface Dictionary<T> {
+    [key: string]: T;
+}
+
+export function objectMap<TValue, TResult>(
+    obj: Dictionary<TValue>,
+    valSelector: (val: TValue, key: string) => TResult,
+    keySelector?: (key: string, obj: Dictionary<TValue>) => string,
+    ctx?: Dictionary<TValue>,
+) {
+    const ret = {} as Dictionary<TResult>;
+    for (const key of Object.keys(obj)) {
+        const retKey = keySelector
+            ? keySelector.call(ctx ?? null, key, obj)
+            : key;
+        const retVal = valSelector.call(ctx ?? null, obj[key], key);
+        ret[retKey] = retVal;
+    }
+    return ret;
+}

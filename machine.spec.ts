@@ -11,7 +11,8 @@ describe('machine', () => {
             const s = new MomentarySolenoid('rampUp', 1, new Solenoid16(0), 1, 5);
             const fire = jest.spyOn(s.board, 'fireSolenoid').mockResolvedValue('');
 
-            await s.trySet(true);
+            s.val = true;
+            await s.trySet();
             expect(fire).toBeCalledTimes(1);
 
             await passTime(9);
@@ -21,12 +22,14 @@ describe('machine', () => {
             const s = new MomentarySolenoid('rampUp', 1, new Solenoid16(0), 1, 5);
             const fire = jest.spyOn(s.board, 'fireSolenoid').mockResolvedValue('');
 
-            await s.trySet(true);
+            s.val = true;
+            await s.trySet();
             expect(fire).toBeCalledTimes(1);
 
             await passTime(9);
             expect(fire).toBeCalledTimes(2);
-            await s.trySet(false);
+            s.val = false;
+            await s.trySet();
             await passTime(9);
             expect(fire).toBeCalledTimes(2);
         });
@@ -35,8 +38,10 @@ describe('machine', () => {
             const b = new MomentarySolenoid('upper3', 2, new Solenoid16(1), 1, 5);
             const fireA = jest.spyOn(a.board, 'fireSolenoid').mockResolvedValue('');
             const fireB = jest.spyOn(b.board, 'fireSolenoid').mockResolvedValue('');
-            await a.trySet(true);
-            await b.trySet(true);
+            a.val = true;
+            await a.trySet();
+            b.val = true;
+            await b.trySet();
             expect(fireA).toHaveBeenCalledTimes(1);
             expect(fireB).toHaveBeenCalledTimes(0);
             await passTime(2);

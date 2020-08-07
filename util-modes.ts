@@ -49,6 +49,7 @@ export class ResetMechs extends Mode<MachineOutputs> {
         this.out = new Outputs(this, outs);
 
         this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
+        wait(1000).then(() => this.end());
     }
 }
 
