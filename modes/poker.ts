@@ -49,6 +49,7 @@ export class Poker extends Mode<MachineOutputs> {
             lShooterShowCards: () => this.step === 7? [Color.Green] : [],
             lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
             lRampShowCards: () => this.step === 7 && player.mbsQualified.size>0? [Color.Green] : [],
+            shooterDiverter: () => this.step===7? true : undefined,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -99,7 +100,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.dealerHand.clear();
         this.slots.clear();
         this.deck = makeDeck();
-        this.step = 6;
+        this.step = 2;
 
         for (let i=0; i<this.step; i++) {
             this.playerHand.push(this.deck.pop()!);
