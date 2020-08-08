@@ -341,32 +341,32 @@ export type ImageOutputs = {
 
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
-    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 25, 40, 4, undefined, undefined, () => this.sOuthole.state = false);
+    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => this.sOuthole.state = false);
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => { this.sTroughFull.state = false; this.sShooterLane.state = true; });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1, 100, 40, 10);
-    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 30, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.state = false));
-    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 30, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.state = false));
+    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.state = false));
+    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.state = false));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 7, on => this.sRampDown.state = !on);
-    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 22, 40, 6, Number.POSITIVE_INFINITY, 5000);
-    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 30, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.state = false));
+    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 40, 80, 6, Number.POSITIVE_INFINITY, 5000);
+    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.state = false));
 
     solenoidBank2 = new Solenoid16(2);
     cUpper2 = new IncreaseSolenoid('upper2', 11, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.state = false));
-    cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.state = false));
-    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 4, 12, 6, undefined, undefined, () => machine.sUpperEject.state = false);
+    cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.state = false));
+    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 6, undefined, undefined, () => machine.sUpperEject.state = false);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
     cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
-    cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight1.state = true);
-    cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight2.state = true);
-    cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight3.state = true);
-    cRightDown4 = new IncreaseSolenoid('right4', 4, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight4.state = true);
-    cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 25, 50, 3, 500, undefined, () => this.sRight5.state = true);
+    cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight1.state = true);
+    cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight2.state = true);
+    cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight3.state = true);
+    cRightDown4 = new IncreaseSolenoid('right4', 4, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight4.state = true);
+    cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight5.state = true);
     cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
     cKickerEnable = new OnOffSolenoid('kickerEnable', 15, this.solenoidBank2);
     cUpperMagnet = new OnOffSolenoid('upperMagnet', 13, this.solenoidBank2, 10000);
