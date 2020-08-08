@@ -17,6 +17,7 @@ let screenH: number;
 let root: Group;
 let playfield: Playfield;
 export let screen: Screen;
+let isRpi = false;
 
 export async function initGfx() {
     gfx = new AminoGfx();
@@ -43,8 +44,9 @@ export async function initGfx() {
     root = gfx.createGroup();
     root.sy(-1);
     gfx.setRoot(root);
+    if (gfx.screen.fullscreen) isRpi = true;
 
-    if (gfx.screen.fullscreen) {
+    if (isRpi) {
         console.log('size: %i, %i', gfx.w(), gfx.h());
         screenW = gfx.h();
         screenH = gfx.w();
@@ -56,7 +58,7 @@ export async function initGfx() {
         screenW = 400;
         screenH = 800;
     }
-    if (gfx.screen.fullscreen) {
+    if (isRpi) {
         root.rz(90);
     }
 
@@ -67,7 +69,7 @@ export async function initGfx() {
     root.add(playfield);
 
     screen = new Screen();
-    if (!gfx.screen.fullscreen) {
+    if (!isRpi) {
         root.add(screen);
         screen.w(Screen.w/2);
         screen.h(Screen.h/2);
@@ -75,10 +77,10 @@ export async function initGfx() {
         screen.y(-screenH/2);
     } else {
         playfield.add(screen);
-        screen.w(Screen.pw);
-        screen.h(Screen.ph);
-        screen.x(5.5+Screen.w/2);
-        screen.y(22.7-Screen.h/2);
+        screen.w(Screen.pw+2);
+        screen.h(Screen.ph+2);
+        screen.x(5.5+Screen.pw/2);
+        screen.y(22.7-Screen.ph/2);
     }
     screen.sx(screen.w()/Screen.w);
     screen.sy(-screen.h()/Screen.h);
@@ -144,7 +146,7 @@ export class Playfield extends Group {
         this.originX(0).originY(1);
         this.sx(screenH/Playfield.h);
         this.sy(screenH/Playfield.h);
-        if (gfx.screen.fullscreen) {
+        if (isRpi) {
             this.x(-((Playfield.w*screenH/Playfield.h)+gfx.h())/2);
             this.y(0);
         } else {
