@@ -128,7 +128,7 @@ export async function initGfx() {
     Log.log('gfx', 'precaching images');
     for (const file of fs.readdirSync('./media')) {
         if (!file.endsWith('.png')) continue;
-        await Image.set(null, file.slice(0, file.length - 4));
+        await Image.cacheTexture(file.slice(0, file.length - 4));
     }
 
     Log.log('gfx', 'graphics initialized');
@@ -243,7 +243,7 @@ class Light extends Circle {
 }
 
 export class Display extends Group {
-    image!: ImageView;
+    image!: Image;
     node?: Node;
     constructor(public name: keyof ImageOutputs) {
         super(gfx);
@@ -259,7 +259,7 @@ export class Display extends Group {
 
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#000000').z(-1));
 
-        this.image = new ImageView(gfx);
+        this.image = new Image(gfx);
         this.image.w(80);
         this.image.h(120);
         this.image.top(1).bottom(0).size('stretch');
@@ -273,7 +273,7 @@ export class Display extends Group {
         }
         if (typeof val === 'string') {
             this.image.visible(true);
-            return Image.set(this.image, val);
+            return this.image.set(val);
         } else {
             this.image.visible(false);
             this.node = val;
@@ -284,8 +284,13 @@ export class Display extends Group {
 }
 
 export class Image extends ImageView {
+    curVal?: string;
+    targetVal?: string;
+
     static cache: { [name: string]: Texture|Promise<Texture> } = {};
-    static set(image: ImageView|null, val: string): Promise<any>|undefined {
+    set(val: string): Promise<any>|undefined {
+        this.targetVal = val;
+        const image = this;
         // if (image?.src() === val) {
         //     Log.trace('gfx', 'image %s set to same image, ignoring', val);
         //     return;
@@ -293,50 +298,69 @@ export class Image extends ImageView {
         // const n = Math.random();
         // console.time('set image'+n);
         image?.visible(val.length > 0);
+
         if (val.length > 0) {
             if (Image.cache[val]) {
                 if ('then' in Image.cache[val]) {
                     Log.info('gfx', 'wait for image "%s" to be cached', val);
-                    return (Image.cache[val] as Promise<Texture>).then(tex => image?.image(tex));
+                    return (Image.cache[val] as Promise<Texture>).then(tex => {
+                        if (this.targetVal !== val) return;
+                        image?.image(tex);
+                        this.curVal = val;
+                    });
                 } else {
                     Log.trace('gfx', 'use cached image for "%s"', val);
                     image?.image(Image.cache[val] as Texture);
+                    this.curVal = val;
                 }
             }
             else {
-                Log.info('gfx', 'new image load for %s', val);
-                const img = new AminoImage();
-                Image.cache[val] = new Promise((resolve, reject) => {
-                    img.onload = (err) => {
-                        if (err) {
-                            Log.error('gfx', 'error loading image "%s": ', val, err);
-                            // debugger;
-                            reject(err);
-                            return;
-                        }
-                        
-                        const texture = gfx.createTexture();
-                        texture.loadTextureFromImage(img, (err) => {
-                            if (err) {
-                                Log.error('gfx', 'error loading image "%s": ', val, err);
-                            // debugger;
-                            reject(err);
-                            return;
-                        }
-
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                Image.cacheTexture(val).then(texture => {     
+                    if (this.targetVal === val) {
                         image?.image(texture);
-                        Image.cache[val] = texture;
-                        resolve(texture);
-                        Log.info('gfx', 'image %s loaded', val);
-                    });
-                    };
+                        this.curVal = val;
+                    }
                 });
-                img.src = 'media/'+val+'.png';
                 return Image.cache[val] as Promise<Texture>;
             }
+        } else {
+            this.curVal = val;
         }
         // console.timeEnd('set image'+n);
         return undefined;
+    }
+
+    static cacheTexture(val: string): Promise<Texture> {
+        Log.info('gfx', 'new image load for %s', val);
+        return Image.cache[val] = new Promise((resolve, reject) => {
+            const img = new AminoImage();
+
+            img.onload = (err) => {
+                if (err) {
+                    Log.error('gfx', 'error loading image "%s": ', val, err);
+                    // debugger;
+                    reject(err);
+                    return;
+                }
+                
+                const texture = gfx.createTexture();
+                texture.loadTextureFromImage(img, (err) => {
+                    if (err) {
+                        Log.error('gfx', 'error loading image "%s": ', val, err);
+                    // debugger;
+                    reject(err);
+                    return;
+                }
+
+                Image.cache[val] = texture;
+                resolve(texture);
+                Log.info('gfx', 'image %s loaded', val);
+            });
+            };
+
+            img.src = 'media/'+val+'.png';
+        });
     }
 }
 
@@ -402,11 +426,12 @@ if (require.main === module) {
     });//);
 }
 
-export function makeImage(name: string, w: number, h: number, flip = true): ImageView {
-    const img = gfx.createImageView().opacity(1.0).w(w).h(h);
+export function makeImage(name: string, w: number, h: number, flip = true): Image {
+    const img = new Image(gfx).opacity(1.0).w(w).h(h);
     if (flip) img.top(1).bottom(0);
     img.size('stretch');
-    Image.set(img, name);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    img.set(name);
     return img;
 }
 
