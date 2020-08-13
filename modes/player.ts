@@ -14,6 +14,7 @@ import { Time, time, wait } from '../timer';
 import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
+import seedrandom = require('seedrandom');
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -28,6 +29,8 @@ export class Player extends Mode<MachineOutputs> {
 
     modesQualified = new Set<(number)>();
     mbsQualified = new Set<(typeof Multiball)>();
+
+    rand = seedrandom('pinball');
 
     constructor(
         public game: Game,

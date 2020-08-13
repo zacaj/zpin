@@ -19,7 +19,7 @@ export class Poker extends Mode<MachineOutputs> {
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
 
-    deck = makeDeck();
+    deck = this.makeDeck();
 
     step = 2;
 
@@ -99,7 +99,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.playerHand.clear();
         this.dealerHand.clear();
         this.slots.clear();
-        this.deck = makeDeck();
+        this.deck = this.makeDeck();
         this.step = 2;
 
         for (let i=0; i<this.step; i++) {
@@ -165,6 +165,20 @@ export class Poker extends Mode<MachineOutputs> {
         this.end();
         this.player.poker = undefined;
     }
+
+    makeDeck(): Card[] {
+        const deck: Card[] = [];
+        for (let i=1; i<=13; i++) {
+            for (const suit of Object.values(Suit)) {
+                deck.push({num: i, suit});
+            }
+        }
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor(this.player.rand() * (i + 1));
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+    }
 }
 
 function getFile(card: Card|null) {
@@ -177,20 +191,6 @@ function getFile(card: Card|null) {
     return num+card.suit.toLowerCase();
 }
 export const getFileForCard = getFile;
-
-function makeDeck(): Card[] {
-    const deck: Card[] = [];
-    for (let i=1; i<=13; i++) {
-        for (const suit of Object.values(Suit)) {
-            deck.push({num: i, suit});
-        }
-    }
-    for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-    return deck;
-}
 
 export interface Card {
     readonly num: number;
