@@ -39,8 +39,8 @@ export class Player extends Mode<MachineOutputs> {
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
-            lEjectStartMode: () => this.modesQualified.size>=0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
-            lRampStartMb: () => this.mbsQualified.size>=0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
+            lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
+            lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
         });
 
         this.listen(

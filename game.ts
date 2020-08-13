@@ -107,9 +107,9 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
 
 if (require.main === module) {
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-initMachine(true, true, false).then(() => {
-    Log.log(['console'], 'starting game...');
-    const game = Game.start();
+initMachine(true, true, true).then(() => {
+    // Log.log(['console'], 'starting game...');
+    // const game = Game.start();
 
     // safeSetTimeout(() => {
     //     for (let i=0; i<100; i++) {

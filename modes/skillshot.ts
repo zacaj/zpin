@@ -3,7 +3,7 @@ import { MachineOutputs, machine } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
-import { screen, makeText, alert, queueDisplay } from '../gfx';
+import { screen, makeText, alert, queueDisplay, gfx } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from '../switch-matrix';
 import { wrap } from '../util';
 import { Text } from 'aminogfx-gl';
@@ -51,7 +51,10 @@ export class Skillshot extends Mode<MachineOutputs> {
 
         const outs = {} as any;
         for (const a of this.awards) {
-            this.displays.push(makeText(`${a[2]}`, 70, 'corner').rz(90).x(80).y(160).sy(-1));
+            if (gfx)
+                this.displays.push(makeText(`${a[2]}`, 70, 'corner').rz(90).x(80).y(160).sy(-1));
+            else
+                this.displays.push({fill(){}} as any);
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
         }
 

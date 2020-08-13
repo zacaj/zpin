@@ -118,6 +118,9 @@ export async function initGfx() {
             if (e.char === 'd') {
                 machine.out!.debugPrint();
             }
+            if (e.char === 'm') {
+                Log.log(['console', 'switch', 'mpu', 'solenoid', 'machine', 'gfx', 'game'], 'MARKER');
+            }
         }
     });
     // playfield.add(gfx.createText().fontName('card').text('test text').y(20).sy(-.05).sx(.05).fontSize(50));

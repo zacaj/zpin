@@ -100,6 +100,7 @@ export const Events = {
                 resolve(r);
             });
         }
+        waiting.slice();
     },
 };
 

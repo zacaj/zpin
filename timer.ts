@@ -6,6 +6,7 @@ import { Log } from './log';
 export type Time = Opaque<number, 'Time'>;
 
 export class Timer {
+    private static startTime = new Date().getTime();
 
     static mockTime?: number;
     static get time(): Time {
@@ -13,9 +14,9 @@ export class Timer {
             Utils.stateAccessRecorder(Timer, 'time');
         }
 
-        if (Timer.mockTime) return Timer.mockTime as Time;
+        if (Timer.mockTime !== undefined) return Timer.mockTime as Time;
         
-        return new Date().getTime() as Time;
+        return new Date().getTime() - Timer.startTime as Time;
     }
 
     static queue: TimerQueueEntry[] = [];
@@ -114,7 +115,7 @@ export async function setTime(ms?: number) {
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));
 }
 export async function passTime(ms = 1) {
-    assert(!!Timer.mockTime);
+    assert(Timer.mockTime !== undefined);
     await setTime(Timer.mockTime! + ms);
 }
 
