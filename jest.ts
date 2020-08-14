@@ -12,6 +12,8 @@ beforeEach(async () => {
     jest.spyOn(Timer, 'callIn').mockRestore();
     jest.spyOn(Log, 'init').mockImplementation(() => { throw 'unexpected' });
     jest.spyOn(Log, 'write').mockReturnValue();
+    jest.spyOn(Log, 'logMessage').mockReturnValue();
+    jest.spyOn(Log, 'trace').mockReturnValue();
     Timer.reset();
     Events.resetAll();
     resetSwitchMatrix();

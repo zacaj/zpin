@@ -1,5 +1,5 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
-import { StateEvent } from './state';
+import { StateEvent, State } from './state';
 import { Utils, assert, selectiveClone, eq } from './util';
 import { time } from './timer';
 import { Log } from './log';
@@ -69,6 +69,10 @@ export class Outputs<Outs extends {}> {
         // catch child tree value changes
         this.tree.listen((e: Event) => e instanceof OwnOutputEvent && this.tree.isOrHasChild(e.on.tree) && e.prop in this.funcs,
             (ev: OwnOutputEvent<Outs>) => this.updateTreeValue(ev.prop));
+
+
+        State.declare<any>(this.treeValues, Object.keys(origFuncs));
+        State.declare<any>(this.ownValues, Object.keys(origFuncs));
 
         const listeners = this.listeners;
         for (const key of Object.keys(origFuncs) as (keyof Outs)[]) {

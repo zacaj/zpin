@@ -21,11 +21,14 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     id = MachineOutput.id++;
     actual!: T;
     timer?: TimerQueueEntry;
+    lastChange?: Time;
 
     constructor(
         public val: T,
         public name: keyof Outs,
     ) {
+        State.declare<MachineOutput<T, Outs>>(this, ['val', 'actual', 'lastChange']);
+
         this.actual = val;
         Events.listen<TreeOutputEvent<any>>(ev => {
             this.val = ev.value;
@@ -47,6 +50,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
                 Log.log('machine', '%s set: ', this.name, success);
                 if (success === true) {
                     this.actual = this.val;
+                    this.lastChange = time();
                 } else {
                     if (!success) success = 5;
                     if (!this.timer)
@@ -281,6 +285,7 @@ export type CoilOutputs = {
     magnetPost: boolean;
     leftBank: boolean;
     rightBank: boolean;
+    realRightBank: boolean;
     centerBank: boolean;
     upper2: boolean;
     upperEject: boolean;
@@ -363,7 +368,7 @@ export class Machine extends Tree<MachineOutputs> {
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 6, undefined, undefined, () => machine.sUpperEject.state = false);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
-    cRightBank = new IncreaseSolenoid('rightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
+    cRightBank = new IncreaseSolenoid('realRightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
     cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight1.state = true);
     cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight2.state = true);
     cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight3.state = true);
@@ -580,6 +585,7 @@ export class Machine extends Tree<MachineOutputs> {
             miniDiverter: () => this.miniDown,
             leftBank: false,
             rightBank: false,
+            realRightBank: false,
             centerBank: false,
             upper2: false,
             upperEject: false,
@@ -669,8 +675,12 @@ class MachineOverrides extends Tree<MachineOutputs> {
         super(undefined, 999);
         this.out = new Outputs(this, {
             rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
-             || (machine.cRamp.actual && time() - machine.cRamp.lastChange! < 1000)?
-             true : up,
+                || (machine.cRamp.actual && time() - machine.cRamp.lastChange! < 1000)?
+                true : up,
+            realRightBank: () => 
+                !machine.cShooterDiverter.val && time()-(machine.cShooterDiverter.lastChange??time()) > 500? 
+                    machine.out!.treeValues.rightBank : false,
+            shooterDiverter: (on) => machine.out!.treeValues.rightBank? false : on,            
         });
 
         this.addChild(new EosPulse(machine.cRamp, machine.sRampDown));

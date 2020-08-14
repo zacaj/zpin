@@ -4,6 +4,7 @@ import { passTime, setTime, wait } from './timer';
 import { Mode } from './mode';
 import { State } from './state';
 import { Outputs } from './outputs';
+import { settleForks } from './promises';
 
 describe('machine', () => {
     describe('momentary solenoid', () => {
@@ -82,6 +83,52 @@ describe('machine', () => {
             expect(await s.fire()).toBeGreaterThan(s.wait+s.max);
             expect(fire).toBeCalledWith(1, s.max);
         });
+    });
+
+    test('gate saver', async () => {
+        expectMachineOutputs('shooterDiverter', 'rightBank', 'realRightBank');
+        const child = new class extends Mode<MachineOutputs> {
+            shooterDiverter = false;
+            rightBank = false;
+            constructor() {
+                super();
+                State.declare<any>(this, ['shooterDiverter', 'rightBank']);
+
+                this.out = new Outputs(this, {
+                    shooterDiverter: () => this.shooterDiverter,
+                    rightBank: () => this.rightBank,
+                });
+            }
+        };
+        machine.addChild(child);
+
+        expect(machine.cShooterDiverter.val).toBe(false);
+        child.shooterDiverter = true;
+        expect(machine.cShooterDiverter.val).toBe(true);
+        child.shooterDiverter = false;
+        await settleForks();
+        expect(machine.cShooterDiverter.val).toBe(false);
+        expect(machine.cShooterDiverter.lastChange).toBe(1);
+        await passTime(507);
+
+        expect(machine.cRightBank.val).toBe(false);
+        child.rightBank = true;
+        expect(machine.cRightBank.val).toBe(true);
+        child.rightBank = false;
+        expect(machine.cRightBank.val).toBe(false);
+
+        child.shooterDiverter = true;
+        expect(machine.cShooterDiverter.val).toBe(true);
+        child.rightBank = true;
+        await settleForks();
+        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cShooterDiverter.val).toBe(false);
+        await passTime(507);
+        expect(machine.cRightBank.val).toBe(true);
+        expect(machine.cShooterDiverter.val).toBe(false);
+        child.rightBank = false;
+        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cShooterDiverter.val).toBe(true);
     });
 
     // test('eos pulse', async () => {
