@@ -11,6 +11,7 @@ import { Player } from './player';
 import { Log } from '../log';
 import { time } from '../timer';
 import { Events } from '../events';
+import { fork } from '../promises';
 
 
 export class Skillshot extends Mode<MachineOutputs> {
@@ -43,8 +44,7 @@ export class Skillshot extends Mode<MachineOutputs> {
 
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
 
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        queueDisplay(this.gfx, 3, 'skillshot').then((finish: any) => {
+        fork(queueDisplay(this.gfx, 3, 'skillshot'), 'start skillshot').then((finish: any) => {
             this.finishDisplay = finish;
         });
             
@@ -54,7 +54,7 @@ export class Skillshot extends Mode<MachineOutputs> {
             if (gfx)
                 this.displays.push(makeText(`${a[2]}`, 70, 'corner').rz(90).x(80).y(160).sy(-1));
             else
-                this.displays.push({fill(){}} as any);
+                this.displays.push({fill() { }} as any);
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
         }
 

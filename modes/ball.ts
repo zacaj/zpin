@@ -7,6 +7,7 @@ import { Event, Events } from '../events';
 import { Player } from './player';
 import { MPU } from '../mpu';
 import { gfx } from '../gfx';
+import { fork } from '../promises';
 
 export class Ball extends Mode<MachineOutputs> {
     get skillshot(): Skillshot|undefined {
@@ -23,7 +24,7 @@ export class Ball extends Mode<MachineOutputs> {
                 this.addChild(new Skillshot(player));
         });
 
-        this.start();
+        fork(this.start());
     }
 
     async start() {

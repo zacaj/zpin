@@ -10,6 +10,7 @@ import { assert, num, tryNum } from './util';
 // import { MPU } from './mpu';
 import * as fs from 'fs';
 import { wait, Timer } from './timer';
+import { fork } from './promises';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -387,7 +388,7 @@ class FxSwitch extends Rect {
             Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
             sw.changeState(!sw.state);
             if (e.button === 1)
-                wait(250).then(() => sw.changeState(!sw.state));
+                void wait(250).then(() => sw.changeState(!sw.state));
         });
     }
 }
@@ -414,14 +415,14 @@ class FxCoil extends Rect {
 }
 
 if (require.main === module) {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // prom
     // initMachine().then(() => initGfx());
     Log.init();
     resetSwitchMatrix();
     resetMachine();
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // prom
     // MPU.init('localhost').then(() => 
-    initGfx().then(() => {
+    void initGfx().then(() => {
         // const game = Game.start();
     });//);
 }

@@ -8,6 +8,7 @@ import { Log } from '../log';
 import { Outputs } from '../outputs';
 import { State } from '../state';
 import { wait } from '../timer';
+import { fork } from '../promises';
 
 export abstract class Multiball extends Mode<MachineOutputs> {
 
@@ -31,7 +32,7 @@ export abstract class Multiball extends Mode<MachineOutputs> {
             shooterDiverter: false,
         });
 
-        this.start();
+        fork(this.start());
     }
 
     async start() {

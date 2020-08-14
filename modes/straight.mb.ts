@@ -1,5 +1,6 @@
 import { Multiball } from './multiball';
 import { queueDisplay, alert } from '../gfx';
+import { fork } from '../promises';
 
 export class StraightMb extends Multiball {
     constructor() {
@@ -15,7 +16,7 @@ export class StraightMb extends Multiball {
     }
 
     firstSwitchHit() {
-        this.releaseBallsFromLock();
+        fork(this.releaseBallsFromLock());
         return super.firstSwitchHit();
     }
 }

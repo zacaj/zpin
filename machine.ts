@@ -13,6 +13,7 @@ import { gfxLights, gfxImages, gfx, screen } from './gfx';
 import { Tree } from './tree';
 import { MPU } from './mpu';
 import { Node } from 'aminogfx-gl';
+import { fork } from './promises';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -27,7 +28,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         this.actual = val;
         Events.listen<TreeOutputEvent<any>>(ev => {
             this.val = ev.value;
-            this.trySet();
+            fork(this.trySet(), `try set ${this.name} to ${this.val}`);
         }, 
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
 
@@ -342,7 +343,7 @@ export type ImageOutputs = {
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => this.sOuthole.state = false);
-    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => { this.sTroughFull.state = false; this.sShooterLane.state = true; });
+    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => { this.sTroughFull.state = false; this.sShooterLane.state = true });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);

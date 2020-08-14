@@ -15,6 +15,7 @@ import { Player } from './modes/player';
 import { assert } from './util';
 import { Ball } from './modes/ball';
 import { StraightMb } from './modes/straight.mb';
+import { fork } from './promises';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
@@ -106,8 +107,7 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
 }
 
 if (require.main === module) {
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-initMachine(true, true, true).then(() => {
+fork(initMachine(true, true, true)).then(() => {
     // Log.log(['console'], 'starting game...');
     // const game = Game.start();
 

@@ -22,7 +22,7 @@ module.exports = {
   },
   rules: {
     "@typescript-eslint/await-thenable": on,
-    "@typescript-eslint/class-name-casing": on,
+    "@typescript-eslint/class-name-casing": off,
     "@typescript-eslint/member-delimiter-style": [on, {
       "multiline": {
         "delimiter": "semi",
@@ -34,7 +34,7 @@ module.exports = {
     }],
     "@typescript-eslint/no-array-constructor": on,
     "@typescript-eslint/no-extra-non-null-assertion": on,
-    "@typescript-eslint/no-floating-promises": on,
+    "@typescript-eslint/no-floating-promises": [on, {ignoreVoid: true}],
     "@typescript-eslint/no-for-in-array": on,
     "@typescript-eslint/no-misused-new": on,
     "@typescript-eslint/no-unused-expressions": off,
@@ -69,7 +69,7 @@ module.exports = {
     "array-callback-return": on,
     "complexity": on,
     "consistent-return": on,
-    "default-param-last": on,
+    "default-param-last": off,
     "eqeqeq": on,
     "no-invalid-this": off,
     "no-loop-func": off,
@@ -103,7 +103,7 @@ module.exports = {
     "func-call-spacing": on,
     "keyword-spacing": on,
     "linebreak-style": on,
-    "max-len": [on, {
+    "max-len": [off, {
       "code": 200,
       "tabWidth": 2,
       "ignoreComments": true,
@@ -113,7 +113,7 @@ module.exports = {
       "max": 6,
     }],
     "newline-per-chained-call": off,
-    "no-nested-ternary": on,
+    "no-nested-ternary": off,
     "no-new-object": on,
     "no-tabs": on,
     "no-debugger": off,

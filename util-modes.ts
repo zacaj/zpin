@@ -9,6 +9,7 @@ import { Tree } from './tree';
 import { onSwitchClose } from './switch-matrix';
 import { MPU } from './mpu';
 import { wait } from './timer';
+import { fork } from './promises';
 
 export class ClearHoles extends Mode<MachineOutputs> {
 
@@ -43,13 +44,13 @@ export class ResetMechs extends Mode<MachineOutputs> {
             outs[bank.coil.name] = () => bank.targets.some(t => t.switch.state);
         }
         if (Object.keys(outs).length === 0) {
-            wait(1).then(() => this.end());
+            fork(wait(1).then(() => this.end()));
             return;
         }
         this.out = new Outputs(this, outs);
 
         this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
-        wait(1000).then(() => this.end());
+        fork(wait(1000).then(() => this.end()));
     }
 }
 

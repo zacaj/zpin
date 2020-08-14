@@ -2,6 +2,7 @@ import { Utils, Opaque, assert } from './util';
 import { Events } from './events';
 import { StateEvent } from './state';
 import { Log } from './log';
+import { fork } from './promises';
 
 export type Time = Opaque<number, 'Time'>;
 
@@ -81,8 +82,7 @@ setInterval(() => {
     const tim = time();
     Events.fire(new StateEvent(Timer, 'time', tim, Timer.curTime));
     Timer.curTime = tim;
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Timer.fireTimers(tim);
+    fork(Timer.fireTimers(tim), 'timer tick');
 }, 5);
 
 export type TimerCallback = (entry: TimerQueueEntry) => Promise<any>|any;

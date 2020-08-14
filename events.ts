@@ -2,6 +2,7 @@ import { OrArray, assert, arrayify, getCallerLoc } from './util';
 import { time } from './timer';
 import { Log } from './log';
 import * as util from 'util';
+import { fork } from './promises';
 
 export abstract class Event {
     constructor(
@@ -55,7 +56,7 @@ export const Events = {
         }
 
         if (this.baseEvent === event) {
-            this.firePriorities();
+            fork(this.firePriorities(), `fire priorities for event ${event.name}`);
             this.baseEvent = undefined;
         }
     },

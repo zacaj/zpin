@@ -4,6 +4,7 @@ import { Outputs } from './outputs';
 import { initMachine } from './init';
 import { ClearHoles, ResetAnyDropOnComplete } from './util-modes';
 import { Log } from './log';
+import { fork } from './promises';
 
 export class AttractMode extends Mode<MachineOutputs> {
 
@@ -16,8 +17,7 @@ export class AttractMode extends Mode<MachineOutputs> {
 }
 
 if (require.main === module) {
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-initMachine().then(() => {
+fork(initMachine()).then(() => {
     Log.log(['console'], 'starting attract mode...');
     machine.addChild(new AttractMode());
 });
