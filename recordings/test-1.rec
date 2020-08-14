@@ -1,0 +1,14 @@
+Mon Aug 10 2020 20:41:52 GMT-0400 (Eastern Daylight Time)
+26:06.24713 switch 'shooter lane' state -> true (0,0) at 5701
+26:09.89633 force state of right 1 to on
+26:09.89732 switch 'right 1' state -> true (5,2) at 9350
+26:10.63206 drop switch right 1 down
+26:10.44144 switch 'right 1' state -> false (5,2) at 9894
+26:11.17601 force state of right 3 to on
+26:11.17694 switch 'right 3' state -> true (3,2) at 10630
+26:11.33826 drop switch right 3 down
+26:11.60917 switch 'right 3' state -> false (3,2) at 11063
+26:12.13507 force state of right 4 to on
+26:12.13600 switch 'right 4' state -> true (2,2) at 11590
+26:12.27777 drop switch right 4 down
+26:12.54206 switch 'right 4' state -> false (2,2) at 11996

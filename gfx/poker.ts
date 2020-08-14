@@ -63,7 +63,6 @@ class PokerHand extends Group {
         poker.listen(onChange(hand), (e) => {
             const i = tryNum(e.prop);
             if (i !== undefined && i < this.children.length)
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 (this.children[i] as Image).set(getFileForCard(this.hand[i]));
             else
                 this.refresh();
@@ -86,7 +85,6 @@ class PokerHand extends Group {
         let i=0;
         for (const card of this.hand) {
             const file = getFileForCard(card);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             (this.children[i++] as Image).set(file);
 
         }

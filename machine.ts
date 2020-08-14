@@ -13,6 +13,7 @@ import { gfxLights, gfxImages, gfx, screen } from './gfx';
 import { Tree } from './tree';
 import { MPU } from './mpu';
 import { Node } from 'aminogfx-gl';
+import { curRecording } from './recording';
 import { fork } from './promises';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
@@ -122,7 +123,7 @@ export class MomentarySolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
-        if (!MPU.isConnected && gfx && this.fake) wait(100).then(() => this.fake!());
+        if (!MPU.isConnected && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!());
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
@@ -204,7 +205,7 @@ export class OnOffSolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         
 
-        if (!MPU.isConnected && gfx && this.fake) wait(100).then(() => this.fake!(on));
+        if (!MPU.isConnected && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!(on));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else

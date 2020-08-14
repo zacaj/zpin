@@ -46,16 +46,18 @@ export class Switch {
         }
     }
 
-    changeState(val: boolean, when = time()) {
-        if (this._state === val) return;
-        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i)', this.name, val, this.column, this.row);
+    changeState(val: boolean, when = time()): SwitchEvent|undefined {
+        if (this._state === val) return undefined;
+        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i) at %i', this.name, val, this.column, this.row, when);
         this.lastChange = when;
         if (val)
             this.lastClosed = time();
         else
             this.lastOpened = time();
         this._state = val;
-        Events.fire(new SwitchEvent(this, when));
+        const event = new SwitchEvent(this, when);
+        Events.fire(event);
+        return event;
     }
 
     onFor(ms: number): boolean {
