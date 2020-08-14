@@ -5,11 +5,11 @@ import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './m
 import { Color, colorToHex } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
 import { Events } from './events';
-import { assert, num, tryNum } from './util';
+import { assert, num, tryNum, getCallerLoc } from './util';
 // import { Game } from './game';
 // import { MPU } from './mpu';
 import * as fs from 'fs';
-import { wait, Timer } from './timer';
+import { wait, Timer, time } from './timer';
 import { fork } from './promises';
 
 export let gfx: AminoGfx;
@@ -39,6 +39,13 @@ export async function initGfx() {
             },
         },
     });
+
+    Log.log('gfx', 'precaching images...');
+    for (const file of fs.readdirSync('./media')) {
+        if (!file.endsWith('.png')) continue;
+        await Image.cacheTexture(file.slice(0, file.length - 4));
+    }
+    Log.log('gfx', 'precached');
 
     gfx.fill('#FFFF00');
     gfx.showFPS(false);
@@ -122,15 +129,12 @@ export async function initGfx() {
             if (e.char === 'm') {
                 Log.log(['console', 'switch', 'mpu', 'solenoid', 'machine', 'gfx', 'game'], 'MARKER');
             }
+            if (e.char === 's') {
+                fs.copyFileSync('./switch.log', './recordings/'+time());
+            }
         }
     });
     // playfield.add(gfx.createText().fontName('card').text('test text').y(20).sy(-.05).sx(.05).fontSize(50));
-
-    Log.log('gfx', 'precaching images');
-    for (const file of fs.readdirSync('./media')) {
-        if (!file.endsWith('.png')) continue;
-        await Image.cacheTexture(file.slice(0, file.length - 4));
-    }
 
     Log.log('gfx', 'graphics initialized');
 
@@ -289,7 +293,7 @@ export class Image extends ImageView {
     targetVal?: string;
 
     static cache: { [name: string]: Texture|Promise<Texture> } = {};
-    set(val: string): Promise<any>|undefined {
+    set(val: string): void {
         this.targetVal = val;
         const image = this;
         // if (image?.src() === val) {
@@ -303,12 +307,13 @@ export class Image extends ImageView {
         if (val.length > 0) {
             if (Image.cache[val]) {
                 if ('then' in Image.cache[val]) {
-                    Log.info('gfx', 'wait for image "%s" to be cached', val);
-                    return (Image.cache[val] as Promise<Texture>).then(tex => {
-                        if (this.targetVal !== val) return;
-                        image?.image(tex);
-                        this.curVal = val;
-                    });
+                    debugger;
+                    // Log.info('gfx', 'wait for image "%s" to be cached', val);
+                    // return (Image.cache[val] as Promise<Texture>).then(tex => {
+                    //     if (this.targetVal !== val) return;
+                    //     image?.image(tex);
+                    //     this.curVal = val;
+                    // });
                 } else {
                     Log.trace('gfx', 'use cached image for "%s"', val);
                     image?.image(Image.cache[val] as Texture);
@@ -316,14 +321,14 @@ export class Image extends ImageView {
                 }
             }
             else {
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                Image.cacheTexture(val).then(texture => {     
-                    if (this.targetVal === val) {
-                        image?.image(texture);
-                        this.curVal = val;
-                    }
-                });
-                return Image.cache[val] as Promise<Texture>;
+                debugger;
+                // void Image.cacheTexture(val).then(texture => {     
+                //     if (this.targetVal === val) {
+                //         image?.image(texture);
+                //         this.curVal = val;
+                //     }
+                // });
+                // return Image.cache[val] as Promise<Texture>;
             }
         } else {
             this.curVal = val;
@@ -431,7 +436,6 @@ export function makeImage(name: string, w: number, h: number, flip = true): Imag
     const img = new Image(gfx).opacity(1.0).w(w).h(h);
     if (flip) img.top(1).bottom(0);
     img.size('stretch');
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     img.set(name);
     return img;
 }

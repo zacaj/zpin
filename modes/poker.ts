@@ -188,7 +188,7 @@ function getFile(card: Card|null) {
     let num = `${card.num}`;
     if (card.num>10) num = 'JQK'.charAt(card.num-11);
     if (num === '1') num = 'A';
-    return num+card.suit.toLowerCase();
+    return num+card.suit.toUpperCase();
 }
 export const getFileForCard = getFile;
 
