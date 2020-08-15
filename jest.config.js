@@ -39,6 +39,7 @@ module.exports = {
   testPathIgnorePatterns: [
       '/node_modules/',
       './jserver/',
+      './.metadata',
   ],
   globals: {
     'ts-jest': {

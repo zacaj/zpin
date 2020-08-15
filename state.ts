@@ -33,9 +33,13 @@ export class State {
 
     static declare<T extends {}>(obj: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         const state = new State();
-        (obj as any).$state = state;
+        Object.defineProperty(obj, '$state', {
+            value: state,
+            enumerable: false,
+        });
         for (const prop of props) {
             state.data[prop] = (obj as any)[prop];
+            const existingProperty = Object.getOwnPropertyDescriptor(obj, prop);
             Object.defineProperty(obj, prop, {
                 get() {
                     if (Utils.stateAccessRecorder) {
@@ -49,6 +53,7 @@ export class State {
                     state.data[prop] = watchCollections(val);
                     Events.fire(new StateEvent(obj, prop, val, old));
                 },
+                enumerable: existingProperty?.enumerable ?? true,
             });
             state.data[prop] = watchCollections(state.data[prop]);
 
@@ -86,7 +91,10 @@ export class State {
                         return arr[key as any];
                     },
                 });
-                (newArr as any).$state = new State();
+                // Object.defineProperty(newArr, '$state', {
+                //     value: new State(),
+                //     enumerable: false,
+                // });
                 return newArr;
             }
             function watchSet<T>(set: Set<T>|any): Set<T>|any {
@@ -147,7 +155,10 @@ export class State {
                         throw new Error('unexpected');
                     },
                 });
-                (newSet as any).$state = new State();
+                // Object.defineProperty(newSet, '$state', {
+                //     value: new State(),
+                //     enumerable: false,
+                // });
                 return newSet;
             }
         }
