@@ -21,13 +21,13 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     id = MachineOutput.id++;
     actual!: T;
     timer?: TimerQueueEntry;
-    lastChange?: Time;
+    lastActualChange?: Time;
 
     constructor(
         public val: T,
         public name: keyof Outs,
     ) {
-        State.declare<MachineOutput<T, Outs>>(this, ['val', 'actual', 'lastChange']);
+        State.declare<MachineOutput<T, Outs>>(this, ['val', 'actual', 'lastActualChange']);
 
         this.actual = val;
         Events.listen<TreeOutputEvent<any>>(ev => {
@@ -49,8 +49,8 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
             try {
                 Log.log('machine', '%s set: ', this.name, success);
                 if (success === true) {
+                    this.lastActualChange = time();
                     this.actual = this.val;
-                    this.lastChange = time();
                 } else {
                     if (!success) success = 5;
                     if (!this.timer)
@@ -110,6 +110,7 @@ export class MomentarySolenoid extends Solenoid {
     }
 
     async fire(ms?: number): Promise<boolean|number> {
+        if (this.num < 0) return true;
         if (this.lastFired && time() < this.lastFired + this.wait) {
             Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, too soon', this.name);
             return this.lastFired + this.wait - time() + 3;
@@ -186,8 +187,6 @@ export class IncreaseSolenoid extends MomentarySolenoid {
 }
 
 export class OnOffSolenoid extends Solenoid {
-    lastChange?: Time;
-
     constructor(
         name: keyof CoilOutputs,
         num: number,
@@ -205,7 +204,6 @@ export class OnOffSolenoid extends Solenoid {
     }
 
     async set(on: boolean) {
-        this.lastChange = time();
         Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         
 
@@ -368,7 +366,8 @@ export class Machine extends Tree<MachineOutputs> {
     cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 6, undefined, undefined, () => machine.sUpperEject.state = false);
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
-    cRightBank = new IncreaseSolenoid('realRightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
+    cRealRightBank = new IncreaseSolenoid('realRightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.state = false));
+    cRightBank = new MomentarySolenoid('rightBank', -1, this.solenoidBank2);
     cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight1.state = true);
     cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight2.state = true);
     cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight3.state = true);
@@ -675,11 +674,10 @@ class MachineOverrides extends Tree<MachineOutputs> {
         super(undefined, 999);
         this.out = new Outputs(this, {
             rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
-                || (machine.cRamp.actual && time() - machine.cRamp.lastChange! < 1000)?
+                || (machine.cRamp.actual && time() - machine.cRamp.lastActualChange! < 1000 && machine.sUnderRamp.wasClosedWithin(1000))?
                 true : up,
-            realRightBank: () => 
-                !machine.cShooterDiverter.val && time()-(machine.cShooterDiverter.lastChange??time()) > 500? 
-                    machine.out!.treeValues.rightBank : false,
+            realRightBank: () => machine.out!.treeValues.rightBank &&
+                !machine.cShooterDiverter.actual && time()-(machine.cShooterDiverter.lastActualChange??0) > 500,
             shooterDiverter: (on) => machine.out!.treeValues.rightBank? false : on,            
         });
 

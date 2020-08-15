@@ -108,26 +108,26 @@ describe('machine', () => {
         child.shooterDiverter = false;
         await settleForks();
         expect(machine.cShooterDiverter.val).toBe(false);
-        expect(machine.cShooterDiverter.lastChange).toBe(1);
+        expect(machine.cShooterDiverter.lastActualChange).toBe(1);
         await passTime(507);
 
-        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cRealRightBank.val).toBe(false);
         child.rightBank = true;
-        expect(machine.cRightBank.val).toBe(true);
+        expect(machine.cRealRightBank.val).toBe(true);
         child.rightBank = false;
-        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cRealRightBank.val).toBe(false);
 
         child.shooterDiverter = true;
         expect(machine.cShooterDiverter.val).toBe(true);
         child.rightBank = true;
         await settleForks();
-        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cRealRightBank.val).toBe(false);
         expect(machine.cShooterDiverter.val).toBe(false);
         await passTime(507);
-        expect(machine.cRightBank.val).toBe(true);
+        expect(machine.cRealRightBank.val).toBe(true);
         expect(machine.cShooterDiverter.val).toBe(false);
         child.rightBank = false;
-        expect(machine.cRightBank.val).toBe(false);
+        expect(machine.cRealRightBank.val).toBe(false);
         expect(machine.cShooterDiverter.val).toBe(true);
     });
 
