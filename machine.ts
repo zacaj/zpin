@@ -1,7 +1,7 @@
-import { State } from './state';
+import { State, StateEvent } from './state';
 import { Solenoid16 } from './boards';
 import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose } from './switch-matrix';
-import { Events, Event } from './events';
+import { Events, Event, EventTypePredicate } from './events';
 import { Mode } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
@@ -243,6 +243,20 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
             return true;
         }
         return false;
+    }
+
+    lit(): boolean {
+        return this.val.length > 0;
+    }
+
+    is(...colors: Color[]): boolean {
+        return colors.some(c => this.val.includes(c));
+    }
+
+    onChange(): EventTypePredicate<StateEvent<this, 'val'>> {
+        return (e: Event) => e instanceof StateEvent
+            && e.on === this
+            && e.prop === 'val';
     }
 }
 

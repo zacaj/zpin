@@ -56,9 +56,10 @@ export type JSONObject = { [member: string]: JSONValue|undefined };
 export type JSONArray = JSONValue[];
 
 export type OrArray<T> = T|(T[]);
-export function arrayify<T>(data: OrArray<T>): T[] {
-  if (Array.isArray(data)) return data;
-  else return [data];
+export function arrayify<T>(data?: OrArray<T>): T[] {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    else return [data];
 }
 
 export interface Obj { [prop: string]: any }
@@ -79,6 +80,8 @@ declare global {
         set(arr: T[]): Array<T>;
         last(): T|undefined;
         minus(...elems: T[]): Array<T>;
+        oxford(last: string): string;
+        nonOxford(last: string): string;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -107,6 +110,17 @@ Array.prototype.last = function<T>(this: T[]): T|undefined {
 Array.prototype.minus = function<T>(this: T[], ...elems: T[]): T[] {
     const arr = this.slice();
     return arr.remove(...elems);
+};
+Array.prototype.oxford = function<T>(this: T[], last: string): string {
+    let str = this.slice(0, this.length-1).join(', ');
+    if (this.length > 2) str += ',';
+    if (this.length > 1) str += ' '+last+' ';
+    return str+this.last();
+};
+Array.prototype.nonOxford = function<T>(this: T[], last: string): string {
+    let str = this.slice(0, this.length-1).join(', ');
+    if (this.length > 1) str += ' '+last+' ';
+    return str+this.last();
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {

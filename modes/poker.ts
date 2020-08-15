@@ -42,14 +42,14 @@ export class Poker extends Mode<MachineOutputs> {
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => getFile(this.slots[target.num]);
         }
-        outs.rampUp = (up: boolean) => this.step !== 7 && up;
         this.out = new Outputs(this, {
             ...outs,
-            lockPost: () => this.step===7? false : undefined,
+            rampUp: () => machine.lRampShowCards.lit()? true : undefined,
+            lockPost: () => machine.lRampShowCards.lit()? false : undefined,
             lShooterShowCards: () => this.step === 7? [Color.Green] : [],
             lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
             lRampShowCards: () => this.step === 7 && player.mbsQualified.size>0? [Color.Green] : [],
-            shooterDiverter: () => this.step===7? true : undefined,
+            shooterDiverter: () => machine.lShooterShowCards.lit()? true : undefined,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {

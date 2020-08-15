@@ -3,12 +3,15 @@ import { Poker, Card, getFileForCard } from '../modes/poker';
 import { gfx, makeImage, Screen, Image, makeText } from '../gfx';
 import { onChange } from '../state';
 import { tryNum } from '../util';
+import { machine } from '../machine';
+import { onAny } from '../events';
 
 export class PokerGfx extends Group {
     bet = makeText('BET: 0', 40);
     pot = makeText('POT: 0', 40);
     winnings = makeText('winnings', 40, 'center', 'middle');
     player = makeText('PLAYER 1', 30, 'center', 'bottom');
+    doneInstr = makeText('SHOOTER LANE, EJECT, OR RAMP TO FINISH HAND', 40, 'center', 'bottom');
     playerHand!: PokerHand;
     dealerHand!: PokerHand;
     constructor(
@@ -41,6 +44,16 @@ export class PokerGfx extends Group {
             if (poker.playerWins !== undefined)
                 this.winnings.text(`${poker.playerWins? 'PLAYER':'DEALER'} WINS ${poker.pot}`);
         });
+
+        this.add(this.doneInstr.y(Screen.h*.49));
+        poker.watch(onChange(poker, 'step'), () => this.doneInstr.visible(poker.step === 7));
+        poker.watch([machine.lShooterShowCards.onChange(), machine.lEjectShowCards.onChange(), machine.lRampShowCards.onChange()], 
+            () => {
+                const places = ['Shooter Lane'];
+                if (machine.lEjectShowCards.lit()) places.push('Eject');
+                if (machine.lRampShowCards.lit()) places.push('Ramp');
+                this.doneInstr.text(places.nonOxford('or')+' to finish hand');
+            });
     }
 }
 

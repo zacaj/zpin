@@ -18,12 +18,13 @@ export class StateEvent<T, Prop extends keyof T> extends Event {//<T> extends Ev
         super();
     }
 }
-export function onChange<T, Prop extends keyof T>(on: T, prop?: Prop, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
-    if (prop) assert(State.isPropWatched(on, prop as any));
+export function onChange<T, Prop extends keyof T>(on: T, prop?: OrArray<Prop>, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
+    const props= arrayify(prop);
+    if (props.length) props.forEach(prop => assert(State.isPropWatched(on, prop as any)));
     else assert(State.hasState(on));
     return ((e: Event) => e instanceof StateEvent
         && e.on === on
-        && (prop === undefined || e.prop === prop)
+        && (!props.length || props.includes(e.prop))
         && (to === undefined || e.value === to)
     ) as any;
 }
