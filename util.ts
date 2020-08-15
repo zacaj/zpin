@@ -129,7 +129,12 @@ if (!Array.prototype.flat) {
 export function clone<T>(obj: T): T {
     return Object.create(
         Object.getPrototypeOf(obj), 
-        Object.getOwnPropertyDescriptors(obj),
+        objectMap(Object.getOwnPropertyDescriptors(obj), (d, k) => ({
+            value: 'value' in d? d.value : (obj as any)[k],
+            configurable: d.configurable,
+            enumerable: d.enumerable,
+            writable: 'writable' in d? d.writable : 'get' in d,
+        })),
     );
 }
 

@@ -91,10 +91,11 @@ export class State {
                         return arr[key as any];
                     },
                 });
-                // Object.defineProperty(newArr, '$state', {
-                //     value: new State(),
-                //     enumerable: false,
-                // });
+                if (!Object.getOwnPropertyDescriptor(arr, '$state'))
+                    Object.defineProperty(arr, '$state', {
+                        value: new State(),
+                        enumerable: false,
+                    });
                 return newArr;
             }
             function watchSet<T>(set: Set<T>|any): Set<T>|any {
@@ -102,11 +103,11 @@ export class State {
         
                 const newSet = new Proxy(set, {
                     set: (_, key, val) => {
+                        debugger;
                         if (key === '$state') {
                             (set as any)[key] = val;
                             return val;
                         }
-                        debugger;
                         throw new Error('unexpected');
                     },
                     get: (_, key) => {
@@ -116,21 +117,6 @@ export class State {
                         if (typeof (set as any)[key] !== 'function') return (set as any)[key];
 
                         switch (key) {
-                            // case 'add':
-                            //     return (val: T) => {
-                            //         Events.fire(new StateEvent(newSet, 'values', null as any, null as any), `add ${val} to set ${prop}`);
-                            //         return set.add(val);
-                            //     };
-                            // case 'clear':
-                            //     return () => {
-                            //         Events.fire(new StateEvent(newSet, 'values', null as any, null as any), `clear set ${prop}`);
-                            //         return set.clear();
-                            //     };
-                            // case 'delete':
-                            //     return (val: T) => {
-                            //         Events.fire(new StateEvent(newSet, 'values', null as any, null as any), `delete ${val} from set ${prop}`);
-                            //         return set.delete(val);
-                            //     };
                             case 'delete':
                             case 'clear':
                             case 'add': {
@@ -155,10 +141,11 @@ export class State {
                         throw new Error('unexpected');
                     },
                 });
-                // Object.defineProperty(newSet, '$state', {
-                //     value: new State(),
-                //     enumerable: false,
-                // });
+                if (!Object.getOwnPropertyDescriptor(set, '$state'))
+                    Object.defineProperty(set, '$state', {
+                        value: new State(),
+                        enumerable: false,
+                    });
                 return newSet;
             }
         }

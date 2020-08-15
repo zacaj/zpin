@@ -34,8 +34,9 @@ export class Log {
     static timestamp(): string {
         const hr = process.hrtime();
         const d = new Date(hr[0]*1000);
+        const ms = (hr[1]).toFixed(0).padStart(6, '0');
         return d.getMinutes().toFixed().padStart(2, '0')+':'+d.getSeconds().toFixed().padStart(2, '0')+
-            '.'/*+d.getMilliseconds().toFixed().padStart(3, '0')*/+(hr[1]).toFixed(0).padStart(6, '0').slice(0, 5);
+            '.'/*+d.getMilliseconds().toFixed().padStart(3, '0')*/+ms.slice(0, 3)+'.'+ms.slice(6);
     }
 
     static cleanParams(params: any[], maxDepth = 2): any[] {
