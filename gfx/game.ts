@@ -14,8 +14,8 @@ export class GameGfx extends Group {
     ) {
         super(gfx);
         const group = gfx.createGroup();
-        group.z(100);
-        group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-1));
+        group.z(game.gPriority);
+        group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-.1));
 
         group.add(this.score.y(-Screen.h/2));
         game.listen(onChange(game.players[0], 'score'), (e) => this.score.text(e.value!.toFixed(0)));

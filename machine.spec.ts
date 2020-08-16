@@ -5,6 +5,7 @@ import { Mode } from './mode';
 import { State } from './state';
 import { Outputs } from './outputs';
 import { settleForks } from './promises';
+import { Tree } from './tree';
 
 describe('machine', () => {
     describe('momentary solenoid', () => {
@@ -87,7 +88,7 @@ describe('machine', () => {
 
     test('gate saver', async () => {
         expectMachineOutputs('shooterDiverter', 'rightBank', 'realRightBank');
-        const child = new class extends Mode<MachineOutputs> {
+        const child = new class extends Tree<MachineOutputs> {
             shooterDiverter = false;
             rightBank = false;
             constructor() {

@@ -1,5 +1,5 @@
 import { MachineOutputs, machine, Machine } from '../machine';
-import { Mode } from '../mode';
+import { Mode, Modes } from '../mode';
 import { Poker } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
@@ -35,7 +35,7 @@ export class Player extends Mode<MachineOutputs> {
     constructor(
         public game: Game,
     ) {
-        super();
+        super(Modes.Player);
         State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker']);
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,

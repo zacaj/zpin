@@ -15,13 +15,15 @@ export abstract class Tree<Outs extends {} = {}> {
 
     ended = false;
     listener!: EventListener;
+    lPriority?: number;
 
     constructor(
+        public readonly gPriority?: number,
         parent?: Tree<Outs>,
-        public readonly priority = 0,
+        lPriority?: number,
     ) {
         if (parent)
-            parent.addChild(this);
+            parent.addChild(this, lPriority);
 
         this.findListeners();
 
@@ -52,14 +54,13 @@ export abstract class Tree<Outs extends {} = {}> {
         });
     }
 
-    addChild(node: Tree<Outs>, priority?: number): Tree<Outs> {
+    addChild(node: Tree<Outs>, priority = 0): Tree<Outs> {
         if (node.parent)
             node.parent.removeChild(node);
         const before = clone(node);
         node.parent = this;
-        this.children.push(node);
-        if (priority)
-            (node as any).priority = priority;
+        node.lPriority = priority;
+        this.children.insert(node, before => before.lPriority! > priority);
         Events.fire(new TreeEvent(before, node));
         return node;
     }

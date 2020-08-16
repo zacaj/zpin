@@ -11,7 +11,7 @@ import { MPU } from './mpu';
 import { wait } from './timer';
 import { fork } from './promises';
 
-export class ClearHoles extends Mode<MachineOutputs> {
+export class ClearHoles extends Tree<MachineOutputs> {
 
     constructor() {
         super();
@@ -25,7 +25,7 @@ export class ClearHoles extends Mode<MachineOutputs> {
     }
 }
 
-export class ResetAnyDropOnComplete extends Mode<MachineOutputs> {
+export class ResetAnyDropOnComplete extends Tree<MachineOutputs> {
     constructor() {
         super();
         for (const bank of getTypeIn<DropBank>(machine, DropBank)) {
@@ -34,7 +34,7 @@ export class ResetAnyDropOnComplete extends Mode<MachineOutputs> {
     }
 }
 
-export class ResetMechs extends Mode<MachineOutputs> {
+export class ResetMechs extends Tree<MachineOutputs> {
     constructor() {
         super();
 

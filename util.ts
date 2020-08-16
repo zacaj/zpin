@@ -82,6 +82,7 @@ declare global {
         minus(...elems: T[]): Array<T>;
         oxford(last: string): string;
         nonOxford(last: string): string;
+        insert(value: T, where: (before: T) => boolean): number;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -121,6 +122,17 @@ Array.prototype.nonOxford = function<T>(this: T[], last: string): string {
     let str = this.slice(0, this.length-1).join(', ');
     if (this.length > 1) str += ' '+last+' ';
     return str+this.last();
+};
+Array.prototype.insert = function<T>(this: T[], value: T, where: (before: T) => boolean): number {
+    let pos = this.length;
+    for (let i=0; i<this.length; i++) {
+        if (where(this[i])) {
+            pos = i;
+            break;
+        }
+    }
+    this.splice(pos, 0, value);
+    return pos;
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {

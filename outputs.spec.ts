@@ -80,7 +80,7 @@ describe('outputs', () => {
         };
         const c1 = new class extends Tree<{rampUp: boolean}> {
             constructor() {
-                super(parent);
+                super(undefined, parent);
 
                 this.out = new Outputs(this, {
                     rampUp: true,
@@ -150,7 +150,7 @@ describe('outputs', () => {
         };
         const c1 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 1);
+                super(undefined, root, 1);
 
                 this.out = new Outputs(this, {
                     num: 1,
@@ -159,7 +159,7 @@ describe('outputs', () => {
         };
         const c2 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root);
+                super(undefined, root);
 
                 this.out = new Outputs(this, {
                     num: 2,
@@ -181,7 +181,7 @@ describe('outputs', () => {
         };
         const c1 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 1);
+                super(undefined, root, 1);
 
                 this.out = new Outputs(this, {
                     num: 1,
@@ -190,7 +190,7 @@ describe('outputs', () => {
         };
         const c2 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 2);
+                super(undefined, root, 2);
 
                 this.out = new Outputs(this, {
                     num: 2,
@@ -212,7 +212,7 @@ describe('outputs', () => {
         };
         const c1 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 1);
+                super(undefined, root, 1);
 
                 this.out = new Outputs(this, {
                     num: 1,
@@ -221,16 +221,16 @@ describe('outputs', () => {
         };
         const c2 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root);
+                super(undefined, root);
 
                 this.out = new Outputs(this, {
                     num: 2,
                 });
             }
         };
-        const c3 = new class extends Tree<{num: number}> {
+        const c21 = new class extends Tree<{num: number}> {
             constructor() {
-                super(c2, 3);
+                super(undefined, c2, 3);
 
                 this.out = new Outputs(this, {
                     num: 3,
@@ -252,7 +252,7 @@ describe('outputs', () => {
         };
         const c1 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 1);
+                super(undefined, root, 1);
 
                 this.out = new Outputs(this, {
                     num: 1,
@@ -261,16 +261,16 @@ describe('outputs', () => {
         };
         const c2 = new class extends Tree<{num: number}> {
             constructor() {
-                super(root, 2);
+                super(undefined, root, 2);
 
                 this.out = new Outputs(this, {
                     num: 2,
                 });
             }
         };
-        const c3 = new class extends Tree<{num: number}> {
+        const c21 = new class extends Tree<{num: number}> {
             constructor() {
-                super(c2, 0);
+                super(undefined, c2, 2);
 
                 this.out = new Outputs(this, {
                     num: 3,
@@ -293,7 +293,7 @@ describe('outputs', () => {
         const c1 = new class extends Tree<{num: number}> {
             n?: number = 1;
             constructor() {
-                super(root, 1);
+                super(undefined, root, 1);
                 State.declare<any>(this, ['n']);
 
                 this.out = new Outputs(this, {

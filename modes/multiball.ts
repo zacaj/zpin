@@ -1,4 +1,4 @@
-import { Mode } from '../mode';
+import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { MPU } from '../mpu';
 import { gfx } from '../gfx';
@@ -19,7 +19,7 @@ export abstract class Multiball extends Mode<MachineOutputs> {
     constructor(
         ballsOnPf = 1,
     ) {
-        super();
+        super(Modes.Multiball);
         this.balls = ballsOnPf;
 
         State.declare<Multiball>(this, ['lockPost']);

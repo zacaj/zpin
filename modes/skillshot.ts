@@ -1,4 +1,4 @@
-import { Mode } from '../mode';
+import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
@@ -40,7 +40,7 @@ export class Skillshot extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super(70);
+        super(Modes.Skillshot);
 
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
 

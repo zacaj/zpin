@@ -4,13 +4,35 @@ import { MachineOutputs } from './machine';
 import { Log } from './log';
 import { Group } from 'aminogfx-gl';
 import { createGroup } from './gfx';
+import { AttractMode } from './attract';
+
+export enum Modes {
+    AttractMode,
+
+    Game,
+
+    Ball,
+
+    Player,
+
+    LockLit,
+    Multiball,
+    Poker,
+
+    Skillshot,
+
+    GameOverrides,
+    MachineOverrides,
+}
 
 export abstract class Mode<Outs extends {} = Partial<MachineOutputs>> extends Tree<Outs> {
+    gPriority!: number;
+
     constructor(
-        priority = 0,
+        type: Modes,
         public gfx: Group|undefined = createGroup(),
     ) {
-        super(undefined, priority);
+        super(type);
 
         Log.log('game', 'start mode %s', this.constructor.name);
     }

@@ -18,7 +18,7 @@ export class PokerGfx extends Group {
         public poker: Poker,
     ) {
         super(gfx);
-        this.z(1);
+        this.z(poker.gPriority);
 
         this.add(this.playerHand = new PokerHand(poker, poker.playerHand).x(0).y(-PokerHand.h*1.05/2-20));
         poker.watch(onChange(poker, 'playerWins'), () => this.playerHand.visible(poker.playerWins === undefined));
@@ -69,9 +69,8 @@ class PokerHand extends Group {
         this.originX(0.5).originY(0.5);
         this.w(PokerHand.w);
         this.h(PokerHand.h);
-        this.z(poker.priority);
 
-        this.add(gfx.createRect().w.watch(this.w).h(this.h()).fill('#00ff00').opacity(0.5).z(-1));
+        this.add(gfx.createRect().w.watch(this.w).h(this.h()).fill('#00ff00').opacity(0.5).z(-.1));
 
         poker.listen(onChange(hand), (e) => {
             const i = tryNum(e.prop);

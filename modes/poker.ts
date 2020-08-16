@@ -1,5 +1,5 @@
 import { MachineOutputs, machine } from '../machine';
-import { Mode } from '../mode';
+import { Mode, Modes } from '../mode';
 import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
@@ -34,8 +34,8 @@ export class Poker extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super(10);
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step']);
+        super(Modes.Poker);
         this.deal();
 
         const outs: any  = {};

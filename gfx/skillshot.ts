@@ -13,12 +13,12 @@ export class SkillShotGfx extends Group {
         public ss: Skillshot,
     ) {
         super(gfx);
-        this.z(ss.priority);
+        this.z(ss.gPriority);
         this.w(Screen.w*.6);
         this.h(GameGfx.main);
         this.x(-(this.w()-Screen.w/2));
         this.y(-this.h()/2+GameGfx.top/2);
-        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-1));
+        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
 
         this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.1));
         this.add(makeText('plunge to choose bet amount', 35, 'center', 'middle').x(this.w()/2).y(this.h()*.3));

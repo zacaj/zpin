@@ -2,7 +2,7 @@ import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnyP
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange } from './state';
 import { machine, MachineOutputs, resetMachine } from './machine';
-import { Mode } from './mode';
+import { Mode, Modes } from './mode';
 import { Outputs, toggle } from './outputs';
 import { time, safeSetTimeout, Timer } from './timer';
 import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
@@ -16,6 +16,7 @@ import { assert } from './util';
 import { Ball } from './modes/ball';
 import { StraightMb } from './modes/straight.mb';
 import { fork } from './promises';
+import { Tree } from './tree';
 
 // eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
@@ -31,7 +32,7 @@ export class Game extends Mode<MachineOutputs> {
     rightGate = true;
     
     private constructor() {
-        super();
+        super(Modes.Game);
         // assert(machine.sTroughFull.state);
         State.declare<Game>(this, ['shooterOpen', 'ballNum']);
 
@@ -98,7 +99,7 @@ export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
     rampUp = false;
 
     constructor() {
-        super();
+        super(Modes.LockLit);
 
         this.out = new Outputs(this, {
             rampUp: () => this.rampUp,

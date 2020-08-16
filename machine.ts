@@ -1,8 +1,8 @@
 import { State, StateEvent } from './state';
 import { Solenoid16 } from './boards';
 import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose } from './switch-matrix';
-import { Events, Event, EventTypePredicate } from './events';
-import { Mode } from './mode';
+import { Events, Event, EventTypePredicate, EventListener } from './events';
+import { Mode, Modes } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { assert, getTypeIn, then, eq as eq } from './util';
@@ -683,9 +683,9 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
     return ret;
 }
 
-class MachineOverrides extends Tree<MachineOutputs> {
+class MachineOverrides extends Mode<MachineOutputs> {
     constructor() {
-        super(undefined, 999);
+        super(Modes.MachineOverrides);
         this.out = new Outputs(this, {
             rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
                 || (machine.cRamp.actual && time() - machine.cRamp.lastActualChange! < 1000 && machine.sUnderRamp.wasClosedWithin(1000))?
@@ -702,7 +702,7 @@ class MachineOverrides extends Tree<MachineOutputs> {
 class EosPulse extends Tree<MachineOutputs> {
     // pulse coil if switch closes
     constructor(coil: OnOffSolenoid, sw: Switch, invert = false) {
-        super(undefined, 999);
+        super();
 
         this.listen([...onSwitchClose(sw), () => coil.val], () => coil.set(true));
     }
@@ -711,12 +711,10 @@ class EosPulse extends Tree<MachineOutputs> {
 
 
 
-
 export function resetMachine(): Machine {
     machine = new Machine();
     (global as any).machine = machine;
     MomentarySolenoid.firingUntil = undefined;
-    
 
     machine.addChild(new MachineOverrides());
 

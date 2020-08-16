@@ -1,4 +1,4 @@
-import { Mode } from '../mode';
+import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { Skillshot } from './skillshot';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
@@ -17,7 +17,7 @@ export class Ball extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super();
+        super(Modes.Ball);
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
             if (!this.skillshot)

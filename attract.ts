@@ -1,4 +1,4 @@
-import { Mode } from './mode';
+import { Mode, Modes } from './mode';
 import { MachineOutputs, machine } from './machine';
 import { Outputs } from './outputs';
 import { initMachine } from './init';
@@ -9,7 +9,7 @@ import { fork } from './promises';
 export class AttractMode extends Mode<MachineOutputs> {
 
     constructor() {
-        super();
+        super(Modes.AttractMode);
 
         this.addChild(new ClearHoles());
         this.addChild(new ResetAnyDropOnComplete());

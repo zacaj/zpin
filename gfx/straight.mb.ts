@@ -12,12 +12,12 @@ export class StraightMbGfx extends Group {
         public mb: StraightMb,
     ) {
         super(gfx);
-        this.z(mb.priority);
+        this.z(mb.gPriority);
         this.w(Screen.w*.6);
         this.h(GameGfx.main);
         this.x(-(this.w()-Screen.w/2));
         this.y(-this.h()/2+GameGfx.top/2);
-        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-1));
+        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
 
         this.add(makeText('STraight multiball', 60));
     }
