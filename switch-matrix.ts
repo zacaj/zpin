@@ -83,6 +83,7 @@ export class Switch {
 
 
 export class SwitchEvent extends Event {
+    _desc!: string;
     then: Switch; //Pick<Switch, Extract<keyof Switch, JSONValue>>;//{ [P in keyof Switch]: Switch[P] };
     constructor(
         public sw: Switch,
@@ -91,6 +92,7 @@ export class SwitchEvent extends Event {
         super(when);
 
         this.then = clone(sw);
+        this._desc = `sw ${sw.name} ${sw.state? 'closed' : 'opened'}`;
     }
 }
 

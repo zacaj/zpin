@@ -33,12 +33,16 @@ export class State {
     data: JSONObject = {};
 
     static declare<T extends {}>(obj: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
-        const state = new State();
-        Object.defineProperty(obj, '$state', {
-            value: state,
-            enumerable: false,
-        });
+        let state = (obj as any).$state;
+        if (!state) {
+            state = new State();
+            Object.defineProperty(obj, '$state', {
+                value: state,
+                enumerable: false,
+            });
+        }
         for (const prop of props) {
+            if (prop in state.data) continue;
             state.data[prop] = (obj as any)[prop];
             const existingProperty = Object.getOwnPropertyDescriptor(obj, prop);
             Object.defineProperty(obj, prop, {

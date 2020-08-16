@@ -4,6 +4,8 @@ import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionP
 import { Log } from './log';
 import { State } from './state';
 import { fork } from './promises';
+import { machine } from './machine';
+import { Timer } from './timer';
 
 
 export abstract class Tree<Outs extends {} = {}> {
@@ -16,6 +18,21 @@ export abstract class Tree<Outs extends {} = {}> {
 
     ended = false;
     lPriority?: number;
+    get allChildren() {
+        return this.getAndChildren();
+    }
+    get allParents() {
+        return this.getParents();
+    }
+    get aMachine() {
+        return machine;
+    }
+    get aEvent() {
+        return Events;
+    }
+    get aTimer() {
+        return Timer;
+    }
 
     constructor(
         public readonly gPriority?: number,

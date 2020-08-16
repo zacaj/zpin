@@ -44,15 +44,19 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         if (eq(this.val, this.actual)) {
             return undefined;
         }
-        Log.trace(['machine'], 'try set %s to ', this.name, this.val);
+        Log[this instanceof Solenoid? 'log':'trace'](['machine'], 'try set %s to ', this.name, this.val);
         return then(this.set(this.val), success => {
             try {
-                Log.log('machine', '%s set: ', this.name, success);
                 if (success === true) {
+                    Log.log('machine', '%s set to ', this.name, this.val);
                     this.lastActualChange = time();
                     this.actual = this.val;
                 } else {
-                    if (!success) success = 5;
+                    if (!success) {
+                        Log.log('machine', 'failed  %s set to ', this.name, this.val);
+                        success = 5;
+                    } else 
+                        Log.log('machine', 'tried  %s set to ', this.name, this.val);
                     if (!this.timer)
                         this.timer = Timer.callIn(() => this.trySet(), success, `delayed retry set ${this.name} to ${this.val}`);
                 }

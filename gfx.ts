@@ -531,6 +531,8 @@ const gfxCoils: { [name: string]: {
     'upper2': { x: 6.637499999999999, y: 39.88125 },
     'popper': { x: 14.174999999999999, y: 7.481250000000003 },
     'leftMagnet': { x: 2.475, y: 18.675 },
+    'outhole': { x: 8.4375, y: 1.96875 },
+    'troughRelease': { x: 17.55, y: 6.243749999999999 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
@@ -699,6 +701,7 @@ export async function popup(node: Node, ms = 2000) {
 
 export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
     if (!gfx) return new FakeGroup() as any;
+    Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
     const g = gfx.createGroup().y(-Screen.h * .2);
     const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
     const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;

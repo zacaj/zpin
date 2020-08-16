@@ -27,8 +27,8 @@
     "console": "ts-node console.ts",
     "sync": "ts-node syncr.ts",
     "jserver": "java -cp jserver/target/classes/:jserver/jars/* zpin.JServer",
-    "test": "jest --watchAll --coverage=false --maxWorkers=1",
-    "test:cov": "jest --watchAll --coverage --maxWorkers=1",
+    "test": "jest --watchAll --coverage=false --maxWorkers=100% --passWithNoTests ",
+    "test:cov": "jest --watchAll --coverage --maxWorkers=100% --passWithNoTests",
     "lint": "eslint **/*.ts",
     "lint:fix": "eslint **/*.ts --fix"
   }
