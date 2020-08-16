@@ -2,7 +2,7 @@ import { Utils, Opaque, assert } from './util';
 import { Events } from './events';
 import { StateEvent } from './state';
 import { Log } from './log';
-import { fork } from './promises';
+import { fork, settleForks } from './promises';
 
 export type Time = Opaque<number, 'Time'>;
 
@@ -40,11 +40,11 @@ export class Timer {
     }
 
     static callIn(func: TimerCallback, ms: number, context?: string) {
-        return Timer.schedule(func, time() + ms as Time);
+        return Timer.schedule(func, time() + ms as Time, context);
     }
 
     static setInterval(func: TimerCallback, ms: number, context?: string) {
-        const entry = Timer.callIn(func, ms);
+        const entry = Timer.callIn(func, ms, context);
         entry.repeat = ms as Time;
         return entry;
     }
@@ -111,8 +111,14 @@ export function time() {
 export async function setTime(ms?: number) {
     const lastTime = Timer.mockTime;
     Timer.mockTime = ms;
-    await Timer.fireTimers(time());
+    const newTime = time();
+    if (ms === undefined && lastTime) {
+        Timer.queue.forEach(q => q.time = (q.time + (newTime - lastTime)) as Time);
+    }
+    await Timer.fireTimers(newTime);
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));
+    if (Timer.mockTime !== undefined)
+        await settleForks();
 }
 export async function passTime(ms = 1) {
     assert(Timer.mockTime !== undefined);

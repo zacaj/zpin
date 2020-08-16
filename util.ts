@@ -171,10 +171,10 @@ export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {
     return c;
 }
 
-export function assert(cond: any) {
+export function assert(cond: any, message = 'assertion failed') {
     if (!cond) {
         debugger;
-        throw new Error('assertion failed');
+        throw new Error(message);
     }
 }
 
