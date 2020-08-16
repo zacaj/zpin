@@ -1,6 +1,7 @@
 import { Log } from './log';
 import { compareHands } from './modes/poker';
 import { eq, getCallerLoc } from './util';
+import { Timer } from './timer';
 
 export class FakePromise<T = any> implements Promise<T> {
     ended = false;
@@ -32,6 +33,7 @@ export class FakePromise<T = any> implements Promise<T> {
 export const forks = new Set<FakePromise<any>>();
 export function fork<T>(promise?: Promise<T>|void, name?: string): FakePromise<T> {
     if (!promise) return null as any;
+    if (promise instanceof FakePromise) return promise;
     if (!name) name = getCallerLoc(true);
     // forks.add(promise);
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -46,11 +48,14 @@ export function fork<T>(promise?: Promise<T>|void, name?: string): FakePromise<T
 
 export async function settleForks() {
     let times = 0;
+    let settlesLeft = (Timer.mockTime === undefined)? 0 : 10;
     while (true) {
         const oldForks = [...forks];
         await new Promise(r => r());
         const newForks = [...forks];
-        if (eq(oldForks, newForks)) break;
+        if (eq(oldForks, newForks)) {
+            if (!settlesLeft--) break;
+        }
         times++;
 
         if (times%10 === 0) {
