@@ -1,4 +1,4 @@
-import { initRecording, playRecording } from './recording';
+import { initRecording, playRecording, testRecording } from './recording';
 import { matrix } from './switch-matrix';
 import { machine } from './machine';
 import { Color } from './light';
@@ -27,15 +27,7 @@ describe('recordings', () => {
         expect(right1).lastReturnedWith(expect.objectContaining({when: 9894}));
     });
     test('play test', async () => {
-        jest.spyOn(Log, 'init').mockImplementation(() => {});
-        jest.spyOn(MPU, 'sendCommandCode').mockImplementation(async (cmd) => {
-            return {
-                code: 200,
-                resp: 'mocked',
-            };
-        });
-        await initMachine(false, false, true, false, './recordings/test-1.rec');
-
+        await testRecording('test-1');
         expect(machine.out!.treeValues.lEjectStartMode).toEqual([Color.Red]);
     });
 });
