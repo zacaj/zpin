@@ -46,13 +46,13 @@ export class PokerGfx extends Group {
         });
 
         this.add(this.doneInstr.y(Screen.h*.49));
-        poker.watch(onChange(poker, 'step'), () => this.doneInstr.visible(poker.step === 7));
+        poker.watch(onChange(poker, ['step', 'closeShooter']), () => this.doneInstr.visible(poker.step === 7 && !poker.closeShooter));
         poker.watch([machine.lShooterShowCards.onChange(), machine.lEjectShowCards.onChange(), machine.lRampShowCards.onChange()], 
             () => {
                 const places = ['Shooter Lane'];
                 if (machine.lEjectShowCards.lit()) places.push('Eject');
                 if (machine.lRampShowCards.lit()) places.push('Ramp');
-                this.doneInstr.text(places.nonOxford('or')+' to finish hand');
+                this.doneInstr.text('finish hand at '+places.nonOxford('or'));
             });
     }
 }

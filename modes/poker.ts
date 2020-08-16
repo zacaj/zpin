@@ -30,12 +30,13 @@ export class Poker extends Mode<MachineOutputs> {
     playerWins?: boolean;
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
+    closeShooter = false;
 
     constructor(
         public player: Player,
     ) {
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step']);
         super(Modes.Poker);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter']);
         this.deal();
 
         const outs: any  = {};
@@ -49,7 +50,7 @@ export class Poker extends Mode<MachineOutputs> {
             lShooterShowCards: () => this.step === 7? [Color.Green] : [],
             lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
             lRampShowCards: () => this.step === 7 && player.mbsQualified.size>0? [Color.Green] : [],
-            shooterDiverter: () => machine.lShooterShowCards.lit()? true : undefined,
+            shooterDiverter: () => !this.closeShooter,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -77,6 +78,7 @@ export class Poker extends Mode<MachineOutputs> {
 
         this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
             // const done = await Events.waitPriority(1);
+            this.closeShooter = e.sw === machine.sShooterLane;
             await this.showCards();
 
             // if (e.sw === machine.sShooterLane) {
@@ -160,7 +162,7 @@ export class Poker extends Mode<MachineOutputs> {
         if (this.playerWins)
             this.player.bank += this.pot;
         
-        await wait(3000);
+        await wait(3000, 'showing cards');
         finish();
         this.end();
         this.player.poker = undefined;

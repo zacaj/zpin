@@ -1,5 +1,9 @@
 import { Suit, Card, findPairs, findFlushes, findStraights, bestHand, compareHands } from './poker';
 import { num } from '../util';
+import { machine } from '../machine';
+import { playRecording, continueRecording, testRecording, finishRecording } from '../recording';
+import { passTime } from '../timer';
+import { settleForks } from '../promises';
 
 describe('poker', () => {
     function hand(str: string): Card[] {
@@ -35,5 +39,15 @@ describe('poker', () => {
     test('compareHands', () => {
         expect(compareHands(hand('3h,10h,3s,2d,5s,4d,3d'), hand('3s,2h,6h,9s,5h,8h,10d')).aWon).toBe(true);
         expect(compareHands(hand('3s,2h,6h,9s,5h,8h,10d'), hand('3h,10h,3s,2d,5s,4d,3d')).aWon).toBe(false);
+    });
+
+    
+    test('close diverter during deal', async () => {
+        await testRecording('close gate during deal', 'break');
+        expect(machine.cShooterDiverter.val).toBe(true);
+        await finishRecording();
+        expect(machine.cShooterDiverter.val).toBe(false);
+        await passTime(5000);
+        expect(machine.cShooterDiverter.val).toBe(true);
     });
 });
