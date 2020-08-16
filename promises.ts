@@ -35,12 +35,11 @@ export function fork<T>(promise?: Promise<T>|void, name?: string): FakePromise<T
     if (!promise) return null as any;
     if (promise instanceof FakePromise) return promise;
     if (!name) name = getCallerLoc(true);
-    // forks.add(promise);
+    const e = new Error();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     promise.catch(err => {
         Log.error('console', 'fork %s errored: ', name, err);
-    }).finally(() => {
-        // forks.delete(promise);
+        Log.error('console', 'fork source stack: ', e.stack);
     });
 
     return new FakePromise(promise, name, 0);

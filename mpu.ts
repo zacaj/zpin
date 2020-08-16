@@ -120,6 +120,8 @@ export const MPU = {
                 code,
             };
         }
+        Log.error('mpu', 'error running command %s: ', cmd, resp);
+        debugger;
         throw new Error(resp);
     },
 

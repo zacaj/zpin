@@ -109,6 +109,7 @@ export class MomentarySolenoid extends Solenoid {
     }
 
     async init() {
+        if (this.num < 0) return;
         Log.info(['machine', 'solenoid'], 'init %s as momentary, pulse %i', this.name, this.ms);
         await this.board.initMomentary(this.num, this.ms);
     }
