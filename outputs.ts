@@ -22,18 +22,27 @@ export class Outputs<Outs extends {}> {
     treeValues!: Outs;
     funcs!: OutputFuncs<Outs>;
     funcParam!: { [key in keyof Outs]: boolean};
+    originalValues!: Partial<Outs>;
 
     // state -> stateKey -> our key that listens to it
     listeners = new Map<{}, Map<string, Set<keyof Outs>>>();
 
     constructor(
         public readonly tree: Tree<Outs>,
-        origFuncs: OutputFuncsOrValues<Outs>,
+        public origFuncs: OutputFuncsOrValues<Outs>,
+        abstract?: true,
     ) {
+        if (abstract) return;
+        if (tree.out) {
+            const parent = {...tree.out.origFuncs} as any;
+            Object.keys(origFuncs).forEach(key => delete parent[key]);
+            Object.assign(origFuncs, parent);
+        }
         this.funcs = {} as any;
         this.ownValues = {} as any;
         this.funcParam = {} as any;
         this.treeValues = {} as any;
+        this.originalValues = {} as any;
         tree.out = this;
 
         this.tree.listen<StateEvent<any, any>>(ev => {
@@ -98,7 +107,7 @@ export class Outputs<Outs extends {}> {
             }) as any;
     
             // do initial record
-            this.ownValues[key] = this.funcs[key]!(undefined);
+            this.originalValues[key] = this.ownValues[key] = this.funcs[key]!(undefined);
             this.updateTreeValue(key);
             Events.fire(new OwnOutputEvent(this, key, this.ownValues[key], undefined));
         }
@@ -126,49 +135,10 @@ export class Outputs<Outs extends {}> {
         ];
     }
 
-//     static getGlobalTreeAffectors<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop): Tree<Outs>[][] {
-//         assert(tree.gPriority !== undefined);
-// //         // const children: [Outs[Prop], number, Tree<Outs>][] = [];
-// //         // if (tree.out?.funcs[key]) {
-// //         //     const value = tree.out!.funcs[key]!(tree.out?.defaults[key]);
-// //         //     if (value !== undefined)
-// //         //         children
-// //         // }
-// // // 
-// //         tree.children.flatMap(c => Outputs.getTreeValues(c, key));//.sort(([_,a], [__,b]) => (b) - (a));
-// //         const childAffectors = tree.children.flatMap(c => Outputs.getTreeAffectors(c, key, level + 1));
-// //         const affectors = ([
-// //             ...(tree.out?.funcs[key] !== undefined? [[tree, level]] : []), 
-// //             ...childAffectors,
-// //         ] as [Tree<Outs>, number][]);
-// //         // const prioritized = affectors.map<[Tree<Outs>, number]>(([t, p]) => ([t, t.gPriority + (t===tree? 0 : Math.pow(10, -level-1))]));
-// //         // affectors.sort(([_,a], [__,b]) => (a) - (b));
-// //         return affectors;
-
-//         // if (tree.gPriority)
-
-
-//     }
-
     static getTreeValues<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop): [Outs[Prop], number, Tree<Outs>][] {
-        // const children: [Outs[Prop], number, Tree<Outs>][] = [];
-        // if (tree.out?.funcs[key]) {
-        //     const value = tree.out!.funcs[key]!(tree.out?.defaults[key]);
-        //     if (value !== undefined)
-        //         children
-        // }
-
-        // tree.children.flatMap(c => Outputs.getTreeValues(c, key)).sort(([_,a], [__,b]) => (b) - (a));
-        // const affectors = tree.getAndChildren().filter(t => t.out?.funcs[key] ?? t.out?.defaults[key] !== undefined);
         const affectors = Outputs.getLocalTreeAffectors<Outs, Prop>(tree, key, tree.gPriority ?? 0).map<[Tree<Outs>, number, number]>((x, i) => [x[0], x[1], i]);
         affectors.sort(([a, agPriority, ai], [b, bgPriority, bi]) => {
-            // if (agPriority && bgPriority) {
             if (agPriority !== bgPriority) return agPriority - bgPriority;
-            //     //todo
-            // } else {
-            //     if (agPriority) return 1;
-            //     if (bgPriority) return -1;
-            // }
             return ai - bi;
         });
         let lastValue: Outs[Prop]|undefined = undefined;
@@ -179,23 +149,10 @@ export class Outputs<Outs extends {}> {
             lastValue = value;
             return [[value as Outs[Prop], priority, tree]];
         });
-        return results;//.reverse();
+        return results;
     }
 
     static computeTreeValue<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop): Outs[Prop]|undefined {
-        // const value = tree.out?.funcs[key]? tree.out.funcs[key]!(prev): (tree.out?.defaults[key] ?? prev);
-        // // const children = tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
-        // // for (const child of children) {
-        // //     const newValue = Outputs.computeTreeValue(child, key, value)!;
-        // //     if (newValue !== undefined)
-        // //         value = newValue;
-        // // }
-        // // return value;
-        // const children = tree.children.map(c => Outputs.computeTreeValue(c, key, value)).filter(([v,p]) => value === undefined || (v!==undefined && p>=0));
-        // if (children.length===0) return [value, tree.priority, tree];
-        // children.sort(([_,a], [__,b]) => (b) - (a));
-        // return children[0];
-
         const values = Outputs.getTreeValues(tree, key);
         return values.last()?.[0];
     }
@@ -237,33 +194,10 @@ export class Outputs<Outs extends {}> {
         return selectiveClone(this, 'tree', 'ownValues', 'treeValues');
     }
 
-    // static debugCalc<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop, prev?: Outs[Prop]): [Outs[Prop], Tree<Outs>][] {
-    //     const affected = tree.out?.funcs[key]?.(prev)!==undefined || tree.out?.defaults[key]!==undefined;
-    //     let value = tree.out?.funcs[key]? tree.out.funcs[key]!(prev): (tree.out?.defaults[key] ?? prev);
-    //     const children = tree.children.slice().sort((a, b) => (a.priority??0) - (b.priority??0));
-    //     let winners: [Outs[Prop], Tree<Outs>][] = affected? [[value!, tree]] : [];
-    //     for (const child of children) {
-    //         const newWinners = Outputs.debugCalc(child, key, value)!;
-    //         if (newWinners.length) {
-    //             value = newWinners[0][0];
-    //         }
-    //         winners = [...newWinners, ...winners];
-    //     }
-    //     return winners;
-    // }
     debugPrint() {
         for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
-            // const winners = Outputs.debugCalc(this.tree, key);
-            // const value = winners.length>0? winners[0][0] : undefined;
-            // const diffWinners = winners.filter(([v, t]) => !eq(v, this.ownValues[key]));
-            // if (value === undefined || diffWinners.length === 0) continue;
-            // // const important = [...(winners[0][0]!==diffWinners[0][0]? [winners[0]]:[]), ...diffWinners];
-            // const important = winners;
-            // Log.log('console', '%s set to %j by %s', key, value, 
-            //     typeof value === 'object'? important.map(([v, tree]) => ([v, tree!.name+tree!.num]))
-            //     : JSON.stringify(important.map(([v, tree]) => ([v, tree!.name+tree!.num]))));
             const affectors = Outputs.getTreeValues(this.tree, key).reverse();
-            const baseValue = this.ownValues[key];
+            const baseValue = this.originalValues[key];
             const diff = affectors.filter(([v]) => !eq(v, baseValue));
             if (diff.length === 0) continue;
             const value = affectors[0]![0];

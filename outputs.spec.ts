@@ -315,4 +315,30 @@ describe('outputs', () => {
         c1.n = undefined;
         expect(root.out!.treeValues.num).toBe(0);
     });
+    test('abstract', () => {
+        class Root extends Tree<{num: number}> {
+            constructor() {
+                super();
+                this.makeRoot();
+
+                this.out = new Outputs(this, {
+                    num: 0,
+                }, true);
+            }
+        }
+        const root = new class extends Root {
+            n?: number = 1;
+            constructor() {
+                super();
+                State.declare<any>(this, ['n']);
+
+                this.out = new Outputs(this, {
+                    num: () => this.n,
+                });
+            }
+        };
+        expect(root.out!.treeValues.num).toBe(1);
+        root.n = undefined;
+        expect(root.out!.treeValues.num).toBe(undefined);
+    });
 });
