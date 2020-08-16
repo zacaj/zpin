@@ -17,7 +17,7 @@ describe('machine', () => {
             await s.trySet();
             expect(fire).toBeCalledTimes(1);
 
-            await passTime(9);
+            await passTime(109);
             expect(fire).toBeCalledTimes(2);
         });
         test('stops firing', async () => {
@@ -28,11 +28,11 @@ describe('machine', () => {
             await s.trySet();
             expect(fire).toBeCalledTimes(1);
 
-            await passTime(9);
+            await passTime(109);
             expect(fire).toBeCalledTimes(2);
             s.val = false;
             await s.trySet();
-            await passTime(9);
+            await passTime(109);
             expect(fire).toBeCalledTimes(2);
         });
         test('doesnt fire two at once', async () => {
@@ -46,7 +46,9 @@ describe('machine', () => {
             await b.trySet();
             expect(fireA).toHaveBeenCalledTimes(1);
             expect(fireB).toHaveBeenCalledTimes(0);
-            await passTime(2);
+            a.val = false;
+            await a.trySet();
+            await passTime(102);
             expect(fireA).toHaveBeenCalledTimes(1);
             expect(fireB).toHaveBeenCalledTimes(1);
         });
