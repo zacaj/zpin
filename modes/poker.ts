@@ -125,25 +125,23 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     qualifyModes() {
-        const result = bestHand(this.playerHand.filter(c => !!c) as any);
-        switch (result[1]) {
-            case Hand.Pair:
-            case Hand.TwoPair:
-            case Hand.ThreeOfAKind:
-            case Hand.FourOfAKind:
-                if (!this.player.modesQualified.has(result[0][0].num)) {
-                    Log.info('game', 'qualified mode %i', result[0][0].num);
-                    this.player.modesQualified.add(result[0][0].num);
-                    alert(`${result[0][0].num} mode qualified`);
-                }
-                break;
-            case Hand.Straight:
-                if (!this.player.mbsQualified.has(StraightMb)) {
-                    Log.info('game', 'qualified straight multiball');
-                    this.player.mbsQualified.add(StraightMb);
-                    alert('straight multiball qualified');
-                }
-                break;
+        const cards = this.playerHand.filter(c => !!c) as Card[];
+        const flushes = findFlushes(cards);
+        const straights = findStraights(cards);
+        const pairs = findPairs(cards);
+        for (const pair of pairs) {
+            if (!this.player.modesQualified.has(pair[0].num)) {
+                Log.info('game', 'qualified mode %i', pair[0].num);
+                this.player.modesQualified.add(pair[0].num);
+                alert(`${pair[0].num} mode qualified`);
+            }
+        }
+        for (const straight of straights) {
+            if (!this.player.mbsQualified.has(StraightMb)) {
+                Log.info('game', 'qualified straight multiball');
+                this.player.mbsQualified.add(StraightMb);
+                alert('straight multiball qualified');
+            }
         }
     }
 
