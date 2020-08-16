@@ -18,10 +18,9 @@ import { StraightMb } from './modes/straight.mb';
 import { fork } from './promises';
 import { Tree } from './tree';
 
-// eslint-disable-next-line no-undef
 export class Game extends Mode<MachineOutputs> {
 
-    shooterOpen = true;
+    closeShooter = false;
 
     players = [new Player(this)];
     playerUp = 0;
@@ -34,10 +33,9 @@ export class Game extends Mode<MachineOutputs> {
     private constructor() {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
-        State.declare<Game>(this, ['shooterOpen', 'ballNum']);
+        State.declare<Game>(this, ['closeShooter', 'ballNum']);
 
         this.out = new Outputs(this, {
-            shooterDiverter: () => this.shooterOpen,
             leftMagnet: () => machine.sMagnetButton.state,
             popper: () => machine.sPopperButton.state,
             kickerEnable: true,
@@ -49,8 +47,8 @@ export class Game extends Mode<MachineOutputs> {
         this.gfx?.add(new GameGfx(this));
 
 
-        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.shooterOpen = false);
-        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.shooterOpen = true);
+        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.closeShooter = true);
+        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
 
 
         
@@ -60,6 +58,7 @@ export class Game extends Mode<MachineOutputs> {
 
 
         this.addChild(new ClearHoles(), -1);
+        this.addChild(new GameOverrides(this));
 
         this.playerUp = 0;
         this.ballNum = 1;
@@ -127,4 +126,13 @@ fork(initMachine(true, true, true)).then(() => {
     //     setTimeout(() => process.exit(0), 500);
     // }, 200, '');
 });
+}
+
+class GameOverrides extends Mode<MachineOutputs> {
+    constructor(public game: Game) {
+        super(Modes.GameOverrides);
+        this.out = new Outputs(this, {
+            shooterDiverter: () => game.closeShooter? false : undefined,
+        });
+    }
 }

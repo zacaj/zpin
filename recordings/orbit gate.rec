@@ -1,0 +1,13 @@
+Sat Aug 15 2020 20:31:05 GMT-0400 (Eastern Daylight Time)
+15:13.493.900 switch 'shooter lane' state -> true (0,0) at 2687
+15:16.803.299 force state of right inlane to on
+15:16.804.699 switch 'right inlane' state -> true (5,0) at 5999
+15:17.976.99 switch 'right inlane' state -> false (5,0) at 6292
+break
+15:22.669.200 force state of shooter magnet to on
+15:22.670.800 switch 'shooter magnet' state -> true (7,2) at 11864
+15:22.937.700 switch 'shooter magnet' state -> false (7,2) at 12132
+break
+15:26.302.800 force state of right inlane to on
+15:26.303.400 switch 'right inlane' state -> true (5,0) at 15497
+15:26.569.300 switch 'right inlane' state -> false (5,0) at 15763
