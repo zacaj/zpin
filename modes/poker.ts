@@ -136,7 +136,7 @@ export class Poker extends Mode<MachineOutputs> {
             if (!this.player.modesQualified.has(pair[0].num)) {
                 Log.info('game', 'qualified mode %i', pair[0].num);
                 this.player.modesQualified.add(pair[0].num);
-                alert(`${pair[0].num} mode qualified`);
+                alert(`${getRank(pair[0])} mode qualified`);
             }
         }
         for (const straight of straights) {
@@ -188,12 +188,17 @@ function getFile(card: Card|null) {
     if (!card) return 'empty';
     if (card.flipped) return 'back';
     // return card.num+card.suit+'-s';
+    
+    return getRank(card)+card.suit.toUpperCase();
+}
+export const getFileForCard = getFile;
+
+function getRank(card: Card) {
     let num = `${card.num}`;
     if (card.num>10) num = 'JQK'.charAt(card.num-11);
     if (num === '1') num = 'A';
-    return num+card.suit.toUpperCase();
+    return num;
 }
-export const getFileForCard = getFile;
 
 export interface Card {
     readonly num: number;
