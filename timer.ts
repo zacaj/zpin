@@ -7,7 +7,7 @@ import { fork, settleForks } from './promises';
 export type Time = Opaque<number, 'Time'>;
 
 export class Timer {
-    private static startTime = new Date().getTime();
+    static startTime = new Date().getTime();
 
     static mockTime?: number;
     static get time(): Time {
@@ -56,11 +56,13 @@ export class Timer {
     static curTime = time();
 
     static async fireTimers(before = time()) {
-        for (const entry of Timer.queue.slice()) {
-            if (entry.time <= before) {
+        while (true) {
+            const entry = Timer.queue[0];
+            if (entry && entry.time <= before) {
                 Timer.cancel(entry);
                 try {
                     await entry.func(entry);
+                    await settleForks();
                 } catch (err) {
                     Log.error('console', 'error running entry %o: ', entry, err);
                     debugger;
@@ -69,6 +71,8 @@ export class Timer {
                     entry.time = time() + entry.repeat as Time;
                     Timer.addToQueue(entry);
                 }
+            } else {
+                break;
             }
         }
     }
@@ -113,7 +117,10 @@ export async function setTime(ms?: number) {
     Timer.mockTime = ms;
     const newTime = time();
     if (ms === undefined && lastTime) {
-        Timer.queue.forEach(q => q.time = (q.time + (newTime - lastTime)) as Time);
+        Timer.startTime -= lastTime - newTime;
+        const newNewTime = time();
+        assert(Math.abs(newNewTime - lastTime) < 2);
+        Log.log('console', 'adjusted time to %i', newNewTime);
     }
     await Timer.fireTimers(newTime);
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));

@@ -1,11 +1,13 @@
 import { Log } from './log';
-import { Timer, passTime, setTime } from './timer';
+import { Timer, passTime, setTime, time } from './timer';
 import * as fs from 'fs';
 import { split, assert } from './util';
 import { matrix } from './switch-matrix';
 import { settleForks } from './promises';
 import { MPU } from './mpu';
 import { initMachine } from './init';
+import { Events } from './events';
+import { machine } from './machine';
 
 export let curRecording: string|undefined = undefined;
 let lines: string[];
@@ -23,22 +25,30 @@ export function initRecording(recording: string) {
 }
 
 export async function playRecording(toPoint?: string) {
+    const events = Events;
+    const timer = Timer;
+    const _machine = machine;
     for (; curLine < lines.length; curLine++) {
         const line = lines[curLine];
         if (line && !line.includes(' ')) {
+            const bp = line;
             if (process.env.NODE_ENV === 'test') {
-                const bp = line;
                 assert(bp === toPoint, `expected breakpoint ${toPoint} but got '${bp}'`);
                 curLine++;
                 await settleForks();
                 return;
-            } else continue;
+            } else if (bp === 'debug') {
+                const nextLine = lines[curLine+1];
+                debugger;
+            }
+            continue;
         }
         const [ts, sw, stateS, colS, rowS, timeS] = split(line, ' switch \'', '\' state -> ', ' (', ',', ') at ');
         if (timeS === undefined) continue;
 
         const time = parseInt(timeS, 10);
         const diff = time - curTime;
+        assert(diff>=0, 'time travel not implemented');
         if (diff)
             await passTime(diff);
         curTime = time;
@@ -50,6 +60,7 @@ export async function playRecording(toPoint?: string) {
 
     if (process.env.NODE_ENV !== 'test')
         await setTime(undefined);
+    Log.log(['console', 'switch'], 'recording %s finished at %i', curRecording, time());
     curRecording = undefined;
 }
 
