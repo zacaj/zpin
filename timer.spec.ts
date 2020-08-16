@@ -9,13 +9,13 @@ describe('Timer', () => {
 
             constructor() {
                 super();
+                this.makeRoot();
 
                 this.out = new Outputs(this, {
                     time: () => time(),
                 });
             }
         };
-
         const a = obj.out!.treeValues.time;
         await wait(10);
         expect(obj.out!.treeValues.time).toBeGreaterThan(a);

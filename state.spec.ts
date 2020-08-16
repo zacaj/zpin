@@ -28,6 +28,7 @@ describe('state', () => {
 
             constructor() {
                 super();
+                this.makeRoot();
                 State.declare<any>(this, ['data']);
                 changed1 = jest.fn(() => this.data[0] === 0);
                 changed2 = jest.fn(() => this.data.find(x => false));
@@ -70,6 +71,7 @@ describe('state', () => {
 
             constructor() {
                 super();
+                this.makeRoot();
                 State.declare<any>(this, ['data']);
                 changed = jest.fn(() => this.data.has(0));
 
@@ -99,6 +101,7 @@ describe('state', () => {
 
             constructor() {
                 super();
+                this.makeRoot();
                 State.declare<any>(this, ['data']);
                 changed = jest.fn(() => this.data.size);
 

@@ -586,6 +586,7 @@ export class Machine extends Tree<MachineOutputs> {
     miniDown = false;
     constructor() {
         super();
+        this.makeRoot();
         State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit']);
 
         this.out = new Outputs<MachineOutputs>(this, {

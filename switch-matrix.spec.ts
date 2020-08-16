@@ -10,6 +10,7 @@ describe('switch-matrix', () => {
         const obj = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();
+                this.makeRoot();
 
                 this.out = new Outputs(this, {
                     rampUp: () => sw.state,

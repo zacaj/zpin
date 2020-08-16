@@ -9,6 +9,7 @@ describe('drops', () => {
         jest.spyOn(machine.solenoidBank2, 'fireSolenoidFor').mockResolvedValue('');
         await setTime(1);
         const bank = new DropBankResetter(machine.upper3Bank);
+        bank.makeRoot();
         machine.addChild(bank);
         expect(bank.out!.treeValues.upper3).toBe(false);
 

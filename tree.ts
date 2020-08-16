@@ -1,8 +1,9 @@
 import { Outputs } from './outputs';
 import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
-import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap } from './util';
+import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise } from './util';
 import { Log } from './log';
 import { State } from './state';
+import { fork } from './promises';
 
 
 export abstract class Tree<Outs extends {} = {}> {
@@ -14,7 +15,6 @@ export abstract class Tree<Outs extends {} = {}> {
     num = ++Tree.treeCount;
 
     ended = false;
-    listener!: EventListener;
     lPriority?: number;
 
     constructor(
@@ -26,15 +26,12 @@ export abstract class Tree<Outs extends {} = {}> {
             parent.addChild(this, lPriority);
 
         this.findListeners();
-
-        this.listener = Events.listen(e => this.handleEvent(e), () => true);
     }
 
     end(): 'remove' {
         Events.fire(new TreeWillEndEvent(this));
         for (const child of this.getChildren())
             child.end();
-        Events.cancel(this.listener);
         this.ended = true;
         if (this.parent)
             this.parent.removeChild(this);
@@ -150,6 +147,11 @@ export abstract class Tree<Outs extends {} = {}> {
     handleEvent(e: Event) {
         assert(!this.ended);
         // Log.trace([], 'tree fire event %s: %j', e.name, e);
+
+        for (const child of this.children) {
+            child.handleEvent(e);
+        }
+
         for (const l of this.listeners.slice()) {
             if (l.predicates.some(p => !p(e))) continue;
             Log.trace([], '\tfor listener at %s', l.source ?? '?');
@@ -158,6 +160,12 @@ export abstract class Tree<Outs extends {} = {}> {
                 result = l.callback(e);
             } else {
                 result = ((this as any)[l.callback] as any)(e);
+            }
+            if (isPromise(result)) {
+                fork(result).then(r2 => {
+                    if (r2 === 'remove')
+                        this.listeners.remove(l);
+                });
             }
             if (result === 'remove')
                 this.listeners.remove(l);
@@ -172,6 +180,12 @@ export abstract class Tree<Outs extends {} = {}> {
     
     get name(): string {
         return (this as any).constructor.name;
+    }
+
+    makeRoot() {
+        assert(!this.parent);
+        
+        Events.listen(e => this.handleEvent(e), () => true);
     }
 }
 type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;
