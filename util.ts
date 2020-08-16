@@ -251,3 +251,7 @@ export function objectMap<TValue, TResult>(
     }
     return ret;
 }
+
+export function isPromise(promise?: any): boolean {
+    return !!promise?.then;
+}

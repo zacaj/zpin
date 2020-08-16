@@ -1,4 +1,4 @@
-import { OrArray, assert, arrayify, getCallerLoc } from './util';
+import { OrArray, assert, arrayify, getCallerLoc, isPromise } from './util';
 import { time } from './timer';
 import { Log } from './log';
 import * as util from 'util';
@@ -50,7 +50,13 @@ export const Events = {
                 if (Object.keys(l.callback).length === 0) 
                     this.listeners.remove(l);
             } else {
-                if (l.callback(event) === 'remove')
+                const result = l.callback(event);
+                if (isPromise(result))
+                    fork(result).then(r2 => {
+                        if (r2 === 'remove')
+                            this.listeners.remove(l);
+                    });
+                if (result === 'remove')
                     this.listeners.remove(l);
             }
         }

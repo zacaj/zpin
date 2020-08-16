@@ -19,9 +19,10 @@ export class Ball extends Mode<MachineOutputs> {
     ) {
         super(Modes.Ball);
         
-        this.listen(onAnySwitchClose(machine.sShooterLane), () => {
-            if (!this.skillshot)
-                this.addChild(new Skillshot(player));
+        this.listen(onAnySwitchClose(machine.sShooterLane), async () => {
+            const skillshot = await Skillshot.start(this.player);
+            if (!this.skillshot)    
+                this.addChild(skillshot);
         });
 
         fork(this.start());

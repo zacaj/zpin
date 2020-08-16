@@ -35,19 +35,15 @@ export class Skillshot extends Mode<MachineOutputs> {
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
     startTime = time();
 
-    finishDisplay!: () => void;
+    finishDisplay?: () => void;
 
-    constructor(
+    private constructor(
         public player: Player,
     ) {
         super(Modes.Skillshot);
 
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
-
-        fork(queueDisplay(this.gfx, 3, 'skillshot'), 'start skillshot').then((finish: any) => {
-            this.finishDisplay = finish;
-        });
-            
+          
 
         const outs = {} as any;
         for (const a of this.awards) {
@@ -92,6 +88,12 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.gfx?.add(new SkillShotGfx(this));
     }
 
+    static async start(player: Player) {
+        const skillshot = new Skillshot(player);
+        skillshot.finishDisplay = await queueDisplay(skillshot.gfx, 3, 'skillshot');
+        return skillshot;
+    }
+
     setAward(i: number) {
         i = wrap(i, this.awards.length);
         this.displays[this.curAward].fill('#ffffff');
@@ -115,7 +117,8 @@ export class Skillshot extends Mode<MachineOutputs> {
         if (!this.wasMade) {
             this.made(this.lastSw);
         }
-        this.finishDisplay();
+        if (this.finishDisplay)
+            this.finishDisplay();
         return this.end();
     }
 }
