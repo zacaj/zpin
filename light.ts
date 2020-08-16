@@ -2,6 +2,7 @@ export enum Color {
     Red = 'Red',
     Green = 'Green',
     White = 'White',
+    Orange = 'Orange',
 }
 
 export function colorToHex(color: Color): Color|undefined {
@@ -36,6 +37,6 @@ export function colorToHex(color: Color): Color|undefined {
     return undefined;
 }
 
-export function light(cond: boolean, color = Color.White): () => Color[] {
-    return () => cond? [color] : [];
+export function light(cond: boolean, color = Color.White): Color[] {
+    return cond? [color] : [];
 }

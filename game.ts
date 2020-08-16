@@ -36,8 +36,6 @@ export class Game extends Mode<MachineOutputs> {
         State.declare<Game>(this, ['closeShooter', 'ballNum']);
 
         this.out = new Outputs(this, {
-            leftMagnet: () => machine.sMagnetButton.state,
-            popper: () => machine.sPopperButton.state,
             kickerEnable: true,
             rightGate: () => this.rightGate,
             magnetPost: () => machine.sShooterUpper.wasClosedWithin(500) && !machine.sShooterLower.wasClosedWithin(750),

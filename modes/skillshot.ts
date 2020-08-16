@@ -77,9 +77,9 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.listen(onAnySwitchClose(machine.sUpperLaneLeft, machine.sUpperLaneRight, machine.sBackLane), () => this.made(3));
         this.listen(onAnySwitchClose(machine.sLowerLaneCenter, machine.sLowerLaneRight, machine.sLowerLaneLeft), () => this.made(4));
         this.listen(onAnySwitchClose(machine.sUpperEject), () => this.made(5));
-        this.listen(onAnySwitchClose(machine.sLeftInlane), () => this.made(6));
+        this.listen(onAnySwitchClose(machine.sLeftInlane, machine.sLeftOrbit), () => this.made(6));
 
-        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet, machine.sLeftOrbit), 'finish');
+        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), 'finish');
 
         this.listen(onSwitchClose(machine.sPopperButton), () => this.setAward(this.curAward+1));
         this.listen(onSwitchClose(machine.sMagnetButton), () => this.setAward(this.curAward-1));

@@ -124,7 +124,7 @@ export class MomentarySolenoid extends Solenoid {
         }
 
         this.lastFired = time();
-        MomentarySolenoid.firingUntil = time() + (ms ?? this.ms) as Time;
+        MomentarySolenoid.firingUntil = time() + (ms ?? this.ms)+100 as Time;
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
@@ -326,6 +326,10 @@ export type LightOutputs = {
     lEjectStartMode: Color[];
     lRampShowCards: Color[];
     lRampStartMb: Color[];
+    lPower1: Color[];
+    lPower2: Color[];
+    lPower3: Color[];
+    lPower4: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -535,6 +539,10 @@ export class Machine extends Tree<MachineOutputs> {
     lEjectStartMode = new Light('lEjectStartMode', 0);
     lRampShowCards = new Light('lRampShowCards', 0);
     lRampStartMb = new Light('lRampStartMb', 0);
+    lPower1 = new Light('lPower1', 0);
+    lPower2 = new Light('lPower2', 0);
+    lPower3 = new Light('lPower3', 0);
+    lPower4 = new Light('lPower4', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -626,6 +634,10 @@ export class Machine extends Tree<MachineOutputs> {
             lEjectStartMode: [],
             lRampShowCards: [],
             lRampStartMb: [],
+            lPower1: [],
+            lPower2: [],
+            lPower3: [],
+            lPower4: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',

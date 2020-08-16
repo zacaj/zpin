@@ -30,21 +30,28 @@ export class Player extends Mode<MachineOutputs> {
     modesQualified = new Set<(number)>();
     mbsQualified = new Set<(typeof Multiball)>();
 
-    rand = seedrandom('pinball');
+    rand!: seedrandom.prng;;
 
     constructor(
         public game: Game,
+        seed = 'pinball',
     ) {
         super(Modes.Player);
         State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker']);
         this.out = new Outputs(this, {
+            leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000,
             rampUp: () => this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
             lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
             lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
+            lPower1: () => light(this.chips>=1, Color.Orange),
+            lPower2: () => light(this.chips>=2, Color.Orange),
+            lPower3: () => light(this.chips>=3, Color.Orange),
+            lPower4: () => light(this.chips>=4, Color.Orange),
         });
+        this.rand = seedrandom(seed);
 
         this.listen(
             [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],
@@ -64,13 +71,20 @@ export class Player extends Mode<MachineOutputs> {
 
         this.listen(
             onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
-            () => this.chips++);
+            () => {
+                this.chips++;
+                if (this.chips > 4) this.chips--;   
+            });
         this.listen(onSwitchClose(machine.sPopperButton), async () => {
             if (this.chips === 0) return;
             const fired = await machine.cPopper.fire();
-            if (fired === true) {
-                this.chips--;
-            }
+            this.chips-=2;
+            if (this.chips<0) this.chips = 0;
+        });
+        
+        this.listen(onSwitchClose(machine.sMagnetButton), async () => {
+            if (this.chips === 0) return;
+            this.chips--;
         });
         
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);

@@ -463,6 +463,10 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lEjectStartMode:  { x: 9, y: 37.2375, d: 5/8 },
     lRampShowCards:  { x: 3.65625, y: 29.86875, d: 3/4 },
     lRampStartMb:  { x: 3.99375, y: 28.29375, d: 5/8 } ,  
+    lPower1: { x: 7.199999999999999, y: 10.575000000000003, d: 5/8 },
+    lPower2: { x: 8.4375, y: 10.181249999999999, d: 5/8 },
+    lPower3: { x: 9.9, y: 10.125, d: 5/8 },
+    lPower4: { x: 11.30625, y: 10.631250000000001, d: 5/8 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {
@@ -522,6 +526,10 @@ const gfxCoils: { [name: string]: {
     'rightGate': { x: 19.0125, y: 41.5125 },
     'upperMagnet': { x: 17.381249999999998, y: 36.5625 },
     'magnetPost': { x: 18.61875, y: 34.65 },
+    'upper3': { x: 11.75625, y: 39.09375 },
+    'upper2': { x: 6.637499999999999, y: 39.88125 },
+    'popper': { x: 14.174999999999999, y: 7.481250000000003 },
+    'leftMagnet': { x: 2.475, y: 18.675 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
@@ -606,6 +614,17 @@ const gfxSwitches: { [name: string]: {
     'spinner': { x: 17.662499999999998, y: 33.35625 },
     'under ramp': { x: 2.4187499999999997, y: 34.25625 },
     'left orbit': { x: 1.0125, y: 39.76875 },
+    'left outlane': { x: 2.5875, y: 15.1875 },
+    'right outlane': { x: 16.9875, y: 14.681250000000002 },
+    'mini entry': { x: 1.4625, y: 7.931249999999999 },
+    'mini missed': { x: 3.5999999999999996, y: 9.168750000000003 },
+    'mini out': { x: 5.90625, y: 1.0687500000000014 },
+    'ramp mini outer': { x: 1.85625, y: 28.743750000000002 },
+    'ramp mini': { x: 2.8125, y: 28.125 },
+    'under upper flipper': { x: 4.95, y: 30.0375 },
+    'upper inlane': { x: 4.44375, y: 35.60625 },
+    'upper side target': { x: 3.43125, y: 37.29375 },
+    'spinner mini': { x: 15.524999999999999, y: 34.14375 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
