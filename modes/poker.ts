@@ -69,9 +69,12 @@ export class Poker extends Mode<MachineOutputs> {
                 this.qualifyModes();
 
                 if (this.step === 7) {
-                    for (let i=0; i<3; i++)
+                    for (let i=0; i<3; i++) {
                         if (!machine.rightBank.targets[i].state)
                             this.addChild(new KnockTarget(i));
+                        if (i===1 && machine.rightBank.targets[3].state && machine.rightBank.targets[4].state)
+                            break;
+                    }
                 }
             }
         });
