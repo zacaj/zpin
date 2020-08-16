@@ -15,6 +15,7 @@ import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import seedrandom = require('seedrandom');
+import { fork } from '../promises';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -23,6 +24,15 @@ export class Player extends Mode<MachineOutputs> {
     
     poker?: Poker;
 
+    get curMode(): Mode<MachineOutputs>|undefined {
+        return this.poker ??
+            this.allChildren.find(c => c instanceof Multiball) as Multiball;
+    }
+
+    get ball(): Ball {
+        return this.children.find(c => c instanceof Ball) as Ball;
+    }
+
     lowerRampLit = false;
     miniReady = false;
     rampUp = true;
@@ -30,7 +40,7 @@ export class Player extends Mode<MachineOutputs> {
     modesQualified = new Set<(number)>();
     mbsQualified = new Set<(typeof Multiball)>();
 
-    rand!: seedrandom.prng;;
+    rand!: seedrandom.prng;
 
     constructor(
         public game: Game,
@@ -40,7 +50,7 @@ export class Player extends Mode<MachineOutputs> {
         State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000,
-            rampUp: () => this.rampUp,
+            rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
@@ -90,13 +100,18 @@ export class Player extends Mode<MachineOutputs> {
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);
         this.listen(onAnySwitchClose(machine.sMiniEntry), () => this.miniReady = false);
 
-        this.listen([...onSwitchClose(machine.sRampMade), () => this.mbsQualified.size > 0], () => {
-            this.addChild(new StraightMb());
+        this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], async () => {
+            const finish = await fork(Events.waitPriority(2));
+            if (!this.curMode) {
+                this.ball.addChild(await fork(StraightMb.start(this)));
+                this.mbsQualified.delete(StraightMb);
+            }
+            finish();
         });
 
         this.listen(onSwitchClose(machine.sShooterLane), async () => {
             const finish = await Events.waitPriority(2);
-            if (!this.poker) {
+            if (!this.curMode) {
                 this.poker = new Poker(this);
                 this.addChild(this.poker);
                 await wait(500);
@@ -112,6 +127,16 @@ export class Player extends Mode<MachineOutputs> {
     
     startBall() {
         this.addChild(new Ball(this));
+    }
+
+    weightedRand(...weights: number[]): number {
+        let sum = weights.reduce((prev, cur) => prev+cur, 0);
+        const rand = Math.floor(this.rand()*sum);
+        for (let i=0; i<weights.length; i++) {
+            sum -= weights[i];
+            if (sum <= rand) return i;
+        }
+        return weights.length - 1;
     }
 }
 

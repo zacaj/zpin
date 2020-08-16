@@ -326,6 +326,7 @@ export type LightOutputs = {
     lEjectStartMode: Color[];
     lRampShowCards: Color[];
     lRampStartMb: Color[];
+    lRampArrow: Color[];
     lPower1: Color[];
     lPower2: Color[];
     lPower3: Color[];
@@ -539,6 +540,7 @@ export class Machine extends Tree<MachineOutputs> {
     lEjectStartMode = new Light('lEjectStartMode', 0);
     lRampShowCards = new Light('lRampShowCards', 0);
     lRampStartMb = new Light('lRampStartMb', 0);
+    lRampArrow = new Light('lRampArrow', 0);
     lPower1 = new Light('lPower1', 0);
     lPower2 = new Light('lPower2', 0);
     lPower3 = new Light('lPower3', 0);
@@ -634,6 +636,7 @@ export class Machine extends Tree<MachineOutputs> {
             lEjectStartMode: [],
             lRampShowCards: [],
             lRampStartMb: [],
+            lRampArrow: [],
             lPower1: [],
             lPower2: [],
             lPower3: [],

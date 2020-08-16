@@ -1,0 +1,57 @@
+Sun Aug 16 2020 15:16:00 GMT-0400 (Eastern Daylight Time)
+00:06.474.300 start mode MachineOverrides
+00:07.879.100 start mode Game
+00:07.880.600 start mode Player
+00:07.909.700 start mode Poker
+00:08.519.00 start mode GameOverrides
+00:08.577.00 start mode Ball
+00:08.272.700 switch 'shooter lane' state -> true (0,0) at 7228
+00:08.276.900 start mode Skillshot
+00:08.340.100 switch 'shooter lane' state -> false (0,0) at 10885
+00:08.349.800 switch 'right 2' state -> true (4,2) at 12835
+00:08.365.100 drop switch right 2 down
+00:08.409.200 switch 'right 2' state -> false (4,2) at 13138
+00:08.414.400 switch 'right 4' state -> true (2,2) at 14000
+00:08.424.300 drop switch right 4 down
+00:08.431.000 switch 'right 4' state -> false (2,2) at 14267
+00:08.435.300 switch 'left 2' state -> true (2,3) at 15867
+00:08.455.900 drop switch left 2 down
+00:08.459.300 switch 'left 2' state -> false (2,3) at 16144
+00:08.465.900 switch 'center right' state -> true (1,4) at 19568
+00:08.474.500 drop switch center right down
+00:08.482.500 switch 'center left' state -> true (3,4) at 21867
+00:08.542.900 drop switch center left down
+00:08.552.300 switch 'ramp down' state -> true (4,7) at 21996
+00:08.559.800 switch 'right 1' state -> true (5,2) at 22030
+00:08.563.800 drop switch right 1 detected, but was already down
+00:08.569.800 switch 'right 3' state -> true (3,2) at 22178
+00:08.570.800 drop switch right 3 detected, but was already down
+00:08.576.100 switch 'ramp made' state -> true (0,7) at 25668
+00:08.615.000 switch 'ramp made' state -> false (0,7) at 25931
+00:08.685.600 start mode StraightMb
+00:08.749.500 switch 'ramp down' state -> false (4,7) at 28923
+00:08.773.400 switch 'right 1' state -> false (5,2) at 31962
+00:08.778.100 switch 'right 3' state -> false (3,2) at 31964
+00:08.786.200 drop bank rightBank reset successfully
+00:08.800.900 switch 'center left' state -> false (3,4) at 32100
+00:08.804.800 switch 'center right' state -> false (1,4) at 32102
+00:08.807.200 drop bank centerBank reset successfully
+00:08.822.500 switch 'shooter lane' state -> true (0,0) at 32247
+00:08.826.500 start mode Skillshot
+00:12.327.200 force state of shooter lane to off
+00:12.328.900 switch 'shooter lane' state -> false (0,0) at 35702
+00:13.510.100 force state of center right to on
+00:13.511.400 switch 'center right' state -> true (1,4) at 36886
+00:13.514.900 drop switch center right down
+00:14.776.200 force state of center center to on
+00:14.777.700 switch 'center center' state -> true (2,4) at 38151
+00:14.780.900 drop switch center center down
+00:16.828.600 force state of center left to on
+00:16.829.100 switch 'center left' state -> true (3,4) at 40203
+00:16.832.600 drop switch center left down
+00:16.864.000 drop bank centerBank complete
+00:16.963.900 switch 'ramp down' state -> true (4,7) at 40337
+00:17.187.200 switch 'center left' state -> false (3,4) at 40561
+00:17.189.300 switch 'center center' state -> false (2,4) at 40563
+00:17.195.500 switch 'center right' state -> false (1,4) at 40569
+00:17.199.300 drop bank centerBank reset successfully

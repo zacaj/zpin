@@ -1,0 +1,22 @@
+Sun Aug 16 2020 02:13:24 GMT-0400 (Eastern Daylight Time)
+57:32.797.800 switch 'shooter lane' state -> true (0,0) at 2772
+57:32.797.800 switch 'shooter lane' state -> false (0,0) at 3000
+57:38.433.000 force state of right 2 to on
+57:38.434.700 switch 'right 2' state -> true (4,2) at 8409
+57:38.446.800 drop switch right 2 down
+57:39.998.500 force state of right 4 to on
+57:39.999.600 switch 'right 4' state -> true (2,2) at 9974
+57:40.116.00 drop switch right 4 down
+57:41.397.800 force state of center right to on
+57:41.398.100 switch 'center right' state -> true (1,4) at 11373
+57:41.408.000 drop switch center right down
+57:44.499.700 force state of left 2 to on
+57:44.500.700 switch 'left 2' state -> true (2,3) at 14474
+57:44.519.700 drop switch left 2 down
+57:50.131.400 force state of center left to on
+57:50.131.400 switch 'center left' state -> true (3,4) at 20106
+57:50.188.600 drop switch center left down
+57:50.280.200 switch 'right 1' state -> true (5,2) at 20255
+57:50.282.000 drop switch right 1 detected, but was already down
+57:50.427.600 switch 'right 3' state -> true (3,2) at 20401
+57:50.428.500 drop switch right 3 detected, but was already down

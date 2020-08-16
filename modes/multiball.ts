@@ -9,14 +9,16 @@ import { Outputs } from '../outputs';
 import { State } from '../state';
 import { wait } from '../timer';
 import { fork } from '../promises';
+import { Player } from './player';
 
 export abstract class Multiball extends Mode<MachineOutputs> {
 
     balls = 1;
 
-    lockPost = false;
+    lockPost? = false;
 
-    constructor(
+    protected constructor(
+        public player: Player,
         ballsOnPf = 1,
     ) {
         super(Modes.Multiball);
@@ -30,9 +32,7 @@ export abstract class Multiball extends Mode<MachineOutputs> {
             miniDiverter: false,
             lockPost: () => this.lockPost,
             shooterDiverter: false,
-        });
-
-        fork(this.start());
+        }, true);
     }
 
     async start() {
@@ -55,7 +55,7 @@ export abstract class Multiball extends Mode<MachineOutputs> {
     async releaseBallsFromLock() {
         this.lockPost = true;
         await wait(1200, 'release locks');
-        this.lockPost = false;
+        this.lockPost = undefined;
     }
 
     firstSwitchHit(): 'remove'|undefined {

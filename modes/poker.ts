@@ -13,6 +13,7 @@ import { wait } from '../timer';
 import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events } from '../events';
+import { fork } from '../promises';
 
 
 export class Poker extends Mode<MachineOutputs> {
@@ -45,7 +46,7 @@ export class Poker extends Mode<MachineOutputs> {
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => machine.lRampShowCards.lit()? true : undefined,
+            rampUp: () => machine.lRampShowCards.lit()? false : undefined,
             lockPost: () => machine.lRampShowCards.lit()? false : undefined,
             lShooterShowCards: () => this.step === 7? [Color.Green] : [],
             lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
