@@ -1,0 +1,11 @@
+Sat Aug 15 2020 20:18:09 GMT-0400 (Eastern Daylight Time)
+02:18.108.600 switch 'shooter lane' state -> true (0,0) at 2682
+02:21.221.799 force state of shooter lane to off
+02:21.222.900 switch 'shooter lane' state -> false (0,0) at 5796
+02:22.769.399 force state of shooter lower to on
+02:22.770.100 switch 'shooter lower' state -> true (0,2) at 7344
+02:23.287.00 switch 'shooter lower' state -> false (0,2) at 7602
+break
+02:25.503.300 force state of right inlane to on
+02:25.504.100 switch 'right inlane' state -> true (5,0) at 10077
+02:25.793.200 switch 'right inlane' state -> false (5,0) at 10367
