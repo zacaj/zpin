@@ -104,11 +104,17 @@ public class SwitchMatrix extends Thread {
 	
 	@Override
     public void run() {
+		long last = 0;
 		while(true) {
 			try {
 				lock();
+//				if (curCol == 0) {
+//					if (last > 0)
+//						System.out.println("scan time = " +  (new Date().getTime() - last));
+//					last = new Date().getTime();
+//				}
 				setCol(curCol);
-				Thread.sleep(0, 500);
+//				Thread.sleep(0, 5);
 				for (int row = 0; row<Height; row++) {
 					boolean on = returns[row].isState(PinState.LOW);
 					Switch sw = switches[row*Width+curCol];
