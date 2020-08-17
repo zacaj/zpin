@@ -630,6 +630,9 @@ const gfxSwitches: { [name: string]: {
     'upper inlane': { x: 4.44375, y: 35.60625 },
     'upper side target': { x: 3.43125, y: 37.29375 },
     'spinner mini': { x: 15.524999999999999, y: 34.14375 },
+    'single standup': { x: 6.4125, y: 28.575 },
+    'side pop mini': { x: 16.425, y: 37.2375 },
+    'upper pop mini': { x: 13.612499999999999, y: 36.95625 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {

@@ -314,7 +314,6 @@ export type CoilOutputs = {
     shooterDiverter: boolean;
     popper: boolean;
     kickerEnable: boolean;
-    temp: number;
     right1: boolean;
     right2: boolean;
     right3: boolean;
@@ -632,7 +631,7 @@ export class Machine extends Tree<MachineOutputs> {
             right4: false,
             right5: false,
             magnetPost: false,
-            temp: () => 0,
+            // temp: () => 0,
             lLowerRamp: [],
             lMiniReady: [Color.Red],
             lShooterShowCards: [],
