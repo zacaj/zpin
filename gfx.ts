@@ -533,6 +533,8 @@ const gfxCoils: { [name: string]: {
     'leftMagnet': { x: 2.475, y: 18.675 },
     'outhole': { x: 8.4375, y: 1.96875 },
     'troughRelease': { x: 17.55, y: 6.243749999999999 },
+    'miniEject': { x: 6.1875, y: 2.3625000000000043 },
+    'upperEject': { x: 5.0625, y: 40.5 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
