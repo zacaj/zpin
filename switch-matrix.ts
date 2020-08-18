@@ -135,23 +135,34 @@ export function resetSwitchMatrix() {
             matrix[j][i] = undefined;
 }
 
+let lastEventCheck = 0;
+let lastRawCheck = 0;
 safeSetInterval(async () => {
     if (!MPU.isConnected) return;
 
     const start = time();
-    while (time() - start < 5) {
-        const resp = await getSwitchEvent();
-        if (!resp || !resp.more || time() - resp.when > 1000/60*2) continue;
-        if (matrix[resp.col][resp.row])
-            matrix[resp.col][resp.row]!.changeState(resp.state, resp.when);
-        else if (resp.state)
-            console.warn('got event for unregistered switch ', resp);
+    const events = await getSwitchEvents();
+    for (const resp of events) {
+        const ago = time() - resp.when;
+        if (ago > (start - lastEventCheck)*2) {
+            Log.info(['switch'], 'ignore switch event %j, %i late', resp, ago - (start - lastEventCheck)*2);
+        }
+        else {
+          if (matrix[resp.col][resp.row])
+               matrix[resp.col][resp.row]!.changeState(resp.state, resp.when);
+          else if (resp.state)
+               console.warn('got event for unregistered switch ', resp);
+        }
     }
+    lastEventCheck = start;
 
-    const newState = await getSwitchState();
-    forRC((r,c,sw) => {
-        sw.state = newState[r][c];
-    });
+    if (time() - lastRawCheck > 1000) {
+        const newState = await getSwitchState();
+        forRC((r,c,sw) => {
+            sw.state = newState[r][c];
+        });
+        lastRawCheck = time();
+    }
 }, 1, 'switch check');
 
 export function forRC(cb: (row: number, column: number, sw: Switch) => void) {
@@ -169,23 +180,24 @@ export function getSwitchByName(name: string): Switch|undefined {
     return undefined;
 }
 
-export async function getSwitchEvent(): Promise<{
+export async function getSwitchEvents(): Promise<{
     row: number;
     col: number;
     when: Time;
     state: boolean;
-    more: boolean;
-}|null> {
+}[]> {
     const resp = await MPU.sendCommandCode('sw'); // row+","+col+"="+state+"@"+when
-    if (resp.resp === 'empty') return null;
-    const [rows, cols, state, when] = split(resp.resp, ',', '=', '@');
-    const [row, col] = nums([rows, cols]);
-    return {
-        row, col,
-        state: state === 'true',
-        when: MPU.adjust(when),
-        more: resp.code === 201,
-    };
+    if (resp.resp === 'empty') return [];
+    const events = resp.resp.split(';');
+    return events.map(line => {
+        const [rows, cols, state, when] = split(line, ',', '->', ' @');
+        const [row, col] = nums([rows, cols]);
+        return {
+            row, col,
+            state: state === 'true',
+            when: MPU.adjust(when),
+        };
+    });
 }
 
 export async function getSwitchState(): Promise<boolean[][]> {
