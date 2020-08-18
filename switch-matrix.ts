@@ -5,6 +5,14 @@ import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
 import { Log } from './log';
 import { machine } from './machine';
+
+export const Standup = [0,50];
+export const DropTarget = [10, 150];
+export const Bumper = [0, 25];
+export const Lane = [1, 10];
+export const Hole = [25, 25];
+export const Drain = [500, 250];
+
 export class Switch {
     _state = false;
     get state() {
@@ -24,15 +32,20 @@ export class Switch {
     }
     lastClosed?: Time;
     lastOpened?: Time;
+    minOnTime!: number;
 
     constructor(
         public readonly row: number,
         public readonly column: number,
         public readonly name = `${row},${column}`,
-        public minOnTime = 1,
+        minOnTime: number[]|number = 1,
         public minOffTime = 1,
     ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
+        if (Array.isArray(minOnTime)) {
+            this.minOnTime = minOnTime[0];
+            this.minOffTime = minOnTime[1];
+        }
 
         const m = matrix;
         assert(!matrix[column][row]);
