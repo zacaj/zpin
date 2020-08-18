@@ -380,13 +380,13 @@ export class Machine extends Tree<MachineOutputs> {
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 7, on => this.sRampDown.state = !on);
-    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 40, 80, 6, Number.POSITIVE_INFINITY, 5000);
+    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 500, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
 
     solenoidBank2 = new Solenoid16(2);
     cUpper2 = new IncreaseSolenoid('upper2', 11, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
-    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 6, undefined, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
+    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 4, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
     cRealRightBank = new IncreaseSolenoid('realRightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.changeState(false, 'fake')));
