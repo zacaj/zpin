@@ -156,8 +156,12 @@ public class JServer extends Thread
 							if (matrix.events.isEmpty())
 								resp("empty");
 							else {
-								SwitchMatrix.Event e = matrix.events.remove();
-								resp(e.toString(), matrix.events.isEmpty()? 200:201);
+								String events = "";
+								while (!matrix.events.isEmpty()) {
+									events += matrix.events.remove().toString();
+									if (!matrix.events.isEmpty()) events += ";";
+								}
+								resp(events, 200);
 							}
 							return true;
 						case "sw-state":
@@ -181,6 +185,7 @@ public class JServer extends Thread
 							int minOffTime = num(4);
 							matrix.switches[row*matrix.Width+col].minOnTime = minOnTime;
 							matrix.switches[row*matrix.Width+col].minOffTime = minOffTime;
+							System.out.println("Configure switch "+row+","+col);
 							ack();
 							return true;
 						case "s":
@@ -189,7 +194,7 @@ public class JServer extends Thread
 							ack();
 							return true;
 						case "time":
-							resp(new Date().getTime());
+							resp(SwitchMatrix.ms());
 							return true;
 						case "end":
 						case "q":

@@ -24,6 +24,8 @@ public class SwitchMatrix extends Thread {
 	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.HIGH); // 11
 	GpioPinDigitalOutput serLatch = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
 	
+	static double startTime = 0;
+	
 	int curCol = 0;
 	final int Width = 16;
 	final int Height = 8;
@@ -31,17 +33,18 @@ public class SwitchMatrix extends Thread {
 	class Switch {
 		boolean state = false;
 		boolean rawState = false;
-		int minOnTime = 1;
-		int minOffTime = 1;
-		long rawLastOnAt = 0;
-		long rawLastOffAt = 0;
+		double minOnTime = 1;
+		double minOffTime = 1;
+		double rawLastOnAt = 0;
+		double rawLastOffAt = 0;
 	}
 	
 	Switch[] switches = new Switch[Width*Height];
 	
 	Queue<Event> events = new ConcurrentLinkedQueue<>();
 	
-	private SwitchMatrix() {		
+	private SwitchMatrix() {	
+		SwitchMatrix.startTime = ms();
 		Pin[] rets = {
 			RaspiPin.GPIO_15,
 			RaspiPin.GPIO_16,
@@ -104,7 +107,7 @@ public class SwitchMatrix extends Thread {
 	
 	@Override
     public void run() {
-		long last = 0;
+		double last = 0;
 		while(true) {
 			try {
 				lock();
@@ -120,20 +123,20 @@ public class SwitchMatrix extends Thread {
 					Switch sw = switches[row*Width+curCol];
 					if (on != sw.rawState) {
 						sw.rawState = on;
-						if (on) sw.rawLastOnAt = new Date().getTime();
-						else sw.rawLastOffAt = new Date().getTime();
-						//System.out.println("raw switch change "+curCol+","+row+"->"+sw.rawState+" @"+new Date().getTime());
-					} else if (sw.rawState != sw.state && ((sw.rawState && new Date().getTime()-sw.rawLastOnAt>sw.minOnTime) || (!sw.rawState && new Date().getTime()-sw.rawLastOffAt>sw.minOffTime))) {
+						if (on) sw.rawLastOnAt = ms();
+						else sw.rawLastOffAt = ms();
+						System.out.println("raw switch change "+row+","+curCol+"->"+sw.rawState+" @"+ms());
+					} else if (sw.rawState != sw.state && ((sw.rawState && ms()-sw.rawLastOnAt>sw.minOnTime) || (!sw.rawState && ms()-sw.rawLastOffAt>sw.minOffTime))) {
 						Event e = new Event();
 						e.col = curCol;
 						e.row = row;
-						e.when = new Date().getTime();
+						e.when = ms();
 						e.state = on;
 						events.add(e);
 						
 						sw.state = sw.rawState;
 						
-						System.out.println("new switch event: "+e);
+						System.out.println("NEW switch event: "+e);
 					}
 				}
 			} catch(Exception e) {
@@ -149,13 +152,17 @@ public class SwitchMatrix extends Thread {
 		}
 	}
 	
+	public static double ms() {
+		return ((double)System.nanoTime()) / 1000000.0 - startTime; 
+	}
+	
 	public static class Event {
 		int row, col;
 		boolean state;
-		long when;
+		double when;
 		
 		public String toString() {
-			return ""+row+","+col+"="+state+"@"+when;
+			return ""+row+","+col+"->"+state+" @"+when;
 		}
 	}
 }
