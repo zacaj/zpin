@@ -1,5 +1,5 @@
 import { Multiball } from './multiball';
-import { queueDisplay, alert } from '../gfx';
+import { alert } from '../gfx';
 import { fork } from '../promises';
 import { DropBank, DropBankCompleteEvent } from '../drop-bank';
 import { Player } from './player';
@@ -10,6 +10,7 @@ import { AnimParams } from 'aminogfx-gl';
 import { onSwitchClose } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color } from '../light';
+import { Priorities, Events } from '../events';
 
 export class StraightMb extends Multiball {
 
@@ -41,16 +42,23 @@ export class StraightMb extends Multiball {
         this.gfx = new StraightMbGfx(this);
     }
 
-    static async start(player: Player): Promise<StraightMb> {
-        const mb = new StraightMb(player);
-        const promise = queueDisplay(mb.gfx!, 3, 'straight mb start');
-        fork(promise).then(async (finish) => {
-            await fork(alert('Straight Multiball!', 3000)[1]);
-            await fork(mb.start());
-            await fork(mb.releaseBallFromTrough());
+    static async start(player: Player): Promise<StraightMb|false> {
+        const finish = await Events.tryPriority(Priorities.StartMb);
+        if (!finish) return false;
+
+        if (!player.curMode) {
+            player.mbsQualified.delete(StraightMb);
+            const mb = new StraightMb(player);
+            player.ball.addChild(mb);
+            await alert('Straight Multiball!', 3000)[1];
+            await mb.start();
+            await mb.releaseBallFromTrough();
             finish();
-        });
-        return mb;
+            return mb;
+        } else {
+            finish();
+            return false;
+        }
     }
 
     firstSwitchHit() {

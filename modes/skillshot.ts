@@ -3,15 +3,16 @@ import { MachineOutputs, machine } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
-import { screen, makeText, alert, queueDisplay, gfx } from '../gfx';
+import { screen, makeText, alert, gfx } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch } from '../switch-matrix';
-import { wrap } from '../util';
+import { wrap, assert } from '../util';
 import { Text } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
 import { time } from '../timer';
-import { Events } from '../events';
+import { Events, Priorities } from '../events';
 import { fork } from '../promises';
+import { Ball } from './ball';
 
 
 export class Skillshot extends Mode<MachineOutputs> {
@@ -88,9 +89,14 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.gfx?.add(new SkillShotGfx(this));
     }
 
-    static async start(player: Player) {
-        const skillshot = new Skillshot(player);
-        skillshot.finishDisplay = await queueDisplay(skillshot.gfx, 3, 'skillshot');
+    static async start(ball: Ball) {
+        const finish = await Events.tryPriority(Priorities.Skillshot);
+        if (!finish) return false;
+
+        const skillshot = new Skillshot(ball.player);
+        skillshot.finishDisplay = finish;
+        assert(!ball.skillshot);
+        ball.addChild(skillshot);
         return skillshot;
     }
 
@@ -117,8 +123,12 @@ export class Skillshot extends Mode<MachineOutputs> {
         if (!this.wasMade) {
             this.made(this.lastSw);
         }
+        return this.end();
+    }
+
+    end() {
         if (this.finishDisplay)
             this.finishDisplay();
-        return this.end();
+        return super.end();
     }
 }

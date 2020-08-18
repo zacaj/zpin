@@ -71,6 +71,8 @@ export abstract class Tree<Outs extends {} = {}> {
     addChild(node: Tree<Outs>, priority = 0): Tree<Outs> {
         if (node.parent)
             node.parent.removeChild(node);
+        if (node.gPriority)
+            assert(this.getRoot().getAndChildren().filter(t => t.gPriority === node.gPriority && t !== node).length === 0);
         const before = clone(node);
         node.parent = this;
         node.lPriority = priority;

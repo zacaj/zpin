@@ -5,14 +5,14 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
-import { screen, queueDisplay, alert } from '../gfx';
+import { screen, alert } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
 import { KnockTarget, ResetMechs as ResetDropBanks } from '../util-modes';
 import { wait } from '../timer';
 import { Color } from '../light';
 import { StraightMb } from './straight.mb';
-import { Events } from '../events';
+import { Events, Priorities } from '../events';
 import { fork } from '../promises';
 
 
@@ -32,6 +32,7 @@ export class Poker extends Mode<MachineOutputs> {
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
     closeShooter = false;
+    finishShow?: any;
 
     constructor(
         public player: Player,
@@ -160,7 +161,8 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     async showCards() {
-        const finish = await queueDisplay(this.gfx!, 1, 'poker winnings');
+        this.step++;
+        this.finishShow = await Events.waitPriority(Priorities.ShowCards);
         Log.info('game', 'showing hand');
         for (let i=0; i<7; i++) {
             if (this.dealerHand[i]?.flipped)
@@ -175,9 +177,14 @@ export class Poker extends Mode<MachineOutputs> {
             this.player.bank += this.pot;
         
         await wait(3000, 'showing cards');
-        finish();
         this.end();
+    }
+
+    end() {
         this.player.poker = undefined;
+        if (this.finishShow)
+            this.finishShow();
+        return super.end();
     }
 
     makeDeck(): Card[] {

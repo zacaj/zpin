@@ -9,7 +9,7 @@ import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
 import { Ball } from './ball';
 import { Tree } from '../tree';
-import { Event, Events } from '../events';
+import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
 import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
@@ -53,9 +53,9 @@ export class Player extends Mode<MachineOutputs> {
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
-            lShooterStartHand: () => this.poker?.step === 7? [Color.White] : [],
-            lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
-            lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) === 7? [Color.White] : [Color.Red]) : [],
+            lShooterStartHand: () => this.poker?.step >= 7? [Color.White] : [],
+            lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
+            lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -100,17 +100,14 @@ export class Player extends Mode<MachineOutputs> {
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);
         this.listen(onAnySwitchClose(machine.sMiniEntry), () => this.miniReady = false);
 
-        this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], async () => {
-            const finish = await fork(Events.waitPriority(2));
-            if (!this.curMode) {
-                this.ball.addChild(await fork(StraightMb.start(this)));
-                this.mbsQualified.delete(StraightMb);
-            }
-            finish();
+        this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
+            fork(StraightMb.start(this));
         });
 
         this.listen(onSwitchClose(machine.sShooterLane), async () => {
-            const finish = await Events.waitPriority(2);
+            const finish = await Events.tryPriority(Priorities.StartPoker);
+            if (!finish) return;
+
             if (!this.curMode) {
                 this.poker = new Poker(this);
                 this.addChild(this.poker);

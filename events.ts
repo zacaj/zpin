@@ -89,28 +89,49 @@ export const Events = {
     resetAll() {
         this.listeners.splice(0, this.listeners.length);
         this.waiting.splice(0, this.waiting.length);
+        this.firing = false;
     },
 
-    waiting: [] as { resolve: (finish: () => void) => void; priority: number, context: string }[],
-    async waitPriority(priority: number): Promise<() => void> {
+    waiting: [] as { resolve: (finish: () => void) => void; priority: Priorities; context: string }[],
+    async waitPriority(priority: Priorities): Promise<() => void> {
+        assert(!this.waiting.find(w => w.priority === priority));
         return new Promise(resolve => {
-            this.waiting.push({resolve, priority, context: getCallerLoc(true)});
+            this.waiting.insert(
+                {resolve, priority, context: getCallerLoc(true)},
+                before => before.priority > priority);
         });
     },
+    async tryPriority(priority: Priorities): Promise<(() => void) | false> {
+        if (this.waiting.find(w => w.priority === priority))
+            return false;
+        return this.waitPriority(priority);
+    },
 
+    firing: false,
     async firePriorities() {
-        const waiting = this.waiting.slice();
-        this.waiting.splice(0, this.waiting.length);
-        waiting.sort((a, b) => a.priority - b.priority);
-        for (const {resolve} of waiting) {
-            await new Promise(r => {
-                resolve(r);
-            });
+        if (this.firing) return;
+        this.firing = true;
+        try {
+            while (true) {
+                const waiter = this.waiting[0];
+                if (!waiter) return;
+                await new Promise(r => {
+                    waiter.resolve(r);
+                });
+                this.waiting.remove(waiter);
+            }
+        } finally {
+            this.firing = false;
         }
-        waiting.slice();
     },
 };
 
+export enum Priorities {
+    ShowCards = 1,
+    StartPoker,
+    StartMb,
+    Skillshot,
+}
 
 export function onType<T extends Event>(type: any): EventTypePredicate<T> {
     return e => e instanceof type;

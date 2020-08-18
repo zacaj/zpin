@@ -4,7 +4,7 @@ import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
 import { Color, colorToHex } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
-import { Events } from './events';
+import { Events, Priorities } from './events';
 import { assert, num, tryNum, getCallerLoc } from './util';
 // import { Game } from './game';
 // import { MPU } from './mpu';
@@ -650,47 +650,6 @@ class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
 export function createGroup(): Group|undefined {
     if (gfx) return gfx.createGroup();
     return undefined;
-}
-
-const pendingDisplays: {
-    name: string;
-    start: () => void;
-    node?: Node;
-}[] = [];
-
-export async function queueDisplay(node: Node|undefined, priority: number, name: string): Promise<() => void> {
-    // if (pendingDisplays.length !== 0) {
-        Log.info('gfx', 'enqueing display %s', name);
-        node?.visible(false);
-    // }
-
-    const done = await Events.waitPriority(priority);
-  
-    return new Promise(resolve => {
-        const cb = () => {
-            const first = pendingDisplays[0] === disp;
-            pendingDisplays.remove(disp);
-            Log.info('gfx', 'display %s completed', name);
-            done();
-            if (first && pendingDisplays.length > 0) {
-                pendingDisplays[0].start();
-                pendingDisplays[0].node?.visible(true);
-            }
-        };
-        const disp = {
-            name,
-            start: () => resolve(cb),
-            node,
-        };
-
-        pendingDisplays.push(disp);
-
-        if (pendingDisplays.length === 1) {
-            node?.visible(true);
-            resolve(cb);
-        }
-
-    });
 }
 
 export async function popup(node: Node, ms = 2000) {
