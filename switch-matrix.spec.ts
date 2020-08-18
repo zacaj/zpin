@@ -18,7 +18,7 @@ describe('switch-matrix', () => {
             }
         };
         expect(obj.out!.treeValues.rampUp).toBe(false);
-        sw.changeState(true);
+        sw.state = true;
         expect(obj.out!.treeValues.rampUp).toBe(true);
     });
 });

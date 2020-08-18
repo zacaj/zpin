@@ -14,13 +14,13 @@ describe('drops', () => {
         expect(bank.out!.treeValues.upper3).toBe(false);
 
         await passTime();
-        machine.upper3Bank.targets[0].switch.changeState(true);
+        machine.upper3Bank.targets[0].switch.state = true;
         expect(bank.out!.treeValues.upper3).toBe(false);
         await passTime();
-        machine.upper3Bank.targets[1].switch.changeState(true);
+        machine.upper3Bank.targets[1].switch.state = true;
         expect(bank.out!.treeValues.upper3).toBe(false);
         await passTime();
-        machine.upper3Bank.targets[2].switch.changeState(true);
+        machine.upper3Bank.targets[2].switch.state = true;
         await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
         await passTime();
@@ -28,16 +28,16 @@ describe('drops', () => {
 
 
         await passTime();
-        machine.upper3Bank.targets[0].switch.changeState(false);
+        machine.upper3Bank.targets[0].switch.state = false;
         expect(bank.out!.treeValues.upper3).toBe(true);
         await passTime();
-        machine.upper3Bank.targets[1].switch.changeState(false);
+        machine.upper3Bank.targets[1].switch.state = false;
         expect(bank.out!.treeValues.upper3).toBe(true);
 
         await passTime(1500);
         expect(cUpper3Fire).toBeCalledTimes(2);
         expect(bank.out!.treeValues.upper3).toBe(true);
-        machine.upper3Bank.targets[2].switch.changeState(false);
+        machine.upper3Bank.targets[2].switch.state = false;
         await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(false);
 
@@ -47,9 +47,9 @@ describe('drops', () => {
         const cUpper3Fire = jest.spyOn(machine.cUpper3, 'fire');
         jest.spyOn(machine.solenoidBank2, 'fireSolenoidFor').mockResolvedValue('');
         await setTime(1);
-        machine.upper3Bank.targets[0].switch.changeState(true);
-        machine.upper3Bank.targets[1].switch.changeState(true);
-        machine.upper3Bank.targets[2].switch.changeState(true);
+        machine.upper3Bank.targets[0].switch.state = true;
+        machine.upper3Bank.targets[1].switch.state = true;
+        machine.upper3Bank.targets[2].switch.state = true;
         await passTime(2);
 
         const bank = new DropBankResetter(machine.upper3Bank);

@@ -1,5 +1,5 @@
 import { MPU } from './mpu';
-import { split, nums, JSONValue, clone, assert, selectiveClone } from './util';
+import { split, nums, JSONValue, clone, assert, selectiveClone, getCallerLoc } from './util';
 import { Event, Events, EventPredicate, EventTypePredicate, onAny } from './events';
 import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
@@ -11,7 +11,7 @@ export class Switch {
         return this._state;
     }
     set state(val: boolean) {
-        this.changeState(val);
+        this.changeState(val, getCallerLoc(true));
     }
     lastChange = 0 as Time;
     get lastOn(): Time|undefined {
@@ -46,9 +46,9 @@ export class Switch {
         }
     }
 
-    changeState(val: boolean, when = time()): SwitchEvent|undefined {
+    changeState(val: boolean, source: string, when = time()): SwitchEvent|undefined {
         if (this._state === val) return undefined;
-        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i) at %i', this.name, val, this.column, this.row, when);
+        Log.info('switch', 'switch \'%s\' state -> %s (%i,%i) at %i via %s', this.name, val, this.column, this.row, when, source);
         this.lastChange = when;
         if (val)
             this.lastClosed = time();
@@ -136,6 +136,7 @@ export function resetSwitchMatrix() {
 }
 
 let lastEventCheck = 0;
+let lastSwitchEvent = 0;
 let lastRawCheck = 0;
 safeSetInterval(async () => {
     if (!MPU.isConnected) return;
@@ -143,13 +144,15 @@ safeSetInterval(async () => {
     const start = time();
     const events = await getSwitchEvents();
     for (const resp of events) {
+        assert(resp.when > lastSwitchEvent);
+        lastEventCheck = resp.when;
         const ago = time() - resp.when;
-        if (ago > (start - lastEventCheck)*2) {
+        if (ago > (start - lastEventCheck)*2 || resp.when < lastRawCheck) {
             Log.info(['switch'], 'ignore switch event %j, %i late', resp, ago - (start - lastEventCheck)*2);
         }
         else {
           if (matrix[resp.col][resp.row])
-               matrix[resp.col][resp.row]!.changeState(resp.state, resp.when);
+               matrix[resp.col][resp.row]!.changeState(resp.state, 'event', resp.when);
           else if (resp.state)
                console.warn('got event for unregistered switch ', resp);
         }
@@ -159,7 +162,7 @@ safeSetInterval(async () => {
     if (time() - lastRawCheck > 1000) {
         const newState = await getSwitchState();
         forRC((r,c,sw) => {
-            sw.state = newState[r][c];
+            assert(sw.state === newState[r][c]);
         });
         lastRawCheck = time();
     }

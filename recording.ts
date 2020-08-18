@@ -21,7 +21,7 @@ export function initRecording(recording: string) {
     const file = fs.readFileSync(curRecording!, 'utf8');
     lines = file.split('\n');
     curTime = 0;
-    curLine = 0;
+    curLine = 1;
 }
 
 export async function playRecording(toPoint?: string) {
@@ -53,7 +53,7 @@ export async function playRecording(toPoint?: string) {
             await passTime(diff);
         curTime = time;
 
-        matrix[parseInt(colS, 10)][parseInt(rowS, 10)]!.state = stateS === 'true';
+        matrix[parseInt(colS, 10)][parseInt(rowS, 10)]!.changeState(stateS === 'true', 'recording '+curRecording);
         await settleForks();
     }
     await settleForks();

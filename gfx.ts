@@ -119,7 +119,7 @@ export async function initGfx() {
                     Log.error(['gfx', 'switch'], 'no active switch at %i, %i', letter, number);
                 else {  
                     Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
-                    sw.changeState(!sw.state);
+                    sw.changeState(!sw.state, 'force');
                 }
             }
             
@@ -391,9 +391,9 @@ class FxSwitch extends Rect {
 
         gfx.on('press', this, (e) => {
             Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
-            sw.changeState(!sw.state);
+            sw.changeState(!sw.state, 'force');
             if (e.button === 1)
-                void wait(250).then(() => sw.changeState(!sw.state));
+                void wait(250).then(() => sw.changeState(!sw.state, 'force'));
         });
     }
 }
