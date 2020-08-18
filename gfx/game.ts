@@ -18,10 +18,10 @@ export class GameGfx extends Group {
         group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-.1));
 
         group.add(this.score.y(-Screen.h/2));
-        game.listen(onChange(game.players[0], 'score'), (e) => this.score.text(e.value!.toFixed(0)));
+        game.watch(onChange(game.players[0], 'score'), () => this.score.text(game.players[0].score.toFixed(0)));
 
         group.add(this.ball.x(Screen.w/2).y(-Screen.h/2));
-        game.listen(onChange(game, 'ballNum'), (e) => this.ball.text('BALL '+e.value!.toFixed(0)));
+        game.watch(onChange(game, 'ballNum'), () => this.ball.text('BALL '+game.ballNum.toFixed(0)));
         this.add(group);
 
     }

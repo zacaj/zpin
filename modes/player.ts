@@ -53,7 +53,7 @@ export class Player extends Mode<MachineOutputs> {
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
-            lShooterStartHand: () => this.poker?.step >= 7? [Color.White] : [],
+            lShooterStartHand: () => (this.poker?.step??-1) >= 7? [Color.White] : [],
             lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),

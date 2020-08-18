@@ -80,7 +80,11 @@ export class KnockTarget extends Tree<MachineOutputs> {
 export class ReleaseBall extends Tree<MachineOutputs> {
     constructor() {
         super();
-        assert(!machine.sShooterLane.state);
+        if (machine.sShooterLane.state) {
+            fork(wait(1).then(() => this.end()));
+            return;
+        }
+        // assert(!machine.sShooterLane.state);
         this.out = new Outputs(this, {
             troughRelease: true,
         });

@@ -8,6 +8,7 @@ import { Player } from './player';
 import { MPU } from '../mpu';
 import { gfx } from '../gfx';
 import { fork } from '../promises';
+import { wait } from '../timer';
 
 export class Ball extends Mode<MachineOutputs> {
     get skillshot(): Skillshot|undefined {
@@ -40,7 +41,7 @@ export class Ball extends Mode<MachineOutputs> {
     }
 
     end() {
-        Events.fire(new BallEnd(this));
+        fork(wait(1).then(() => Events.fire(new BallEnd(this))));
         return super.end();
     }
 }

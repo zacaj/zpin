@@ -7,7 +7,7 @@ import { Log } from './log';
 import { machine } from './machine';
 
 export const Standup = [0,50];
-export const DropTarget = [10, 150];
+export const Drop = [10, 150];
 export const Bumper = [0, 25];
 export const Lane = [1, 10];
 export const Hole = [25, 25];

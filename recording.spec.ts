@@ -17,13 +17,13 @@ describe('recordings', () => {
         initRecording('./recordings/test-1.rec');
         await playRecording();
 
-        expect(shooter).lastCalledWith(true);
+        expect(shooter).lastCalledWith(true, expect.stringContaining('recording'));
         expect(shooter).lastReturnedWith(expect.objectContaining({when: 5701}));
-        expect(right4).lastCalledWith(false);
+        expect(right4).lastCalledWith(false, expect.stringContaining('recording'));
         expect(right4).lastReturnedWith(expect.objectContaining({when: 11996}));
-        expect(right3).lastCalledWith(false);
+        expect(right3).lastCalledWith(false, expect.stringContaining('recording'));
         expect(right3).lastReturnedWith(expect.objectContaining({when: 11063}));
-        expect(right1).lastCalledWith(false);
+        expect(right1).lastCalledWith(false, expect.stringContaining('recording'));
         expect(right1).lastReturnedWith(expect.objectContaining({when: 9894}));
     });
     test('play test', async () => {

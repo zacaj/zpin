@@ -27,7 +27,7 @@ export class Game extends Mode<MachineOutputs> {
     get curPlayer(): Player {
         return this.players[this.playerUp];
     }
-    ballNum = 0;
+    ballNum = 1;
     rightGate = true;
     
     private constructor() {
@@ -68,17 +68,17 @@ export class Game extends Mode<MachineOutputs> {
         const lastPlayer = this.curPlayer;
         this.removeChild(lastPlayer);
         this.playerUp++;
-        if (this.playerUp === this.players.length) {
+        if (this.playerUp >= this.players.length) {
             this.playerUp = 0;
             this.ballNum++;
-            if (this.ballNum > 3) {
-                if (require.main === module) {
-                    debugger;
-                    process.exit(0);
-                }
-                else
-                    this.end();
-            }
+            // if (this.ballNum > 3) {
+            //     if (require.main === module) {
+            //         debugger;
+            //         process.exit(0);
+            //     }
+            //     else
+            //         this.end();
+            // }
         }
         this.addChild(this.curPlayer);
         this.curPlayer.startBall();
