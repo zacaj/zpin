@@ -58,7 +58,7 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
-            leftGate: () => (time()-this.startTime) % 3000 > 1500,
+            // leftGate: () => (time()-this.startTime) % 3000 > 1500,
             upperMagnet: () => machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 5000 && this.lastSw < 2,
         });
         

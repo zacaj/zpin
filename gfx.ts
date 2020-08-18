@@ -532,7 +532,7 @@ const gfxCoils: { [name: string]: {
     'popper': { x: 14.174999999999999, y: 7.481250000000003 },
     'leftMagnet': { x: 2.475, y: 18.675 },
     'outhole': { x: 8.4375, y: 1.96875 },
-    'troughRelease': { x: 17.55, y: 6.243749999999999 },
+    'troughRelease': { x: 16.3125, y: 2.0249999999999986 },
     'miniEject': { x: 6.1875, y: 2.3625000000000043 },
     'upperEject': { x: 5.0625, y: 40.5 },
 };
@@ -601,7 +601,7 @@ const gfxSwitches: { [name: string]: {
     'shooter lower': { x: 19.18125, y: 21.65625 },
     'shooter magnet': { x: 19.18125, y: 33.69375},
     'outhole': { x: 9.5625, y: 3.2062500000000043 },
-    'trough full': { x: 15.1875, y: 4.893750000000004 },
+    'trough full': { x: 13.95, y: 2.700000000000003 },
     'mini left': { x: 2.925, y: 7.818750000000001 },
     'mini center': { x: 3.8812499999999996, y: 7.481250000000003 },
     'mini right': { x: 5.23125, y: 6.918750000000003 },
@@ -633,6 +633,8 @@ const gfxSwitches: { [name: string]: {
     'single standup': { x: 6.4125, y: 28.575 },
     'side pop mini': { x: 16.425, y: 37.2375 },
     'upper pop mini': { x: 13.612499999999999, y: 36.95625 },
+    'left back 2': { x: 1.85625, y: 25.3125 },
+    'left back 1': { x: 1.6875, y: 24.3 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
