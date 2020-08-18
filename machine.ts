@@ -450,7 +450,7 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', Lane);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 50);
     sShooterLower = new Switch(2, 0, 'shooter lower', Lane);
-    sBackLane = new Switch(5, 6, 'back lane', Lane);
+    sBackLane = new Switch(5, 5, 'back lane', Lane);
     sPop = new Switch(4, 7, 'pop', Bumper);
     sUpperInlane = new Switch(7, 1, 'upper inlane', Lane);
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', Standup);
@@ -458,7 +458,7 @@ export class Machine extends Tree<MachineOutputs> {
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
     sUpperLaneLeft = new Switch(6, 5, 'upper lane left', Lane);
     sUpperLaneRight = new Switch(5, 7, 'upper lane right', Lane);
-    sLowerLaneLeft = new Switch(5, 5, 'lower lane left', Lane);
+    sLowerLaneLeft = new Switch(5, 6, 'lower lane left', Lane);
     sLowerLaneRight = new Switch(5, 4, 'lower lane right', Lane);
     sLowerLaneCenter = new Switch(5, 3, 'lower lane center', Lane);
     sRampMade = new Switch(7, 0, 'ramp made', Lane);
