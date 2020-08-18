@@ -376,7 +376,7 @@ export class Machine extends Tree<MachineOutputs> {
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1, 100, 40, 10);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.state = false));
-    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.state = false));
+    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.state = false));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 7, on => this.sRampDown.state = !on);
@@ -464,6 +464,7 @@ export class Machine extends Tree<MachineOutputs> {
     sRampMade = new Switch(7, 0, 'ramp made');
     sPopperButton = new Switch(5, 8, 'popper button');
     sMagnetButton = new Switch(6, 8, 'magnet button');
+    sStartButton = new Switch(0, 8, 'start button');
 
     pfSwitches = [
         this.sLeftInlane,

@@ -91,10 +91,10 @@ export const Events = {
         this.waiting.splice(0, this.waiting.length);
     },
 
-    waiting: [] as { resolve: (finish: () => void) => void; priority: number }[],
+    waiting: [] as { resolve: (finish: () => void) => void; priority: number, context: string }[],
     async waitPriority(priority: number): Promise<() => void> {
         return new Promise(resolve => {
-            this.waiting.push({resolve, priority});
+            this.waiting.push({resolve, priority, context: getCallerLoc(true)});
         });
     },
 
