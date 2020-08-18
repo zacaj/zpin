@@ -153,15 +153,21 @@ public class JServer extends Thread
 		    			switch (parts[0]) {
 						case "sw":
 						case "switch-event":
-							if (matrix.events.isEmpty())
-								resp("empty");
-							else {
-								String events = "";
-								while (!matrix.events.isEmpty()) {
-									events += matrix.events.remove().toString();
-									if (!matrix.events.isEmpty()) events += ";";
+							SwitchMatrix.lock();
+							try {
+								if (matrix.events.isEmpty())
+									resp("empty");
+								else {
+									String events = "";
+									while (!matrix.events.isEmpty()) {
+										events += matrix.events.remove().toString();
+										if (!matrix.events.isEmpty()) events += ";";
+									}
+									resp(events, 200);
 								}
-								resp(events, 200);
+							}
+							finally {
+								SwitchMatrix.unlock();
 							}
 							return true;
 						case "sw-state":
