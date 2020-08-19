@@ -412,9 +412,9 @@ class FxCoil extends Rect {
         const {x,y} = gfxCoils[coil.name];
         this.x(x).y(y);
 
-        this.fill(coil.val? '#ff0000' : '#ffffff');
+        this.fill(machine.out!.treeValues[coil.name]? '#ff0000' : '#ffffff');
         Events.listen(() => {
-            this.fill(coil.val? '#ff0000' : '#fffff');
+            this.fill(machine.out!.treeValues[coil.name]? '#ff0000' : '#fffff');
         }, machine.out!.onOutputChange(coil.name));
     }
 }
