@@ -55,12 +55,14 @@ export class Timer {
 
     static curTime = time();
 
-    static async fireTimers(before = time()) {
+    static async fireTimers(before = time(), updateMock = false) {
         while (true) {
             const entry = Timer.queue[0];
             if (entry && entry.time <= before) {
                 Timer.cancel(entry);
                 try {
+                    if (updateMock)
+                        Timer.mockTime = entry.time;
                     await entry.func(entry);
                     await settleForks();
                 } catch (err) {
@@ -75,6 +77,9 @@ export class Timer {
                 break;
             }
         }
+        
+        if (updateMock)
+            Timer.mockTime = before;
     }
 
     static reset() {
@@ -122,7 +127,7 @@ export async function setTime(ms?: number) {
         assert(Math.abs(newNewTime - lastTime) < 2);
         Log.log('console', 'adjusted time to %i', newNewTime);
     }
-    await Timer.fireTimers(newTime);
+    await Timer.fireTimers(newTime, !!ms);
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));
     if (Timer.mockTime !== undefined)
         await settleForks();
