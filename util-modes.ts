@@ -63,7 +63,7 @@ export class KnockTarget extends Tree<MachineOutputs> {
             assert(!machine.rightBank.targets[i].state);
         if (i === undefined) {
             Log.info('game', 'no target to knock down');
-            this.end();
+            fork(wait(1).then(() => this.end()));
             return;
         }
 
@@ -86,7 +86,7 @@ export class ReleaseBall extends Tree<MachineOutputs> {
         }
         // assert(!machine.sShooterLane.state);
         this.out = new Outputs(this, {
-            troughRelease: true,
+            troughRelease: !machine.sShooterLane.state,
         });
         this.listen(onSwitchClose(machine.sShooterLane), 'end');
     }

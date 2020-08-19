@@ -370,7 +370,7 @@ export type ImageOutputs = {
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => this.sOuthole.changeState(false, 'fake'));
-    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 1000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
+    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
@@ -379,14 +379,14 @@ export class Machine extends Tree<MachineOutputs> {
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
-    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 7, on => this.sRampDown.state = !on);
-    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 500, 5000);
+    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 9, on => this.sRampDown.state = !on);
+    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
 
     solenoidBank2 = new Solenoid16(2);
     cUpper2 = new IncreaseSolenoid('upper2', 11, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
     cUpper3 = new IncreaseSolenoid('upper3', 10, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
-    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 6, 10, 4, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
+    cUpperEject = new IncreaseSolenoid('upperEject', 9, this.solenoidBank2, 7, 15, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
     cLeftGate = new OnOffSolenoid('leftGate', 6, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 7, this.solenoidBank2);
     cRealRightBank = new IncreaseSolenoid('realRightBank', 12, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.changeState(false, 'fake')));

@@ -45,7 +45,8 @@ export class Switch {
         if (Array.isArray(minOnTime)) {
             this.minOnTime = minOnTime[0];
             this.minOffTime = minOnTime[1];
-        }
+        } else
+            this.minOnTime = minOnTime;
 
         const m = matrix;
         assert(!matrix[column][row]);
@@ -148,17 +149,17 @@ export function resetSwitchMatrix() {
             matrix[j][i] = undefined;
 }
 
-let lastEventCheck = 0;
-let lastSwitchEvent = 0;
-let lastRawCheck = 0;
+let lastEventCheck = Number.NEGATIVE_INFINITY;
+let lastSwitchEvent = Number.NEGATIVE_INFINITY;
+let lastRawCheck = Number.NEGATIVE_INFINITY;
 safeSetInterval(async () => {
     if (!MPU.isConnected) return;
 
     const start = time();
     const events = await getSwitchEvents();
     for (const resp of events) {
-        assert(resp.when > lastSwitchEvent);
-        lastEventCheck = resp.when;
+        assert(resp.when >= lastSwitchEvent);
+        lastSwitchEvent = resp.when;
         const ago = time() - resp.when;
         if (ago > (start - lastEventCheck)*2 || resp.when < lastRawCheck) {
             Log.info(['switch'], 'ignore switch event %j, %i late', resp, ago - (start - lastEventCheck)*2);
@@ -175,7 +176,8 @@ safeSetInterval(async () => {
     if (time() - lastRawCheck > 1000) {
         const newState = await getSwitchState();
         forRC((r,c,sw) => {
-            assert(sw.state === newState[r][c]);
+            // assert(sw.state === newState[r][c]);
+            sw.changeState(newState[r][c], 'sweep');
         });
         lastRawCheck = time();
     }
