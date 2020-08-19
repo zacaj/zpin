@@ -39,7 +39,7 @@ export class StraightMb extends Multiball {
 
         this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => e.bank === this.curBank], () => this.curBank = undefined);
 
-        this.gfx = new StraightMbGfx(this);
+        this.gfx?.add(new StraightMbGfx(this));
     }
 
     static async start(player: Player): Promise<StraightMb|false> {
