@@ -5,7 +5,7 @@ import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
 import { Color, light } from '../light';
-import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
+import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
 import { Ball } from './ball';
 import { Tree } from '../tree';
@@ -16,6 +16,8 @@ import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import seedrandom = require('seedrandom');
 import { fork } from '../promises';
+import { PlayerGfx } from '../gfx/player';
+import { ClearHoles } from '../util-modes';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -41,13 +43,14 @@ export class Player extends Mode<MachineOutputs> {
     mbsQualified = new Set<(typeof Multiball)>();
 
     rand!: seedrandom.prng;
+    closeShooter = false;
 
     constructor(
         public game: Game,
         seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker']);
+        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
@@ -62,6 +65,8 @@ export class Player extends Mode<MachineOutputs> {
             lPower4: () => light(this.chips>=4, Color.Orange),
         });
         this.rand = seedrandom(seed);
+        
+        this.addChild(new ClearHoles(), -1);
 
         this.listen(
             [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],
@@ -96,6 +101,13 @@ export class Player extends Mode<MachineOutputs> {
             if (this.chips === 0) return;
             this.chips--;
         });
+
+        
+
+        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.closeShooter = true);
+        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
+
+
         
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);
         this.listen(onAnySwitchClose(machine.sMiniEntry), () => this.miniReady = false);
@@ -120,6 +132,10 @@ export class Player extends Mode<MachineOutputs> {
         this.addChild(this.poker);
 
         this.addChild(new Spinner(this));
+
+        this.addChild(new PlayerOverrides(this));
+
+        this.gfx?.add(new PlayerGfx(this));
     }
     
     startBall() {
@@ -208,4 +224,13 @@ class Spinner extends Tree<MachineOutputs> {
 }
 export class SpinnerHit extends Event {
     
+}
+
+class PlayerOverrides extends Mode<MachineOutputs> {
+    constructor(public player: Player) {
+        super(Modes.PlayerOverrides);
+        this.out = new Outputs(this, {
+            shooterDiverter: () => player.closeShooter? false : undefined,
+        });
+    }
 }

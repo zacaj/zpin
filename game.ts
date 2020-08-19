@@ -20,7 +20,6 @@ import { Tree } from './tree';
 
 export class Game extends Mode<MachineOutputs> {
 
-    closeShooter = false;
 
     players = [new Player(this)];
     playerUp = 0;
@@ -28,35 +27,26 @@ export class Game extends Mode<MachineOutputs> {
         return this.players[this.playerUp];
     }
     ballNum = 1;
-    rightGate = true;
     
     private constructor() {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
-        State.declare<Game>(this, ['closeShooter', 'ballNum']);
+        State.declare<Game>(this, ['ballNum']);
 
         this.out = new Outputs(this, {
             kickerEnable: true,
-            rightGate: () => this.rightGate,
             magnetPost: () => machine.sShooterUpper.wasClosedWithin(500) && !machine.sShooterLower.wasClosedWithin(750),
             upperMagnet: () => machine.sShooterUpper.wasClosedWithin(5000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
         this.gfx?.add(new GameGfx(this));
 
-
-        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.closeShooter = true);
-        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
-
-
         
 
-        this.listen(onSwitchClose(machine.sLeftInlane),
-            () => this.addChild(new KnockTarget()));
+        // this.listen(onSwitchClose(machine.sLeftInlane),
+        //     () => this.addChild(new KnockTarget()));
 
 
-        this.addChild(new ClearHoles(), -1);
-        this.addChild(new GameOverrides(this));
 
         this.playerUp = 0;
         this.ballNum = 1;
@@ -124,13 +114,4 @@ fork(initMachine(true, true, true)).then(() => {
     //     setTimeout(() => process.exit(0), 500);
     // }, 200, '');
 });
-}
-
-class GameOverrides extends Mode<MachineOutputs> {
-    constructor(public game: Game) {
-        super(Modes.GameOverrides);
-        this.out = new Outputs(this, {
-            shooterDiverter: () => game.closeShooter? false : undefined,
-        });
-    }
 }

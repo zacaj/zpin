@@ -22,7 +22,7 @@ export enum Modes {
 
     Skillshot,
 
-    GameOverrides,
+    PlayerOverrides,
     MachineOverrides,
 }
 

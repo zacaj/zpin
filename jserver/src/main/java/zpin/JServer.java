@@ -153,7 +153,7 @@ public class JServer extends Thread
 		    			switch (parts[0]) {
 						case "sw":
 						case "switch-event":
-							SwitchMatrix.lock();
+//							SwitchMatrix.lock();
 							try {
 								if (matrix.events.isEmpty())
 									resp("empty");
@@ -167,7 +167,7 @@ public class JServer extends Thread
 								}
 							}
 							finally {
-								SwitchMatrix.unlock();
+//								SwitchMatrix.unlock();
 							}
 							return true;
 						case "sw-state":
