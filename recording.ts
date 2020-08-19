@@ -1,7 +1,7 @@
 import { Log } from './log';
 import { Timer, passTime, setTime, time } from './timer';
 import * as fs from 'fs';
-import { split, assert } from './util';
+import { split, assert, debugging } from './util';
 import { matrix } from './switch-matrix';
 import { settleForks } from './promises';
 import { MPU } from './mpu';
@@ -30,16 +30,17 @@ export async function playRecording(toPoint?: string) {
     const _machine = machine;
     for (; curLine < lines.length; curLine++) {
         const line = lines[curLine];
+        if (line.startsWith('#')) continue;
         if (line && !line.includes(' ')) {
             const bp = line;
-            if (process.env.NODE_ENV === 'test') {
+            if (bp === 'debug' && debugging()) {
+                const nextLine = lines[curLine+1];
+                debugger;
+            } else if (process.env.NODE_ENV === 'test') {
                 assert(bp === toPoint, `expected breakpoint ${toPoint} but got '${bp}'`);
                 curLine++;
                 await settleForks();
                 return;
-            } else if (bp === 'debug') {
-                const nextLine = lines[curLine+1];
-                debugger;
             }
             continue;
         }

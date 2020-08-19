@@ -157,6 +157,8 @@ export class Outputs<Outs extends {}> {
         return values.last()?.[0];
     }
 
+    Outputs = Outputs;
+
     updateTreeValue(key: keyof Outs) {
         const oldValue = this.treeValues[key];
         this.treeValues[key] = Outputs.computeTreeValue(this.tree, key)!;

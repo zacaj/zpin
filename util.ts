@@ -173,8 +173,10 @@ export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {
 
 export function assert(cond: any, message = 'assertion failed') {
     if (!cond) {
+        let throwError = false;
+        throwError = !debugging();
         debugger;
-        throw new Error(message);
+        if (throwError) throw new Error(message);
     }
 }
 
@@ -254,4 +256,10 @@ export function objectMap<TValue, TResult>(
 
 export function isPromise(promise?: any): boolean {
     return !!promise?.then;
+}
+
+export function debugging(): boolean {
+    const argv = process.execArgv.join();
+    const isDebug = argv.includes('inspect') || argv.includes('debug');
+    return isDebug;
 }
