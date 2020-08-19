@@ -1,0 +1,29 @@
+Tue Aug 18 2020 20:44:23 GMT-0400 (Eastern Daylight Time)
+28:28.465.600 start mode MachineOverrides
+28:30.150.00 start mode Game
+28:30.167.00 start mode Player
+28:30.430.00 start mode Poker
+28:30.186.700 start mode GameOverrides
+28:30.190.400 start mode Ball
+28:30.452.000 switch 'shooter lane' state -> true (0,0) at 2900 via fake
+28:30.480.700 start mode Skillshot
+28:37.552.000 force state of right 1 to on
+28:37.553.000 switch 'right 1' state -> true (5,2) at 10001 via force
+28:37.581.200 drop switch right 1 down
+28:39.696.00 force state of right 2 to on
+28:39.705.00 switch 'right 2' state -> true (4,2) at 11518 via force
+28:39.821.00 drop switch right 2 down
+28:40.531.00 force state of center right to on
+28:40.540.00 switch 'center right' state -> true (1,4) at 12501 via force
+28:40.648.00 drop switch center right down
+28:40.837.600 force state of center left to on
+28:40.838.100 switch 'center left' state -> true (3,4) at 13286 via force
+28:40.851.600 drop switch center left down
+28:44.509.300 force state of upper 3 right to on
+28:44.510.200 switch 'upper 3 right' state -> true (0,5) at 16958 via force
+28:44.571.000 drop switch upper 3 right down
+28:44.674.000 switch 'right 3' state -> true (3,2) at 17122 via fake
+28:44.676.100 drop switch right 3 detected, but was already down
+28:46.944.100 force state of upper eject to on
+#debug
+28:46.945.500 switch 'upper eject' state -> true (6,7) at 19393 via force

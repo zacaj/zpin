@@ -49,9 +49,10 @@ export class Poker extends Mode<MachineOutputs> {
             ...outs,
             rampUp: () => machine.lRampShowCards.lit()? false : undefined,
             lockPost: () => machine.lRampShowCards.lit()? false : undefined,
-            lShooterShowCards: () => this.step === 7? [Color.Green] : [],
-            lEjectShowCards: () => this.step === 7 && player.modesQualified.size>0? [Color.Green] : [],
-            lRampShowCards: () => this.step === 7 && player.mbsQualified.size>0? [Color.Green] : [],
+            upperEject: () => machine.lEjectShowCards.lit()? false : undefined,
+            lShooterShowCards: () => this.step >= 7? [Color.Green] : [],
+            lEjectShowCards: () => this.step >= 7 && player.modesQualified.size>0? [Color.Green] : [],
+            lRampShowCards: () => this.step >= 7 && player.mbsQualified.size>0? [Color.Green] : [],
             shooterDiverter: () => !this.closeShooter,
         });
 

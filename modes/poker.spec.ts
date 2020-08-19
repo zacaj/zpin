@@ -50,4 +50,11 @@ describe('poker', () => {
         await passTime(5000);
         expect(machine.cShooterDiverter.val).toBe(true);
     });
+
+    test('dont eject during cards', async () => {
+        await testRecording('upperEjectBlock');
+        await passTime(1000);
+        expect(machine.cUpperEject.val).toBe(false);
+        expect(machine.cUpperEject.lastActualChange).toBe(undefined);
+    });
 });

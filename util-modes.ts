@@ -18,9 +18,9 @@ export class ClearHoles extends Tree<MachineOutputs> {
 
         this.out = new Outputs(this, {
             // shooterDiverter: false,
-            outhole: () => machine.sOuthole.onFor(500),
-            upperEject: () => machine.sUpperEject.onFor(500),
-            miniEject: () => machine.sMiniOut.onFor(500),
+            outhole: () => machine.sOuthole.state,
+            upperEject: () => machine.sUpperEject.state,
+            miniEject: () => machine.sMiniOut.state,
         });
     }
 }
