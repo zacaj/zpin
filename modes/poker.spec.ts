@@ -46,6 +46,7 @@ describe('poker', () => {
         await testRecording('close gate during deal', 'break');
         expect(machine.cShooterDiverter.val).toBe(true);
         await finishRecording();
+        await passTime(10);
         expect(machine.cShooterDiverter.val).toBe(false);
         await passTime(5000);
         expect(machine.cShooterDiverter.val).toBe(true);

@@ -22,24 +22,41 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     actual!: T;
     timer?: TimerQueueEntry;
     lastActualChange?: Time;
+    lastValChange?: Time;
+    lastPendingChange?: Time;
+    pending!: T;
+    changeAttempts = 0;
+    pendingChangeAttempt = -1;
 
     constructor(
         public val: T,
         public name: keyof Outs,
+        public debounce = 5,
     ) {
         State.declare<MachineOutput<T, Outs>>(this, ['val', 'actual', 'lastActualChange']);
 
         this.actual = val;
+        this.pending = val;
         Events.listen<TreeOutputEvent<any>>(ev => {
-            this.val = ev.value;
-            fork(this.trySet(), `try set ${this.name} to ${this.val}`);
+            this.changeAttempts++;
+            this.pendingChangeAttempt = this.changeAttempts;
+            this.lastPendingChange = time();
+            this.pending = ev.value;
+            Timer.callIn(() => this.settle(), this.debounce, `try set ${this.name} to ${this.pending}`);
         }, 
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
+    }
 
+    settle() {
+        if (this.pendingChangeAttempt !== this.changeAttempts)
+            return undefined;
+        this.val = this.pending;
+        this.lastValChange = time();
+        Log.trace('machine', 'output %s settled on ', this.name, this.val);
+        return fork(this.trySet());
     }
 
     trySet(): Promise<void>|void {
-        // if (val === this.val) return;
         this.stopRetry();
         if (eq(this.val, this.actual)) {
             return undefined;

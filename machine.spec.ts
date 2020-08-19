@@ -105,33 +105,54 @@ describe('machine', () => {
         };
         machine.addChild(child);
 
+        // check that diverter works by itself
         expect(machine.cShooterDiverter.val).toBe(false);
         child.shooterDiverter = true;
-        expect(machine.cShooterDiverter.val).toBe(true);
+        expect(machine.cShooterDiverter.pending).toBe(true);
+        expect(machine.cShooterDiverter.actual).toBe(false);
+        await passTime(10);
+        expect(machine.cShooterDiverter.actual).toBe(true);
+
         child.shooterDiverter = false;
-        await settleForks();
-        expect(machine.cShooterDiverter.val).toBe(false);
-        expect(machine.cShooterDiverter.lastActualChange).toBe(1);
+        expect(machine.cShooterDiverter.pending).toBe(false);
+        await passTime(10);
+        expect(machine.cShooterDiverter.actual).toBe(false);
+        expect(machine.cShooterDiverter.lastPendingChange).toBe(11);
+        expect(machine.cShooterDiverter.lastActualChange).toBe(16);
         await passTime(507);
 
-        expect(machine.cRealRightBank.val).toBe(false);
+        // test that right bank works by itself
+        expect(machine.cRealRightBank.pending).toBe(false);
         child.rightBank = true;
-        expect(machine.cRealRightBank.val).toBe(true);
+        expect(machine.cRealRightBank.pending).toBe(true);
         child.rightBank = false;
-        expect(machine.cRealRightBank.val).toBe(false);
+        expect(machine.cRealRightBank.pending).toBe(false);
 
+        // test that right bank is blocked until diverter temp-closes
         child.shooterDiverter = true;
-        expect(machine.cShooterDiverter.val).toBe(true);
-        child.rightBank = true;
-        await settleForks();
+        expect(machine.cShooterDiverter.pending).toBe(true);
+        await passTime(10);
+        expect(machine.cShooterDiverter.actual).toBe(true);
+        // shooter on
+
+        child.rightBank = true; // should turn shooter off 
+        await passTime(10);
         expect(machine.cRealRightBank.val).toBe(false);
         expect(machine.cShooterDiverter.val).toBe(false);
-        await passTime(507);
+        // now wait 500 for shooter to actualy move
+        // then activate real bank
+        await passTime(500);
+        expect(machine.cRealRightBank.pending).toBe(true);
+        await passTime(10);
         expect(machine.cRealRightBank.val).toBe(true);
         expect(machine.cShooterDiverter.val).toBe(false);
+
+        await passTime(1000);        
         child.rightBank = false;
-        expect(machine.cRealRightBank.val).toBe(false);
-        expect(machine.cShooterDiverter.val).toBe(true);
+        await passTime(10);
+        // bank reset, now shooter can move back 
+        expect(machine.cRealRightBank.pending).toBe(false);
+        expect(machine.cShooterDiverter.pending).toBe(true);
     });
 
     // test('eos pulse', async () => {

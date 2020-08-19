@@ -1,0 +1,535 @@
+Mon Aug 17 2020 21:22:53 GMT-0400 (Eastern Daylight Time)
+15:09.869.968 start mode MachineOverrides
+15:10.919.162 ignore switch event {"row":4,"col":1,"state":true,"when":-20757}, 13817 late
+15:10.925.781 ignore switch event {"row":4,"col":2,"state":true,"when":-20755}, 13821 late
+15:10.929.400 ignore switch event {"row":4,"col":3,"state":true,"when":-20753}, 13824 late
+15:10.934.209 ignore switch event {"row":1,"col":6,"state":true,"when":-7039}, 114 late
+15:10.967.506 switch 'left 1' state -> true (1,3) at -6267
+15:10.980.870 drop switch left 1 down
+15:10.998.172 switch 'right 4' state -> true (2,2) at -5623
+15:11.969.8 drop switch right 4 down
+15:11.252.78 switch 'right 4' state -> false (2,2) at -5617
+15:11.459.96 switch 'right 4' state -> true (2,2) at -5611
+15:11.559.43 drop switch right 4 detected, but was already down
+15:11.705.90 switch 'upper 3 right' state -> true (0,5) at -4769
+15:11.814.17 drop switch upper 3 right down
+15:11.966.71 switch 'upper 2 right' state -> true (3,6) at -4395
+15:11.107.001 drop switch upper 2 right down
+15:11.138.480 switch 'mini center' state -> true (6,1) at 8454
+15:11.152.001 drop switch mini center down
+15:11.166.772 switch 'center right' state -> true (1,4) at 8482
+15:11.179.089 drop switch center right down
+15:11.187.793 switch 'center center' state -> true (2,4) at 8502
+15:11.200.672 drop switch center center down
+15:11.206.282 switch 'center left' state -> true (3,4) at 8522
+15:11.218.073 drop switch center left down
+15:11.224.050 drop bank centerBank complete
+15:11.231.021 switch 'ramp down' state -> true (4,7) at 8547
+15:11.900.160 set outhole settle to 500/500
+15:11.933.275 set mini left settle to 5/250
+15:11.961.237 set mini center settle to 5/250
+15:11.980.194 set mini right settle to 5/250
+15:11.999.685 set center left settle to 5/250
+15:12.272.61 set center center settle to 5/250
+15:12.470.95 set center right settle to 5/250
+15:12.747.74 set left 1 settle to 5/250
+15:12.948.69 set left 2 settle to 5/250
+15:12.120.961 set left 3 settle to 5/250
+15:12.146.512 set left 4 settle to 5/250
+15:12.166.093 set right 1 settle to 5/250
+15:12.190.290 set right 2 settle to 5/250
+15:12.219.954 set right 3 settle to 5/250
+15:12.249.066 set right 4 settle to 5/250
+15:12.274.873 set right 5 settle to 5/250
+15:12.300.958 set upper 3 left settle to 5/250
+15:12.328.732 set upper 3 center settle to 5/250
+15:12.347.513 set upper 3 right settle to 5/250
+15:12.374.456 set upper 2 left settle to 5/250
+15:12.395.197 set upper 2 right settle to 5/250
+15:12.425.279 set center left settle to 5/250
+15:19.982.883 start mode Game
+15:19.992.478 start mode Player
+15:20.311.555 start mode Poker
+15:21.351.584 start mode GameOverrides
+15:21.387.345 start mode Ball
+15:22.522.052 switch 'ramp down' state -> false (4,7) at 19838
+15:22.696.652 switch 'upper 3 right' state -> false (0,5) at 19703
+15:22.718.592 drop bank upper3 reset successfully
+15:22.911.365 switch 'left 1' state -> false (1,3) at 20181
+15:22.929.788 drop bank leftBank reset successfully
+15:23.752.11 switch 'upper 2 right' state -> false (3,6) at 20345
+15:23.946.37 drop bank upper2 reset successfully
+15:23.275.589 switch 'mini center' state -> false (6,1) at 20539
+15:23.292.377 drop bank miniBank reset successfully
+15:23.453.722 switch 'right 4' state -> false (2,2) at 20728
+15:23.532.839 drop bank rightBank reset successfully
+15:23.979.071 switch 'center center' state -> false (2,4) at 21238
+15:23.993.866 ignore switch event {"row":4,"col":1,"state":false,"when":21245}, 8 late
+15:23.997.160 ignore switch event {"row":4,"col":3,"state":false,"when":21250}, 7 late
+15:24.623.955 switch 'center right' state -> false (1,4) at 21938
+15:24.639.072 switch 'center left' state -> false (3,4) at 21955
+15:24.655.814 drop bank centerBank reset successfully
+15:32.694.522 switch 'shooter lane' state -> true (0,0) at 29978
+15:32.734.947 start mode Skillshot
+15:33.225.561 switch 'shooter lane' state -> false (0,0) at 30006
+15:33.254.150 switch 'shooter lane' state -> true (0,0) at 30099
+15:33.271.179 start mode Skillshot
+15:37.160.73 switch 'left outlane' state -> true (1,1) at 34293
+15:37.378.835 switch 'left outlane' state -> false (1,1) at 34438
+15:41.980.537 switch 'left inlane' state -> true (2,1) at 39264
+15:42.283.338 switch 'right 1' state -> true (5,2) at 39549
+15:42.305.081 drop switch right 1 detected, but was already down
+15:42.358.049 switch 'left inlane' state -> false (2,1) at 39586
+15:47.155.682 switch 'left inlane' state -> true (2,1) at 44424
+15:47.306.820 switch 'right 2' state -> true (4,2) at 44572
+15:47.318.441 drop switch right 2 detected, but was already down
+15:47.333.522 ignore switch event {"row":1,"col":2,"state":false,"when":44582}, 7 late
+15:47.679.156 switch 'left inlane' state -> false (2,1) at 44995
+15:48.536.208 switch 'left inlane' state -> true (2,1) at 45811
+15:48.665.180 switch 'left inlane' state -> false (2,1) at 45939
+15:48.711.588 switch 'right 3' state -> true (3,2) at 45954
+15:48.724.051 drop switch right 3 detected, but was already down
+15:50.971.181 switch 'left inlane' state -> true (2,1) at 48250
+15:51.162.582 switch 'right 4' state -> true (2,2) at 48418
+15:51.176.971 drop switch right 4 detected, but was already down
+15:51.225.558 switch 'left inlane' state -> false (2,1) at 48450
+15:52.613.648 switch 'left inlane' state -> true (2,1) at 49892
+15:52.772.230 switch 'right 5' state -> true (1,2) at 50051
+15:52.786.511 drop switch right 5 detected, but was already down
+15:52.846.230 switch 'left inlane' state -> false (2,1) at 50061
+15:53.883.922 switch 'right 5' state -> false (1,2) at 51158
+15:53.897.683 ignore switch event {"row":2,"col":5,"state":false,"when":51161}, 4 late
+15:53.902.557 ignore switch event {"row":2,"col":4,"state":false,"when":51166}, 3 late
+15:53.907.771 ignore switch event {"row":2,"col":2,"state":false,"when":51168}, 6 late
+15:53.925.787 switch 'right 4' state -> false (2,2) at 51241
+15:53.940.638 switch 'right 3' state -> false (3,2) at 51256
+15:53.957.002 switch 'right 2' state -> false (4,2) at 51273
+15:53.975.461 switch 'right 1' state -> false (5,2) at 51291
+15:54.473.56 drop bank rightBank reset successfully
+16:25.827.848 switch 'center right' state -> true (1,4) at 83100
+16:25.873.234 drop switch center right down
+16:26.404.942 switch 'center center' state -> true (2,4) at 83671
+16:26.525.948 drop switch center center down
+16:26.851.558 switch 'center left' state -> true (3,4) at 84134
+16:26.893.617 drop switch center left down
+16:26.979.512 drop bank centerBank complete
+16:28.538.953 switch 'center center' state -> false (2,4) at 85796
+16:28.555.942 ignore switch event {"row":4,"col":1,"state":false,"when":85810}, 9 late
+16:28.560.230 ignore switch event {"row":4,"col":3,"state":false,"when":85812}, 12 late
+16:28.831.011 switch 'center right' state -> false (1,4) at 86147
+16:28.851.523 switch 'center left' state -> false (3,4) at 86166
+16:28.867.433 drop bank centerBank reset successfully
+16:52.912.387 ignore switch event {"row":5,"col":8,"state":true,"when":110198}, 1 late
+16:54.458.144 switch 'popper button' state -> true (8,5) at 111742
+16:54.551.881 switch 'shooter lane' state -> false (0,0) at 111824
+16:54.737.728 switch 'popper button' state -> false (8,5) at 112004
+16:54.776.390 switch 'shooter lane' state -> true (0,0) at 112024
+16:54.792.652 start mode Skillshot
+16:58.507.957 switch 'shooter lane' state -> false (0,0) at 115789
+16:59.727.706 switch 'right inlane' state -> true (5,0) at 116990
+17:00.144.55 switch 'right inlane' state -> false (5,0) at 117291
+17:00.561.10 switch 'right inlane' state -> true (5,0) at 117306
+17:00.817.89 switch 'right inlane' state -> false (5,0) at 117321
+17:02.856.079 switch 'popper button' state -> true (8,5) at 120139
+17:03.241.161 switch 'popper button' state -> false (8,5) at 120521
+17:03.709.503 switch 'popper button' state -> true (8,5) at 120978
+17:03.995.935 switch 'popper button' state -> false (8,5) at 121210
+17:05.364.556 switch 'ramp mini' state -> true (7,3) at 122635
+17:05.641.228 switch 'ramp mini' state -> false (7,3) at 122902
+17:05.818.910 switch 'ramp mini' state -> true (7,3) at 123091
+17:06.450.00 switch 'ramp mini' state -> false (7,3) at 123306
+17:06.508.283 switch 'popper button' state -> true (8,5) at 123777
+17:06.739.498 switch 'popper button' state -> false (8,5) at 124019
+17:07.794.571 switch 'popper button' state -> true (8,5) at 125073
+17:07.993.388 switch 'popper button' state -> false (8,5) at 125268
+17:08.283.099 switch 'popper button' state -> true (8,5) at 125561
+17:08.437.552 switch 'popper button' state -> false (8,5) at 125721
+17:09.177.444 switch 'popper button' state -> true (8,5) at 126457
+17:09.278.133 switch 'popper button' state -> false (8,5) at 126554
+17:09.785.935 switch 'popper button' state -> true (8,5) at 127064
+17:09.889.769 switch 'popper button' state -> false (8,5) at 127162
+17:11.439.588 switch 'ramp mini' state -> true (7,3) at 128720
+17:11.505.725 switch 'ramp mini' state -> false (7,3) at 128731
+17:11.530.062 switch 'ramp mini' state -> true (7,3) at 128788
+17:11.882.467 switch 'ramp mini' state -> false (7,3) at 129141
+17:11.925.951 switch 'ramp mini' state -> true (7,3) at 129180
+17:12.650.29 switch 'ramp mini' state -> false (7,3) at 129350
+17:12.124.020 switch 'ramp mini' state -> true (7,3) at 129407
+17:12.296.530 switch 'ramp mini' state -> false (7,3) at 129564
+17:12.362.260 switch 'ramp mini' state -> true (7,3) at 129638
+17:12.472.995 switch 'ramp mini' state -> false (7,3) at 129743
+17:12.685.322 switch 'popper button' state -> true (8,5) at 129968
+17:12.797.518 switch 'popper button' state -> false (8,5) at 130070
+17:13.509.191 switch 'popper button' state -> true (8,5) at 130779
+17:13.635.392 switch 'popper button' state -> false (8,5) at 130914
+17:15.159.604 switch 'ramp mini' state -> true (7,3) at 132432
+17:15.339.735 switch 'ramp mini' state -> false (7,3) at 132614
+17:15.419.457 switch 'ramp mini' state -> true (7,3) at 132702
+17:15.541.539 switch 'ramp mini' state -> false (7,3) at 132819
+17:15.879.351 switch 'ramp mini' state -> true (7,3) at 133155
+17:16.397.41 switch 'ramp mini' state -> false (7,3) at 133308
+17:16.205.090 switch 'ramp mini' state -> true (7,3) at 133472
+17:16.411.731 switch 'ramp mini' state -> false (7,3) at 133687
+17:17.265.592 switch 'popper button' state -> true (8,5) at 134539
+17:17.380.746 switch 'popper button' state -> false (8,5) at 134656
+17:18.803.788 switch 'popper button' state -> true (8,5) at 136072
+17:18.975.765 switch 'popper button' state -> false (8,5) at 136244
+17:20.305.441 switch 'ramp mini' state -> true (7,3) at 137564
+17:20.558.325 switch 'ramp mini' state -> false (7,3) at 137828
+17:20.652.190 switch 'ramp mini' state -> true (7,3) at 137930
+17:20.878.805 switch 'ramp mini' state -> false (7,3) at 138158
+17:21.134.765 switch 'ramp mini' state -> true (7,3) at 138400
+17:21.312.173 switch 'ramp mini' state -> false (7,3) at 138591
+17:21.451.975 switch 'ramp mini' state -> true (7,3) at 138715
+17:21.621.958 switch 'ramp mini' state -> false (7,3) at 138887
+17:21.832.534 switch 'popper button' state -> true (8,5) at 139115
+17:21.940.792 switch 'popper button' state -> false (8,5) at 139182
+17:22.121.40 switch 'popper button' state -> true (8,5) at 139295
+17:22.962.19 switch 'popper button' state -> false (8,5) at 139412
+17:36.312.723 switch 'magnet button' state -> true (8,6) at 153585
+17:36.939.627 ignore switch event {"row":6,"col":8,"state":false,"when":154227}, 1 late
+17:37.444.402 switch 'magnet button' state -> false (8,6) at 154760
+17:39.466.441 switch 'magnet button' state -> true (8,6) at 156739
+17:39.677.446 switch 'magnet button' state -> false (8,6) at 156962
+17:40.306.321 switch 'magnet button' state -> true (8,6) at 157571
+17:40.488.638 switch 'magnet button' state -> false (8,6) at 157754
+17:40.583.564 switch 'ramp down' state -> true (4,7) at 157848
+17:40.667.249 switch 'ramp down' state -> false (4,7) at 157936
+17:40.794.438 switch 'left inlane' state -> true (2,1) at 158057
+17:40.898.742 switch 'left inlane' state -> false (2,1) at 158103
+17:40.952.848 switch 'right 1' state -> true (5,2) at 158220
+17:40.966.448 drop switch right 1 detected, but was already down
+17:46.872.429 switch 'left inlane' state -> true (2,1) at 164130
+17:46.935.971 ignore switch event {"row":1,"col":2,"state":false,"when":164138}, 62 late
+17:47.652.0 ignore switch event {"row":2,"col":4,"state":true,"when":164293}, 2 late
+17:47.799.074 switch 'left inlane' state -> false (2,1) at 165115
+17:47.816.896 switch 'right 2' state -> true (4,2) at 165132
+17:47.831.826 drop switch right 2 detected, but was already down
+17:49.511.748 switch 'magnet button' state -> true (8,6) at 166791
+17:49.728.555 switch 'magnet button' state -> false (8,6) at 167004
+17:50.212.305 switch 'magnet button' state -> true (8,6) at 167495
+17:50.429.584 switch 'magnet button' state -> false (8,6) at 167702
+17:50.953.329 switch 'left inlane' state -> true (2,1) at 168218
+17:51.395.71 switch 'left inlane' state -> false (2,1) at 168240
+17:51.882.33 switch 'right 3' state -> true (3,2) at 168365
+17:51.102.519 drop switch right 3 detected, but was already down
+17:54.397.13 switch 'magnet button' state -> true (8,6) at 171317
+17:54.261.149 ignore switch event {"row":6,"col":8,"state":false,"when":171545}, 3 late
+17:55.127.653 switch 'magnet button' state -> false (8,6) at 172410
+17:55.988.861 switch 'left inlane' state -> true (2,1) at 173257
+17:56.497.22 ignore switch event {"row":1,"col":2,"state":false,"when":173261}, 48 late
+17:56.550.24 ignore switch event {"row":1,"col":2,"state":true,"when":173264}, 50 late
+17:56.597.58 ignore switch event {"row":1,"col":2,"state":false,"when":173274}, 44 late
+17:56.763.65 switch 'left inlane' state -> false (2,1) at 173392
+17:56.126.527 switch 'left inlane' state -> true (2,1) at 173280
+17:56.195.462 switch 'left inlane' state -> false (2,1) at 173316
+17:56.248.930 switch 'right 4' state -> true (2,2) at 173427
+17:56.263.162 drop switch right 4 detected, but was already down
+17:56.306.341 switch 'right 5' state -> true (1,2) at 173566
+17:56.319.095 drop switch right 5 detected, but was already down
+17:57.408.213 switch 'right 1' state -> false (5,2) at 174686
+17:57.422.602 ignore switch event {"row":2,"col":2,"state":false,"when":174689}, 22 late
+17:57.426.319 ignore switch event {"row":2,"col":1,"state":false,"when":174692}, 24 late
+17:57.431.303 ignore switch event {"row":2,"col":3,"state":false,"when":174693}, 27 late
+17:57.436.733 ignore switch event {"row":2,"col":4,"state":false,"when":174694}, 31 late
+17:57.473.798 switch 'magnet button' state -> true (8,6) at 174758
+17:57.688.197 switch 'magnet button' state -> false (8,6) at 174973
+17:58.211.452 switch 'right 5' state -> false (1,2) at 175527
+17:58.227.939 switch 'right 4' state -> false (2,2) at 175543
+17:58.244.427 switch 'right 3' state -> false (3,2) at 175560
+17:58.261.902 switch 'right 2' state -> false (4,2) at 175577
+17:58.348.046 drop bank rightBank reset successfully
+17:58.409.977 switch 'left outlane' state -> true (1,1) at 175597
+17:58.497.569 switch 'left outlane' state -> false (1,1) at 175725
+18:00.285.690 switch 'mini out' state -> true (3,0) at 177553
+18:00.842.682 switch 'mini out' state -> false (3,0) at 178115
+18:00.903.428 switch 'mini out' state -> true (3,0) at 178175
+18:06.343.90 switch 'mini out' state -> false (3,0) at 183309
+18:07.336.887 switch 'mini entry' state -> true (3,1) at 184622
+18:07.448.632 switch 'mini entry' state -> false (3,1) at 184659
+18:10.239.369 switch 'center right' state -> true (1,4) at 187499
+18:10.282.695 drop switch center right down
+18:10.498.817 switch 'center center' state -> true (2,4) at 187781
+18:10.775.839 drop switch center center down
+18:10.803.240 switch 'right 1' state -> true (5,2) at 188118
+18:10.816.412 drop switch right 1 detected, but was already down
+18:10.832.314 switch 'center left' state -> true (3,4) at 188148
+18:10.848.785 drop switch center left down
+18:10.913.222 drop bank centerBank complete
+18:11.436.65 switch 'right 3' state -> true (3,2) at 188318
+18:11.574.82 drop switch right 3 detected, but was already down
+18:11.367.563 switch 'right 2' state -> true (4,2) at 188646
+18:11.381.211 drop switch right 2 detected, but was already down
+18:12.529.182 ignore switch event {"row":4,"col":2,"state":false,"when":189815}, 3 late
+18:12.544.996 switch 'center right' state -> false (1,4) at 189823
+18:12.585.496 switch 'center left' state -> false (3,4) at 189829
+18:12.966.844 switch 'center center' state -> false (2,4) at 190282
+18:12.982.970 drop bank centerBank reset successfully
+18:16.635.63 switch 'left outlane' state -> true (1,1) at 193342
+18:16.133.963 switch 'left outlane' state -> false (1,1) at 193449
+18:16.514.931 switch 'mini entry' state -> true (3,1) at 193790
+18:16.621.889 switch 'mini entry' state -> false (3,1) at 193797
+18:18.891.061 switch 'center right' state -> true (1,4) at 196147
+18:18.905.069 drop switch center right down
+18:19.167.498 switch 'center center' state -> true (2,4) at 196434
+18:19.181.673 drop switch center center down
+18:19.340.925 switch 'center left' state -> true (3,4) at 196614
+18:19.357.676 drop switch center left down
+18:19.381.810 drop bank centerBank complete
+18:21.191.48 switch 'center center' state -> false (2,4) at 198286
+18:21.363.45 ignore switch event {"row":4,"col":1,"state":false,"when":198294}, 7 late
+18:21.667.91 switch 'center left' state -> false (3,4) at 198300
+18:21.256.836 switch 'center right' state -> false (1,4) at 198571
+18:21.271.292 drop bank centerBank reset successfully
+18:22.218.826 ignore switch event {"row":1,"col":1,"state":true,"when":199505}, 2 late
+18:22.292.890 ignore switch event {"row":1,"col":1,"state":false,"when":199581}, 2 late
+18:23.472.285 switch 'mini missed' state -> true (4,1) at 200752
+18:23.553.033 switch 'mini missed' state -> false (4,1) at 200823
+18:24.657.457 switch 'mini out' state -> true (3,0) at 201928
+18:25.557.602 ignore switch event {"row":0,"col":3,"state":false,"when":202843}, 3 late
+18:26.402.007 switch 'mini out' state -> false (3,0) at 203718
+18:28.471.91 switch 'left outlane' state -> true (1,1) at 205323
+18:28.143.821 switch 'left outlane' state -> false (1,1) at 205413
+18:28.520.043 switch 'mini entry' state -> true (3,1) at 205805
+18:28.613.014 switch 'mini entry' state -> false (3,1) at 205850
+18:31.553.66 switch 'center right' state -> true (1,4) at 208335
+18:31.716.76 drop switch center right down
+18:31.255.331 switch 'center center' state -> true (2,4) at 208532
+18:31.271.550 drop switch center center down
+18:31.390.855 switch 'center left' state -> true (3,4) at 208673
+18:31.407.506 drop switch center left down
+18:31.433.656 drop bank centerBank complete
+18:33.483.85 switch 'center center' state -> false (2,4) at 210326
+18:33.966.18 switch 'center right' state -> false (1,4) at 210334
+18:33.125.033 switch 'center left' state -> false (3,4) at 210341
+18:33.142.009 drop bank centerBank reset successfully
+18:33.640.709 switch 'left outlane' state -> true (1,1) at 210914
+18:33.729.680 switch 'left outlane' state -> false (1,1) at 211001
+18:34.156.513 switch 'mini entry' state -> true (3,1) at 211429
+18:34.221.516 ignore switch event {"row":1,"col":3,"state":false,"when":211436}, 49 late
+18:34.593.284 switch 'mini entry' state -> false (3,1) at 211909
+18:36.548.84 switch 'center right' state -> true (1,4) at 213334
+18:36.686.56 drop switch center right down
+18:36.385.962 ignore switch event {"row":4,"col":2,"state":true,"when":213671}, 1 late
+18:36.587.372 switch 'center left' state -> true (3,4) at 213857
+18:36.602.737 drop switch center left down
+18:36.654.653 switch 'center center' state -> true (2,4) at 213969
+18:36.672.523 drop switch center center down
+18:36.697.811 drop bank centerBank complete
+18:38.344.908 switch 'center center' state -> false (2,4) at 215618
+18:38.371.451 switch 'center right' state -> false (1,4) at 215629
+18:38.414.190 switch 'center left' state -> false (3,4) at 215634
+18:38.429.044 drop bank centerBank reset successfully
+18:38.924.166 switch 'left outlane' state -> true (1,1) at 216202
+18:39.156.97 switch 'left outlane' state -> false (1,1) at 216294
+18:44.304.74 switch 'mini entry' state -> true (3,1) at 221315
+18:44.123.985 switch 'mini entry' state -> false (3,1) at 221328
+19:21.614.317 switch 'ramp mini' state -> true (7,3) at 258897
+19:22.123.148 switch 'ramp mini' state -> false (7,3) at 259402
+19:22.168.815 ignore switch event {"row":3,"col":7,"state":true,"when":259452}, 5 late
+19:22.204.669 switch 'ramp mini' state -> true (7,3) at 259520
+19:22.338.753 switch 'ramp mini' state -> false (7,3) at 259599
+19:22.386.262 switch 'ramp mini' state -> true (7,3) at 259663
+19:22.525.330 switch 'ramp mini' state -> false (7,3) at 259793
+19:22.606.947 switch 'ramp mini' state -> true (7,3) at 259885
+19:22.719.841 switch 'ramp mini' state -> false (7,3) at 259996
+19:22.854.179 switch 'ramp mini' state -> true (7,3) at 260122
+19:22.955.249 switch 'ramp mini' state -> false (7,3) at 260234
+19:25.912.116 switch 'magnet button' state -> true (8,6) at 263189
+19:26.107.045 switch 'magnet button' state -> false (8,6) at 263391
+19:26.653.250 switch 'magnet button' state -> true (8,6) at 263913
+19:26.853.199 switch 'magnet button' state -> false (8,6) at 264125
+19:27.426.222 switch 'magnet button' state -> true (8,6) at 264701
+19:27.573.364 switch 'magnet button' state -> false (8,6) at 264834
+19:27.644.399 switch 'left inlane' state -> true (2,1) at 264860
+19:27.727.392 switch 'left inlane' state -> false (2,1) at 264914
+19:27.819.243 switch 'right 4' state -> true (2,2) at 265100
+19:27.833.828 drop switch right 4 detected, but was already down
+19:29.585.282 switch 'magnet button' state -> true (8,6) at 266866
+19:31.102.321 switch 'magnet button' state -> false (8,6) at 268381
+19:31.638.619 switch 'left outlane' state -> true (1,1) at 268917
+19:31.716.663 switch 'left outlane' state -> false (1,1) at 268985
+19:32.450.964 switch 'mini missed' state -> true (4,1) at 269719
+19:32.504.350 switch 'mini missed' state -> false (4,1) at 269760
+19:32.530.503 switch 'mini missed' state -> true (4,1) at 269767
+19:32.558.524 switch 'mini missed' state -> false (4,1) at 269770
+19:38.894.492 switch 'ramp mini' state -> true (7,3) at 276173
+19:39.310.712 switch 'ramp mini' state -> false (7,3) at 276580
+19:39.369.235 switch 'ramp mini' state -> true (7,3) at 276654
+19:39.493.652 switch 'ramp mini' state -> false (7,3) at 276777
+19:39.575.786 switch 'ramp mini' state -> true (7,3) at 276856
+19:39.703.222 switch 'ramp mini' state -> false (7,3) at 276980
+19:39.770.087 switch 'ramp mini' state -> true (7,3) at 277038
+19:39.859.393 switch 'ramp mini' state -> false (7,3) at 277133
+19:41.114.704 switch 'magnet button' state -> true (8,6) at 278381
+19:42.386.34 switch 'magnet button' state -> false (8,6) at 279321
+19:42.305.011 switch 'left outlane' state -> true (1,1) at 279591
+19:42.452.219 switch 'left outlane' state -> false (1,1) at 279723
+19:43.567.130 ignore switch event {"row":1,"col":4,"state":true,"when":280853}, 3 late
+19:43.637.927 ignore switch event {"row":1,"col":4,"state":false,"when":280926}, 1 late
+19:49.970.317 switch 'magnet button' state -> true (8,6) at 287254
+19:53.237.856 switch 'magnet button' state -> false (8,6) at 290511
+19:53.740.145 switch 'left outlane' state -> true (1,1) at 291014
+19:53.807.069 switch 'left outlane' state -> false (1,1) at 291085
+19:57.101.451 switch 'left outlane' state -> true (1,1) at 294370
+19:57.143.741 ignore switch event {"row":1,"col":1,"state":false,"when":294429}, 3 late
+19:57.970.160 switch 'mini missed' state -> true (4,1) at 295247
+19:58.117.7 switch 'left outlane' state -> false (1,1) at 295316
+19:58.533.34 switch 'mini missed' state -> false (4,1) at 295300
+20:00.584.636 switch 'magnet button' state -> true (8,6) at 297862
+20:01.573.490 switch 'magnet button' state -> false (8,6) at 298852
+20:21.225.489 switch 'shooter lower' state -> true (0,2) at 318504
+20:21.291.412 switch 'shooter lower' state -> false (0,2) at 318569
+20:22.541.009 switch 'shooter lane' state -> true (0,0) at 319827
+20:22.602.554 start mode Skillshot
+20:22.897.089 switch 'shooter lane' state -> false (0,0) at 319838
+20:22.926.503 switch 'shooter lane' state -> true (0,0) at 320100
+20:22.951.111 start mode Skillshot
+20:23.105.308 switch 'shooter lane' state -> false (0,0) at 320131
+20:23.164.694 switch 'shooter lane' state -> true (0,0) at 320210
+20:23.188.306 start mode Skillshot
+20:26.183.909 start mode Poker
+20:29.326.673 start mode Poker
+20:30.526.884 switch 'shooter lane' state -> false (0,0) at 326998
+20:32.393.379 start mode Poker
+20:35.269.097 switch 'left 1' state -> true (1,3) at 330721
+20:35.336.499 drop switch left 1 down
+20:35.512.307 switch 'left 2' state -> true (2,3) at 330925
+20:35.574.751 drop switch left 2 down
+20:35.592.492 switch 'left 3' state -> true (3,3) at 331163
+20:35.674.343 drop switch left 3 down
+20:35.693.906 switch 'left 4' state -> true (5,3) at 331377
+20:36.377.55 switch 'left 4' state -> false (5,3) at 333310
+20:36.565.37 ignore switch event {"row":3,"col":2,"state":false,"when":333313}, 4 late
+20:36.607.93 ignore switch event {"row":3,"col":3,"state":false,"when":333314}, 8 late
+20:36.655.63 ignore switch event {"row":3,"col":1,"state":false,"when":333315}, 11 late
+20:36.888.259 switch 'left 1' state -> false (1,3) at 334203
+20:36.915.687 switch 'left 2' state -> false (2,3) at 334230
+20:36.937.445 switch 'left 3' state -> false (3,3) at 334253
+20:36.964.695 drop bank leftBank reset successfully
+20:40.255.333 switch 'center right' state -> true (1,4) at 337535
+20:40.342.005 drop switch center right down
+20:43.989.419 switch 'center center' state -> true (2,4) at 341261
+20:44.245.320 drop switch center center down
+20:58.382.295 switch 'shooter lane' state -> true (0,0) at 355658
+20:58.399.991 start mode Skillshot
+21:06.410.617 switch 'shooter lane' state -> false (0,0) at 363686
+21:08.396.982 start mode Poker
+21:12.505.268 switch 'center left' state -> true (3,4) at 369772
+21:12.543.093 drop switch center left down
+21:12.586.328 drop bank centerBank complete
+21:14.241.292 switch 'center center' state -> false (2,4) at 371512
+21:14.258.281 ignore switch event {"row":4,"col":1,"state":false,"when":371523}, 2 late
+21:14.262.206 ignore switch event {"row":4,"col":3,"state":false,"when":371527}, 2 late
+21:14.884.432 switch 'center right' state -> false (1,4) at 372199
+21:14.901.895 switch 'center left' state -> false (3,4) at 372217
+21:14.919.196 drop bank centerBank reset successfully
+21:15.445.26 switch 'ramp down' state -> true (4,7) at 372315
+21:15.135.806 switch 'ramp down' state -> false (4,7) at 372401
+21:17.290.303 switch 'left 1' state -> true (1,3) at 374568
+21:17.329.627 drop switch left 1 down
+21:17.736.635 switch 'left 2' state -> true (2,3) at 374991
+21:17.780.570 drop switch left 2 down
+21:18.196.066 switch 'left 3' state -> true (3,3) at 375479
+21:18.233.981 drop switch left 3 down
+21:18.714.482 switch 'left 4' state -> true (5,3) at 375984
+21:18.875.628 drop switch left 4 down
+21:18.969.355 drop bank leftBank complete
+21:19.324.345 switch 'left 4' state -> false (5,3) at 376589
+21:19.340.352 ignore switch event {"row":3,"col":1,"state":false,"when":376592}, 16 late
+21:19.344.913 ignore switch event {"row":3,"col":2,"state":false,"when":376592}, 20 late
+21:20.743.62 switch 'left 1' state -> false (1,3) at 377390
+21:20.907.47 switch 'left 2' state -> false (2,3) at 377406
+21:20.477.888 switch 'left 3' state -> false (3,3) at 377750
+21:20.493.028 drop bank leftBank reset successfully
+21:27.335.937 switch 'shooter lane' state -> true (0,0) at 384618
+21:27.351.746 start mode Skillshot
+21:30.816.059 start mode Poker
+21:34.395.857 switch 'shooter lane' state -> false (0,0) at 391670
+21:35.702.314 switch 'right inlane' state -> true (5,0) at 392984
+21:35.985.930 ignore switch event {"row":2,"col":1,"state":true,"when":393273}, 1 late
+21:36.865.06 switch 'right inlane' state -> false (5,0) at 393358
+21:36.926.080 switch 'right 5' state -> true (1,2) at 394242
+21:36.965.963 drop switch right 5 down
+21:36.988.241 drop bank rightBank complete
+21:37.561.577 switch 'left 1' state -> true (1,3) at 394839
+21:37.602.961 drop switch left 1 down
+21:38.898.96 switch 'right 5' state -> false (1,2) at 395363
+21:38.104.101 ignore switch event {"row":2,"col":5,"state":false,"when":395365}, 26 late
+21:38.108.627 ignore switch event {"row":2,"col":2,"state":false,"when":395367}, 29 late
+21:38.139.739 switch 'right 3' state -> false (3,2) at 395373
+21:38.169.544 switch 'right 2' state -> false (4,2) at 395375
+21:38.824.927 switch 'left 2' state -> true (2,3) at 396087
+21:38.859.025 drop switch left 2 down
+21:39.432.09 switch 'right 4' state -> false (2,2) at 396358
+21:39.627.97 switch 'right 1' state -> false (5,2) at 396378
+21:39.149.371 drop bank rightBank reset successfully
+21:40.336.627 switch 'left 3' state -> true (3,3) at 397607
+21:40.377.892 drop switch left 3 down
+21:40.410.094 switch 'left back 2' state -> true (6,3) at 397640
+21:40.441.398 switch 'left back 2' state -> false (6,3) at 397645
+21:40.843.686 switch 'left 4' state -> true (5,3) at 398114
+21:41.139.292 drop switch left 4 down
+21:41.218.444 drop bank leftBank complete
+21:41.289.282 switch 'right 1' state -> true (5,2) at 398604
+21:41.305.117 drop switch right 1 detected, but was already down
+21:41.537.453 switch 'right 2' state -> true (4,2) at 398797
+21:41.551.070 drop switch right 2 detected, but was already down
+21:41.627.237 switch 'left 4' state -> false (5,3) at 398849
+21:41.656.892 switch 'left 2' state -> false (2,3) at 398851
+21:41.688.012 switch 'left 1' state -> false (1,3) at 398853
+21:41.716.610 switch 'left 3' state -> false (3,3) at 398853
+21:41.733.274 drop bank leftBank reset successfully
+21:41.773.714 switch 'right 3' state -> true (3,2) at 398956
+21:41.786.798 drop switch right 3 detected, but was already down
+21:45.576.765 ignore switch event {"row":0,"col":5,"state":true,"when":402864}, 2 late
+22:20.230.60 switch 'shooter lane' state -> true (0,0) at 437286
+22:20.394.68 start mode Skillshot
+22:23.547.726 start mode Poker
+22:27.271.460 ignore switch event {"row":0,"col":0,"state":false,"when":444557}, 1 late
+22:27.713.753 switch 'shooter lane' state -> false (0,0) at 445028
+22:29.860.862 switch 'right inlane' state -> true (5,0) at 445611
+22:30.371.77 switch 'right inlane' state -> false (5,0) at 446510
+22:58.462.615 switch 'shooter magnet' state -> true (7,2) at 475734
+22:58.960.157 switch 'shooter magnet' state -> false (7,2) at 476227
+23:00.255.279 switch 'right inlane' state -> true (5,0) at 477513
+23:00.401.912 switch 'ramp down' state -> true (4,7) at 477618
+23:00.596.707 switch 'right inlane' state -> false (5,0) at 477860
+23:00.640.799 switch 'right inlane' state -> true (5,0) at 477876
+23:00.668.426 switch 'right inlane' state -> false (5,0) at 477886
+23:19.606.951 switch 'shooter magnet' state -> true (7,2) at 496892
+23:19.907.569 switch 'shooter magnet' state -> false (7,2) at 497185
+23:19.948.741 switch 'shooter magnet' state -> true (7,2) at 497205
+23:19.975.783 switch 'shooter magnet' state -> false (7,2) at 497218
+23:20.213.56 switch 'shooter magnet' state -> true (7,2) at 497251
+23:20.457.30 switch 'shooter magnet' state -> false (7,2) at 497256
+23:23.300.805 switch 'right inlane' state -> true (5,0) at 500565
+23:23.423.803 switch 'right inlane' state -> false (5,0) at 500688
+23:32.690.727 switch 'left 1' state -> true (1,3) at 509964
+23:32.728.161 drop switch left 1 down
+23:33.184.572 switch 'left 2' state -> true (2,3) at 510448
+23:33.221.134 drop switch left 2 down
+23:33.659.786 switch 'left 3' state -> true (3,3) at 510925
+23:33.696.841 drop switch left 3 down
+23:34.159.821 switch 'left 4' state -> true (5,3) at 511431
+23:34.197.989 drop switch left 4 down
+23:34.268.081 drop bank leftBank complete
+23:34.698.075 switch 'left 4' state -> false (5,3) at 511978
+23:34.715.026 ignore switch event {"row":3,"col":2,"state":false,"when":511982}, 24 late
+23:34.720.793 ignore switch event {"row":3,"col":3,"state":false,"when":511983}, 28 late
+23:34.724.717 ignore switch event {"row":3,"col":1,"state":false,"when":511984}, 32 late
+23:35.451.856 switch 'left 1' state -> false (1,3) at 512766
+23:35.468.461 switch 'left 2' state -> false (2,3) at 512784
+23:35.486.298 switch 'left 3' state -> false (3,3) at 512802
+23:35.502.944 drop bank leftBank reset successfully
+23:37.400.225 switch 'left 4' state -> true (5,3) at 514680
+23:37.564.453 drop switch left 4 down
+23:39.675.020 ignore switch event {"row":2,"col":7,"state":true,"when":516964}, 1 late
+24:16.999.888 switch 'shooter lane' state -> true (0,0) at 554315
+24:17.161.01 start mode Skillshot
+24:20.567.209 start mode Poker
+24:23.943.647 switch 'shooter lane' state -> false (0,0) at 561223
+24:26.475.740 switch 'right inlane' state -> true (5,0) at 563750
+24:26.765.420 switch 'right 5' state -> true (1,2) at 564046
+24:26.809.013 drop switch right 5 down
+24:26.865.886 switch 'right inlane' state -> false (5,0) at 564138

@@ -1,0 +1,163 @@
+Mon Aug 17 2020 21:38:34 GMT-0400 (Eastern Daylight Time)
+30:49.306.79 start mode MachineOverrides
+30:49.218.540 switch 'center right' state -> true (1,4) at 3613
+30:49.230.023 drop switch center right down
+30:49.235.090 switch 'center center' state -> true (2,4) at 3631
+30:49.244.470 drop switch center center down
+30:49.264.575 switch 'ramp down' state -> true (4,7) at 3637
+30:49.622.066 set outhole settle to 500/500
+30:49.634.707 set mini left settle to 5/250
+30:49.646.798 set mini center settle to 5/250
+30:49.657.703 set mini right settle to 5/250
+30:49.671.875 set center left settle to 5/250
+30:49.684.689 set center center settle to 5/250
+30:49.696.407 set center right settle to 5/250
+30:49.707.760 set left 1 settle to 5/250
+30:49.720.022 set left 2 settle to 5/250
+30:49.732.949 set left 3 settle to 5/250
+30:49.743.728 set left 4 settle to 5/250
+30:49.756.378 set right 1 settle to 5/250
+30:49.768.261 set right 2 settle to 5/250
+30:49.780.233 set right 3 settle to 5/250
+30:49.792.472 set right 4 settle to 5/250
+30:49.804.850 set right 5 settle to 5/250
+30:49.817.627 set upper 3 left settle to 5/250
+30:49.830.657 set upper 3 center settle to 5/250
+30:52.384.584 set upper 3 right settle to 5/250
+30:52.394.697 set upper 2 left settle to 5/250
+30:52.403.688 set upper 2 right settle to 5/250
+30:52.412.001 set center center settle to 5/250
+30:56.106.759 switch 'trough full' state -> true (1,0) at 10453
+30:56.150.723 switch 'trough full' state -> false (1,0) at 10457
+30:59.929.987 start mode Game
+30:59.943.995 start mode Player
+31:00.182.401 start mode Poker
+31:01.187.054 start mode GameOverrides
+31:01.213.782 start mode Ball
+31:01.880.215 switch 'trough full' state -> true (1,0) at 14233
+31:01.913.513 switch 'trough full' state -> false (1,0) at 14242
+31:01.946.178 switch 'trough full' state -> true (1,0) at 14245
+31:01.979.097 switch 'trough full' state -> false (1,0) at 14250
+31:02.937.6 switch 'trough full' state -> true (1,0) at 14253
+31:02.541.78 switch 'trough full' state -> false (1,0) at 14270
+31:02.835.65 switch 'trough full' state -> true (1,0) at 14272
+31:02.112.015 switch 'trough full' state -> false (1,0) at 14321
+31:02.141.463 switch 'trough full' state -> true (1,0) at 14324
+31:02.168.274 switch 'trough full' state -> false (1,0) at 14664
+31:02.195.722 switch 'trough full' state -> true (1,0) at 14666
+31:02.223.085 switch 'trough full' state -> false (1,0) at 14794
+31:02.250.117 switch 'trough full' state -> true (1,0) at 14797
+31:02.278.681 switch 'trough full' state -> false (1,0) at 15247
+31:02.305.511 switch 'trough full' state -> true (1,0) at 15250
+31:02.334.397 switch 'trough full' state -> false (1,0) at 15785
+31:02.361.100 switch 'trough full' state -> true (1,0) at 15788
+31:02.389.565 switch 'ramp down' state -> false (4,7) at 15803
+31:02.419.522 switch 'trough full' state -> false (1,0) at 15810
+31:02.451.443 switch 'trough full' state -> true (1,0) at 15813
+31:02.480.973 switch 'trough full' state -> false (1,0) at 15935
+31:02.506.560 switch 'trough full' state -> true (1,0) at 15938
+31:02.633.716 switch 'trough full' state -> false (1,0) at 17029
+31:02.651.663 switch 'center right' state -> false (1,4) at 17046
+31:02.668.577 switch 'center center' state -> false (2,4) at 17064
+31:02.689.129 drop bank centerBank reset successfully
+31:03.160.622 switch 'trough full' state -> true (1,0) at 17288
+31:03.191.348 switch 'trough full' state -> false (1,0) at 17291
+31:03.223.464 switch 'trough full' state -> true (1,0) at 17403
+31:03.253.710 switch 'trough full' state -> false (1,0) at 17407
+31:03.284.998 switch 'trough full' state -> true (1,0) at 17413
+31:03.315.590 switch 'trough full' state -> false (1,0) at 17420
+31:03.345.995 switch 'trough full' state -> true (1,0) at 17443
+31:03.376.034 switch 'trough full' state -> false (1,0) at 17446
+31:03.406.540 switch 'trough full' state -> true (1,0) at 17458
+31:03.437.023 switch 'trough full' state -> false (1,0) at 17472
+31:03.468.398 switch 'trough full' state -> true (1,0) at 17489
+31:03.499.340 switch 'trough full' state -> false (1,0) at 17495
+31:03.531.811 switch 'trough full' state -> true (1,0) at 17498
+31:03.561.068 switch 'trough full' state -> false (1,0) at 17505
+31:03.655.934 switch 'trough full' state -> true (1,0) at 17628
+31:03.689.333 switch 'trough full' state -> false (1,0) at 17630
+31:03.718.831 switch 'trough full' state -> true (1,0) at 17649
+31:03.750.627 switch 'trough full' state -> false (1,0) at 17652
+31:03.780.661 switch 'trough full' state -> true (1,0) at 17676
+31:03.809.909 switch 'trough full' state -> false (1,0) at 17686
+31:03.838.042 switch 'trough full' state -> true (1,0) at 17692
+31:03.866.190 switch 'trough full' state -> false (1,0) at 17696
+31:03.897.257 switch 'trough full' state -> true (1,0) at 17710
+31:03.931.418 switch 'trough full' state -> false (1,0) at 17713
+31:03.969.478 switch 'trough full' state -> true (1,0) at 17717
+31:03.999.783 switch 'trough full' state -> false (1,0) at 17720
+31:04.349.35 switch 'trough full' state -> true (1,0) at 17726
+31:04.629.70 switch 'trough full' state -> false (1,0) at 17735
+31:04.925.91 switch 'trough full' state -> true (1,0) at 17748
+31:04.121.877 switch 'trough full' state -> false (1,0) at 17751
+31:04.153.775 switch 'trough full' state -> true (1,0) at 17766
+31:04.189.829 switch 'trough full' state -> false (1,0) at 17775
+31:04.216.005 switch 'trough full' state -> true (1,0) at 17812
+31:04.242.130 switch 'trough full' state -> false (1,0) at 17815
+31:04.268.935 switch 'trough full' state -> true (1,0) at 17836
+31:04.296.210 switch 'trough full' state -> false (1,0) at 17842
+31:04.322.328 switch 'trough full' state -> true (1,0) at 17856
+31:04.349.069 switch 'trough full' state -> false (1,0) at 17871
+31:04.383.277 switch 'trough full' state -> true (1,0) at 17877
+31:04.410.496 switch 'trough full' state -> false (1,0) at 17882
+31:04.435.003 switch 'trough full' state -> true (1,0) at 17884
+31:04.463.358 switch 'trough full' state -> false (1,0) at 17905
+31:04.490.034 switch 'trough full' state -> true (1,0) at 17916
+31:04.507.076 ignore switch event {"row":0,"col":1,"state":false,"when":17926}, 12 late
+31:04.512.174 ignore switch event {"row":0,"col":1,"state":true,"when":17929}, 15 late
+31:04.517.481 ignore switch event {"row":0,"col":1,"state":false,"when":17947}, 1 late
+31:04.545.974 switch 'trough full' state -> false (1,0) at 17973
+31:04.560.556 ignore switch event {"row":0,"col":1,"state":true,"when":17981}, 11 late
+31:04.614.213 switch 'shooter lane' state -> true (0,0) at 18009
+31:04.652.130 start mode Skillshot
+31:05.215.415 switch 'trough full' state -> true (1,0) at 18030
+31:06.239.273 start mode Ball
+31:06.454.787 switch 'trough full' state -> false (1,0) at 18035
+31:06.485.786 switch 'trough full' state -> true (1,0) at 18038
+31:06.513.894 switch 'trough full' state -> false (1,0) at 18048
+31:06.538.474 switch 'trough full' state -> true (1,0) at 18056
+31:06.566.383 switch 'trough full' state -> false (1,0) at 18058
+31:06.621.154 switch 'trough full' state -> true (1,0) at 18061
+31:06.650.028 switch 'trough full' state -> false (1,0) at 18066
+31:06.683.232 switch 'trough full' state -> true (1,0) at 18068
+31:06.727.578 switch 'trough full' state -> false (1,0) at 18070
+31:06.766.092 switch 'trough full' state -> true (1,0) at 18095
+31:06.798.228 switch 'trough full' state -> false (1,0) at 18100
+31:06.829.573 switch 'trough full' state -> true (1,0) at 18106
+31:06.856.435 switch 'trough full' state -> false (1,0) at 18126
+31:06.884.980 switch 'trough full' state -> true (1,0) at 18277
+31:06.912.011 switch 'trough full' state -> false (1,0) at 18311
+31:06.950.190 switch 'shooter lane' state -> false (0,0) at 18537
+31:06.974.373 switch 'shooter lane' state -> true (0,0) at 18585
+31:06.989.209 start mode Skillshot
+31:07.232.139 switch 'ramp down' state -> true (4,7) at 21628
+31:07.322.574 switch 'ramp down' state -> false (4,7) at 21680
+31:12.804.082 switch 'shooter lane' state -> false (0,0) at 27176
+31:13.568.118 switch 'shooter lane' state -> true (0,0) at 27930
+31:13.592.385 start mode Skillshot
+31:13.852.633 switch 'shooter lane' state -> false (0,0) at 27945
+31:13.878.743 switch 'shooter lane' state -> true (0,0) at 28104
+31:13.894.884 start mode Skillshot
+31:18.948.999 switch 'shooter lane' state -> false (0,0) at 33306
+31:21.501.765 switch 'right 2' state -> true (4,2) at 35878
+31:21.546.721 drop switch right 2 down
+31:22.320.953 switch 'center right' state -> true (1,4) at 36687
+31:22.359.378 drop switch center right down
+31:23.299.697 switch 'left 2' state -> true (2,3) at 37654
+31:23.393.020 drop switch left 2 down
+31:26.151.537 switch 'center center' state -> true (2,4) at 40523
+31:26.258.373 drop switch center center down
+31:26.559.389 switch 'center left' state -> true (3,4) at 40930
+31:26.894.845 drop switch center left down
+31:26.976.231 drop bank centerBank complete
+31:27.547.89 switch 'right 1' state -> true (5,2) at 41450
+31:27.705.44 drop switch right 1 detected, but was already down
+31:27.919.25 switch 'ramp down' state -> true (4,7) at 41487
+31:27.361.919 switch 'right 3' state -> true (3,2) at 41675
+31:27.384.014 drop switch right 3 detected, but was already down
+31:28.514.082 switch 'center center' state -> false (2,4) at 42890
+31:28.554.987 switch 'center right' state -> false (1,4) at 42898
+31:28.581.813 switch 'center left' state -> false (3,4) at 42902
+31:28.601.893 drop bank centerBank reset successfully
+31:34.875.841 switch 'ramp made' state -> true (0,7) at 49248
+31:34.951.119 switch 'ramp made' state -> false (0,7) at 49319

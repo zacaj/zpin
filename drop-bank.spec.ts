@@ -23,7 +23,7 @@ describe('drops', () => {
         machine.upper3Bank.targets[2].switch.state = true;
         await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
-        await passTime();
+        await passTime(10);
         expect(cUpper3Fire).toBeCalledTimes(1);
 
 
@@ -56,6 +56,9 @@ describe('drops', () => {
         machine.addChild(bank);
         await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
+        expect(machine.cUpper3.pending).toBe(true);
+        await passTime(10);
+        expect(machine.cUpper3.val).toBe(true);
 
         expect(cUpper3Fire).toBeCalledTimes(1);
     });

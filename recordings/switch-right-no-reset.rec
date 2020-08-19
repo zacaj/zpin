@@ -1,0 +1,63 @@
+Mon Aug 17 2020 21:35:36 GMT-0400 (Eastern Daylight Time)
+27:53.205.015 start mode MachineOverrides
+27:53.646.155 switch 'right 5' state -> true (1,2) at 7695
+27:53.665.616 drop switch right 5 down
+27:53.673.108 switch 'right 3' state -> true (3,2) at 7722
+27:53.690.498 drop switch right 3 down
+27:53.697.337 switch 'right 2' state -> true (4,2) at 7746
+27:53.713.764 drop switch right 2 down
+27:53.723.442 switch 'right 1' state -> true (5,2) at 7772
+27:53.739.213 drop switch right 1 down
+27:53.746.864 switch 'left 4' state -> true (5,3) at 7795
+27:53.761.981 drop switch left 4 down
+27:53.771.072 switch 'ramp down' state -> true (4,7) at 7819
+27:54.359.504 set outhole settle to 500/500
+27:54.386.613 set mini left settle to 5/250
+27:54.414.820 set mini center settle to 5/250
+27:54.441.262 set mini right settle to 5/250
+27:54.459.883 set center left settle to 5/250
+27:54.482.335 set center center settle to 5/250
+27:54.500.332 set center right settle to 5/250
+27:54.518.391 set left 1 settle to 5/250
+27:54.544.827 set left 2 settle to 5/250
+27:54.562.875 set left 3 settle to 5/250
+27:54.580.507 set left 4 settle to 5/250
+27:54.606.184 set right 1 settle to 5/250
+27:54.632.372 set right 2 settle to 5/250
+27:54.657.312 set right 3 settle to 5/250
+27:54.675.589 set right 4 settle to 5/250
+27:54.693.657 set right 5 settle to 5/250
+27:54.720.602 set upper 3 left settle to 5/250
+27:54.745.864 set upper 3 center settle to 5/250
+27:54.771.718 set upper 3 right settle to 5/250
+27:54.789.477 set upper 2 left settle to 5/250
+27:54.805.410 set upper 2 right settle to 5/250
+27:54.828.886 set left 4 settle to 5/250
+28:02.232.235 start mode Game
+28:02.242.583 start mode Player
+28:02.450.483 start mode Poker
+28:03.409.930 start mode GameOverrides
+28:03.436.371 start mode Ball
+28:04.158.096 switch 'ramp down' state -> false (4,7) at 17691
+28:04.319.091 switch 'left 4' state -> false (5,3) at 18341
+28:04.342.931 drop bank leftBank reset successfully
+28:05.371.74 switch 'right 5' state -> false (1,2) at 19058
+28:05.634.61 switch 'right 1' state -> false (5,2) at 19062
+28:05.109.641 switch 'right 3' state -> false (3,2) at 19064
+28:05.138.374 switch 'right 2' state -> false (4,2) at 19065
+28:05.217.399 drop bank rightBank reset successfully
+28:11.461.620 switch 'right 4' state -> true (2,2) at 25458
+28:11.509.147 drop switch right 4 down
+28:12.477.66 switch 'right 5' state -> true (1,2) at 26052
+28:12.883.37 drop switch right 5 down
+28:12.519.505 switch 'right 3' state -> true (3,2) at 26537
+28:12.660.228 drop switch right 3 down
+28:14.491.41 switch 'left 1' state -> true (1,3) at 28060
+28:14.880.02 drop switch left 1 down
+28:16.677.05 switch 'left 2' state -> true (2,3) at 30081
+28:16.408.984 drop switch left 2 down
+28:16.447.701 switch 'ramp down' state -> true (4,7) at 30323
+28:16.506.143 switch 'right 1' state -> true (5,2) at 30480
+28:16.518.018 drop switch right 1 detected, but was already down
+28:16.703.432 switch 'right 2' state -> true (4,2) at 30683
+28:16.721.343 drop switch right 2 detected, but was already down
