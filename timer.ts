@@ -64,7 +64,8 @@ export class Timer {
                     if (updateMock)
                         Timer.mockTime = entry.time;
                     await entry.func(entry);
-                    await settleForks();
+                    if (updateMock)
+                        await settleForks();
                 } catch (err) {
                     Log.error('console', 'error running entry %o: ', entry, err);
                     debugger;
@@ -129,7 +130,7 @@ export async function setTime(ms?: number) {
     }
     await Timer.fireTimers(newTime, !!ms);
     Events.fire(new StateEvent(Timer, 'time', ms as Time ?? time(), lastTime as Time));
-    if (Timer.mockTime !== undefined)
+    if (Timer.mockTime !== undefined || lastTime !== undefined)
         await settleForks();
 }
 export async function passTime(ms = 1) {

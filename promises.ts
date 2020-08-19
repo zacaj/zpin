@@ -46,14 +46,16 @@ export function fork<T>(promise?: Promise<T>|void, name?: string): FakePromise<T
 }
 
 export async function settleForks() {
+    if (Timer.mockTime === undefined) return;
     let times = 0;
-    let settlesLeft = (Timer.mockTime === undefined)? 0 : 10;
+    let settlesLeft = 10;
     while (true) {
         const oldForks = [...forks];
         await new Promise(r => r());
         const newForks = [...forks];
         if (eq(oldForks, newForks)) {
-            if (!settlesLeft--) break;
+            // if (!settlesLeft--) 
+            break;
         }
         times++;
 
