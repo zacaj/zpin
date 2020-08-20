@@ -117,9 +117,15 @@ export function onSwitch(sw: Switch): EventTypePredicate<SwitchEvent> {
 export function onClose(): EventTypePredicate<SwitchEvent> {
     return e => e instanceof SwitchEvent && e.then._state;
 }
+export function onOpen(): EventTypePredicate<SwitchEvent> {
+    return e => e instanceof SwitchEvent && !e.then._state;
+}
 
 export function onSwitchClose(sw: Switch): EventTypePredicate<SwitchEvent>[] {
     return [onSwitch(sw), onClose()];
+}
+export function onSwitchOpen(sw: Switch): EventTypePredicate<SwitchEvent>[] {
+    return [onSwitch(sw), onOpen()];
 }
 
 export function onAnySwitchClose(...sw: Switch[]): EventTypePredicate<SwitchEvent> {

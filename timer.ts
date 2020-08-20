@@ -1,5 +1,5 @@
 import { Utils, Opaque, assert } from './util';
-import { Events } from './events';
+import { Events, EventTypePredicate } from './events';
 import { StateEvent } from './state';
 import { Log } from './log';
 import { fork, settleForks } from './promises';
@@ -94,6 +94,10 @@ setInterval(() => {
     Timer.curTime = tim;
     fork(Timer.fireTimers(tim), 'timer tick');
 }, 5);
+
+export function onTick(): EventTypePredicate<StateEvent<Timer, never>> {
+    return e => e instanceof StateEvent && e.on === Timer && e.prop === 'time';
+}
 
 export type TimerCallback = (entry: TimerQueueEntry) => Promise<any>|any;
 export type TimerQueueEntry = {

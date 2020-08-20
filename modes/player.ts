@@ -52,7 +52,7 @@ export class Player extends Mode<MachineOutputs> {
         super(Modes.Player);
         State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter']);
         this.out = new Outputs(this, {
-            leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000,
+            leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
@@ -90,14 +90,15 @@ export class Player extends Mode<MachineOutputs> {
                 this.chips++;
                 if (this.chips > 4) this.chips--;   
             });
-        this.listen(onSwitchClose(machine.sPopperButton), async () => {
+        this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
-            const fired = await machine.cPopper.fire();
+            await machine.cPopper.fire();
+            if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             this.chips-=2;
             if (this.chips<0) this.chips = 0;
         });
         
-        this.listen(onSwitchClose(machine.sMagnetButton), async () => {
+        this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
             this.chips--;
         });

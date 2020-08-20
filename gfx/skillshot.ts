@@ -5,6 +5,8 @@ import { wrap } from '../util';
 import { onChange } from '../state';
 import { TreeEndEvent } from '../tree';
 import { GameGfx } from './game';
+import { machine } from '../machine';
+import { time, Timer, onTick } from '../timer';
 
 export class SkillShotGfx extends Group {
     award!: Text;
@@ -32,5 +34,8 @@ export class SkillShotGfx extends Group {
             this.award.text(ss.awards[ss.curAward].award);
             this.instr.text(`plunge to ${ss.awards[ss.curAward].switch} for:`);
         });
+
+        ss.watch([onChange(machine.sPopperButton, ['_state', 'lastChange']),  onTick()],
+            () => this.visible(!machine.sPopperButton._state || time() - machine.sPopperButton.lastChange <= 300));
     }
 }
