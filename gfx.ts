@@ -673,7 +673,7 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
     const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
     // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
-    const r = gfx.createRect().fill('#111111').z(-1);
+    const r = gfx.createRect().fill('#111111').z(-.1);
     function setW() {
         r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
         r.x((t.w()-r.w())/2 + t.x());
