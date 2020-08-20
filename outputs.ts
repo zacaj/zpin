@@ -99,7 +99,7 @@ export class Outputs<Outs extends {}> {
                     const ret = func(prev);
                     return ret;
                 } catch (err) {
-                    Log.error(['game'], 'error getting value for %s on %o', key, this.tree);
+                    Log.error(['game'], 'error getting value for %s on %o', key, this.tree, err);
                 }
                 finally { // end recording
                     Utils.stateAccessRecorder = undefined;

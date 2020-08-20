@@ -306,7 +306,18 @@ export class Image extends MachineOutput<string, ImageOutputs> {
     }
 }
 
-export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs;
+export type SkillshotAward = {
+    switch: string;
+    award: string;
+    display?: string|Node;
+    collect?: () => void; // always called for given switch
+    made: () => void; // if selected skillshot was made
+    select?: (selected: boolean, disp: Node, a: SkillshotAward) => void;
+};
+
+export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
+    getSkillshot?: () => Partial<SkillshotAward>[];
+};
 
 export type CoilOutputs = {
     rampUp: boolean;
@@ -691,6 +702,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSS6: '',
             iSS7: '',
             iSpinner: '',
+            getSkillshot: undefined,
         });
     
 

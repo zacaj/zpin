@@ -142,6 +142,10 @@ export class Player extends Mode<MachineOutputs> {
         this.addChild(new Ball(this));
     }
 
+    randRange(start: number, end: number): number {
+        return Math.floor(this.rand()*(end-start+1)+start);
+    }
+
     weightedRand(...weights: number[]): number {
         let sum = weights.reduce((prev, cur) => prev+cur, 0);
         const rand = Math.floor(this.rand()*sum);
@@ -150,6 +154,19 @@ export class Player extends Mode<MachineOutputs> {
             if (sum <= rand) return i;
         }
         return weights.length - 1;
+    }
+
+    weightedSelect<T>(...weights: [number, T][]): T {
+        return weights[this.weightedRand(...weights.map(x => x[0]))][1];
+    }
+
+    weightedRange(...weights: [number, number, number?][]): number {
+        const i = this.weightedRand(...weights.map(x => x[0]));
+        const weight = weights[i];
+        if (weight[2])
+            return this.randRange(weight[1], weight[2]);
+        else 
+            return weight[1];
     }
 }
 
