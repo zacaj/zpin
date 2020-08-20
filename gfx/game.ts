@@ -2,6 +2,7 @@ import { Group, Text } from 'aminogfx-gl';
 import { Game } from '../game';
 import { gfx, makeText, Screen } from '../gfx';
 import { onChange } from '../state';
+import { comma } from '../util';
 
 export class GameGfx extends Group {
     static readonly top = 70;
@@ -18,7 +19,7 @@ export class GameGfx extends Group {
         group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-.1));
 
         group.add(this.score.y(-Screen.h/2));
-        game.watch(onChange(game.players[0], 'score'), () => this.score.text(game.players[0].score.toFixed(0)));
+        game.watch(onChange(game.players[0], 'score'), () => this.score.text(comma(game.players[0].score)));
 
         group.add(this.ball.x(Screen.w/2).y(-Screen.h/2));
         game.watch(onChange(game, 'ballNum'), () => this.ball.text('BALL '+game.ballNum.toFixed(0)));

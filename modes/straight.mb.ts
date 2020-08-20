@@ -11,6 +11,7 @@ import { onSwitchClose } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color } from '../light';
 import { Priorities, Events } from '../events';
+import { comma } from '../util';
 
 export class StraightMb extends Multiball {
 
@@ -75,7 +76,8 @@ export class StraightMb extends Multiball {
         if (this.awardingJp)
             fork(this.releaseBallFromLock());
         this.awardingJp++;
-        const [group, promise] = alert('JACKPOT!', 5000, `${this.value}`);
+        const [group, promise] = alert('JACKPOT!', 5000, comma(this.value));
+        this.player.score += this.value;
         const anim: AnimParams = {
             from: 1,
             to: 2,

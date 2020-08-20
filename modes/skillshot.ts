@@ -19,13 +19,13 @@ export class Skillshot extends Mode<MachineOutputs> {
     shooterOpen = true;
 
     awards: [string, string, number, () => void][] = [
-        ['right inlane', '100 points', 100, () => this.player.score += 100],
-        ['lower magnet switch', '1000 points', 600, () => this.player.score += 1000],
+        ['right inlane', '1,00 points', 100, () => this.player.score += 100],
+        ['lower magnet switch', '1,000 points', 600, () => this.player.score += 1000],
         ['upper magnet switch', '300 points', 800, () => this.player.score += 300],
         ['upper lanes', '500 points', 200, () => this.player.score += 500],
         ['lower lanes', '400 points', 400, () => this.player.score += 400],
-        ['upper eject hole', '5000 points', 500, () => this.player.score += 5000],
-        ['left inlane', '2000 points', 25, () => this.player.score += 2000],
+        ['upper eject hole', '5,000 points', 500, () => this.player.score += 5000],
+        ['left inlane', '2,000 points', 25, () => this.player.score += 2000],
     ];
     curAward = 0;
     displays: Text[] = [];

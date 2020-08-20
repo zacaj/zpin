@@ -263,3 +263,8 @@ export function debugging(): boolean {
     const isDebug = argv.includes('inspect') || argv.includes('debug');
     return isDebug;
 }
+
+export function comma(value: number): string {
+    const s = value.toFixed();
+    return Array.from({length: Math.ceil(s.length/3)}, (_, i: number) => s.substr(i*3-(i===0?0:3-s.length%3), i===0? s.length%3||3 : 3)).join(',');
+}

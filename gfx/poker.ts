@@ -2,7 +2,7 @@ import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
 import { gfx, makeImage, Screen, Image, makeText } from '../gfx';
 import { onChange } from '../state';
-import { tryNum } from '../util';
+import { tryNum, comma } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
 
@@ -28,11 +28,11 @@ export class PokerGfx extends Group {
         this.add(new PokerHand(poker, poker.dealerCardsUsed).x(0).y(PokerHand.h*1.05/2+20));
 
         this.add(this.pot.x(-Screen.w/4).y(0));
-        poker.watch(onChange(poker, 'pot'), () => this.pot.text('POT: '+poker.pot.toFixed(0)));
+        poker.watch(onChange(poker, 'pot'), () => this.pot.text('POT: '+comma(poker.pot)));
         poker.watch(onChange(poker, 'playerWins'), () => this.pot.visible(poker.playerWins === undefined));
 
         this.add(this.bet.x(Screen.w/4).y(0));
-        poker.watch(onChange(poker, 'bet'), () => this.bet.text('BET: '+poker.bet.toFixed(0)));
+        poker.watch(onChange(poker, 'bet'), () => this.bet.text('BET: '+comma(poker.bet)));
         poker.watch(onChange(poker, 'playerWins'), () => this.bet.visible(poker.playerWins === undefined));
 
         this.add(makeText('DEALER', 30, 'center', 'top').y(PokerHand.h*1.05+20));
@@ -42,7 +42,7 @@ export class PokerGfx extends Group {
         poker.watch(onChange(poker, 'playerWins'), () => {
             this.winnings.visible(poker.playerWins !== undefined);
             if (poker.playerWins !== undefined)
-                this.winnings.text(`${poker.playerWins? 'PLAYER':'DEALER'} WINS ${poker.pot}`);
+                this.winnings.text(`${poker.playerWins? 'PLAYER':'DEALER'} WINS ${comma(poker.pot)}`);
         });
 
         this.add(this.doneInstr.y(Screen.h*.49));
