@@ -89,7 +89,9 @@ export class State {
                         // }
                         return true;
                     },
-                    get: (_, key) => {        
+                    get: (_, key) => {     
+                        if (key === 'original') return arr;
+                        if (key === '$isProxy') return true;   
                         if (Utils.stateAccessRecorder) {
                             Utils.stateAccessRecorder(obj, prop);
                         }
@@ -116,6 +118,8 @@ export class State {
                         throw new Error('unexpected');
                     },
                     get: (_, key) => {
+                        if (key === 'original') return set;
+                        if (key === '$isProxy') return true;
                         if (Utils.stateAccessRecorder) {
                             Utils.stateAccessRecorder(obj, prop);
                         }

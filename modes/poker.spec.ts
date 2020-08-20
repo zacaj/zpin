@@ -4,6 +4,7 @@ import { machine } from '../machine';
 import { playRecording, continueRecording, testRecording, finishRecording } from '../recording';
 import { passTime } from '../timer';
 import { settleForks } from '../promises';
+import { snapshot } from '../jest';
 
 describe('poker', () => {
     function hand(str: string): Card[] {
@@ -50,6 +51,7 @@ describe('poker', () => {
         expect(machine.cShooterDiverter.val).toBe(false);
         await passTime(5000);
         expect(machine.cShooterDiverter.val).toBe(true);
+        snapshot();
     });
 
     test('dont eject during cards', async () => {
@@ -57,5 +59,6 @@ describe('poker', () => {
         await passTime(1000);
         expect(machine.cUpperEject.val).toBe(false);
         expect(machine.cUpperEject.lastActualChange).toBe(undefined);
+        snapshot();
     });
 });

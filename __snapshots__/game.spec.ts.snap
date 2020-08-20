@@ -1,0 +1,354 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`game close diverter on orbit 1`] = `
+Object {
+  "outputs": Object {
+    "centerBank": false,
+    "getSkillshot": [Function],
+    "iCenter1": "9D",
+    "iCenter2": "3S",
+    "iCenter3": "3D",
+    "iLeft1": "6S",
+    "iLeft2": "5S",
+    "iLeft3": "6C",
+    "iLeft4": "QH",
+    "iMini1": "3C",
+    "iMini2": "10C",
+    "iMini3": "7S",
+    "iRight1": "4D",
+    "iRight2": "6D",
+    "iRight3": "7H",
+    "iRight4": "8H",
+    "iRight5": "JD",
+    "iSS1": "",
+    "iSS2": "",
+    "iSS3": "",
+    "iSS4": "",
+    "iSS5": "",
+    "iSS6": "",
+    "iSS7": "",
+    "iSpinner": "",
+    "iUpper21": "QD",
+    "iUpper22": "9S",
+    "iUpper31": "10D",
+    "iUpper32": "8S",
+    "iUpper33": "10H",
+    "kickerEnable": true,
+    "lEjectShowCards": Array [],
+    "lEjectStartMode": Array [],
+    "lLowerRamp": Array [],
+    "lMiniReady": Array [
+      "Red",
+    ],
+    "lPower1": Array [
+      "Orange",
+    ],
+    "lPower2": Array [],
+    "lPower3": Array [],
+    "lPower4": Array [],
+    "lRampArrow": Array [],
+    "lRampShowCards": Array [],
+    "lRampStartMb": Array [],
+    "lShooterShowCards": Array [],
+    "lShooterStartHand": Array [],
+    "leftBank": false,
+    "leftGate": false,
+    "leftMagnet": false,
+    "lockPost": false,
+    "magnetPost": false,
+    "miniBank": false,
+    "miniDiverter": false,
+    "miniEject": false,
+    "outhole": false,
+    "popper": false,
+    "rampUp": true,
+    "realRightBank": false,
+    "right1": false,
+    "right2": false,
+    "right3": false,
+    "right4": false,
+    "right5": false,
+    "rightBank": false,
+    "rightGate": false,
+    "shooterDiverter": true,
+    "troughRelease": false,
+    "upper2": false,
+    "upper3": false,
+    "upperEject": false,
+    "upperMagnet": false,
+  },
+  "state": Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "name": "DropBank11",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank12",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank13",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank14",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank15",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank16",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "name": "EosPulse18",
+            "state": Object {},
+          },
+        ],
+        "name": "MachineOverrides17",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [
+              Object {
+                "children": Array [],
+                "name": "ClearHoles21",
+                "state": Object {},
+              },
+              Object {
+                "children": Array [],
+                "name": "Poker22",
+                "state": Object {
+                  "bet": 100,
+                  "closeShooter": false,
+                  "dealerCardsUsed": Array [],
+                  "dealerHand": Array [
+                    Object {
+                      "flipped": true,
+                      "num": 1,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": true,
+                      "num": 1,
+                      "suit": "h",
+                    },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                  ],
+                  "playerCardsUsed": Array [],
+                  "playerHand": Array [
+                    Object {
+                      "num": 7,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "h",
+                    },
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                  ],
+                  "playerWins": undefined,
+                  "pot": 0,
+                  "slots": Array [
+                    Object {
+                      "num": 9,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 7,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 11,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 5,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 9,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 7,
+                      "suit": "s",
+                    },
+                  ],
+                  "step": 2,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "Spinner23",
+                "state": Object {
+                  "comboMult": 1,
+                  "rounds": 0,
+                  "score": 10,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "PlayerOverrides24",
+                "state": Object {},
+              },
+              Object {
+                "children": Array [
+                  Object {
+                    "children": Array [
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter27",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter28",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter29",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter30",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter31",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter32",
+                        "state": Object {},
+                      },
+                    ],
+                    "name": "ResetAnyDropOnComplete26",
+                    "state": Object {},
+                  },
+                ],
+                "name": "Ball25",
+                "state": Object {},
+              },
+            ],
+            "name": "Player20",
+            "state": Object {
+              "chips": 1,
+              "closeShooter": false,
+              "lowerRampLit": false,
+              "mbsQualified": Array [],
+              "miniReady": false,
+              "modesQualified": Array [],
+              "poker": "Poker22",
+              "rampUp": true,
+              "score": 10000,
+            },
+          },
+        ],
+        "name": "Game19",
+        "state": Object {
+          "ballNum": 1,
+        },
+      },
+    ],
+    "name": "Machine10",
+    "state": Object {
+      "lastSwitchHit": Switch {
+        "_state": false,
+        "column": 5,
+        "lastChange": 15763,
+        "lastClosed": 15497,
+        "lastOpened": 15763,
+        "minOffTime": 10,
+        "minOnTime": 1,
+        "name": "right inlane",
+        "row": 0,
+      },
+      "lockDown": false,
+      "miniDown": false,
+    },
+  },
+}
+`;
