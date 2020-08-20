@@ -1,11 +1,11 @@
-import { MachineOutputs, machine } from '../machine';
+import { MachineOutputs, machine, SkillshotAward } from '../machine';
 import { Mode, Modes } from '../mode';
 import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
-import { screen, alert } from '../gfx';
+import { screen, alert, makeText } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
 import { KnockTarget, ResetMechs as ResetDropBanks } from '../util-modes';
@@ -14,6 +14,7 @@ import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
+import { comma } from '../util';
 
 
 export class Poker extends Mode<MachineOutputs> {
@@ -54,6 +55,7 @@ export class Poker extends Mode<MachineOutputs> {
             lEjectShowCards: () => this.step >= 7 && player.modesQualified.size>0? [Color.Green] : [],
             lRampShowCards: () => this.step >= 7 && player.mbsQualified.size>0? [Color.Green] : [],
             shooterDiverter: () => !this.closeShooter,
+            getSkillshot: () => () => this.getSkillshot(),
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -200,6 +202,28 @@ export class Poker extends Mode<MachineOutputs> {
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
         return deck;
+    }
+
+    getSkillshot(): Partial<SkillshotAward>[] {
+        const base = 10;
+        const switches = ['right inlane','lower magnet switch','upper magnet switch','lower lanes','upper lanes','upper eject hole','left inlane'];
+        const mults = [
+            this.step<=2? [[1, 0]] : [[1, -3, -1], [4, 1, 5]],
+            [[1, -6, -3], [4, 1, 10]],
+            [[1, -6, -3], [4, 1, 10]],
+            [[1, -6, -3], [4, 1, 10]],
+            [[1, 10, 20], [4, 1, 10]],
+            [[1, 10, 20], [4, 1, 10]],
+            [[1, -3, -1], [4, 1, 5]],
+        ];
+        return [...switches.map((sw, i) => {
+            const value = base * this.player.weightedRange(...mults[i] as any);
+            return {
+                switch: sw,
+                display: comma(value),
+                collect: () => this.bet += value,
+            };
+        }), { award: 'plunge to choose bet amount'}];;
     }
 }
 
