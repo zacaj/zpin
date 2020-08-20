@@ -1,5 +1,5 @@
 import { Log } from './log';
-import { Timer, passTime, setTime, time } from './timer';
+import { Timer, passTime, setTime, time, wait } from './timer';
 import * as fs from 'fs';
 import { split, assert, debugging } from './util';
 import { matrix } from './switch-matrix';
@@ -25,6 +25,7 @@ export function initRecording(recording: string) {
 }
 
 export async function playRecording(toPoint?: string) {
+    // await new Promise(r => setTimeout(r, 10000));
     const events = Events;
     const timer = Timer;
     const _machine = machine;

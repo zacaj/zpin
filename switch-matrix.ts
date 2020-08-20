@@ -155,14 +155,14 @@ let lastRawCheck = Number.NEGATIVE_INFINITY;
 safeSetInterval(async () => {
     if (!MPU.isConnected) return;
 
-    const start = time();
     const events = await getSwitchEvents();
+    const start = time();
     for (const resp of events) {
         assert(resp.when >= lastSwitchEvent);
         lastSwitchEvent = resp.when;
-        const ago = time() - resp.when;
-        if (ago > (start - lastEventCheck)*2 || resp.when < lastRawCheck) {
-            Log.info(['switch'], 'ignore switch event %j, %i late', resp, ago - (start - lastEventCheck)*2);
+        // const ago = time() - resp.when;
+        if (resp.when < lastRawCheck) {
+            Log.info(['switch'], 'ignore switch event %j, %i late', resp, lastRawCheck - resp.when);
         }
         else {
           if (matrix[resp.col][resp.row])
