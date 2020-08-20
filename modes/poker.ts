@@ -43,7 +43,7 @@ export class Poker extends Mode<MachineOutputs> {
 
         const outs: any  = {};
         for (const target of machine.dropTargets) {
-            outs[target.image.name] = () => getFile(this.slots[target.num]);
+            outs[target.image.name] = () => this.step<7? getFile(this.slots[target.num]) : undefined;
         }
         this.out = new Outputs(this, {
             ...outs,
