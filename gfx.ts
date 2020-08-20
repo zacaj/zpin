@@ -41,10 +41,10 @@ export async function initGfx() {
     });
 
     Log.log('gfx', 'precaching images...');
-    for (const file of fs.readdirSync('./media')) {
-        if (!file.endsWith('.png')) continue;
-        await Image.cacheTexture(file.slice(0, file.length - 4));
-    }
+    await Promise.all(fs.readdirSync('./media').map(async file => {
+        if (file.endsWith('.png'))
+            await Image.cacheTexture(file.slice(0, file.length - 4));
+    }));
     Log.log('gfx', 'precached');
 
     gfx.fill('#FFFF00');
