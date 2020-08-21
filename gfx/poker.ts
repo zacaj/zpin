@@ -21,19 +21,19 @@ export class PokerGfx extends Group {
         this.z(poker.gPriority);
 
         this.add(this.playerHand = new PokerHand(poker, poker.playerHand).x(0).y(-PokerHand.h*1.05/2-20));
-        poker.watch(onChange(poker, 'playerWins'), () => this.playerHand.visible(poker.playerWins === undefined));
+        poker.watch(() => this.playerHand.visible(poker.playerWins === undefined));
         this.add(this.dealerHand = new PokerHand(poker, poker.dealerHand).x(0).y(PokerHand.h*1.05/2+20));
-        poker.watch(onChange(poker, 'playerWins'), () => this.dealerHand.visible(poker.playerWins === undefined));
+        poker.watch(() => this.dealerHand.visible(poker.playerWins === undefined));
         this.add(new PokerHand(poker, poker.playerCardsUsed).x(0).y(-PokerHand.h*1.05/2-20));
         this.add(new PokerHand(poker, poker.dealerCardsUsed).x(0).y(PokerHand.h*1.05/2+20));
 
         this.add(this.pot.x(-Screen.w/4).y(0));
-        poker.watch(onChange(poker, 'pot'), () => this.pot.text('POT: '+comma(poker.pot)));
-        poker.watch(onChange(poker, 'playerWins'), () => this.pot.visible(poker.playerWins === undefined));
+        poker.watch(() => this.pot.text('POT: '+comma(poker.pot)));
+        poker.watch(() => this.pot.visible(poker.playerWins === undefined));
 
         this.add(this.bet.x(Screen.w/4).y(0));
-        poker.watch(onChange(poker, 'bet'), () => this.bet.text('BET: '+comma(poker.bet)));
-        poker.watch(onChange(poker, 'playerWins'), () => this.bet.visible(poker.playerWins === undefined));
+        poker.watch(() => this.bet.text('BET: '+comma(poker.bet)));
+        poker.watch(() => this.bet.visible(poker.playerWins === undefined));
 
         this.add(makeText('DEALER', 30, 'center', 'top').y(PokerHand.h*1.05+20));
         this.add(this.player.y(-PokerHand.h*1.05-20));
@@ -46,7 +46,7 @@ export class PokerGfx extends Group {
         });
 
         this.add(this.doneInstr.y(Screen.h*.49));
-        poker.watch(onChange(poker, ['step', 'closeShooter']), () => this.doneInstr.visible(poker.step === 7 && !poker.closeShooter));
+        poker.watch(() => this.doneInstr.visible(poker.step === 7 && !poker.closeShooter));
         poker.watch(() => {
             const places = ['Shooter Lane'];
             if (machine.lEjectShowCards.lit()) places.push('Eject');
