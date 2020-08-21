@@ -77,7 +77,7 @@ export class Skillshot extends Mode<MachineOutputs> {
 
         this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), 'finish');
 
-        this.listen([...onSwitchOpen(machine.sPopperButton), () => time() - machine.sPopperButton.lastClosed! < 100], () => this.setAward(this.curAward+1));
+        this.listen([...onSwitchOpen(machine.sPopperButton), () => time() - machine.sPopperButton.lastClosed! < 300], () => this.setAward(this.curAward+1));
         this.listen(onSwitchClose(machine.sMagnetButton), () => this.setAward(this.curAward-1));
 
 
@@ -107,7 +107,7 @@ export class Skillshot extends Mode<MachineOutputs> {
                     a.display.fill('#ffffff');
             }
         };
-        i = wrap(i, this.awards.length);
+        i = wrap(i, this.awards.length-1);
         select(this.awards[this.curAward], false);        
         this.curAward = i;
         select(this.awards[this.curAward], true);
