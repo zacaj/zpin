@@ -1,14 +1,18 @@
-Mon Aug 10 2020 20:41:52 GMT-0400 (Eastern Daylight Time)
-26:06.24713 switch 'shooter lane' state -> true (0,0) at 5701
-26:09.89633 force state of right 1 to on
-26:09.89732 switch 'right 1' state -> true (5,2) at 9350
-26:10.63206 drop switch right 1 down
-26:10.44144 switch 'right 1' state -> false (5,2) at 9894
-26:11.17601 force state of right 3 to on
-26:11.17694 switch 'right 3' state -> true (3,2) at 10630
-26:11.33826 drop switch right 3 down
-26:11.60917 switch 'right 3' state -> false (3,2) at 11063
-26:12.13507 force state of right 4 to on
-26:12.13600 switch 'right 4' state -> true (2,2) at 11590
-26:12.27777 drop switch right 4 down
-26:12.54206 switch 'right 4' state -> false (2,2) at 11996
+Thu Aug 20 2020 22:10:32 GMT-0400 (Eastern Daylight Time)
+54:36.173.700 start mode MachineOverrides
+54:36.730.500 start mode Game
+54:36.731.900 start mode Player
+54:36.829.200 start mode Poker
+54:37.124.700 start mode PlayerOverrides
+54:37.147.600 start mode Ball
+54:37.449.900 switch 'shooter lane' state -> true (0,0) at 2503 via fake
+54:37.482.700 start mode Skillshot
+54:42.263.600 force state of right 4 to on
+54:42.264.700 switch 'right 4' state -> true (2,2) at 7319 via force
+54:42.282.700 drop switch right 4 down
+54:43.781.200 force state of right 3 to on
+54:43.781.200 switch 'right 3' state -> true (3,2) at 8836 via force
+54:43.800.800 drop switch right 3 down
+54:48.378.00 force state of upper 3 left to on
+54:48.387.00 switch 'upper 3 left' state -> true (2,5) at 13093 via force
+54:48.653.00 drop switch upper 3 left down

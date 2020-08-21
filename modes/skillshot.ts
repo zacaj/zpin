@@ -13,6 +13,7 @@ import { time } from '../timer';
 import { Events, Priorities, Event } from '../events';
 import { fork } from '../promises';
 import { Ball } from './ball';
+import { Rng } from '../rand';
 
 
 export class Skillshot extends Mode<MachineOutputs> {
@@ -30,12 +31,15 @@ export class Skillshot extends Mode<MachineOutputs> {
 
     finishDisplay?: () => void;
 
+    rng!: Rng;
+
     private constructor(
         public player: Player,
     ) {
         super(Modes.Skillshot);
-
+        this.rng = player.rng();
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
+        player.storeData<Skillshot>(this, ['rng']);
 
         this.awards = this.makeAwards();          
 
@@ -177,7 +181,7 @@ export class Skillshot extends Mode<MachineOutputs> {
             [[1, 1, 5]],
         ];
         return switches.map((sw, i) => {
-            const value = base * this.player.weightedRange(...mults[i] as any);
+            const value = base * this.rng.weightedRange(...mults[i] as any);
             return {
                 award: comma(value)+' points',
                 switch: sw,

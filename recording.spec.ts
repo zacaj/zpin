@@ -11,20 +11,20 @@ describe('recordings', () => {
         const shooter = jest.spyOn(matrix[0][0]!, 'changeState');
         const right4 = jest.spyOn(matrix[2][2]!, 'changeState');
         const right3 = jest.spyOn(matrix[3][2]!, 'changeState');
-        const right1 = jest.spyOn(matrix[5][2]!, 'changeState');
+        const upper3a = jest.spyOn(matrix[2][5]!, 'changeState');
         expect(matrix[3][2]?.name).toBe('right 3');
 
         initRecording('./recordings/test-1.rec');
         await playRecording();
 
         expect(shooter).lastCalledWith(true, expect.stringContaining('recording'));
-        expect(shooter).lastReturnedWith(expect.objectContaining({when: 5701}));
-        expect(right4).lastCalledWith(false, expect.stringContaining('recording'));
-        expect(right4).lastReturnedWith(expect.objectContaining({when: 11996}));
-        expect(right3).lastCalledWith(false, expect.stringContaining('recording'));
-        expect(right3).lastReturnedWith(expect.objectContaining({when: 11063}));
-        expect(right1).lastCalledWith(false, expect.stringContaining('recording'));
-        expect(right1).lastReturnedWith(expect.objectContaining({when: 9894}));
+        expect(shooter).lastReturnedWith(expect.objectContaining({when: 2503}));
+        expect(right4).lastCalledWith(true, expect.stringContaining('recording'));
+        expect(right4).lastReturnedWith(expect.objectContaining({when: 7319}));
+        expect(right3).lastCalledWith(true, expect.stringContaining('recording'));
+        expect(right3).lastReturnedWith(expect.objectContaining({when: 8836}));
+        expect(upper3a).lastCalledWith(true, expect.stringContaining('recording'));
+        expect(upper3a).lastReturnedWith(expect.objectContaining({when: 13093}));
     });
     test('play test', async () => {
         await testRecording('test-1');

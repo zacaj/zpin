@@ -13,6 +13,7 @@ import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
 import { comma } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
+import { Rng } from '../rand';
 
 
 export class StraightMb extends Multiball {
@@ -29,12 +30,17 @@ export class StraightMb extends Multiball {
     value = 1000000;
     awardingJp = 0;
 
+    skillshotRng!: Rng;
+    bankRng!: Rng;
+
     protected constructor(
         player: Player,
     ) {
         super(player);
+        this.skillshotRng = player.rng();
+        this.bankRng = player.rng();
         State.declare<StraightMb>(this, ['curBank', 'awardingJp', 'jackpotLit']);
-        player.storeData<StraightMb>(this, ['value']);
+        player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => {
@@ -96,7 +102,7 @@ export class StraightMb extends Multiball {
             this.curBank = bank;
             return;
         }
-        const i = this.player.weightedRand(1, 1, 5, 0, 3, 3);
+        const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 3);
         this.curBank = machine.dropBanks[i];
     }
 
@@ -130,12 +136,12 @@ export class StraightMb extends Multiball {
         const switches = ['right inlane','lower magnet switch','upper magnet switch','lower lanes','upper lanes','upper eject hole','left inlane'];
         const selections: (string|DropBank)[] = [
             'random', 
-            this.player.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
-            this.player.weightedSelect([5, machine.leftBank], [2, machine.centerBank], [2, machine.rightBank]),
-            this.player.weightedSelect([3, machine.leftBank], [5, machine.centerBank], [2, machine.upper3Bank]),
-            this.player.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
-            this.player.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
-            this.player.weightedSelect([5, machine.leftBank]),
+            this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
+            this.skillshotRng.weightedSelect([5, machine.leftBank], [2, machine.centerBank], [2, machine.rightBank]),
+            this.skillshotRng.weightedSelect([3, machine.leftBank], [5, machine.centerBank], [2, machine.upper3Bank]),
+            this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
+            this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
+            this.skillshotRng.weightedSelect([5, machine.leftBank]),
         ];
         const verb = [
             'ADD 250K TO',

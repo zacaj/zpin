@@ -5,21 +5,21 @@ Object {
   "outputs": Object {
     "centerBank": false,
     "getSkillshot": [Function],
-    "iCenter1": "9D",
-    "iCenter2": "3S",
-    "iCenter3": "3D",
-    "iLeft1": "6S",
-    "iLeft2": "5S",
-    "iLeft3": "6C",
-    "iLeft4": "QH",
-    "iMini1": "3C",
-    "iMini2": "10C",
-    "iMini3": "7S",
-    "iRight1": "4D",
-    "iRight2": "6D",
-    "iRight3": "7H",
-    "iRight4": "8H",
-    "iRight5": "JD",
+    "iCenter1": "7H",
+    "iCenter2": "KH",
+    "iCenter3": "2D",
+    "iLeft1": "5H",
+    "iLeft2": "2C",
+    "iLeft3": "KC",
+    "iLeft4": "QS",
+    "iMini1": "10S",
+    "iMini2": "4D",
+    "iMini3": "AC",
+    "iRight1": "7S",
+    "iRight2": "3D",
+    "iRight3": "10C",
+    "iRight4": "6S",
+    "iRight5": "QH",
     "iSS1": "",
     "iSS2": "",
     "iSS3": "",
@@ -28,11 +28,11 @@ Object {
     "iSS6": "",
     "iSS7": "",
     "iSpinner": "",
-    "iUpper21": "QD",
-    "iUpper22": "9S",
-    "iUpper31": "10D",
-    "iUpper32": "8S",
-    "iUpper33": "10H",
+    "iUpper21": "AS",
+    "iUpper22": "8C",
+    "iUpper31": "QD",
+    "iUpper32": "2S",
+    "iUpper33": "KS",
     "kickerEnable": true,
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
@@ -139,13 +139,13 @@ Object {
                   "dealerHand": Array [
                     Object {
                       "flipped": true,
-                      "num": 1,
+                      "num": 9,
                       "suit": "c",
                     },
                     Object {
                       "flipped": true,
-                      "num": 1,
-                      "suit": "h",
+                      "num": 6,
+                      "suit": "c",
                     },
                     null,
                     null,
@@ -156,12 +156,12 @@ Object {
                   "playerCardsUsed": Array [],
                   "playerHand": Array [
                     Object {
-                      "num": 7,
-                      "suit": "d",
+                      "num": 12,
+                      "suit": "c",
                     },
                     Object {
-                      "num": 4,
-                      "suit": "h",
+                      "num": 9,
+                      "suit": "d",
                     },
                     null,
                     null,
@@ -173,84 +173,84 @@ Object {
                   "pot": 0,
                   "slots": Array [
                     Object {
-                      "num": 9,
+                      "num": 7,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 2,
                       "suit": "d",
                     },
                     Object {
-                      "num": 3,
+                      "num": 7,
                       "suit": "s",
                     },
                     Object {
                       "num": 3,
                       "suit": "d",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 5,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 1,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "s",
                     },
                     Object {
                       "num": 4,
                       "suit": "d",
                     },
                     Object {
-                      "num": 6,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 7,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 8,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 11,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 6,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 5,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 6,
+                      "num": 1,
                       "suit": "c",
-                    },
-                    Object {
-                      "num": 12,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 12,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 9,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 10,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 8,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 10,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 3,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 10,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 7,
-                      "suit": "s",
                     },
                   ],
                   "step": 2,

@@ -14,11 +14,11 @@ import { Time, time, wait } from '../timer';
 import { makeText, gfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
-import seedrandom = require('seedrandom');
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles } from '../util-modes';
 import { assert } from '../util';
+import { Rng } from '../rand';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -42,12 +42,11 @@ export class Player extends Mode<MachineOutputs> {
     modesQualified = new Set<(number)>();
     mbsQualified = new Set<(typeof Multiball)>();
 
-    rand!: seedrandom.prng;
     closeShooter = false;
 
     constructor(
         public game: Game,
-        seed = 'pinball',
+        public seed = 'pinball',
     ) {
         super(Modes.Player);
         State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter']);
@@ -64,7 +63,6 @@ export class Player extends Mode<MachineOutputs> {
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPower4: () => light(this.chips>=4, Color.Orange),
         });
-        this.rand = seedrandom(seed);
         
         this.addChild(new ClearHoles(), -1);
 
@@ -138,41 +136,19 @@ export class Player extends Mode<MachineOutputs> {
 
         this.gfx?.add(new PlayerGfx(this));
     }
+
+    rng(): Rng {
+        return new Rng(this.seed);
+    }
+
     
     startBall() {
         this.addChild(new Ball(this));
     }
-
-    randRange(start: number, end: number): number {
-        return Math.floor(this.rand()*(end-start+1)+start);
-    }
-
-    weightedRand(...weights: number[]): number {
-        let sum = weights.reduce((prev, cur) => prev+cur, 0);
-        const rand = Math.floor(this.rand()*sum);
-        for (let i=0; i<weights.length; i++) {
-            sum -= weights[i];
-            if (sum <= rand) return i;
-        }
-        return weights.length - 1;
-    }
-
-    weightedSelect<T>(...weights: [number, T][]): T {
-        return weights[this.weightedRand(...weights.map(x => x[0]))][1];
-    }
-
-    weightedRange(...weights: [number, number, number?][]): number {
-        const i = this.weightedRand(...weights.map(x => x[0]));
-        const weight = weights[i];
-        if (weight[2])
-            return this.randRange(weight[1], weight[2]);
-        else 
-            return weight[1];
-    }
-
     store: { [name: string]: any } = {
         Poker: {},
         StraightMb: {},
+        Skillshot: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);

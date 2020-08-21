@@ -15,13 +15,14 @@ import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
 import { comma } from '../util';
+import { Rng } from '../rand';
 
 
 export class Poker extends Mode<MachineOutputs> {
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
 
-    deck = this.makeDeck();
+    deck!: Card[];
 
     step = 2;
 
@@ -36,13 +37,17 @@ export class Poker extends Mode<MachineOutputs> {
     finishShow?: any;
 
     bank = 10000;
+    cardRng!: Rng;
+    skillshotRng!: Rng;
 
     constructor(
         public player: Player,
     ) {
         super(Modes.Poker);
+        this.cardRng = player.rng();
+        this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter']);
-        player.storeData<Poker>(this, ['bank']);
+        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng']);
         this.deal();
 
         const outs: any  = {};
@@ -201,7 +206,7 @@ export class Poker extends Mode<MachineOutputs> {
             }
         }
         for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(this.player.rand() * (i + 1));
+            const j = Math.floor(this.cardRng.rand() * (i + 1));
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
         return deck;
@@ -220,13 +225,13 @@ export class Poker extends Mode<MachineOutputs> {
             [[1, -3, -1], [4, 1, 5]],
         ];
         return [...switches.map((sw, i) => {
-            const value = base * this.player.weightedRange(...mults[i] as any);
+            const value = base * this.skillshotRng.weightedRange(...mults[i] as any);
             return {
                 switch: sw,
                 display: comma(value),
                 collect: () => this.bet += value,
             };
-        }), { award: 'plunge to choose bet amount'}];;
+        }), { award: 'plunge to choose bet amount'}];
     }
 }
 

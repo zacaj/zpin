@@ -1,57 +1,68 @@
-Sun Aug 16 2020 15:16:00 GMT-0400 (Eastern Daylight Time)
-00:06.474.300 start mode MachineOverrides
-00:07.879.100 start mode Game
-00:07.880.600 start mode Player
-00:07.909.700 start mode Poker
-00:08.519.00 start mode GameOverrides
-00:08.577.00 start mode Ball
-00:08.272.700 switch 'shooter lane' state -> true (0,0) at 7228
-00:08.276.900 start mode Skillshot
-00:08.340.100 switch 'shooter lane' state -> false (0,0) at 10885
-00:08.349.800 switch 'right 2' state -> true (4,2) at 12835
-00:08.365.100 drop switch right 2 down
-00:08.409.200 switch 'right 2' state -> false (4,2) at 13138
-00:08.414.400 switch 'right 4' state -> true (2,2) at 14000
-00:08.424.300 drop switch right 4 down
-00:08.431.000 switch 'right 4' state -> false (2,2) at 14267
-00:08.435.300 switch 'left 2' state -> true (2,3) at 15867
-00:08.455.900 drop switch left 2 down
-00:08.459.300 switch 'left 2' state -> false (2,3) at 16144
-00:08.465.900 switch 'center right' state -> true (1,4) at 19568
-00:08.474.500 drop switch center right down
-00:08.482.500 switch 'center left' state -> true (3,4) at 21867
-00:08.542.900 drop switch center left down
-00:08.552.300 switch 'ramp down' state -> true (4,7) at 21996
-00:08.559.800 switch 'right 1' state -> true (5,2) at 22030
-00:08.563.800 drop switch right 1 detected, but was already down
-00:08.569.800 switch 'right 3' state -> true (3,2) at 22178
-00:08.570.800 drop switch right 3 detected, but was already down
-00:08.576.100 switch 'ramp made' state -> true (0,7) at 25668
-00:08.615.000 switch 'ramp made' state -> false (0,7) at 25931
-00:08.685.600 start mode StraightMb
-00:08.749.500 switch 'ramp down' state -> false (4,7) at 28923
-00:08.773.400 switch 'right 1' state -> false (5,2) at 31962
-00:08.778.100 switch 'right 3' state -> false (3,2) at 31964
-00:08.786.200 drop bank rightBank reset successfully
-00:08.800.900 switch 'center left' state -> false (3,4) at 32100
-00:08.804.800 switch 'center right' state -> false (1,4) at 32102
-00:08.807.200 drop bank centerBank reset successfully
-00:08.822.500 switch 'shooter lane' state -> true (0,0) at 32247
-00:08.826.500 start mode Skillshot
-00:12.327.200 force state of shooter lane to off
-00:12.328.900 switch 'shooter lane' state -> false (0,0) at 35702
-00:13.510.100 force state of center right to on
-00:13.511.400 switch 'center right' state -> true (1,4) at 36886
-00:13.514.900 drop switch center right down
-00:14.776.200 force state of center center to on
-00:14.777.700 switch 'center center' state -> true (2,4) at 38151
-00:14.780.900 drop switch center center down
-00:16.828.600 force state of center left to on
-00:16.829.100 switch 'center left' state -> true (3,4) at 40203
-00:16.832.600 drop switch center left down
-00:16.864.000 drop bank centerBank complete
-00:16.963.900 switch 'ramp down' state -> true (4,7) at 40337
-00:17.187.200 switch 'center left' state -> false (3,4) at 40561
-00:17.189.300 switch 'center center' state -> false (2,4) at 40563
-00:17.195.500 switch 'center right' state -> false (1,4) at 40569
-00:17.199.300 drop bank centerBank reset successfully
+Thu Aug 20 2020 22:08:00 GMT-0400 (Eastern Daylight Time)
+52:05.155.300 start mode MachineOverrides
+52:05.712.000 start mode Game
+52:05.713.100 start mode Player
+52:05.799.200 start mode Poker
+52:06.920.00 start mode PlayerOverrides
+52:06.115.600 start mode Ball
+52:06.522.600 switch 'shooter lane' state -> true (0,0) at 2446 via recording ./recordings/lightStraight.rec
+52:06.567.100 start mode Skillshot
+52:07.426.800 switch 'shooter lane' state -> false (0,0) at 17689 via recording ./recordings/lightStraight.rec
+52:07.529.000 switch 'right inlane' state -> true (5,0) at 19634 via recording ./recordings/lightStraight.rec
+52:07.669.600 switch 'right inlane' state -> false (5,0) at 19904 via recording ./recordings/lightStraight.rec
+52:07.898.300 switch 'left 2' state -> true (2,3) at 24474 via recording ./recordings/lightStraight.rec
+52:07.914.500 drop switch left 2 down
+52:08.211.00 switch 'right 2' state -> true (4,2) at 26207 via recording ./recordings/lightStraight.rec
+52:08.412.00 drop switch right 2 down
+52:08.164.600 switch 'mini center' state -> true (6,1) at 28894 via recording ./recordings/lightStraight.rec
+52:08.180.500 drop switch mini center down
+52:08.316.600 switch 'left 1' state -> true (1,3) at 31631 via recording ./recordings/lightStraight.rec
+52:08.332.900 drop switch left 1 down
+52:08.447.400 switch 'right 4' state -> true (2,2) at 33832 via recording ./recordings/lightStraight.rec
+52:08.526.000 drop switch right 4 down
+52:08.658.900 switch 'right 1' state -> true (5,2) at 34144 via recording ./recordings/lightStraight.rec
+52:08.663.500 drop switch right 1 detected, but was already down
+52:08.670.200 switch 'ramp down' state -> true (4,7) at 34157 via recording ./recordings/lightStraight.rec
+52:08.682.100 switch 'right 3' state -> true (3,2) at 34289 via recording ./recordings/lightStraight.rec
+52:08.686.500 drop switch right 3 detected, but was already down
+52:08.692.200 recording ./recordings/lightStraight.rec finished at 34292
+52:11.698.600 force state of ramp made to on
+52:11.699.400 switch 'ramp made' state -> true (0,7) at 37299 via force
+52:11.963.800 switch 'ramp made' state -> false (0,7) at 37563 via force
+52:14.767.100 start mode StraightMb
+52:14.947.500 switch 'ramp down' state -> false (4,7) at 40546 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:272:113) <-  A:\source\zpin\build\machine.js:194:52
+52:17.948.000 switch 'mini center' state -> false (6,1) at 43548 via fake
+52:17.952.200 drop bank miniBank reset successfully
+52:18.992.00 switch 'right 1' state -> false (5,2) at 43699 via fake
+52:18.101.800 switch 'right 2' state -> false (4,2) at 43701 via fake
+52:18.108.200 switch 'right 3' state -> false (3,2) at 43708 via fake
+52:18.110.300 switch 'right 4' state -> false (2,2) at 43710 via fake
+52:18.118.900 drop bank rightBank reset successfully
+52:18.249.200 switch 'left 1' state -> false (1,3) at 43849 via fake
+52:18.252.400 switch 'left 2' state -> false (2,3) at 43852 via fake
+52:18.256.500 drop bank leftBank reset successfully
+52:18.398.700 switch 'shooter lane' state -> true (0,0) at 43998 via fake
+52:18.404.100 start mode Skillshot
+52:23.909.300 force state of shooter lane to off
+52:23.910.000 switch 'shooter lane' state -> false (0,0) at 49510 via force
+52:25.760.200 force state of shooter magnet to on
+52:25.760.400 switch 'shooter magnet' state -> true (7,2) at 51360 via force
+52:26.306.00 switch 'shooter magnet' state -> false (7,2) at 51630 via force
+52:27.495.600 force state of right inlane to on
+52:27.495.000 switch 'right inlane' state -> true (5,0) at 53095 via force
+52:27.827.000 switch 'right inlane' state -> false (5,0) at 53426 via force
+52:31.235.100 force state of center right to on
+52:31.236.100 switch 'center right' state -> true (1,4) at 56836 via force
+52:31.243.700 drop switch center right down
+52:32.514.00 force state of center center to on
+52:32.523.00 switch 'center center' state -> true (2,4) at 57652 via force
+52:32.586.00 drop switch center center down
+52:33.769.000 force state of center left to on
+52:33.770.900 switch 'center left' state -> true (3,4) at 59370 via force
+52:33.777.600 drop switch center left down
+52:33.792.200 drop bank centerBank complete
+52:33.910.700 switch 'ramp down' state -> true (4,7) at 59510 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:272:113) <-  A:\source\zpin\build\machine.js:194:52
+52:34.144.500 switch 'center left' state -> false (3,4) at 59744 via fake
+52:34.148.700 switch 'center center' state -> false (2,4) at 59748 via fake
+52:34.156.500 switch 'center right' state -> false (1,4) at 59756 via fake
+52:34.161.800 drop bank centerBank reset successfully
