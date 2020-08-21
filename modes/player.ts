@@ -1,6 +1,6 @@
 import { MachineOutputs, machine, Machine } from '../machine';
 import { Mode, Modes } from '../mode';
-import { Poker } from './poker';
+import { Poker, Card } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
@@ -40,7 +40,7 @@ export class Player extends Mode<MachineOutputs> {
     rampUp = true;
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Set<(typeof Multiball)>();
+    mbsQualified = new Map<'StraightMb', Card[]>();
 
     closeShooter = false;
 

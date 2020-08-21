@@ -66,7 +66,7 @@ export class State {
             Events.fire(new StateEvent(obj, prop, state.data[prop] as any, undefined as any));
 
             function watchCollections<T>(c: T): T {
-                return watchArray(watchSet(c));
+                return watchArray(watchSet(watchMap(c)));
             }
 
             function watchArray<T>(arr: T[]|any): T[]|any {
@@ -156,6 +156,59 @@ export class State {
                         enumerable: false,
                     });
                 return newSet;
+            }
+            function watchMap<T, U>(map: Map<T, U>|any): Map<T, U>|any {
+                if (!(map instanceof Map)) return map;
+        
+                const newMap = new Proxy(map, {
+                    set: (_, key, val) => {
+                        debugger;
+                        if (key === '$state') {
+                            (map as any)[key] = val;
+                            return val;
+                        }
+                        throw new Error('unexpected');
+                    },
+                    get: (_, key) => {
+                        if (key === 'original') return map;
+                        if (key === '$isProxy') return true;
+                        if (Utils.stateAccessRecorder) {
+                            Utils.stateAccessRecorder(obj, prop);
+                        }
+                        if (typeof (map as any)[key] !== 'function') return (map as any)[key];
+
+                        switch (key) {
+                            case 'delete':
+                            case 'clear':
+                            case 'set': {
+                                return (...args: any[]) => {
+                                    const old = new Map<T, U>(map.values());
+                                    const ret = (map[key] as any)(...args);
+                                    Events.fire(new StateEvent(obj, prop, map as any, old as any));
+                                    Events.fire(new StateEvent(newMap, 'values', map as any, old as any));
+                                    return ret;
+                                };
+                            }
+                            case 'has':
+                            case 'get':
+                            case 'entries':
+                            case 'forEach':
+                            case 'values':
+                                return Map.prototype[key].bind(map);
+                            default:
+                                debugger;
+                                throw new Error(`unexpected key ${String(key)} in Map proxy`);
+                        }
+                        debugger;
+                        throw new Error('unexpected');
+                    },
+                });
+                if (!Object.getOwnPropertyDescriptor(map, '$state'))
+                    Object.defineProperty(map, '$state', {
+                        value: new State(),
+                        enumerable: false,
+                    });
+                return newMap;
             }
         }
     }

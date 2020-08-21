@@ -14,6 +14,7 @@ import { Priorities, Events } from '../events';
 import { comma } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
+import { Card } from './poker';
 
 
 export class StraightMb extends Multiball {
@@ -35,6 +36,7 @@ export class StraightMb extends Multiball {
 
     protected constructor(
         player: Player,
+        public hand: Card[],
     ) {
         super(player);
         this.skillshotRng = player.rng();
@@ -44,7 +46,7 @@ export class StraightMb extends Multiball {
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => {
-                if (target.state) return undefined;
+                if (target.state || this.jackpotLit) return undefined;
                 if (this.curBank && !this.jackpotLit) {
                     if (target.bank === this.curBank)
                         return colorToArrow(this.bankColors.get(this.curBank));
@@ -79,8 +81,9 @@ export class StraightMb extends Multiball {
         if (!finish) return false;
 
         if (!player.curMode) {
-            player.mbsQualified.delete(StraightMb);
-            const mb = new StraightMb(player);
+            const hand = player.mbsQualified.get('StraightMb')!;
+            player.mbsQualified.delete('StraightMb');
+            const mb = new StraightMb(player, hand);
             player.ball.addChild(mb);
             await alert('Straight Multiball!', 3000)[1];
             await mb.start();

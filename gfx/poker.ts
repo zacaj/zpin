@@ -5,6 +5,7 @@ import { onChange } from '../state';
 import { tryNum, comma } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
+import { Mode } from '../mode';
 
 export class PokerGfx extends Group {
     bet = makeText('BET: 0', 40);
@@ -56,13 +57,14 @@ export class PokerGfx extends Group {
     }
 }
 
-class PokerHand extends Group {
+export class PokerHand extends Group {
     static w = 100;
     static spacing = 100/7;
     static h = 150;
     constructor(
-        public poker: Poker,
+        public mode: Mode,
         public hand: (Card|null)[],
+        readonly = false,
     ) {
         super(gfx);
         this.originX(0.5).originY(0.5);
@@ -71,15 +73,16 @@ class PokerHand extends Group {
 
         this.add(gfx.createRect().w.watch(this.w).h(this.h()).fill('#00ff00').opacity(0.5).z(-.1));
 
-        poker.listen(onChange(hand), (e) => {
-            const i = tryNum(e.prop);
-            if (i !== undefined && i < this.children.length)
-                (this.children[i] as Image).set(getFileForCard(this.hand[i]));
-            else
-                this.refresh();
+        if (!readonly)
+            mode.listen(onChange(hand), (e) => {
+                const i = tryNum(e.prop);
+                if (i !== undefined && i < this.children.length)
+                    (this.children[i] as Image).set(getFileForCard(this.hand[i]));
+                else
+                    this.refresh();
 
-            this.visible(hand.length > 0);
-        });
+                this.visible(hand.length > 0);
+            });
         this.refresh();
     }
 

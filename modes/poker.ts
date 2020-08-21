@@ -163,11 +163,12 @@ export class Poker extends Mode<MachineOutputs> {
             }
         }
         for (const straight of straights) {
-            if (!this.player.mbsQualified.has(StraightMb)) {
+            if (!this.player.mbsQualified.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
-                this.player.mbsQualified.add(StraightMb);
                 alert('straight multiball qualified');
             }
+            this.player.mbsQualified.set('StraightMb', straight);
+            break;
         }
     }
 

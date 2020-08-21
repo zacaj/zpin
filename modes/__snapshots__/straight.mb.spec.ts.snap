@@ -605,7 +605,31 @@ Object {
               "closeShooter": false,
               "lowerRampLit": false,
               "mbsQualified": Array [
-                [Function],
+                Array [
+                  "StraightMb",
+                  Array [
+                    Object {
+                      "num": 2,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 5,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "s",
+                    },
+                  ],
+                ],
               ],
               "miniReady": false,
               "modesQualified": Array [],
