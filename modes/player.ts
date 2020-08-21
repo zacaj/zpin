@@ -18,11 +18,11 @@ import seedrandom = require('seedrandom');
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles } from '../util-modes';
+import { assert } from '../util';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
     score = 0;
-    bank = 10000;
     
     poker?: Poker;
 
@@ -168,6 +168,30 @@ export class Player extends Mode<MachineOutputs> {
             return this.randRange(weight[1], weight[2]);
         else 
             return weight[1];
+    }
+
+    store: { [name: string]: any } = {
+        Poker: {},
+    };
+    storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
+        assert(tree.name in this.store);
+
+        const store = this.store[tree.name];
+        for (const prop of props) {
+            if (!(prop in store))
+                store[prop] = tree[prop];
+            
+            Object.defineProperty(tree, prop, {
+                get() {
+                    return store[prop];
+                },
+                set(val) {
+                    store[prop] = val;
+                },
+            });
+        }
+
+        State.declare<T>(store, props);
     }
 }
 

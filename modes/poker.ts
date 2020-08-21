@@ -35,11 +35,14 @@ export class Poker extends Mode<MachineOutputs> {
     closeShooter = false;
     finishShow?: any;
 
+    bank = 10000;
+
     constructor(
         public player: Player,
     ) {
         super(Modes.Poker);
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter']);
+        player.storeData<Poker>(this, ['bank']);
         this.deal();
 
         const outs: any  = {};
@@ -68,7 +71,7 @@ export class Poker extends Mode<MachineOutputs> {
                     flipped: this.step + 1 === 7,
                 };
                 this.pot += this.bet * 2;
-                this.player.bank -= this.bet;
+                this.bank -= this.bet;
                 this.step++;
 
                 this.qualifyModes();
@@ -177,7 +180,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         if (this.playerWins)
-            this.player.bank += this.pot;
+            this.bank += this.pot;
         
         await wait(3000, 'showing cards');
         this.end();
