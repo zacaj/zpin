@@ -25,7 +25,7 @@ export class Outputs<Outs extends {}> {
     originalValues!: Partial<Outs>;
 
     // state -> stateKey -> our key that listens to it
-    listeners = new Map<{}, Map<string, Set<keyof Outs>>>();
+    listeners!: { [key in keyof Outs]: Map<{}, Set<string>>};
 
     constructor(
         public readonly tree: Tree<Outs>,
@@ -43,21 +43,8 @@ export class Outputs<Outs extends {}> {
         this.funcParam = {} as any;
         this.treeValues = {} as any;
         this.originalValues = {} as any;
+        this.listeners = {} as any;
         tree.out = this;
-
-        this.tree.listen<StateEvent<any, any>>(ev => {
-                if (!(ev instanceof StateEvent)) return false;
-                const l1 = this.listeners.get(ev.on); // keys on state we listen to
-                if (!l1) return false;
-                const outs = l1.get(ev.prop); // which of our funcs listen
-                if (!outs?.size) return false;
-                return true;
-            },
-            ev => {
-                for (const key of this.listeners.get(ev.on)!.get(ev.prop)!) {
-                    this.ownValueMayHaveChanged(key);
-                }
-            });
 
         // catch child tree structure changes
         this.tree.listen<TreeEvent<any>>(e => e instanceof TreeEvent
@@ -83,38 +70,26 @@ export class Outputs<Outs extends {}> {
 
         const listeners = this.listeners;
         for (const key of Object.keys(origFuncs) as (keyof Outs)[]) {
+            const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
+            this.funcParam[key] = typeof origFuncs[key] === 'function' && (origFuncs[key] as Function).length > 0;
+            const [watchedFunc, affectors, initialValue] = tree.watch(func, () => {
+                this.ownValueMayHaveChanged(key);
+            });
+            this.listeners[key] = affectors;
             this.funcs[key] = ((prev: any) => {
-                { // begin recording
-                    Utils.stateAccessRecorder = (state, k) => {
-                        if (!listeners.has(state))
-                            listeners.set(state, new Map());
-                        if (!listeners.get(state)!.has(k))
-                            listeners.get(state)!.set(k, new Set());
-                        listeners.get(state)!.get(k)!.add(key);
-                    };
-                }
-                const func = typeof origFuncs[key] === 'function'? origFuncs[key] : (() => origFuncs[key]) as any;
-                this.funcParam[key] = typeof origFuncs[key] === 'function' && (origFuncs[key] as Function).length > 0;
-                try {
-                    const ret = func(prev);
-                    return ret;
-                } catch (err) {
-                    Log.error(['game'], 'error getting value for %s on %o', key, this.tree, err);
-                }
-                finally { // end recording
-                    Utils.stateAccessRecorder = undefined;
-                }
+                const ret = watchedFunc(prev);
+                return ret;
             }) as any;
     
             // do initial record
-            this.originalValues[key] = this.ownValues[key] = this.funcs[key]!(undefined);
+            this.originalValues[key] = this.ownValues[key] = initialValue;
             this.updateTreeValue(key);
             Events.fire(new OwnOutputEvent(this, key, this.ownValues[key], undefined));
         }
     }
     
     ownValueMayHaveChanged<Prop extends keyof Outs>(key: Prop) {
-        assert((key in this.funcs) && this.funcs[key]);
+        assert((key in this.origFuncs) && this.origFuncs[key]);
         const func = this.funcs[key]! as Function;
         const oldValue = this.ownValues[key];
         const newValue = func();
@@ -130,7 +105,7 @@ export class Outputs<Outs extends {}> {
     static getLocalTreeAffectors<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop, gPriority: number): [Tree<Outs>, number][] {
         const children = tree.children.flatMap(c => Outputs.getLocalTreeAffectors(c, key, tree.gPriority ?? gPriority));
         return [
-            ...(tree.out?.funcs[key] !== undefined? [[tree, tree.gPriority ?? gPriority]] : []) as [Tree<Outs>, number][], 
+            ...(tree.out?.origFuncs[key] !== undefined? [[tree, tree.gPriority ?? gPriority]] : []) as [Tree<Outs>, number][], 
             ...children,
         ];
     }
@@ -173,7 +148,7 @@ export class Outputs<Outs extends {}> {
     checkChildChange(child: Tree) {
         if (child.out)
             for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
-                if (!(key in child.out.funcs)) continue;
+                if (!(key in child.out.origFuncs)) continue;
                 this.updateTreeValue(key);
             }
         child.children.forEach(c => this.checkChildChange(c));

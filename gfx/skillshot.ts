@@ -30,12 +30,11 @@ export class SkillShotGfx extends Group {
         this.award.y(this.h()*.6);
         this.add(makeText('flippers change target', 30, 'center', 'middle').x(this.w()/2).y(this.h()*.9));
 
-        ss.watch(onChange(ss, 'curAward'), () => {
+        ss.watch(() => {
             this.award.text(ss.awards[ss.curAward].award);
             this.instr.text(`plunge to ${ss.awards[ss.curAward].switch} for:`);
         });
 
-        ss.watch([onChange(machine.sPopperButton, ['_state', 'lastChange']),  onTick()],
-            () => this.visible(!machine.sPopperButton._state || time() - machine.sPopperButton.lastChange <= 300));
+        ss.watch(() => this.visible(!machine.sPopperButton._state || time() - machine.sPopperButton.lastChange <= 300));
     }
 }

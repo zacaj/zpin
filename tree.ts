@@ -1,8 +1,8 @@
 import { Outputs } from './outputs';
 import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
-import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise } from './util';
+import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, Utils } from './util';
 import { Log } from './log';
-import { State } from './state';
+import { State, StateEvent } from './state';
 import { fork } from './promises';
 import { machine } from './machine';
 import { Timer } from './timer';
@@ -145,13 +145,7 @@ export abstract class Tree<Outs extends {} = {}> {
         else 
             return this[func] as any;
     }
-    watch(
-        preds: OrArray<EventTypePredicate<any>>,
-        func: () => any,
-    ) {
-        this.listen(onAny(...arrayify(preds)), func);
-        func();
-    }
+    
     private findListeners() {
         for (const key of getFuncNames(this)) {
             const prop = this[key];
@@ -189,6 +183,50 @@ export abstract class Tree<Outs extends {} = {}> {
             if (result === 'remove')
                 this.listeners.remove(l);
         }
+    }
+
+    watch<T extends (...args: any[]) => any>(func: T, onChange?: () => any, initialArgs: any[] = []): [T, Map<{}, Set<string>>, ReturnType<T>] {
+        const stack = new Error();
+        const affectors = new Map<{}, Set<string>>();
+        const record = (...args: any[]) => {
+            { // begin recording
+                assert(!Utils.stateAccessRecorder);
+                Utils.stateAccessRecorder = (state, k) => {
+                    if (!affectors.has(state))
+                        affectors.set(state, new Set());
+                    if (!affectors.get(state)!.has(k))
+                        affectors.get(state)!.add(k);
+                };
+            }
+            try {
+                const ret = func(...args);
+                return ret;
+            } catch (err) {
+                Log.error(['game'], 'error evaluating watcher', err);
+                Log.error(['game'], 'error from watcher:', stack.stack);
+                throw err;
+            }
+            finally { // end recording
+                Utils.stateAccessRecorder = undefined;
+            }
+        };
+
+        const initialValue = record(...initialArgs);
+
+        this.listen<StateEvent<any, any>>(ev => {
+            if (!(ev instanceof StateEvent)) return false;
+            const l1 = affectors.get(ev.on);
+            if (!l1) return false;
+            return l1.has(ev.prop);
+        },
+        ev => {
+            if (onChange)
+                onChange();
+            else
+                record();
+        });
+
+        return [record as any, affectors, initialValue];
     }
 
     cleanLog(): string {

@@ -28,12 +28,12 @@ export class StraightMbGfx extends Group {
 
         this.add(this.lightJp);
         this.add(this.getJp);
-        mb.watch(onChange(mb, ['curBank', 'awardingJp']), () => {
+        mb.watch(() => {
             this.lightJp.visible(!!mb.curBank && !mb.awardingJp);
             this.getJp.visible(!mb.curBank);
         });
 
         this.add(this.value);
-        mb.watch(onChange(mb, 'value'), () => this.value.text(`JACKPOT VALUE: ${comma(mb.value)}`));
+        mb.watch(() => this.value.text(`JACKPOT VALUE: ${comma(mb.value)}`));
     }
 }

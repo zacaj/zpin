@@ -8,7 +8,6 @@ export class GameGfx extends Group {
     static readonly top = 70;
     static readonly main = Screen.h - GameGfx.top;
 
-    score = makeText('00', 60, 'center', 'top');
     ball = makeText('FREE PLAY', 40, 'right', 'top');
     constructor(
         public game: Game,
@@ -18,11 +17,8 @@ export class GameGfx extends Group {
         group.z(game.gPriority);
         group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-.1));
 
-        group.add(this.score.y(-Screen.h/2));
-        game.watch(onChange(game.players[0], 'score'), () => this.score.text(comma(game.players[0].score)));
-
         group.add(this.ball.x(Screen.w/2).y(-Screen.h/2));
-        game.watch(onChange(game, 'ballNum'), () => this.ball.text('BALL '+game.ballNum.toFixed(0)));
+        game.watch(() => this.ball.text('BALL '+game.ballNum.toFixed(0)));
         this.add(group);
 
     }

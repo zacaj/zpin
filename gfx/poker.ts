@@ -39,7 +39,7 @@ export class PokerGfx extends Group {
         this.add(this.player.y(-PokerHand.h*1.05-20));
 
         this.add(this.winnings);
-        poker.watch(onChange(poker, 'playerWins'), () => {
+        poker.watch(() => {
             this.winnings.visible(poker.playerWins !== undefined);
             if (poker.playerWins !== undefined)
                 this.winnings.text(`${poker.playerWins? 'PLAYER':'DEALER'} WINS ${comma(poker.pot)}`);
@@ -47,13 +47,12 @@ export class PokerGfx extends Group {
 
         this.add(this.doneInstr.y(Screen.h*.49));
         poker.watch(onChange(poker, ['step', 'closeShooter']), () => this.doneInstr.visible(poker.step === 7 && !poker.closeShooter));
-        poker.watch([machine.lShooterShowCards.onChange(), machine.lEjectShowCards.onChange(), machine.lRampShowCards.onChange()], 
-            () => {
-                const places = ['Shooter Lane'];
-                if (machine.lEjectShowCards.lit()) places.push('Eject');
-                if (machine.lRampShowCards.lit()) places.push('Ramp');
-                this.doneInstr.text('finish hand at '+places.nonOxford('or'));
-            });
+        poker.watch(() => {
+            const places = ['Shooter Lane'];
+            if (machine.lEjectShowCards.lit()) places.push('Eject');
+            if (machine.lRampShowCards.lit()) places.push('Ramp');
+            this.doneInstr.text('finish hand at '+places.nonOxford('or'));
+        });
     }
 }
 
