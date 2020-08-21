@@ -33,7 +33,8 @@ export class StraightMb extends Multiball {
         player: Player,
     ) {
         super(player);
-        State.declare<StraightMb>(this, ['curBank', 'value', 'awardingJp', 'jackpotLit']);
+        State.declare<StraightMb>(this, ['curBank', 'awardingJp', 'jackpotLit']);
+        player.storeData<StraightMb>(this, ['value']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => {

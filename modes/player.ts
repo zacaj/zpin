@@ -172,6 +172,7 @@ export class Player extends Mode<MachineOutputs> {
 
     store: { [name: string]: any } = {
         Poker: {},
+        StraightMb: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
