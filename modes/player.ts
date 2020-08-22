@@ -55,13 +55,14 @@ export class Player extends Mode<MachineOutputs> {
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
-            lShooterStartHand: () => (this.poker?.step??-1) >= 7? [Color.White] : [],
-            lEjectStartMode: () => this.modesQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
-            lRampStartMb: () => this.mbsQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
+            lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [Color.White] : [],
+            lEjectStartMode: () => (!this.curMode || this.poker) && this.modesQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
+            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPower4: () => light(this.chips>=4, Color.Orange),
+            shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
         });
         
         this.addChild(new ClearHoles(), -1);
