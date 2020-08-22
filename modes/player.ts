@@ -85,8 +85,8 @@ export class Player extends Mode<MachineOutputs> {
         this.listen(
             onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
             () => {
-                this.chips++;
-                if (this.chips > 4) this.chips--;   
+                if (this.chips < 4)
+                    this.chips++;
             });
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
@@ -103,7 +103,7 @@ export class Player extends Mode<MachineOutputs> {
 
         
 
-        this.listen([onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper)], () => this.closeShooter = true);
+        this.listen([onAnySwitchClose(machine.sShooterUpper)], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
 
 
