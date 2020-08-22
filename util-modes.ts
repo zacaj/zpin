@@ -19,7 +19,7 @@ export class ClearHoles extends Tree<MachineOutputs> {
         this.out = new Outputs(this, {
             // shooterDiverter: false,
             outhole: () => machine.sOuthole.state,
-            upperEject: () => machine.sUpperEject.state,
+            upperEject: () => machine.sUpperEject.onFor(500),
             miniEject: () => machine.sMiniOut.state,
         });
     }

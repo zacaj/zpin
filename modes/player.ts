@@ -16,9 +16,10 @@ import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
-import { ClearHoles } from '../util-modes';
+import { ClearHoles, ResetMechs } from '../util-modes';
 import { assert } from '../util';
 import { Rng } from '../rand';
+import { MPU } from '../mpu';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -123,6 +124,9 @@ export class Player extends Mode<MachineOutputs> {
             if (!this.curMode) {
                 this.poker = new Poker(this);
                 this.addChild(this.poker);
+                if (MPU.isConnected || gfx) {
+                    await this.await(this.addChild(new ResetMechs()).onEnd());
+                }
                 await wait(500);
             }
             finish();
