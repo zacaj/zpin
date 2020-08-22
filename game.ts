@@ -1,4 +1,4 @@
-import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnyPfSwitchExcept } from './switch-matrix';
+import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnyPfSwitchExcept, Switch, onClose } from './switch-matrix';
 import { Events, onType, Event } from './events';
 import { State, StateEvent, onChange } from './state';
 import { machine, MachineOutputs, resetMachine } from './machine';
@@ -46,6 +46,7 @@ export class Game extends Mode<MachineOutputs> {
         // this.listen(onSwitchClose(machine.sLeftInlane),
         //     () => this.addChild(new KnockTarget()));
 
+        this.listen(onClose(), (e) => this.curPlayer.score += this.scores.get(e.sw) ?? 0);
 
 
         this.playerUp = 0;
@@ -80,6 +81,71 @@ export class Game extends Mode<MachineOutputs> {
         screen?.add(game.gfx!);
         return game;
     }
+
+    scores = new Map<Switch, number>([
+        [machine.sLeftInlane,       1000],
+        [machine.sLeftOutlane,      10000],
+        [machine.sRightInlane,      1000],
+        [machine.sRightOutlane,     10000],
+        [machine.sMiniEntry,        0],
+        [machine.sMiniOut,          0],
+        [machine.sMiniMissed,       0],
+        [machine.sOuthole,          0],
+        [machine.sTroughFull,       0],
+        [machine.sLeftSling,        10],
+        [machine.sRightSling,       100],
+        [machine.sMiniLeft,         25000],
+        [machine.sMiniCenter,       25000],
+        [machine.sMiniRight,        25000],
+        [machine.sCenterLeft,       5000],
+        [machine.sCenterCenter,     5000],
+        [machine.sCenterRight,      5000],
+        [machine.sLeft1,            3000],
+        [machine.sLeft2,            3000],
+        [machine.sLeft3,            3000],
+        [machine.sLeft4,            3000],
+        [machine.sRight1,           3000],
+        [machine.sRight2,           3000],
+        [machine.sRight3,           3000],
+        [machine.sRight4,           3000],
+        [machine.sRight5,           3000],
+        [machine.sLeftBack1,        25000],
+        [machine.sLeftBack2,        25000],
+        [machine.sCenterBackLeft,   1000],
+        [machine.sCenterBackCenter, 1000],
+        [machine.sCenterBackRight,  1000],
+        [machine.sUpper3Left,       8000],
+        [machine.sUpper3Center,     8000],
+        [machine.sUpper3Right,      8000],
+        [machine.sUpper2Left,       8000],
+        [machine.sUpper2Right,      8000],
+        [machine.sSingleStandup,    13000],
+        [machine.sRampMini,         3000],
+        [machine.sRampMiniOuter,    3000],
+        [machine.sRampDown,         0],
+        [machine.sUnderRamp,        0],
+        [machine.sLeftOrbit,        5000],
+        [machine.sSpinner,          0],
+        [machine.sSpinnerMini,      3000],
+        [machine.sUpperPopMini,     3000],
+        [machine.sSidePopMini,      3000],
+        [machine.sShooterUpper,     10],
+        [machine.sShooterMagnet,    10],
+        [machine.sShooterLane,      10],
+        [machine.sShooterLower,     10],
+        [machine.sBackLane,         1000],
+        [machine.sPop,              7500],
+        [machine.sUpperInlane,      1000],
+        [machine.sUnderUpperFlipper,25000],
+        [machine.sUpperSideTarget,  15000],
+        [machine.sUpperEject,       1000],
+        [machine.sUpperLaneLeft,    1000],
+        [machine.sUpperLaneRight,   1000],
+        [machine.sLowerLaneLeft,    1000],
+        [machine.sLowerLaneRight,   1000],
+        [machine.sLowerLaneCenter,  1000],
+        [machine.sRampMade,         5000],
+    ]);
 }
 
 export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
