@@ -83,10 +83,10 @@ export class StraightMb extends Multiball {
         if (!player.curMode) {
             const hand = player.mbsQualified.get('StraightMb')!;
             player.mbsQualified.delete('StraightMb');
+            await alert('Straight Multiball!', 3000)[1];
             const mb = new StraightMb(player, hand);
             player.ball.addChild(mb);
             player.curMbMode = mb;
-            await alert('Straight Multiball!', 3000)[1];
             await mb.start();
             await mb.releaseBallFromTrough();
             finish();

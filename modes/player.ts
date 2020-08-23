@@ -40,7 +40,14 @@ export class Player extends Mode<MachineOutputs> {
     rampUp = true;
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Map<'StraightMb', Card[]>();
+    mbsQualified = new Map<'StraightMb'|'FlushMb', Card[]>();
+
+    get modesReady() {
+        return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
+    }
+    get mbsReady() {
+        return new Set([...this.mbsQualified, ...(this.poker?.newMbs ?? [])]);
+    }
 
     closeShooter = false;
 
@@ -56,8 +63,8 @@ export class Player extends Mode<MachineOutputs> {
             lMiniReady: () => this.miniReady? [Color.Green] : undefined,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [Color.White] : [],
-            lEjectStartMode: () => (!this.curMode || this.poker) && this.modesQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
-            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsQualified.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
+            lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
+            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),

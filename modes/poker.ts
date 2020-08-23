@@ -40,8 +40,8 @@ export class Poker extends Mode<MachineOutputs> {
     cardRng!: Rng;
     skillshotRng!: Rng;
 
-    modesAlreadyQualified!: Player['modesQualified'];
-    mbsAlreadyQualified!: Player['mbsQualified'];
+    newModes = new Set<number>();
+    newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();
 
     constructor(
         public player: Player,
@@ -49,9 +49,7 @@ export class Poker extends Mode<MachineOutputs> {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        this.modesAlreadyQualified = new Set(player.modesQualified);
-        this.mbsAlreadyQualified = new Map(player.mbsQualified);
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng']);
         this.deal();
 
@@ -65,8 +63,8 @@ export class Poker extends Mode<MachineOutputs> {
             lockPost: () => machine.lRampShowCards.lit()? false : undefined,
             upperEject: () => machine.lEjectShowCards.lit()? false : undefined,
             lShooterShowCards: () => this.step >= 7? [Color.Green] : [],
-            lEjectShowCards: () => this.step >= 7 && player.modesQualified.size>0? [Color.Green] : [],
-            lRampShowCards: () => this.step >= 7 && player.mbsQualified.size>0? [Color.Green] : [],
+            lEjectShowCards: () => this.step >= 7 && player.modesReady.size>0? [Color.Green] : [],
+            lRampShowCards: () => this.step >= 7 && player.mbsReady.size>0? [Color.Green] : [],
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => () => this.getSkillshot(),
         });
@@ -170,29 +168,32 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     qualifyModes() {
-        this.player.modesQualified = new Set(this.modesAlreadyQualified);
-        this.player.mbsQualified = new Map(this.mbsAlreadyQualified);
         const cards = this.playerHand.filter(c => !!c) as Card[];
         const flushes = findFlushes(cards);
         const straights = findStraights(cards);
         const pairs = findPairs(cards);
         for (const pair of pairs) {
-            if (!this.player.modesQualified.has(pair[0].num)) {
+            if (!this.newModes.has(pair[0].num)) {
                 Log.info('game', 'qualified mode %i', pair[0].num);
-                this.player.modesQualified.add(pair[0].num);
+                this.newModes.add(pair[0].num);
                 alert(`${getRank(pair[0])} mode qualified`);
             }
         }
         for (const straight of straights) {
-            if (!this.player.mbsQualified.has('StraightMb')) {
+            if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
                 alert('straight multiball qualified');
             }
-            this.player.mbsQualified.set('StraightMb', straight);
+            this.newMbs.set('StraightMb', straight);
             break;
         }
-        if (flushes.length > 0)
-            alert('flush multiball qualified');
+        if (flushes.length > 0) {
+            if (!this.newMbs.has('FlushMb')) {
+                Log.info('game', 'qualified flush multiball');
+                alert('flush multiball qualified');
+            }
+            this.newMbs.set('FlushMb', flushes[0]);
+        }
     }
 
     async showCards() {
@@ -216,6 +217,11 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     end() {
+        for (const mode of this.newModes)
+            this.player.modesQualified.add(mode);
+        for (const [mb, hand] of this.newMbs)
+            this.player.mbsQualified.set(mb, hand);
+
         this.player.poker = undefined;
         if (this.finishShow)
             this.finishShow();
@@ -257,11 +263,11 @@ export class Poker extends Mode<MachineOutputs> {
             ...straight1,
             ...straight2,
         ].filter(x => !!x);
-        const leftOvers = seq(rng.randRange(7, 11)).map(x => getCard(undefined, badSuit)!);
+        const leftOvers = seq(rng.randRange(7, 11)).map(x => getCard(undefined, badSuit)!).filter(x => !!x);
 
         const newDeck = [...front, ...deck, ...leftOvers];
-        const used = newDeck.slice(0, 26).shuffle();
-        const rest = newDeck.slice(26).shuffle();
+        const used = newDeck.slice(0, 26).shuffle(() => rng.rand());
+        const rest = newDeck.slice(26).shuffle(() => rng.rand());
         return [...used, ...rest];
     }
 

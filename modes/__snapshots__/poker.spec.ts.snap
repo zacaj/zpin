@@ -5,21 +5,21 @@ Object {
   "outputs": Object {
     "centerBank": false,
     "getSkillshot": [Function],
-    "iCenter1": "9D",
-    "iCenter2": "3S",
-    "iCenter3": "3D",
-    "iLeft1": "6S",
-    "iLeft2": "5S",
-    "iLeft3": "6C",
-    "iLeft4": "QH",
-    "iMini1": "3C",
-    "iMini2": "10C",
-    "iMini3": "7S",
-    "iRight1": "4D",
-    "iRight2": "6D",
-    "iRight3": "7H",
-    "iRight4": "8H",
-    "iRight5": "JD",
+    "iCenter1": "JC",
+    "iCenter2": "5S",
+    "iCenter3": "QS",
+    "iLeft1": "AH",
+    "iLeft2": "4D",
+    "iLeft3": "JS",
+    "iLeft4": "2S",
+    "iMini1": "10D",
+    "iMini2": "4H",
+    "iMini3": "9S",
+    "iRight1": "KH",
+    "iRight2": "10S",
+    "iRight3": "4S",
+    "iRight4": "6D",
+    "iRight5": "4C",
     "iSS1": Object {
       "fill": [Function],
     },
@@ -42,11 +42,11 @@ Object {
       "fill": [Function],
     },
     "iSpinner": "",
-    "iUpper21": "QD",
-    "iUpper22": "9S",
-    "iUpper31": "10D",
-    "iUpper32": "8S",
-    "iUpper33": "10H",
+    "iUpper21": "KS",
+    "iUpper22": "3C",
+    "iUpper31": "5D",
+    "iUpper32": "7H",
+    "iUpper33": "AS",
     "kickerEnable": true,
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [
@@ -219,13 +219,13 @@ Object {
                   "dealerHand": Array [
                     Object {
                       "flipped": true,
-                      "num": 1,
-                      "suit": "c",
+                      "num": 3,
+                      "suit": "d",
                     },
                     Object {
                       "flipped": true,
-                      "num": 1,
-                      "suit": "h",
+                      "num": 8,
+                      "suit": "d",
                     },
                     null,
                     null,
@@ -233,15 +233,17 @@ Object {
                     null,
                     null,
                   ],
+                  "newMbs": Array [],
+                  "newModes": Array [],
                   "playerCardsUsed": Array [],
                   "playerHand": Array [
                     Object {
-                      "num": 7,
-                      "suit": "d",
+                      "num": 3,
+                      "suit": "s",
                     },
                     Object {
-                      "num": 4,
-                      "suit": "h",
+                      "num": 7,
+                      "suit": "c",
                     },
                     null,
                     null,
@@ -253,83 +255,83 @@ Object {
                   "pot": 0,
                   "slots": Array [
                     Object {
-                      "num": 9,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 3,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 3,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 4,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 6,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 7,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 8,
-                      "suit": "h",
-                    },
-                    Object {
                       "num": 11,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 6,
-                      "suit": "s",
+                      "suit": "c",
                     },
                     Object {
                       "num": 5,
                       "suit": "s",
                     },
                     Object {
+                      "num": 12,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "s",
+                    },
+                    Object {
                       "num": 6,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
                       "suit": "c",
                     },
                     Object {
-                      "num": 12,
+                      "num": 1,
                       "suit": "h",
                     },
                     Object {
-                      "num": 12,
+                      "num": 4,
                       "suit": "d",
                     },
                     Object {
-                      "num": 9,
+                      "num": 11,
                       "suit": "s",
                     },
                     Object {
-                      "num": 10,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 8,
+                      "num": 2,
                       "suit": "s",
                     },
                     Object {
-                      "num": 10,
-                      "suit": "h",
+                      "num": 13,
+                      "suit": "s",
                     },
                     Object {
                       "num": 3,
                       "suit": "c",
                     },
                     Object {
-                      "num": 10,
-                      "suit": "c",
+                      "num": 5,
+                      "suit": "d",
                     },
                     Object {
                       "num": 7,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 1,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 9,
                       "suit": "s",
                     },
                   ],
@@ -346,7 +348,8 @@ Object {
               "mbsQualified": Array [],
               "miniReady": true,
               "modesQualified": Array [
-                12,
+                1,
+                2,
               ],
               "poker": "Poker81",
               "rampUp": true,
@@ -422,7 +425,7 @@ Object {
     ],
     "lLowerRamp": Array [],
     "lMiniReady": Array [
-      "Red",
+      "Green",
     ],
     "lPower1": Array [
       "Orange",
@@ -526,161 +529,126 @@ Object {
                   "dealerCardsUsed": Array [
                     Object {
                       "flipped": undefined,
-                      "num": 9,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 9,
+                      "num": 13,
                       "suit": "s",
-                    },
-                    Object {
-                      "flipped": undefined,
-                      "num": 6,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 6,
-                      "suit": "d",
                     },
                   ],
                   "dealerHand": Array [
                     Object {
                       "flipped": undefined,
-                      "num": 9,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": undefined,
-                      "num": 6,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 6,
-                      "suit": "d",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 7,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 9,
-                      "suit": "s",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 8,
+                      "num": 2,
                       "suit": "s",
                     },
                     Object {
                       "flipped": undefined,
+                      "num": 13,
+                      "suit": "s",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 3,
+                      "suit": "h",
+                    },
+                    Object {
+                      "flipped": false,
                       "num": 11,
+                      "suit": "h",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 10,
+                      "suit": "s",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 9,
                       "suit": "d",
                     },
+                    Object {
+                      "flipped": undefined,
+                      "num": 5,
+                      "suit": "h",
+                    },
+                  ],
+                  "newMbs": Array [],
+                  "newModes": Array [
+                    9,
+                    2,
                   ],
                   "playerCardsUsed": Array [
                     Object {
-                      "num": 7,
-                      "suit": "s",
+                      "num": 9,
+                      "suit": "c",
                     },
                     Object {
-                      "num": 7,
+                      "num": 9,
                       "suit": "h",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "d",
                     },
                   ],
                   "playerHand": Array [
                     Object {
-                      "num": 12,
+                      "num": 2,
                       "suit": "c",
                     },
                     Object {
                       "num": 9,
-                      "suit": "d",
+                      "suit": "c",
                     },
                     Object {
                       "num": 7,
-                      "suit": "s",
+                      "suit": "d",
                     },
                     Object {
-                      "num": 3,
-                      "suit": "d",
+                      "num": 9,
+                      "suit": "h",
                     },
                     Object {
                       "num": 2,
                       "suit": "d",
                     },
                     Object {
-                      "num": 7,
-                      "suit": "h",
+                      "num": 13,
+                      "suit": "d",
                     },
                     Object {
-                      "num": 13,
+                      "num": 4,
                       "suit": "s",
                     },
                   ],
-                  "playerWins": false,
+                  "playerWins": true,
                   "pot": 1000,
                   "slots": Array [
-                    null,
-                    Object {
-                      "num": 13,
-                      "suit": "h",
-                    },
-                    null,
-                    null,
-                    null,
-                    Object {
-                      "num": 10,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 6,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 12,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 5,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 2,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 13,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 12,
-                      "suit": "s",
-                    },
                     Object {
                       "num": 1,
                       "suit": "s",
                     },
                     Object {
-                      "num": 8,
-                      "suit": "c",
+                      "num": 3,
+                      "suit": "s",
                     },
                     Object {
                       "num": 12,
                       "suit": "d",
                     },
                     Object {
-                      "num": 2,
-                      "suit": "s",
+                      "num": 4,
+                      "suit": "h",
                     },
-                    null,
                     Object {
-                      "num": 10,
-                      "suit": "s",
+                      "num": 11,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 5,
+                      "suit": "c",
                     },
                     Object {
                       "num": 4,
@@ -688,7 +656,55 @@ Object {
                     },
                     Object {
                       "num": 1,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 1,
                       "suit": "c",
+                    },
+                    Object {
+                      "num": 1,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 6,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 5,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 7,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "d",
                     },
                   ],
                   "step": 8,
@@ -700,7 +716,7 @@ Object {
                 "state": Object {
                   "comboMult": 1,
                   "rounds": 0,
-                  "score": 300,
+                  "score": 10,
                 },
               },
               Object {
@@ -758,13 +774,11 @@ Object {
               "curMbMode": undefined,
               "lowerRampLit": false,
               "mbsQualified": Array [],
-              "miniReady": false,
-              "modesQualified": Array [
-                7,
-              ],
+              "miniReady": true,
+              "modesQualified": Array [],
               "poker": "Poker104",
               "rampUp": true,
-              "score": 38010,
+              "score": 26010,
             },
           },
         ],
@@ -779,8 +793,8 @@ Object {
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 6,
-        "lastChange": 19393,
-        "lastClosed": 19393,
+        "lastChange": 16474,
+        "lastClosed": 16474,
         "lastOpened": undefined,
         "minOffTime": 25,
         "minOnTime": 25,

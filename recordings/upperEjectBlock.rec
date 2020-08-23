@@ -1,29 +1,33 @@
-Tue Aug 18 2020 20:44:23 GMT-0400 (Eastern Daylight Time)
-28:28.465.600 start mode MachineOverrides
-28:30.150.00 start mode Game
-28:30.167.00 start mode Player
-28:30.430.00 start mode Poker
-28:30.186.700 start mode GameOverrides
-28:30.190.400 start mode Ball
-28:30.452.000 switch 'shooter lane' state -> true (0,0) at 2900 via fake
-28:30.480.700 start mode Skillshot
-28:37.552.000 force state of right 1 to on
-28:37.553.000 switch 'right 1' state -> true (5,2) at 10001 via force
-28:37.581.200 drop switch right 1 down
-28:39.696.00 force state of right 2 to on
-28:39.705.00 switch 'right 2' state -> true (4,2) at 11518 via force
-28:39.821.00 drop switch right 2 down
-28:40.531.00 force state of center right to on
-28:40.540.00 switch 'center right' state -> true (1,4) at 12501 via force
-28:40.648.00 drop switch center right down
-28:40.837.600 force state of center left to on
-28:40.838.100 switch 'center left' state -> true (3,4) at 13286 via force
-28:40.851.600 drop switch center left down
-28:44.509.300 force state of upper 3 right to on
-28:44.510.200 switch 'upper 3 right' state -> true (0,5) at 16958 via force
-28:44.571.000 drop switch upper 3 right down
-28:44.674.000 switch 'right 3' state -> true (3,2) at 17122 via fake
-28:44.676.100 drop switch right 3 detected, but was already down
-28:46.944.100 force state of upper eject to on
-#debug
-28:46.945.500 switch 'upper eject' state -> true (6,7) at 19393 via force
+Sun Aug 23 2020 19:03:10 GMT-0400 (Eastern Daylight Time)
+47:12.818.800 start mode MachineOverrides
+47:13.427.900 start mode Game
+47:13.428.600 start mode Player
+47:13.541.300 start mode Poker
+47:13.839.200 start mode PlayerOverrides
+47:13.861.100 start mode Ball
+47:14.178.000 switch 'shooter lane' state -> true (0,0) at 2552 via fake
+47:14.213.700 start mode Skillshot
+47:16.353.800 force state of right 5 to on
+47:16.354.500 switch 'right 5' state -> true (1,2) at 4728 via force
+47:16.385.200 drop switch right 5 down
+47:20.911.00 force state of right 4 to on
+47:20.923.00 switch 'right 4' state -> true (2,2) at 8466 via force
+47:20.111.900 drop switch right 4 down
+47:20.625.600 force state of right 3 to on
+47:20.626.900 switch 'right 3' state -> true (3,2) at 9000 via force
+47:20.647.800 drop switch right 3 down
+47:21.542.400 force state of right 2 to on
+47:21.543.700 switch 'right 2' state -> true (4,2) at 9917 via force
+47:21.561.200 drop switch right 2 down
+47:23.878.300 force state of right 1 to on
+47:23.879.600 switch 'right 1' state -> true (5,2) at 12253 via force
+47:23.959.300 drop switch right 1 down
+47:23.983.600 drop bank rightBank complete
+47:24.781.900 switch 'right 1' state -> false (5,2) at 13155 via fake
+47:24.785.100 switch 'right 2' state -> false (4,2) at 13160 via fake
+47:24.793.500 switch 'right 3' state -> false (3,2) at 13167 via fake
+47:24.800.400 switch 'right 4' state -> false (2,2) at 13174 via fake
+47:24.804.900 switch 'right 5' state -> false (1,2) at 13178 via fake
+47:24.815.100 drop bank rightBank reset successfully
+47:28.995.00 force state of upper eject to on
+47:28.100.000 switch 'upper eject' state -> true (6,7) at 16474 via force

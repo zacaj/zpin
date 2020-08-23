@@ -43,7 +43,7 @@ describe('poker', () => {
         expect(compareHands(hand('3s,2h,6h,9s,5h,8h,10d'), hand('3h,10h,3s,2d,5s,4d,3d')).aWon).toBe(false);
     });
 
-    test.only('probabilities', () => {
+    test.skip('probabilities', () => {
         let numStraights = 0;
         let numFlushes = 0;
         let numPairs = 0;
