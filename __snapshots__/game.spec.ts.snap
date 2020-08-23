@@ -75,7 +75,7 @@ Object {
     "upper2": false,
     "upper3": false,
     "upperEject": false,
-    "upperMagnet": false,
+    "upperMagnet": true,
   },
   "state": Object {
     "children": Array [
@@ -317,6 +317,7 @@ Object {
             "state": Object {
               "chips": 1,
               "closeShooter": false,
+              "curMbMode": undefined,
               "lowerRampLit": false,
               "mbsQualified": Array [],
               "miniReady": false,

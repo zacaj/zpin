@@ -40,12 +40,17 @@ export class Poker extends Mode<MachineOutputs> {
     cardRng!: Rng;
     skillshotRng!: Rng;
 
+    modesAlreadyQualified!: Player['modesQualified'];
+    mbsAlreadyQualified!: Player['mbsQualified'];
+
     constructor(
         public player: Player,
     ) {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
+        this.modesAlreadyQualified = new Set(player.modesQualified);
+        this.mbsAlreadyQualified = new Map(player.mbsQualified);
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter']);
         player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng']);
         this.deal();
@@ -79,7 +84,7 @@ export class Poker extends Mode<MachineOutputs> {
                 this.bank -= this.bet;
                 this.step++;
 
-                this.qualifyModes();
+                // this.qualifyModes();
 
                 if (this.step === 7) {
                     for (let i=0; i<3; i++) {
@@ -91,6 +96,8 @@ export class Poker extends Mode<MachineOutputs> {
                 }
             }
         });
+
+        this.watch(() => this.step, () => this.qualifyModes());
 
         this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
             // const done = await Events.waitPriority(1);
@@ -113,6 +120,8 @@ export class Poker extends Mode<MachineOutputs> {
                 }
             }
         });
+
+        this.listen(onSwitchClose(machine.sStartButton), 'snail');
 
         this.gfx?.add(new PokerGfx(this));
     }
@@ -151,6 +160,8 @@ export class Poker extends Mode<MachineOutputs> {
     }
 
     qualifyModes() {
+        this.player.modesQualified = new Set(this.modesAlreadyQualified);
+        this.player.mbsQualified = new Map(this.mbsAlreadyQualified);
         const cards = this.playerHand.filter(c => !!c) as Card[];
         const flushes = findFlushes(cards);
         const straights = findStraights(cards);
@@ -233,6 +244,18 @@ export class Poker extends Mode<MachineOutputs> {
                 collect: () => this.bet += value,
             };
         }), { award: 'plunge to choose bet amount'}];
+    }
+
+    snail() {
+        if (this.step <= 2)
+            return;
+
+        this.pot -= this.bet * 2;
+        this.bank += this.bet;
+
+        this.playerHand[this.step-1] = null;
+        this.dealerHand[this.step-1] = null;
+        this.step--;
     }
 }
 
