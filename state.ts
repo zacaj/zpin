@@ -141,8 +141,8 @@ export class State {
                             case 'entries':
                             case 'forEach':
                             case 'values':
-                                return Set.prototype[key].bind(set);
                             default:
+                                return (Set.prototype as any)[key].bind(set);
                                 debugger;
                                 throw new Error(`unexpected key ${String(key)} in Set proxy`);
                         }
@@ -194,8 +194,8 @@ export class State {
                             case 'entries':
                             case 'forEach':
                             case 'values':
-                                return Map.prototype[key].bind(map);
                             default:
+                                return (Map.prototype as any)[key].bind(map);
                                 debugger;
                                 throw new Error(`unexpected key ${String(key)} in Map proxy`);
                         }

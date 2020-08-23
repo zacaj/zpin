@@ -11,7 +11,7 @@ import { onSwitchClose } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
-import { comma } from '../util';
+import { comma, assert } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
@@ -85,6 +85,7 @@ export class StraightMb extends Multiball {
             player.mbsQualified.delete('StraightMb');
             const mb = new StraightMb(player, hand);
             player.ball.addChild(mb);
+            player.curMbMode = mb;
             await alert('Straight Multiball!', 3000)[1];
             await mb.start();
             await mb.releaseBallFromTrough();
@@ -94,6 +95,12 @@ export class StraightMb extends Multiball {
             finish();
             return false;
         }
+    }
+
+    end() {
+        assert(this.player.curMbMode === this);
+        this.player.curMbMode = undefined;
+        return super.end();
     }
 
     firstSwitchHit() {        

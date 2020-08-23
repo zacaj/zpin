@@ -222,6 +222,7 @@ Object {
             "state": Object {
               "chips": 1,
               "closeShooter": false,
+              "curMbMode": "StraightMb71",
               "lowerRampLit": false,
               "mbsQualified": Array [],
               "miniReady": false,
@@ -603,6 +604,7 @@ Object {
             "state": Object {
               "chips": 1,
               "closeShooter": false,
+              "curMbMode": undefined,
               "lowerRampLit": false,
               "mbsQualified": Array [
                 Array [

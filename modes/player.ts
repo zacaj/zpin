@@ -26,12 +26,11 @@ export class Player extends Mode<MachineOutputs> {
     score = 0;
     
     poker?: Poker;
-
-    get curMode(): Mode<MachineOutputs>|undefined {
-        return this.poker ??
-            this.allChildren.find(c => c instanceof Multiball) as Multiball;
+    curMbMode?: Mode;
+    get curMode() {
+        return this.poker ?? this.curMbMode;
     }
-
+  
     get ball(): Ball {
         return this.children.find(c => c instanceof Ball) as Ball;
     }
@@ -50,7 +49,7 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter']);
+        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
@@ -89,6 +88,8 @@ export class Player extends Mode<MachineOutputs> {
             () => {
                 if (this.chips < 4)
                     this.chips++;
+                else 
+                    this.store.Poker.bank += 50;
             });
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;

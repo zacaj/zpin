@@ -635,6 +635,7 @@ const gfxSwitches: { [name: string]: {
     'upper pop mini': { x: 13.612499999999999, y: 36.95625 },
     'left back 2': { x: 1.85625, y: 25.3125 },
     'left back 1': { x: 1.6875, y: 24.3 },
+    'start button': { x: 2.90625, y: 1.0687500000000014 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
