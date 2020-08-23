@@ -83,6 +83,7 @@ declare global {
         oxford(last: string): string;
         nonOxford(last: string): string;
         insert(value: T, where: (before: T) => boolean): number;
+        shuffle(rand?: () => number, times?: number): this;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -134,6 +135,15 @@ Array.prototype.insert = function<T>(this: T[], value: T, where: (before: T) => 
     this.splice(pos, 0, value);
     return pos;
 };
+Array.prototype.shuffle = function<T>(this: T[], rand: () => number = () => Math.random(), times = 3): T[] {
+    for (let k=0; k<times; k++) {
+        for (let i = this.length - 1; i > 0; i--) {
+            const j = Math.floor(rand() * (i + 1));
+            [this[i], this[j]] = [this[j], this[i]];
+        }
+    }
+    return this;
+};
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {
   Object.defineProperty(Array.prototype, 'flatMap', {
@@ -162,6 +172,20 @@ export function clone<T>(obj: T): T {
             writable: 'writable' in d? d.writable : 'get' in d,
         })),
     );
+}
+
+export function seq<T = number>(count: number): T[] {
+    const ret: T[] = [];
+    for (let i=0; i<count; i++)
+        ret.push(i as any);
+    return ret;
+}
+
+export function range<T = number>(start: number, end: number): T[] {
+    const ret: T[] = [];
+    for (let i=start; i<=end; i++)
+        ret.push(i as any);
+    return ret;
 }
 
 export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {

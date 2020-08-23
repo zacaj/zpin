@@ -136,8 +136,22 @@ export class Poker extends Mode<MachineOutputs> {
         this.playerHand.clear();
         this.dealerHand.clear();
         this.slots.clear();
-        this.deck = this.makeDeck();
+        this.deck = Poker.makeDeck(this.cardRng);
         this.step = 2;
+
+        const totals = {
+            [Suit.Clubs]: 0,
+            [Suit.Spades]: 0,
+            [Suit.Hearts]: 0,
+            [Suit.Diamonds]: 0,
+        };
+        for (let i=0; i<20; i++) {
+            const card = this.deck.pop()!;
+            this.slots.push(card);
+            totals[card.suit]++;
+        }
+
+        Log.log('game', 'suit distribution: %j', totals);
 
         for (let i=0; i<this.step; i++) {
             this.playerHand.push(this.deck.pop()!);
@@ -146,10 +160,6 @@ export class Poker extends Mode<MachineOutputs> {
         for (let i=0; i<7-this.step; i++) {
             this.playerHand.push(null);
             this.dealerHand.push(null);
-        }
-
-        for (let i=0; i<20; i++) {
-            this.slots.push(this.deck.pop()!);
         }
 
         this.qualifyModes();
@@ -181,6 +191,8 @@ export class Poker extends Mode<MachineOutputs> {
             this.player.mbsQualified.set('StraightMb', straight);
             break;
         }
+        if (flushes.length > 0)
+            alert('flush multiball qualified');
     }
 
     async showCards() {
@@ -210,17 +222,20 @@ export class Poker extends Mode<MachineOutputs> {
         return super.end();
     }
 
-    makeDeck(): Card[] {
+    static makeDeck(rng: Rng): Card[] {
         const deck: Card[] = [];
         for (let i=1; i<=13; i++) {
             for (const suit of Object.values(Suit)) {
                 deck.push({num: i, suit});
             }
         }
-        for (let i = deck.length - 1; i > 0; i--) {
-            const j = Math.floor(this.cardRng.rand() * (i + 1));
-            [deck[i], deck[j]] = [deck[j], deck[i]];
-        }
+
+        const getCard = (num: number, suit: Suit) => {
+            const i = deck.findIndex(x => x.num === num && x.suit === suit);
+            return deck.splice(i, 1)[0];
+        };
+
+        deck.shuffle(() => rng.rand());
         return deck;
     }
 
