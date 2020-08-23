@@ -14,7 +14,7 @@ import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
-import { comma } from '../util';
+import { comma, seq, range } from '../util';
 import { Rng } from '../rand';
 
 
@@ -230,13 +230,39 @@ export class Poker extends Mode<MachineOutputs> {
             }
         }
 
-        const getCard = (num: number, suit: Suit) => {
-            const i = deck.findIndex(x => x.num === num && x.suit === suit);
+        const getCard = (num?: number, suit?: Suit) => {
+            const i = deck.findIndex(x => (x.num === num || num===undefined) && (x.suit === suit || suit===undefined));
+            if (i===-1) return undefined;
             return deck.splice(i, 1)[0];
         };
 
         deck.shuffle(() => rng.rand());
-        return deck;
+
+        const suits = Object.values(Suit).shuffle(() => rng.rand());
+        const badSuit = suits[0];
+        const goodSuit = {
+            [Suit.Clubs]: Suit.Spades,
+            [Suit.Spades]: Suit.Clubs,
+            [Suit.Hearts]: Suit.Diamonds,
+            [Suit.Diamonds]: Suit.Hearts,
+        }[badSuit];
+        const straightLow = rng.randRange(1, 10);
+        const straightHigh = rng.randRange(4, 7) + straightLow;
+
+        const flush = seq(rng.randRange(6, 10)).map(x => getCard(undefined, goodSuit)!);
+        const straight1 = range(straightLow, straightHigh).map(r => getCard(r)!);
+        const straight2 = range(straightLow + rng.randRange(-2, 2), straightHigh + rng.randRange(-2, 2)).map(r => getCard(r)!);
+        const front = [
+            ...flush,
+            ...straight1,
+            ...straight2,
+        ].filter(x => !!x);
+        const leftOvers = seq(rng.randRange(7, 11)).map(x => getCard(undefined, badSuit)!);
+
+        const newDeck = [...front, ...deck, ...leftOvers];
+        const used = newDeck.slice(0, 26).shuffle();
+        const rest = newDeck.slice(26).shuffle();
+        return [...used, ...rest];
     }
 
     getSkillshot(): Partial<SkillshotAward>[] {
