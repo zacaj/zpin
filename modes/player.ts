@@ -8,7 +8,7 @@ import { Color, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
 import { Ball } from './ball';
-import { Tree } from '../tree';
+import { Tree, TreeEvent } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
 import { makeText, gfx } from '../gfx';
@@ -20,6 +20,7 @@ import { ClearHoles, ResetMechs } from '../util-modes';
 import { assert } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
+import { GameMode } from './game-mode';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -73,6 +74,8 @@ export class Player extends Mode<MachineOutputs> {
         });
         
         this.addChild(new ClearHoles(), -1);
+
+        this.listen(e => e instanceof TreeEvent, () => this.curMbMode = this.getChildren().find(x => x instanceof Multiball || x instanceof GameMode) as Mode);
 
         this.listen(
             [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],

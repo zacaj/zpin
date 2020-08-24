@@ -86,7 +86,6 @@ export class StraightMb extends Multiball {
             await alert('Straight Multiball!', 3000)[1];
             const mb = new StraightMb(player, hand);
             player.ball.addChild(mb);
-            player.curMbMode = mb;
             await mb.start();
             await mb.releaseBallFromTrough();
             finish();
@@ -98,8 +97,6 @@ export class StraightMb extends Multiball {
     }
 
     end() {
-        assert(this.player.curMbMode === this);
-        this.player.curMbMode = undefined;
         return super.end();
     }
 
