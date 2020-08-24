@@ -131,7 +131,7 @@ export class Game extends Mode<MachineOutputs> {
         [machine.sSidePopMini,      3000],
         [machine.sShooterUpper,     10],
         [machine.sShooterMagnet,    10],
-        [machine.sShooterLane,      10],
+        [machine.sShooterLane,      0],
         [machine.sShooterLower,     10],
         [machine.sBackLane,         1000],
         [machine.sPop,              7500],
