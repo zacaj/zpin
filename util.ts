@@ -84,6 +84,7 @@ declare global {
         nonOxford(last: string): string;
         insert(value: T, where: (before: T) => boolean): number;
         shuffle(rand?: () => number, times?: number): this;
+        sum(conv?: (val: T, index: number) => number): number;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -144,6 +145,9 @@ Array.prototype.shuffle = function<T>(this: T[], rand: () => number = () => Math
     }
     return this;
 };
+Array.prototype.sum = function<T>(this: T[], conv?: (val: T, index: number) => number): number {
+    return this.reduce((prev, cur, index) => prev + (conv? conv(cur, index) : cur as any), 0);
+};
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {
   Object.defineProperty(Array.prototype, 'flatMap', {
@@ -185,6 +189,13 @@ export function range<T = number>(start: number, end: number): T[] {
     const ret: T[] = [];
     for (let i=start; i<=end; i++)
         ret.push(i as any);
+    return ret;
+}
+
+export function repeat<T>(x: T, count: number): T[] {
+    const ret: T[] = [];
+    for (let i=0; i<count; i++)
+        ret.push(x);
     return ret;
 }
 

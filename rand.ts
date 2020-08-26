@@ -39,4 +39,8 @@ export class Rng {
         else 
             return weight[1];
     }
+
+    randSelect<T>(...values: T[]): T {
+        return values[this.randRange(0, values.length-1)];
+    }
 }

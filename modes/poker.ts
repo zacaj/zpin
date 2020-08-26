@@ -14,7 +14,7 @@ import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
-import { comma, seq, range } from '../util';
+import { comma, seq, range, repeat } from '../util';
 import { Rng } from '../rand';
 
 
@@ -75,7 +75,7 @@ export class Poker extends Mode<MachineOutputs> {
                 this.playerHand[this.step] = this.slots[target.num];
                 this.slots[target.num] = null;
                 this.dealerHand[this.step] = {
-                    ...this.deck.pop()!,
+                    ...this.deck.shift()!,
                     flipped: this.step + 1 === 7,
                 };
                 this.pot += this.bet * 2;
@@ -114,7 +114,7 @@ export class Poker extends Mode<MachineOutputs> {
                 if (this.deck.length === 0) return;
                 const i = target.num;
                 if (!this.slots[i]) {
-                    this.slots[i] = this.deck.pop()!;
+                    this.slots[i] = this.deck.shift()!;
                 }
             }
         });
@@ -143,17 +143,19 @@ export class Poker extends Mode<MachineOutputs> {
             [Suit.Hearts]: 0,
             [Suit.Diamonds]: 0,
         };
-        for (let i=0; i<20; i++) {
-            const card = this.deck.pop()!;
-            this.slots.push(card);
-            totals[card.suit]++;
-        }
 
         Log.log('game', 'suit distribution: %j', totals);
 
         for (let i=0; i<this.step; i++) {
-            this.playerHand.push(this.deck.pop()!);
-            this.dealerHand.push({...this.deck.pop()!, flipped: true});
+            this.playerHand.push(this.deck.shift()!);
+        }
+        for (let i=0; i<20; i++) {
+            const card = this.deck.shift()!;
+            this.slots.push(card);
+            totals[card.suit]++;
+        }
+        for (let i=0; i<this.step; i++) {
+            this.dealerHand.push({...this.deck.shift()!, flipped: true});
         }
         for (let i=0; i<7-this.step; i++) {
             this.playerHand.push(null);
@@ -230,45 +232,151 @@ export class Poker extends Mode<MachineOutputs> {
 
     static makeDeck(rng: Rng): Card[] {
         const deck: Card[] = [];
-        for (let i=1; i<=13; i++) {
-            for (const suit of Object.values(Suit)) {
-                deck.push({num: i, suit});
-            }
-        }
 
+        const findCard = (num?: number, suit?: Suit) => deck.findIndex(x => (x.num === num || num===undefined) && (x.suit === suit || suit===undefined));
         const getCard = (num?: number, suit?: Suit) => {
-            const i = deck.findIndex(x => (x.num === num || num===undefined) && (x.suit === suit || suit===undefined));
+            const i = findCard(num, suit);
             if (i===-1) return undefined;
             return deck.splice(i, 1)[0];
         };
 
-        deck.shuffle(() => rng.rand());
 
-        const suits = Object.values(Suit).shuffle(() => rng.rand());
-        const badSuit = suits[0];
+        const nums = repeat(0, 15);
+        for (let i=0; i<2; i++) {
+            const straightLow = rng.randRange(1, 10);
+            const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
+            for (let x=straightLow; x<=straightHigh; x++)
+                nums[x]++;
+        }
+        // for (let i=0; i<1; i++) {
+        //     const straightLow = rng.randRange(1, 5);
+        //     const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
+        //     for (let x=straightLow; x<=straightHigh; x++)
+        //         nums[x]++;
+        // }
+        // for (let i=0; i<1; i++) {
+        //     const straightLow = rng.randRange(5, 10);
+        //     const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
+        //     for (let x=straightLow; x<=straightHigh; x++)
+        //         nums[x]++;
+        // }
+        for (let i=0; i<3; i++) {
+            nums[rng.randRange(1,14)]++;
+        }
+        
+        const badSuit = rng.randSelect(...Object.values(Suit));
         const goodSuit = {
             [Suit.Clubs]: Suit.Spades,
             [Suit.Spades]: Suit.Clubs,
             [Suit.Hearts]: Suit.Diamonds,
             [Suit.Diamonds]: Suit.Hearts,
         }[badSuit];
-        const straightLow = rng.randRange(1, 10);
-        const straightHigh = rng.randRange(4, 7) + straightLow;
+        const suitCounts = {
+            [Suit.Clubs]: 0,
+            [Suit.Spades]: 0,
+            [Suit.Hearts]: 0,
+            [Suit.Diamonds]: 0,
+        };
+        for (const suit of Object.values(Suit)) {
+            if (suit === goodSuit)
+                suitCounts[suit] = rng.randRange(11, 13);
+            else if (suit === badSuit)
+                suitCounts[suit] = rng.randRange(2, 5);
+            else
+                suitCounts[suit] = rng.randRange(4, 6);
+        }
 
-        const flush = seq(rng.randRange(6, 10)).map(x => getCard(undefined, goodSuit)!);
-        const straight1 = range(straightLow, straightHigh).map(r => getCard(r)!);
-        const straight2 = range(straightLow + rng.randRange(-2, 2), straightHigh + rng.randRange(-2, 2)).map(r => getCard(r)!);
-        const front = [
-            ...flush,
-            ...straight1,
-            ...straight2,
-        ].filter(x => !!x);
-        const leftOvers = seq(rng.randRange(7, 11)).map(x => getCard(undefined, badSuit)!).filter(x => !!x);
+        let totalNums = nums.sum();
+        while (totalNums < 20) {
+            if (nums[rng.randRange(1,14)]) {
+                totalNums++;
+                nums[rng.randRange(1,14)]++;
+            }
+        }
 
-        const newDeck = [...front, ...deck, ...leftOvers];
-        const used = newDeck.slice(0, 26).shuffle(() => rng.rand());
-        const rest = newDeck.slice(26).shuffle(() => rng.rand());
-        return [...used, ...rest];
+        nums.flatMap((count, num) => repeat(num, count)).shuffle(() => rng.rand()).forEach((num) => {
+            if (num < 1) return;
+            if (num === 14) {
+                num = 1;
+            }
+
+            let j=0;
+            for (; j<10; j++) {
+                const suit = rng.weightedSelect(...Object.values(Suit).map<[number, Suit]>(suit => ([suitCounts[suit]*suitCounts[suit], suit])));
+                if (findCard(num, suit) === -1) {
+                    deck.push({num, suit});
+                    suitCounts[suit]--;
+                    break;
+                }
+            }
+
+            if (j >= 4) {
+                for (const suit of Object.values(Suit).shuffle(() => rng.rand()))
+                    if (findCard(num, suit) === -1) {
+                        deck.push({num, suit});
+                        break;
+                    }
+            }
+        });
+        const totals = {
+            [Suit.Clubs]: 0,
+            [Suit.Spades]: 0,
+            [Suit.Hearts]: 0,
+            [Suit.Diamonds]: 0,
+        };
+        for (let i=0; i<deck.length; i++) {
+            const card = deck[i];
+            totals[card.suit]++;
+        }
+
+        deck.shuffle(() => rng.rand());
+
+
+        const rest: Card[] = [];
+
+        for (let i=1; i<=13; i++) {
+            for (const suit of Object.values(Suit)) {
+                if (findCard(i, suit) === -1)
+                    rest.push({num: i, suit});
+            }
+        }
+        rest.shuffle(() => rng.rand());
+
+        return [...deck, ...rest];
+
+        // for (let i=1; i<=13; i++) {
+        //     for (const suit of Object.values(Suit)) {
+        //         deck.push({num: i, suit});
+        //     }
+        // }
+
+        // deck.shuffle(() => rng.rand());
+
+        // const suits = Object.values(Suit).shuffle(() => rng.rand());
+        // const badSuit = suits[0];
+        // const goodSuit = {
+        //     [Suit.Clubs]: Suit.Spades,
+        //     [Suit.Spades]: Suit.Clubs,
+        //     [Suit.Hearts]: Suit.Diamonds,
+        //     [Suit.Diamonds]: Suit.Hearts,
+        // }[badSuit];
+        // const straightLow = rng.randRange(1, 10);
+        // const straightHigh = rng.randRange(4, 7) + straightLow;
+
+        // const flush = seq(rng.randRange(6, 10)).map(x => getCard(undefined, goodSuit)!);
+        // const straight1 = range(straightLow, straightHigh).map(r => getCard(r)!);
+        // const straight2 = range(straightLow + rng.randRange(-2, 2), straightHigh + rng.randRange(-2, 2)).map(r => getCard(r)!);
+        // const front = [
+        //     ...flush,
+        //     ...straight1,
+        //     ...straight2,
+        // ].filter(x => !!x);
+        // const leftOvers = seq(rng.randRange(7, 11)).map(x => getCard(undefined, badSuit)!).filter(x => !!x);
+
+        // const newDeck = [...front, ...deck, ...leftOvers];
+        // const used = newDeck.slice(0, 26).shuffle(() => rng.rand());
+        // const rest = newDeck.slice(26).shuffle(() => rng.rand());
+        // return [...used, ...rest];
     }
 
     getSkillshot(): Partial<SkillshotAward>[] {
