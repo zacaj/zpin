@@ -1,7 +1,16 @@
-export const Utils = {
-    // obj: the state object whose key was changed
-    stateAccessRecorder: undefined as undefined|(<T extends {}>(obj: T, key: (keyof T)&string) => void),
-};
+
+const stateAccessRecorders: (<T extends {}>(obj: T, key: (keyof T)&string) => void)[] = [];
+export function pushStateAccessRecorder(cb: <T extends {}>(obj: T, key: (keyof T)&string) => void) {
+    stateAccessRecorders.push(cb);
+}
+export function popStateAccessRecorder() {
+    stateAccessRecorders.pop();
+}
+
+export function recordStateAccess<T extends {}>(obj: T, key: (keyof T)&string) {
+    stateAccessRecorders.forEach(cb => cb(obj, key));
+}
+
 
 // makes a special type which acts just like T but isn't assignable to T
 export type Opaque<T, Name> = T & { __opaque__: Name };

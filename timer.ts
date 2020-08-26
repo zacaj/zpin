@@ -1,4 +1,4 @@
-import { Utils, Opaque, assert } from './util';
+import { Opaque, assert, recordStateAccess } from './util';
 import { Events, EventTypePredicate } from './events';
 import { StateEvent } from './state';
 import { Log } from './log';
@@ -11,9 +11,7 @@ export class Timer {
 
     static mockTime?: number;
     static get time(): Time {
-        if (Utils.stateAccessRecorder) {
-            Utils.stateAccessRecorder(Timer, 'time');
-        }
+        recordStateAccess(Timer, 'time');
 
         if (Timer.mockTime !== undefined) return Timer.mockTime as Time;
         

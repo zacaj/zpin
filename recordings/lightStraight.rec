@@ -1,31 +1,30 @@
-Sun Aug 23 2020 19:13:03 GMT-0400 (Eastern Daylight Time)
-57:05.330.300 start mode MachineOverrides
-57:05.921.200 start mode Game
-57:05.927.800 start mode Player
-57:06.472.00 start mode Poker
-57:06.349.900 start mode PlayerOverrides
-57:06.371.500 start mode Ball
-57:06.671.100 switch 'shooter lane' state -> true (0,0) at 2570 via fake
-57:06.708.400 start mode Skillshot
-57:14.250.300 force state of left 2 to on
-57:14.251.200 switch 'left 2' state -> true (2,3) at 10149 via force
-57:14.272.600 drop switch left 2 down
-57:15.534.000 force state of right 1 to on
-57:15.535.300 switch 'right 1' state -> true (5,2) at 11433 via force
-57:15.556.700 drop switch right 1 down
-57:17.354.900 force state of shooter lane to off
-57:17.355.700 switch 'shooter lane' state -> false (0,0) at 13253 via force
-57:22.250.00 force state of mini left to on
-57:22.259.00 switch 'mini left' state -> true (7,1) at 17924 via force
-57:22.460.00 drop switch mini left down
-57:24.710.800 force state of upper 2 right to on
-57:24.711.100 switch 'upper 2 right' state -> true (3,6) at 20609 via force
-57:24.735.800 drop switch upper 2 right down
-57:28.195.200 force state of upper 3 center to on
-57:28.196.200 switch 'upper 3 center' state -> true (1,5) at 24095 via force
-57:28.302.900 drop switch upper 3 center down
-57:28.540.500 switch 'right 2' state -> true (4,2) at 24439 via fake
-57:28.543.200 drop switch right 2 detected, but was already down
-57:28.553.700 switch 'ramp down' state -> true (4,7) at 24452 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:272:113) <-  A:\source\zpin\build\machine.js:194:52
-57:28.682.700 switch 'right 3' state -> true (3,2) at 24581 via fake
-57:28.685.600 drop switch right 3 detected, but was already down
+Tue Aug 25 2020 20:57:03 GMT-0400 (Eastern Daylight Time)
+41:04.684.700 start mode MachineOverrides
+41:05.356.900 start mode Game
+41:05.357.400 start mode Player
+41:05.454.900 start mode Poker
+41:05.757.200 start mode PlayerOverrides
+41:05.780.500 start mode Ball
+41:06.883.00 switch 'shooter lane' state -> true (0,0) at 2615 via fake
+41:06.883.00 switch 'shooter lane' state -> false (0,0) at 3615 via fake
+41:06.124.200 start mode Skillshot
+41:09.622.800 force state of left 1 to on
+41:09.623.400 switch 'left 1' state -> true (1,3) at 6150 via force
+41:09.646.000 drop switch left 1 down
+41:11.223.900 force state of right 1 to on
+41:11.224.300 switch 'right 1' state -> true (5,2) at 7752 via force
+41:11.247.300 drop switch right 1 down
+41:13.392.400 force state of left 2 to on
+41:13.393.200 switch 'left 2' state -> true (2,3) at 9920 via force
+41:13.421.300 drop switch left 2 down
+41:31.593.300 force state of center right to on
+41:31.594.700 switch 'center right' state -> true (1,4) at 28122 via force
+41:31.615.600 drop switch center right down
+41:33.283.00 force state of center center to on
+41:33.292.00 switch 'center center' state -> true (2,4) at 29556 via force
+41:33.141.700 drop switch center center down
+41:33.378.400 switch 'right 2' state -> true (4,2) at 29905 via fake
+41:33.381.000 drop switch right 2 detected, but was already down
+41:33.395.300 switch 'ramp down' state -> true (4,7) at 29922 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:272:113) <-  A:\source\zpin\build\machine.js:194:52
+41:33.525.400 switch 'right 3' state -> true (3,2) at 30053 via fake
+41:33.528.200 drop switch right 3 detected, but was already down

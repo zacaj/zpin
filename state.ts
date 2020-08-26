@@ -1,8 +1,6 @@
 import { Event, EventPredicate, EventTypePredicate, Events, EventListener } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, Utils, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc } from './util';
-import { Outputs } from './outputs';
-import { onClose } from './switch-matrix';
-import { Log } from './log';
+import { JSONObject, NonFunctionPropertyNames, clone, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc, recordStateAccess } from './util';
+
 import { Tree } from './tree';
 
 export class StateEvent<T, Prop extends keyof T> extends Event {//<T> extends Event {//
@@ -47,9 +45,7 @@ export class State {
             const existingProperty = Object.getOwnPropertyDescriptor(obj, prop);
             Object.defineProperty(obj, prop, {
                 get() {
-                    if (Utils.stateAccessRecorder) {
-                        Utils.stateAccessRecorder(obj, prop);
-                    }
+                    recordStateAccess(obj, prop);
                     return state.data[prop];
                 },
                 set(val) {
@@ -92,9 +88,7 @@ export class State {
                     get: (_, key) => {     
                         if (key === 'original') return arr;
                         if (key === '$isProxy') return true;   
-                        if (Utils.stateAccessRecorder) {
-                            Utils.stateAccessRecorder(obj, prop);
-                        }
+                        recordStateAccess(obj, prop);
                         return arr[key as any];
                     },
                 });
@@ -120,9 +114,7 @@ export class State {
                     get: (_, key) => {
                         if (key === 'original') return set;
                         if (key === '$isProxy') return true;
-                        if (Utils.stateAccessRecorder) {
-                            Utils.stateAccessRecorder(obj, prop);
-                        }
+                        recordStateAccess(obj, prop);
                         if (typeof (set as any)[key] !== 'function') return (set as any)[key];
 
                         switch (key) {
@@ -172,9 +164,7 @@ export class State {
                     get: (_, key) => {
                         if (key === 'original') return map;
                         if (key === '$isProxy') return true;
-                        if (Utils.stateAccessRecorder) {
-                            Utils.stateAccessRecorder(obj, prop);
-                        }
+                        recordStateAccess(obj, prop);
                         if (typeof (map as any)[key] !== 'function') return (map as any)[key];
 
                         switch (key) {

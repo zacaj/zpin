@@ -1,6 +1,6 @@
 import { Event, Events, onType, EventTypePredicate } from './events';
 import { StateEvent, State } from './state';
-import { Utils, assert, selectiveClone, eq } from './util';
+import { assert, selectiveClone, eq } from './util';
 import { time } from './timer';
 import { Log } from './log';
 import { Tree, TreeEvent } from './tree';

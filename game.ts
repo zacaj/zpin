@@ -21,7 +21,7 @@ import { Tree } from './tree';
 export class Game extends Mode<MachineOutputs> {
 
 
-    players = [new Player(this)];
+    players = [new Player(this, 1)];
     playerUp = 0;
     get curPlayer(): Player {
         return this.players[this.playerUp];

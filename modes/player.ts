@@ -54,6 +54,7 @@ export class Player extends Mode<MachineOutputs> {
 
     constructor(
         public game: Game,
+        public number: number,
         public seed = 'pinball',
     ) {
         super(Modes.Player);

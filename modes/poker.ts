@@ -36,7 +36,10 @@ export class Poker extends Mode<MachineOutputs> {
     closeShooter = false;
     finishShow?: any;
 
-    bank = 10000;
+    playerHandDesc?: string;
+    dealerHandDesc?: string;
+
+    bank = 3000;
     cardRng!: Rng;
     skillshotRng!: Rng;
 
@@ -49,7 +52,7 @@ export class Poker extends Mode<MachineOutputs> {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'playerWins', 'playerCardsUsed', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng']);
         this.deal();
 
@@ -96,6 +99,24 @@ export class Poker extends Mode<MachineOutputs> {
         });
 
         this.watch(() => this.step, () => this.qualifyModes());
+        this.watch(() => {
+            {
+                const [c, hand] = bestHand((this.playerCardsUsed.length? this.playerCardsUsed:this.playerHand).filter(c => !!c && !c.flipped) as Card[], 5);
+                if (hand > Hand.Card) {
+                    this.playerHandDesc = HandNames[hand];
+                } else {
+                    this.playerHandDesc = undefined;
+                }
+            }
+            {
+                const [c, hand] = bestHand((this.dealerCardsUsed.length? this.dealerCardsUsed:this.dealerHand).filter(c => !!c && !c.flipped) as Card[], 5);
+                if (hand > Hand.Card) {
+                    this.dealerHandDesc = HandNames[hand];
+                } else {
+                    this.dealerHandDesc = undefined;
+                }
+            }
+        });
 
         this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
             // const done = await Events.waitPriority(1);
@@ -531,6 +552,20 @@ export enum Hand {
     RoyalFlush = 9,
     FiveOfAKind = 10,
 }
+
+export const HandNames = {
+    [Hand.Card]: 'Card',
+    [Hand.Pair]: 'Pair',
+    [Hand.TwoPair]: 'Two Pair',
+    [Hand.ThreeOfAKind]: 'Three Of A Kind',
+    [Hand.Straight]: 'Straight',
+    [Hand.Flush]: 'Flush',
+    [Hand.FullHouse]: 'Full House',
+    [Hand.FourOfAKind]: 'Four Of A Kind',
+    [Hand.StraightFlush]: 'Straight Flush',
+    [Hand.RoyalFlush]: 'Royal Flush',
+    [Hand.FiveOfAKind]: 'Five Of A Kind',
+};
 
 export function bestHand(cards: Card[], max = Math.min(5, cards.length)): [Card[], Hand] {
     const flushes = findFlushes(cards);

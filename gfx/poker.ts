@@ -11,7 +11,8 @@ export class PokerGfx extends Group {
     bet = makeText('BET: 0', 40);
     pot = makeText('POT: 0', 40);
     winnings = makeText('winnings', 40, 'center', 'middle');
-    player = makeText('PLAYER 1', 30, 'center', 'bottom');
+    player = makeText('PLAYER 1', 30, 'center', 'bottom').y(-PokerHand.h*1.05-20);
+    dealer = makeText('DEALER', 30, 'center', 'top').y(PokerHand.h*1.05+20);
     doneInstr = makeText('SHOOTER LANE, EJECT, OR RAMP TO FINISH HAND', 40, 'center', 'bottom');
     playerHand!: PokerHand;
     dealerHand!: PokerHand;
@@ -37,8 +38,10 @@ export class PokerGfx extends Group {
         poker.watch(() => this.bet.text('BET: '+comma(poker.bet)));
         poker.watch(() => this.bet.visible(poker.playerWins === undefined));
 
-        this.add(makeText('DEALER', 30, 'center', 'top').y(PokerHand.h*1.05+20));
-        this.add(this.player.y(-PokerHand.h*1.05-20));
+        this.add(this.player);
+        poker.watch(() => this.player.text(`PLAYER ${poker.player.number}`+(poker.playerHandDesc? ': '+poker.playerHandDesc : '')));
+        this.add(this.dealer);
+        poker.watch(() => this.dealer.text('DEALER'+(poker.dealerHandDesc? ': '+poker.dealerHandDesc : '')));
 
         this.add(this.winnings);
         poker.watch(() => {

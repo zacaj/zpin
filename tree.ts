@@ -1,6 +1,6 @@
 import { Outputs } from './outputs';
 import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
-import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, Utils } from './util';
+import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, pushStateAccessRecorder, popStateAccessRecorder } from './util';
 import { Log } from './log';
 import { State, StateEvent } from './state';
 import { fork } from './promises';
@@ -190,13 +190,12 @@ export abstract class Tree<Outs extends {} = {}> {
         const affectors = new Map<{}, Set<string>>();
         const record = (...args: any[]) => {
             { // begin recording
-                assert(!Utils.stateAccessRecorder);
-                Utils.stateAccessRecorder = (state, k) => {
+                pushStateAccessRecorder((state, k) => {
                     if (!affectors.has(state))
                         affectors.set(state, new Set());
                     if (!affectors.get(state)!.has(k))
                         affectors.get(state)!.add(k);
-                };
+                });
             }
             try {
                 const ret = func(...args);
@@ -207,7 +206,7 @@ export abstract class Tree<Outs extends {} = {}> {
                 throw err;
             }
             finally { // end recording
-                Utils.stateAccessRecorder = undefined;
+                popStateAccessRecorder();
             }
         };
 

@@ -4,7 +4,7 @@ import { Tree } from "./tree";
 
 describe('player', () => {
     test('store', () => {
-        const player = new Player(Game.start());
+        const player = new Player(Game.start(), 1);
         const child1 = new class extends Tree {
             bet = 2;
 

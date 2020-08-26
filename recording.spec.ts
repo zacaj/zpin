@@ -27,7 +27,7 @@ describe('recordings', () => {
         expect(upper3a).lastReturnedWith(expect.objectContaining({when: 13093}));
     });
     test('play test', async () => {
-        await testRecording('test-1');
-        expect(machine.out!.treeValues.lEjectStartMode).toEqual([Color.Red]);
+        await testRecording('lightStraight');
+        expect(machine.out!.treeValues.lEjectStartMode).toEqual([Color.White]);
     });
 });
