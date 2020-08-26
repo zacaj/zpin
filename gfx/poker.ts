@@ -15,6 +15,7 @@ export class PokerGfx extends Group {
     doneInstr = makeText('SHOOTER LANE, EJECT, OR RAMP TO FINISH HAND', 40, 'center', 'bottom');
     playerHand!: PokerHand;
     dealerHand!: PokerHand;
+    rects = gfx?.createGroup();
     constructor(
         public poker: Poker,
     ) {
@@ -54,6 +55,19 @@ export class PokerGfx extends Group {
             if (machine.lRampShowCards.lit()) places.push('Ramp');
             this.doneInstr.text('finish hand at '+places.nonOxford('or'));
         });
+
+        poker.watch(() => {
+            this.rects.clear();
+            for (let i=1; i<=13; i++) {
+                const count = poker.slots.filter(c => c?.num === i).length;
+                const r = gfx.createRect().w(Screen.w/13).h(count * Screen.h*.03).fill('#0000AA');
+                r.x((i-1)*Screen.w/13 - Screen.w/2);
+                r.y(Screen.h/2);
+                r.originY(1);
+                this.rects.add(r);
+            }
+        });
+        this.add(this.rects);
     }
 }
 
