@@ -40,6 +40,8 @@ describe('poker', () => {
     });
     test('compareHands', () => {
         expect(compareHands(hand('3h,10h,3s,2d,5s,4d,3d'), hand('3s,2h,6h,9s,5h,8h,10d')).aWon).toBe(true);
+        expect(compareHands(hand('1h,2h,3h,4h,6d,7d,8d'), hand('9h,2h,3d,4d,6c,7c,8s')).aWon).toBe(true);
+        expect(compareHands(hand('1h,1d,3h,4h,6d,7d,8d'), hand('2h,2d,3d,4d,6c,7c,8s')).aWon).toBe(true);
         expect(compareHands(hand('3s,2h,6h,9s,5h,8h,10d'), hand('3h,10h,3s,2d,5s,4d,3d')).aWon).toBe(false);
     });
 

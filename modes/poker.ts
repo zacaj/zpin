@@ -623,7 +623,7 @@ export function compareHands(a: Card[], b: Card[], max = Math.min(5, a.length, b
     const [aHand, aRank] = bestHand(a, max);
     const [bHand, bRank] = bestHand(b, max);
     if (bRank !== aRank || aHand.every((av, i) => av.num !== bHand[i].num)) return {
-        aWon: aRank > bRank,
+        aWon: aRank > bRank || (aRank === bRank && val(aHand[0]) > val(bHand[0])),
         aCards: aHand,
         bCards: bHand,
         aHand: aRank,
