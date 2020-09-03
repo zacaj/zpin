@@ -364,6 +364,8 @@ export type LightOutputs = {
     lPower2: Color[];
     lPower3: Color[];
     lPower4: Color[];
+    lPopperStatus: Color[];
+    lMagnaSaveStatus: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -578,7 +580,8 @@ export class Machine extends Tree<MachineOutputs> {
     lPower1 = new Light('lPower1', 0);
     lPower2 = new Light('lPower2', 0);
     lPower3 = new Light('lPower3', 0);
-    lPower4 = new Light('lPower4', 0);
+    lPopperStatus = new Light('lPopperStatus', 0);
+    lMagnaSaveStatus = new Light('lMagnaSaveStatus', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -675,6 +678,8 @@ export class Machine extends Tree<MachineOutputs> {
             lPower2: [],
             lPower3: [],
             lPower4: [],
+            lPopperStatus: [],
+            lMagnaSaveStatus: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',

@@ -40,8 +40,8 @@ export function colorToHex(color: Color): Color|undefined {
     return undefined;
 }
 
-export function light(cond: boolean, color = Color.White): Color[] {
-    return cond? [color] : [];
+export function light(cond: boolean, color = Color.White, offColor?: Color): Color[] {
+    return cond? [color] : (offColor? [offColor] : []);
 }
 
 export function colorToArrow(color?: Color): string|undefined {

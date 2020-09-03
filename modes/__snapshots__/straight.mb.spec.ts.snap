@@ -51,8 +51,14 @@ Object {
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
     "lLowerRamp": Array [],
+    "lMagnaSaveStatus": Array [
+      "Green",
+    ],
     "lMiniReady": Array [
       "Red",
+    ],
+    "lPopperStatus": Array [
+      "Green",
     ],
     "lPower1": Array [
       "Orange",
@@ -302,8 +308,14 @@ Object {
       "White",
     ],
     "lLowerRamp": Array [],
+    "lMagnaSaveStatus": Array [
+      "Green",
+    ],
     "lMiniReady": Array [
       "Red",
+    ],
+    "lPopperStatus": Array [
+      "Green",
     ],
     "lPower1": Array [
       "Orange",

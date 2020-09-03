@@ -62,7 +62,7 @@ export class Player extends Mode<MachineOutputs> {
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
-            lMiniReady: () => this.miniReady? [Color.Green] : undefined,
+            lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [Color.White] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
@@ -71,6 +71,8 @@ export class Player extends Mode<MachineOutputs> {
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPower4: () => light(this.chips>=4, Color.Orange),
+            lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
+            lMagnaSaveStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
         });
         

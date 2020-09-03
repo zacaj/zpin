@@ -53,7 +53,13 @@ Object {
       "Red",
     ],
     "lLowerRamp": Array [],
+    "lMagnaSaveStatus": Array [
+      "Green",
+    ],
     "lMiniReady": Array [
+      "Green",
+    ],
+    "lPopperStatus": Array [
       "Green",
     ],
     "lPower1": Array [
@@ -426,7 +432,13 @@ Object {
       "White",
     ],
     "lLowerRamp": Array [],
+    "lMagnaSaveStatus": Array [
+      "Green",
+    ],
     "lMiniReady": Array [
+      "Green",
+    ],
+    "lPopperStatus": Array [
       "Green",
     ],
     "lPower1": Array [

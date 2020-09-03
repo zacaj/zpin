@@ -469,6 +469,8 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lPower2: { x: 8.4375, y: 10.181249999999999, d: 5/8 },
     lPower3: { x: 9.9, y: 10.125, d: 5/8 },
     lPower4: { x: 11.30625, y: 10.631250000000001, d: 5/8 },
+    lPopperStatus:  { x: 16.03125, y: 9.5625, d: 3/4 },
+    lMagnaSaveStatus:  { x: 2.9812499999999997, y: 18.95625, d: 3/4 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {
