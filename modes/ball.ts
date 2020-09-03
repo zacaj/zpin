@@ -38,6 +38,8 @@ export class Ball extends Mode<MachineOutputs> {
 
 
         Events.fire(new BallStart(this));
+        if (this.player.chips === 0)
+            this.player.chips++;
     }
 
     end() {

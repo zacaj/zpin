@@ -95,7 +95,7 @@ export class Player extends Mode<MachineOutputs> {
             });
 
         this.listen(
-            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
+            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini, ...machine.sTopLanes),
             () => {
                 if (this.chips < 4)
                     this.chips++;
