@@ -37,7 +37,6 @@ export class Player extends Mode<MachineOutputs> {
     }
 
     lowerRampLit = false;
-    miniReady = false;
     rampUp = true;
 
     modesQualified = new Set<(number)>();
@@ -58,11 +57,10 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'miniReady', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode']);
+        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
-            lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
             lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [Color.White] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
@@ -122,10 +120,8 @@ export class Player extends Mode<MachineOutputs> {
         this.listen([onAnySwitchClose(machine.sShooterUpper)], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
 
-
         
-        this.listen(e => e instanceof DropBankCompleteEvent, () => this.miniReady = true);
-        this.listen(onAnySwitchClose(machine.sMiniEntry), () => this.miniReady = false);
+        this.listen(e => e instanceof DropBankCompleteEvent, () => this.ball.miniReady = true);
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
             fork(StraightMb.start(this));

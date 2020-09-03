@@ -348,6 +348,7 @@ export type CoilOutputs = {
     right3: boolean;
     right4: boolean;
     right5: boolean;
+    miniFlipperEnable: boolean;
 };
 
 export type LightOutputs = {
@@ -413,6 +414,7 @@ export class Machine extends Tree<MachineOutputs> {
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 9, on => this.sRampDown.state = !on);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
+    cMiniFlipper = new OnOffSolenoid('miniFlipperEnable', 15, this.solenoidBank1);
 
     solenoidBank2 = new Solenoid16(2);
     cUpper2 = new IncreaseSolenoid('upper2', 11, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
@@ -643,6 +645,7 @@ export class Machine extends Tree<MachineOutputs> {
             troughRelease: false,
             miniEject: false,
             miniBank: false,
+            miniFlipperEnable: false,
             miniDiverter: () => this.miniDown,
             leftBank: false,
             rightBank: false,

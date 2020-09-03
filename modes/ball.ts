@@ -9,8 +9,15 @@ import { MPU } from '../mpu';
 import { gfx } from '../gfx';
 import { fork } from '../promises';
 import { wait } from '../timer';
+import { State } from '../state';
+import { Outputs } from '../outputs';
+import { Color } from '../light';
+import { MiniPf } from './miniPf';
 
 export class Ball extends Mode<MachineOutputs> {
+
+    miniReady = false;
+
     get skillshot(): Skillshot|undefined {
         return this.children.find(c => c instanceof Skillshot) as Skillshot;
     }
@@ -19,9 +26,17 @@ export class Ball extends Mode<MachineOutputs> {
         public player: Player,
     ) {
         super(Modes.Ball);
+        State.declare<Ball>(this, ['miniReady']);
+        this.out = new Outputs(this, {
+            lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
+        });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
             fork(Skillshot.start(this));
+        });
+
+        this.listen([...onSwitchClose(machine.sLeftOutlane), () => this.miniReady], () => {
+            this.addChild(new MiniPf(this));
         });
 
         fork(this.start());

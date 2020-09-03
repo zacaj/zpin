@@ -538,6 +538,7 @@ const gfxCoils: { [name: string]: {
     'troughRelease': { x: 16.3125, y: 2.0249999999999986 },
     'miniEject': { x: 6.1875, y: 2.3625000000000043 },
     'upperEject': { x: 5.0625, y: 40.5 },
+    'miniFlipperEnable': { x: 3.15, y: 3.65625 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;

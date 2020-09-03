@@ -24,7 +24,7 @@ export class DropBank extends Tree<MachineOutputs> {
     constructor(
         machine: Machine,
         public coil: MomentarySolenoid,
-        switches: Switch[],
+        public switches: Switch[],
         nums: number[],
         images: (keyof ImageOutputs)[],
     ) {

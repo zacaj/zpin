@@ -15,6 +15,7 @@ export enum Modes {
     Ball,
 
     Player,
+    MiniPf,
 
     LockLit,
     Multiball,

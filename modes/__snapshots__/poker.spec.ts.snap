@@ -81,6 +81,7 @@ Object {
     "miniBank": false,
     "miniDiverter": false,
     "miniEject": false,
+    "miniFlipperEnable": false,
     "outhole": false,
     "popper": false,
     "rampUp": true,
@@ -213,7 +214,9 @@ Object {
                   },
                 ],
                 "name": "Ball79",
-                "state": Object {},
+                "state": Object {
+                  "miniReady": true,
+                },
               },
               Object {
                 "children": Array [],
@@ -354,7 +357,6 @@ Object {
               "curMbMode": undefined,
               "lowerRampLit": false,
               "mbsQualified": Array [],
-              "miniReady": true,
               "modesQualified": Array [
                 11,
                 8,
@@ -464,6 +466,7 @@ Object {
     "miniBank": false,
     "miniDiverter": false,
     "miniEject": false,
+    "miniFlipperEnable": false,
     "outhole": false,
     "popper": false,
     "rampUp": true,
@@ -786,7 +789,9 @@ Object {
                   },
                 ],
                 "name": "Ball116",
-                "state": Object {},
+                "state": Object {
+                  "miniReady": true,
+                },
               },
             ],
             "name": "Player111",
@@ -796,7 +801,6 @@ Object {
               "curMbMode": undefined,
               "lowerRampLit": false,
               "mbsQualified": Array [],
-              "miniReady": true,
               "modesQualified": Array [],
               "poker": "Poker113",
               "rampUp": true,
