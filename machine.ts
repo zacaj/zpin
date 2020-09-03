@@ -26,7 +26,6 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     lastPendingChange?: Time;
     pending!: T;
     changeAttempts = 0;
-    pendingChangeAttempt = -1;
 
     constructor(
         public val: T,
@@ -39,16 +38,18 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         this.pending = val;
         Events.listen<TreeOutputEvent<any>>(ev => {
             this.changeAttempts++;
-            this.pendingChangeAttempt = this.changeAttempts;
+            const pendingChangeAttempt = this.changeAttempts;
             this.lastPendingChange = time();
             this.pending = ev.value;
-            Timer.callIn(() => this.settle(), this.debounce, `try set ${this.name} to ${this.pending}`);
+            Timer.callIn(() => this.settle(pendingChangeAttempt), this.debounce, `try set ${this.name} to ${this.pending}`);
         }, 
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
     }
 
-    settle() {
-        if (this.pendingChangeAttempt !== this.changeAttempts)
+    settle(changeAttempt: number) {
+        if (changeAttempt !== this.changeAttempts)
+            return undefined;
+        if (eq(this.val, this.pending))
             return undefined;
         this.val = this.pending;
         this.lastValChange = time();

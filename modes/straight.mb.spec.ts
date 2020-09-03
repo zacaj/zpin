@@ -12,7 +12,7 @@ describe('straight mb', () => {
     test('lock holds ball', async () => {
         await testRecording('straightMbStarting');
         await passTime(10000);
-        expect(machine.cLockPost.lastActualChange).toBe(undefined);
+        expect(machine.cLockPost.lastValChange).toBe(undefined);
         snapshot();
     });
 });

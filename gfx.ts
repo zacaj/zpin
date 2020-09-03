@@ -11,6 +11,7 @@ import { assert, num, tryNum, getCallerLoc } from './util';
 import * as fs from 'fs';
 import { wait, Timer, time } from './timer';
 import { fork } from './promises';
+import { onChange } from './state';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -412,10 +413,10 @@ class FxCoil extends Rect {
         const {x,y} = gfxCoils[coil.name];
         this.x(x).y(y);
 
-        this.fill(machine.out!.treeValues[coil.name]? '#ff0000' : '#ffffff');
+        this.fill(coil.actual? '#ff0000' : '#ffffff');
         Events.listen(() => {
-            this.fill(machine.out!.treeValues[coil.name]? '#ff0000' : '#fffff');
-        }, machine.out!.onOutputChange(coil.name));
+            this.fill(coil.actual? '#ff0000' : '#fffff');
+        }, onChange(coil, 'actual'));
     }
 }
 
@@ -656,42 +657,48 @@ export function createGroup(): Group|undefined {
 }
 
 export async function popup(node: Node, ms = 2000) {
-    if (!gfx) return;
+    // if (!gfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
-    node.z(100);
-    screen.add(node);
+    if (gfx) {
+        node.z(100);
+        screen.add(node);
+    }
     await wait(ms, 'popup');
-    screen.remove(node);
+    if (gfx) screen.remove(node);
     return;
 }
 
 export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
-    if (!gfx) return new FakeGroup() as any;
-    Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
-    const g = gfx.createGroup().y(-Screen.h * .2);
-    const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
-    const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
+    let g: Group;
+    if (gfx) {
+        Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
+        g = gfx.createGroup().y(-Screen.h * .2);
+        const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
+        const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
-    // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
-    const r = gfx.createRect().fill('#111111').z(-.1);
-    function setW() {
-        r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
-        r.x((t.w()-r.w())/2 + t.x());
+        // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
+        const r = gfx.createRect().fill('#111111').z(-.1);
+        function setW() {
+            r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
+            r.x((t.w()-r.w())/2 + t.x());
+        }
+        t.lineW.watch(setW);
+        t2?.lineW.watch(setW);
+        setW();
+        function setH() {
+            r.h(t.lineNr()*t.fontSize()+(t2?.lineNr()??0)*(t2?.fontSize()??0));
+            t2?.y(t.lineNr()*t.fontSize());
+        }
+        t.lineNr.watch(setH);
+        t2?.lineNr.watch(setH);
+        setH();
+        g.add(r, t);
+        if (t2)
+            g.add(t2);
+    } else {
+        g = new FakeGroup() as any;
     }
-    t.lineW.watch(setW);
-    t2?.lineW.watch(setW);
-    setW();
-    function setH() {
-        r.h(t.lineNr()*t.fontSize()+(t2?.lineNr()??0)*(t2?.fontSize()??0));
-        t2?.y(t.lineNr()*t.fontSize());
-    }
-    t.lineNr.watch(setH);
-    t2?.lineNr.watch(setH);
-    setH();
-    g.add(r, t);
-    if (t2)
-        g.add(t2);
 
     return [g, popup(g, ms)]; 
 }
