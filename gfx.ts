@@ -99,8 +99,9 @@ export async function initGfx() {
     gfx.on('press', playfield, (e) => {
         console.log('playfield location: ', { x: e.point.x, y: e.point.y });
     });
+    // eslint-disable-next-line complexity
     gfx.on('key.press', null, (e) => {
-        console.log('key press', e.char, e.keycode);
+        console.log('key press', e.char, e.keycode, e.key);
         if (e.char) {
             let letter: number|undefined;
             let number: number|undefined;
@@ -123,16 +124,45 @@ export async function initGfx() {
                     sw.changeState(!sw.state, 'force');
                 }
             }
+        }
+
+        switch (e.key) {
+            case 'LEFT':
+                playfield.x(playfield.x()-2);
+                break;
+            case 'RIGHT':
+                playfield.x(playfield.x()+2);
+                break;
+            case 'DOWN':
+                playfield.y(playfield.y()-2);
+                break;
+            case 'UP':
+                playfield.y(playfield.y()+2);
+                break;
+        }
+        switch (e.char) {
+            case 'j':
+                playfield.sx(playfield.sx()-.01);
+                break;
+            case 'l':
+                playfield.sx(playfield.sx()+.01);
+                break;
+            case 'k':
+                playfield.sy(playfield.sy()-.01);
+                break;
+            case 'i':
+                playfield.sy(playfield.sy()+.01);
+                break;
             
-            if (e.char === 'd') {
+            case 'd':
                 machine.out!.debugPrint();
-            }
-            if (e.char === 'm') {
+                break;
+            case 'm':
                 Log.log(['console', 'switch', 'mpu', 'solenoid', 'machine', 'gfx', 'game'], 'MARKER');
-            }
-            if (e.char === 's') {
+                break;
+            case 's':
                 fs.copyFileSync('./switch.log', './recordings/'+time());
-            }
+                break;
         }
     });
     // playfield.add(gfx.createText().fontName('card').text('test text').y(20).sy(-.05).sx(.05).fontSize(50));
