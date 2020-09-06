@@ -1,4 +1,4 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text, Node } from 'aminogfx-gl';
+import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text, Node, Polygon } from 'aminogfx-gl';
 import { Log } from './log';
 import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
@@ -195,7 +195,7 @@ export class Playfield extends Group {
         this.add(this.bg);
 
         for (const name of Object.keys(gfxLights) as (keyof LightOutputs)[]) {
-            gfxLights[name].l = new Light(name);
+            gfxLights[name].l = new (gfxLights[name].d? CircleLight: ArrowLight)(name);
             this.add(gfxLights[name].l!);
         }
 
@@ -255,26 +255,63 @@ export class Screen extends Group {
     }
 }
 
-class Light extends Circle {
+abstract class Light extends Group {
+    shape!: Polygon;
 
     constructor(
         public name: keyof LightOutputs,
     ) {
         super(gfx);
-        const {x,y,d} = gfxLights[name];
-        this.radius(d/2);
+        const {x,y} = gfxLights[name];
         this.x(x);
         this.y(y);
-        this.set([]);
     }
 
     set(val: Color[]) {
         if (val.length) {
-            this.fill(colorToHex(val[0])!);
+            this.shape.fill(colorToHex(val[0])!);
         } else {
-            this.fill('#FFFFFF');
+            this.shape.fill('#FFFFFF');
         }
-        this.filled(val.length !== 0);
+        this.shape.filled(val.length !== 0);
+    }
+}
+
+class CircleLight extends Light {
+    shape!: Circle;
+
+    constructor(
+        name: keyof LightOutputs,
+    ) {
+        super(name);
+        const {d} = gfxLights[name];
+        this.shape = gfx.createCircle().radius(d!/2);
+        this.add(this.shape);
+        this.set([]);
+    }
+}
+class ArrowLight extends Light {
+
+    constructor(
+        name: keyof LightOutputs,
+    ) {
+        super(name);
+        const {a, r} = gfxLights[name];
+        this.shape = gfx.createPolygon();
+        const points = new Float32Array(6);
+        points[0] = 0;
+        points[1] = a!/3*2;
+
+        points[2] = a!/4;
+        points[3] = -a!/3;
+
+        points[4] = -a!/4;
+        points[5] = -a!/3;
+
+        this.shape.geometry(points);
+        this.shape.rz(r!);
+        this.add(this.shape);
+        this.set([]);
     }
 }
 
@@ -483,16 +520,23 @@ export function makeText(text: string, height: number,
 export const gfxLights: { [name in keyof LightOutputs]: {
     x: number;
     y: number;
-    d: number;
     l?: Light;
-}} = {
+}&({
+    d: number;
+    a?: undefined;
+    r?: undefined;
+}|{
+    d?: undefined;
+    a: number;
+    r: number;
+})} = {
     lLowerRamp: { x: 15.6, y: 17.3, d: 5/8 },
     lMiniReady: { x: 2.53125, y: 11.25, d: 5/8 },
     lShooterShowCards:  { x: 18.05625, y: 25.9875, d: 5/8 },
     lShooterStartHand:  { x: 18.05625, y: 27.39375, d: 3/4 },
     lEjectShowCards:  { x: 8.8875, y: 39.43125, d: 5/8 },
     lEjectStartMode:  { x: 9, y: 37.2375, d: 3/4 },
-    lRampArrow:  { x: 3.65625, y: 29.86875, d: 1 },
+    lRampArrow:  { x: 3.65625, y: 29.86875, a: 1.5, r: 20 },
     lRampShowCards:  { x: 3.99375, y: 28.29375, d: 5/8 } ,  
     lRampStartMb:  { x: 4.1625, y: 27.337500000000002, d: 3/4 } ,  
     lPower1: { x: 7.199999999999999, y: 10.575000000000003, d: 5/8 },
@@ -507,6 +551,14 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lLaneLowerLeft: { x: 14.34375, y: 39.4875, d: 1 },
     lLaneLowerCenter: { x: 16.03125, y: 39.375, d: 1 },
     lLaneLowerRight: { x: 17.4375, y: 39.31875, d: 1 },
+    lSideShotArrow:  { x: 5.90625, y: 32.85, a: 1.5, r: 40 },
+    lEjectArrow:  { x: 8.6625, y: 35.24375, a: 1.5, r: -5 },
+    lUpperLaneArrow:  { x: 12.2625, y: 36.3375, a: 1.5, r: -45 },
+    lSpinnerArrow:  { x: 15.862499999999999, y: 31.78125, a: 1.5, r: -25 },
+    lShooterLaneArrow:  { x: 19.068749999999998, y: 25.25625, a: 1, r: -180 },
+    lLeftArrow:  { x: 2.025, y: 27.225, a: 1, r: 20 },
+    lSideTargetArrow:  { x: 8.268749999999999, y: 30.31875, a: 1, r: 90 },
+    lMainTargetArrow:  { x: 6.69375, y: 27.675, a: 1, r: 27 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {

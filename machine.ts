@@ -373,6 +373,14 @@ export type LightOutputs = {
     lLaneLowerLeft: Color[];
     lLaneLowerCenter: Color[];
     lLaneLowerRight: Color[];
+    lSideShotArrow: Color[];
+    lEjectArrow: Color[];
+    lUpperLaneArrow: Color[];
+    lSpinnerArrow: Color[];
+    lShooterLaneArrow: Color[];
+    lLeftArrow: Color[];
+    lSideTargetArrow: Color[];
+    lMainTargetArrow: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -596,6 +604,14 @@ export class Machine extends Tree<MachineOutputs> {
     lLaneLowerLeft = new Light('lLaneLowerLeft', 0);
     lLaneLowerCenter = new Light('lLaneLowerCenter', 0);
     lLaneLowerRight = new Light('lLaneLowerRight', 0);
+    lSideShotArrow = new Light('lSideShotArrow', 0);
+    lEjectArrow = new Light('lEjectArrow', 0);
+    lUpperLaneArrow = new Light('lUpperLaneArrow', 0);
+    lSpinnerArrow = new Light('lSpinnerArrow', 0);
+    lShooterLaneArrow = new Light('lShooterLaneArrow', 0);
+    lLeftArrow = new Light('lLeftArrow', 0);
+    lSideTargetArrow = new Light('lSideTargetArrow', 0);
+    lMainTargetArrow = new Light('lMainTargetArrow', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -701,6 +717,14 @@ export class Machine extends Tree<MachineOutputs> {
             lLaneLowerLeft: [],
             lLaneLowerCenter: [],
             lLaneLowerRight: [],
+            lSideShotArrow: [],
+            lEjectArrow: [],
+            lUpperLaneArrow: [],
+            lSpinnerArrow: [],
+            lShooterLaneArrow: [],
+            lLeftArrow: [],
+            lSideTargetArrow: [],
+            lMainTargetArrow: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',
