@@ -367,6 +367,12 @@ export type LightOutputs = {
     lPower4: Color[];
     lPopperStatus: Color[];
     lMagnaSaveStatus: Color[];
+    lLaneUpperLeft: Color[];
+    lLaneUpperCenter: Color[];
+    lLaneUpperRight: Color[];
+    lLaneLowerLeft: Color[];
+    lLaneLowerCenter: Color[];
+    lLaneLowerRight: Color[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -563,9 +569,9 @@ export class Machine extends Tree<MachineOutputs> {
         this.sBackLane,
         this.sUpperLaneLeft,
         this.sUpperLaneRight,
+        this.sLowerLaneLeft,
         this.sLowerLaneCenter,
         this.sLowerLaneRight,
-        this.sLowerLaneLeft,
     ];
 
     lastSwitchHit?: Switch;
@@ -584,6 +590,12 @@ export class Machine extends Tree<MachineOutputs> {
     lPower3 = new Light('lPower3', 0);
     lPopperStatus = new Light('lPopperStatus', 0);
     lMagnaSaveStatus = new Light('lMagnaSaveStatus', 0);
+    lLaneUpperLeft = new Light('lLaneUpperLeft', 0);
+    lLaneUpperCenter = new Light('lLaneUpperCenter', 0);
+    lLaneUpperRight = new Light('lLaneUpperRight', 0);
+    lLaneLowerLeft = new Light('lLaneLowerLeft', 0);
+    lLaneLowerCenter = new Light('lLaneLowerCenter', 0);
+    lLaneLowerRight = new Light('lLaneLowerRight', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -683,6 +695,12 @@ export class Machine extends Tree<MachineOutputs> {
             lPower4: [],
             lPopperStatus: [],
             lMagnaSaveStatus: [],
+            lLaneUpperLeft: [],
+            lLaneUpperCenter: [],
+            lLaneUpperRight: [],
+            lLaneLowerLeft: [],
+            lLaneLowerCenter: [],
+            lLaneLowerRight: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',

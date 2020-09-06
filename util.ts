@@ -94,6 +94,7 @@ declare global {
         insert(value: T, where: (before: T) => boolean): number;
         shuffle(rand?: () => number, times?: number): this;
         sum(conv?: (val: T, index: number) => number): number;
+        rotate(amount: number): this;
     }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
@@ -156,6 +157,17 @@ Array.prototype.shuffle = function<T>(this: T[], rand: () => number = () => Math
 };
 Array.prototype.sum = function<T>(this: T[], conv?: (val: T, index: number) => number): number {
     return this.reduce((prev, cur, index) => prev + (conv? conv(cur, index) : cur as any), 0);
+};
+Array.prototype.rotate = function<T>(this: T[], amount: number): T[] {
+    while (amount > 0) {
+        this.unshift(this.pop()!);
+        amount--;
+    }
+    while (amount < 0) {
+        this.push(this.shift()!);
+        amount++;
+    }
+    return this;
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {

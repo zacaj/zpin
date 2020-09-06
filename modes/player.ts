@@ -25,6 +25,8 @@ import { GameMode } from './game-mode';
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
     score = 0;
+
+    laneChips = [true, false, false, true, false, false];
     
     poker?: Poker;
     curMbMode?: Mode;
@@ -57,7 +59,7 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode']);
+        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'laneChips']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
@@ -72,6 +74,12 @@ export class Player extends Mode<MachineOutputs> {
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             lMagnaSaveStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
+            lLaneUpperLeft: () => light(this.laneChips[0], Color.Orange),
+            lLaneUpperCenter: () => light(this.laneChips[1], Color.Orange),
+            lLaneUpperRight: () => light(this.laneChips[2], Color.Orange),
+            lLaneLowerLeft: () => light(this.laneChips[3], Color.Orange),
+            lLaneLowerCenter: () => light(this.laneChips[4], Color.Orange),
+            lLaneLowerRight: () => light(this.laneChips[5], Color.Orange),
         });
         
         this.addChild(new ClearHoles(), -1);
@@ -92,15 +100,19 @@ export class Player extends Mode<MachineOutputs> {
             e => {
                 this.rampUp = true;
                 this.lowerRampLit = !this.lowerRampLit;
+                this.laneChips.rotate(1);
             });
 
         this.listen(
-            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini, ...machine.sTopLanes),
-            () => {
-                if (this.chips < 4)
-                    this.chips++;
-                else 
-                    this.store.Poker.bank += 50;
+            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
+            'addChip');
+        this.listen(
+            onAnySwitchClose(...machine.sTopLanes),
+            (e) => {
+                const i = machine.sTopLanes.indexOf(e.sw);
+                if (!this.laneChips[i]) return;
+                this.addChip();
+                this.addChip();                
             });
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
@@ -184,6 +196,13 @@ export class Player extends Mode<MachineOutputs> {
         }
 
         State.declare<T>(store, props);
+    }
+
+    addChip() {
+        if (this.chips < 4)
+            this.chips++;
+        else 
+            this.store.Poker.bank += 50;
     }
 }
 
