@@ -102,7 +102,7 @@ module.exports = {
     }],
     "func-call-spacing": on,
     "keyword-spacing": on,
-    "linebreak-style": on,
+    "linebreak-style": off,
     "max-len": [off, {
       "code": 200,
       "tabWidth": 2,

@@ -104,7 +104,7 @@ export class Player extends Mode<MachineOutputs> {
             });
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
-            await machine.cPopper.fire();
+            await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
             if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             this.chips-=2;
             if (this.chips<0) this.chips = 0;
