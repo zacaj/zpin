@@ -514,6 +514,8 @@ export class Machine extends Tree<MachineOutputs> {
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
 
     pfSwitches = [
+        this.sMiniOut,
+        this.sOuthole,
         this.sLeftInlane,
         this.sLeftOutlane,
         this.sRightInlane,

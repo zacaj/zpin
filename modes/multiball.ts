@@ -30,6 +30,7 @@ export abstract class Multiball extends Mode<MachineOutputs> {
 
         this.out = new Outputs(this, {
             miniDiverter: false,
+            lMiniReady: [],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
         }, true);

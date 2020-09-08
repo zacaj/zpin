@@ -129,7 +129,7 @@ export class Player extends Mode<MachineOutputs> {
 
         
 
-        this.listen([onAnySwitchClose(machine.sShooterUpper)], () => this.closeShooter = true);
+        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
 
         
