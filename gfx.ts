@@ -142,18 +142,31 @@ export async function initGfx() {
         }
         switch (e.char) {
             case 'j':
-                playfield.sx(playfield.sx()-.01);
+                playfield.sx(playfield.sx()-.02);
                 break;
             case 'l':
-                playfield.sx(playfield.sx()+.01);
+                playfield.sx(playfield.sx()+.02);
                 break;
             case 'k':
-                playfield.sy(playfield.sy()-.01);
-                break;
-            case 'i':
                 playfield.sy(playfield.sy()+.01);
                 break;
+            case 'i':
+                playfield.sy(playfield.sy()-.01);
+                break;
+            case 'u':
+                playfield.rz(playfield.rz()-.1);
+                break;
+            case 'o':
+                playfield.rz(playfield.rz()+.1);
+                break;
+
             
+            case 'a': {
+                const adj = {x: playfield.x(), y: playfield.y(), sx: playfield.sx(), sy: playfield.sy(), rz: playfield.rz()};
+                Log.log('console', 'adjustments', adj);
+                fs.writeFileSync('projector.json', JSON.stringify(adj, null, 2));
+                break;
+            }
             case 'd':
                 machine.out!.debugPrint();
                 break;
@@ -183,11 +196,24 @@ export class Playfield extends Group {
         this.w(Playfield.w);
         this.h(Playfield.h);
         this.originX(0).originY(1);
+        this.rz(0);
         this.sx(screenH/Playfield.h);
         this.sy(screenH/Playfield.h);
         if (isRpi) {
             this.x(-((Playfield.w*screenH/Playfield.h)+gfx.h())/2);
             this.y(0);
+
+            try {
+                const json = fs.readFileSync('projector.json', 'utf8');
+                const adj = JSON.parse(json);
+                this.x(adj.x ?? this.x());
+                this.y(adj.y ?? this.y());
+                this.sx(adj.sx ?? this.sx());
+                this.sy(adj.sy ?? this.sy());
+                this.rz(adj.rz ?? this.rz());
+            } catch (e) {
+                debugger;
+            }
         } else {
             this.x(-((Playfield.w*screenH/Playfield.h)-screenW)/2).y(0);
         }

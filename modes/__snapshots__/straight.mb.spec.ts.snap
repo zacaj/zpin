@@ -67,9 +67,7 @@ Object {
       "Green",
     ],
     "lMainTargetArrow": Array [],
-    "lMiniReady": Array [
-      "Red",
-    ],
+    "lMiniReady": Array [],
     "lPopperStatus": Array [
       "Green",
     ],
