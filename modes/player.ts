@@ -64,6 +64,7 @@ export class Player extends Mode<MachineOutputs> {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
             lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
+            rightGate: () => this.chips<=1,
             lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [Color.White] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
             lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [Color.White] : [Color.Red]) : [],
