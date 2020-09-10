@@ -65,9 +65,9 @@ export class Poker extends Mode<MachineOutputs> {
             rampUp: () => machine.lRampShowCards.lit()? false : undefined,
             lockPost: () => machine.lRampShowCards.lit()? false : undefined,
             upperEject: () => machine.lEjectShowCards.lit()? false : undefined,
-            lShooterShowCards: () => this.step >= 7? [Color.Green] : [],
-            lEjectShowCards: () => this.step >= 7 && player.modesReady.size>0? [Color.Green] : [],
-            lRampShowCards: () => this.step >= 7 && player.mbsReady.size>0? [Color.Green] : [],
+            lShooterShowCards: () => this.step >= 7? [Color.White] : [],
+            lEjectShowCards: () => this.step >= 7 && player.modesReady.size>0? [Color.White] : [],
+            lRampShowCards: () => this.step >= 7 && player.mbsReady.size>0? [Color.White] : [],
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => () => this.getSkillshot(),
         });
@@ -198,14 +198,14 @@ export class Poker extends Mode<MachineOutputs> {
         for (const pair of pairs) {
             if (!this.newModes.has(pair[0].num)) {
                 Log.info('game', 'qualified mode %i', pair[0].num);
-                this.newModes.add(pair[0].num);
-                alert(`${getRank(pair[0])} mode qualified`);
+                // this.newModes.add(pair[0].num);
+                // alert(`${getRank(pair[0])} mode qualified`);
             }
         }
         for (const straight of straights) {
             if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
-                alert('straight multiball qualified');
+                alert('multiball qualified');
             }
             this.newMbs.set('StraightMb', straight);
             break;
@@ -213,9 +213,17 @@ export class Poker extends Mode<MachineOutputs> {
         if (flushes.length > 0) {
             if (!this.newMbs.has('FlushMb')) {
                 Log.info('game', 'qualified flush multiball');
-                alert('flush multiball qualified');
+                alert('multiball qualified');
             }
             this.newMbs.set('FlushMb', flushes[0]);
+        }
+        if (pairs.length >= 2 && pairs[0].length > 2) {
+            // full house
+            if (!this.newMbs.has('FlushMb')) {
+                Log.info('game', 'qualified full house multiball');
+                alert('multiball qualified');
+            }
+            this.newMbs.set('StraightMb', [...pairs[0], ...pairs[1]]);
         }
     }
 

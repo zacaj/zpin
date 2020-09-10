@@ -26,7 +26,7 @@ export class StraightMbGfx extends Group {
         this.hand.add(gfx.createRect().fill('#000000').opacity(0.5).z(.1).w(PokerHand.w*7).h(PokerHand.h));
         this.add(this.hand);
 
-        this.add(makeText('Straight multiball', 60).y(Screen.h*-.28).rz.anim({
+        this.add(makeText('multiball!', 60).y(Screen.h*-.28).rz.anim({
             from: -5,
             to: 5,
             autoreverse: true,
