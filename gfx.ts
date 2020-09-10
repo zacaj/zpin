@@ -2,7 +2,7 @@ import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, 
 import { Log } from './log';
 import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
-import { Color, colorToHex } from './light';
+import { Color, colorToHex, LightState, normalizeLight } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
 import { Events, Priorities } from './events';
 import { assert, num, tryNum, getCallerLoc } from './util';
@@ -293,9 +293,26 @@ abstract class Light extends Group {
         this.y(y);
     }
 
-    set(val: Color[]) {
+    set(val: LightState[]) {
+        this.shape.opacity.curAnim?.stop();
+        this.shape.opacity(1);
         if (val.length) {
-            this.shape.fill(colorToHex(val[0])!);
+            const state = normalizeLight(val[0]);
+            this.shape.fill(colorToHex(state.color)!);
+            switch (state.type) {
+                case 'flashing':
+                case 'pulsing':
+                    this.shape.opacity.anim({
+                        autoreverse: true,
+                        duration: 1000/state.freq / 2,
+                        from: 1,
+                        to: 0,
+                        loop: -1,
+                    }).start();
+                    break;
+                case 'solid':
+                    break;
+            }
         } else {
             this.shape.fill('#FFFFFF');
         }
@@ -311,7 +328,7 @@ class CircleLight extends Light {
     ) {
         super(name);
         const {d} = gfxLights[name];
-        this.shape = gfx.createCircle().radius(d!/2);
+        this.shape = gfx.createCircle().radius(d!/2).opacity(1);
         this.add(this.shape);
         this.set([]);
     }

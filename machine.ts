@@ -8,7 +8,7 @@ import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './tim
 import { assert, getTypeIn, then, eq as eq } from './util';
 import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
-import { Color } from './light';
+import { Color, LightState } from './light';
 import { gfxLights, gfxImages, gfx, screen } from './gfx';
 import { Tree } from './tree';
 import { MPU } from './mpu';
@@ -245,7 +245,7 @@ export class OnOffSolenoid extends Solenoid {
 
 
 
-export class Light extends MachineOutput<Color[], LightOutputs> {
+export class Light extends MachineOutput<LightState[], LightOutputs> {
     constructor(
         name: keyof LightOutputs,
         public num: number,
@@ -257,7 +257,7 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
 
     }
 
-    set(state: Color[]): boolean {
+    set(state: LightState[]): boolean {
         if (!gfx) return true;
         if (!gfxLights) return false;
         const l = gfxLights[this.name];
@@ -273,7 +273,9 @@ export class Light extends MachineOutput<Color[], LightOutputs> {
     }
 
     is(...colors: Color[]): boolean {
-        return colors.some(c => this.val.includes(c));
+        return this.val.some(c => (typeof c === 'string' && colors.includes(c)) 
+                               || (Array.isArray(c) && colors.includes(c[0]))
+                               || (typeof c === 'object' && colors.includes((c as any).color)));
     }
 
     onChange(): EventTypePredicate<StateEvent<this, 'val'>> {
@@ -352,35 +354,35 @@ export type CoilOutputs = {
 };
 
 export type LightOutputs = {
-    lLowerRamp: Color[];
-    lMiniReady: Color[];
-    lShooterShowCards: Color[];
-    lShooterStartHand: Color[];
-    lEjectShowCards: Color[];
-    lEjectStartMode: Color[];
-    lRampShowCards: Color[];
-    lRampStartMb: Color[];
-    lRampArrow: Color[];
-    lPower1: Color[];
-    lPower2: Color[];
-    lPower3: Color[];
-    lPower4: Color[];
-    lPopperStatus: Color[];
-    lMagnaSaveStatus: Color[];
-    lLaneUpperLeft: Color[];
-    lLaneUpperCenter: Color[];
-    lLaneUpperRight: Color[];
-    lLaneLowerLeft: Color[];
-    lLaneLowerCenter: Color[];
-    lLaneLowerRight: Color[];
-    lSideShotArrow: Color[];
-    lEjectArrow: Color[];
-    lUpperLaneArrow: Color[];
-    lSpinnerArrow: Color[];
-    lShooterLaneArrow: Color[];
-    lLeftArrow: Color[];
-    lSideTargetArrow: Color[];
-    lMainTargetArrow: Color[];
+    lLowerRamp: LightState[];
+    lMiniReady: LightState[];
+    lShooterShowCards: LightState[];
+    lShooterStartHand: LightState[];
+    lEjectShowCards: LightState[];
+    lEjectStartMode: LightState[];
+    lRampShowCards: LightState[];
+    lRampStartMb: LightState[];
+    lRampArrow: LightState[];
+    lPower1: LightState[];
+    lPower2: LightState[];
+    lPower3: LightState[];
+    lPower4: LightState[];
+    lPopperStatus: LightState[];
+    lMagnaSaveStatus: LightState[];
+    lLaneUpperLeft: LightState[];
+    lLaneUpperCenter: LightState[];
+    lLaneUpperRight: LightState[];
+    lLaneLowerLeft: LightState[];
+    lLaneLowerCenter: LightState[];
+    lLaneLowerRight: LightState[];
+    lSideShotArrow: LightState[];
+    lEjectArrow: LightState[];
+    lUpperLaneArrow: LightState[];
+    lSpinnerArrow: LightState[];
+    lShooterLaneArrow: LightState[];
+    lLeftArrow: LightState[];
+    lSideTargetArrow: LightState[];
+    lMainTargetArrow: LightState[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;

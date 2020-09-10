@@ -8,6 +8,44 @@ export enum Color {
     Purple = 'Purple',
 }
 
+export type Frequency = number;
+
+
+
+export type LightState = Color|{
+    color: Color;
+    flashing: true;
+    freq: Frequency;
+}|{
+    color: Color;
+    pulsing: true;
+    freq: Frequency;
+}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse', Frequency?];
+const defaultFlashFreq: Frequency = 3;
+export function normalizeLight(state: LightState): {
+    color: Color;
+    type: 'solid'|'pulsing'|'flashing';
+    freq: Frequency;
+} {
+    if (typeof state === 'string')
+        return {
+            color: state,
+            type: 'solid',
+            freq: defaultFlashFreq,
+        };
+    if (Array.isArray(state)) 
+        return {
+            color: state[0],
+            type: state[1].startsWith('f')? 'flashing' : 'pulsing',
+            freq: state[2] ?? defaultFlashFreq,
+        };
+    return {
+        color: state.color,
+        type: 'flashing' in state? 'flashing' : 'pulsing',
+        freq: state.freq ?? defaultFlashFreq,
+    };
+}
+
 export function colorToHex(color: Color): Color|undefined {
     const colors = {'aliceblue':'#f0f8ff','antiquewhite':'#faebd7','aqua':'#00ffff','aquamarine':'#7fffd4','azure':'#f0ffff',
     'beige':'#f5f5dc','bisque':'#ffe4c4','black':'#000000','blanchedalmond':'#ffebcd','blue':'#0000ff','blueviolet':'#8a2be2','brown':'#a52a2a','burlywood':'#deb887',
@@ -40,8 +78,24 @@ export function colorToHex(color: Color): Color|undefined {
     return undefined;
 }
 
-export function light(cond: boolean, color = Color.White, offColor?: Color): Color[] {
+export function light(cond: boolean, color: LightState = Color.White, offColor?: LightState): LightState[] {
     return cond? [color] : (offColor? [offColor] : []);
+}
+export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency|Color = defaultFlashFreq, freq = defaultFlashFreq): LightState[] {
+    if (typeof freqOrColor === 'number')
+        freq = freqOrColor;
+    return cond? [{
+        color,
+        flashing: true,
+        freq,
+    }] : (typeof freqOrColor !== 'number'? [[freqOrColor, 'flash', freq]] : []);
+}
+export function flashLight(cond: boolean, color = Color.White, off = Color.Red, freq = defaultFlashFreq): LightState[] {
+    return cond? [{
+        color,
+        flashing: true,
+        freq,
+    }] : [off];
 }
 
 export function colorToArrow(color?: Color): string|undefined {
