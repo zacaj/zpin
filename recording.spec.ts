@@ -5,6 +5,7 @@ import { Color } from './light';
 import { initMachine } from './init';
 import { Log } from './log';
 import { MPU } from './mpu';
+import { snapshot } from './jest';
 
 describe('recordings', () => {
     test('reading', async () => {
@@ -28,6 +29,6 @@ describe('recordings', () => {
     });
     test('play test', async () => {
         await testRecording('lightStraight');
-        expect(machine.out!.treeValues.lEjectStartMode).toEqual([Color.White]);
+        snapshot();
     });
 });

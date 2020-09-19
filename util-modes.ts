@@ -6,7 +6,7 @@ import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent }
 import { Log } from './log';
 import { Events, onType } from './events';
 import { Tree } from './tree';
-import { onSwitchClose } from './switch-matrix';
+import { onSwitchClose, onSwitchOpen } from './switch-matrix';
 import { MPU } from './mpu';
 import { wait } from './timer';
 import { fork } from './promises';
@@ -89,5 +89,6 @@ export class ReleaseBall extends Tree<MachineOutputs> {
             troughRelease: !machine.sShooterLane.state,
         });
         this.listen(onSwitchClose(machine.sShooterLane), 'end');
+        this.listen(onSwitchOpen(machine.sTroughFull), 'end');
     }
 }
