@@ -30,6 +30,8 @@ export class StraightMb extends Multiball {
     curBank?: DropBank;
     value = 1000000;
     awardingJp = 0;
+    started = false;
+    secondBallLocked = false;
 
     skillshotRng!: Rng;
     bankRng!: Rng;
@@ -41,35 +43,46 @@ export class StraightMb extends Multiball {
         super(player);
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
-        State.declare<StraightMb>(this, ['curBank', 'awardingJp', 'jackpotLit']);
+        State.declare<StraightMb>(this, ['curBank', 'awardingJp', 'jackpotLit', 'started', 'secondBallLocked']);
         player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => {
+                if (!this.started)
+                    return colorToArrow(this.bankColors.get(target.bank));
+
                 if (target.state || this.jackpotLit) return undefined;
+                
                 if (this.curBank && !this.jackpotLit) {
                     if (target.bank === this.curBank)
                         return colorToArrow(this.bankColors.get(this.curBank));
                     return undefined;
                 }
-                if (!this.curBank)
-                    return colorToArrow(this.bankColors.get(target.bank));
                 return undefined;
             };
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => !this.jackpotLit && !this.awardingJp,
+            rampUp: () => !this.jackpotLit && !this.awardingJp && (this.started || this.secondBallLocked),
             lockPost: () => this.lockPost ?? false,
             lRampArrow: () => light(this.jackpotLit, Color.Red),
             getSkillshot: () => () => this.getSkillshot(),
+            ignoreSkillsot: set => (this.started)? set : new Set([...set ?? [], machine.sRampMade, ...(this.secondBallLocked? [] : [machine.sRightInlane])]),
         });
 
-        this.listen(onSwitchClose(machine.sRampMade), 'jackpot');
+        this.listen(onSwitchClose(machine.sRampMade), () => {
+            if (!this.started && !this.secondBallLocked) {
+                this.secondBallLocked = true;
+                return this.releaseBallFromTrough();
+            }
+            return this.jackpot();
+        });
 
         this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => e.bank === this.curBank], () => this.jackpotLit = true);
 
         this.listen(e => e instanceof SkillshotComplete, () => {
+            this.started = true;
+            this.secondBallLocked = false;
             return this.releaseBallsFromLock();
         });
 
@@ -154,7 +167,7 @@ export class StraightMb extends Multiball {
             this.skillshotRng.weightedSelect([5, machine.leftBank]),
         ];
         const verb = [
-            'ADD 250K TO',
+            'ADD 50K TO',
             'DOUBLE',
             'DOUBLE',
             '1.5X',
@@ -172,7 +185,7 @@ export class StraightMb extends Multiball {
                 collect: () => this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank)),
                 made: () => {
                     switch (verb[i]) {
-                        case 'ADD 250K TO': this.value += 250000; break;
+                        case 'ADD 50K TO': this.value += 50000; break;
                         case 'ADD 500K TO': this.value += 500000; break;
                         case 'DOUBLE': this.value *= 2; break;
                         case 'TRIPLE': this.value *= 3; break;

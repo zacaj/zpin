@@ -4,7 +4,7 @@ import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { screen, makeText, alert, gfx } from '../gfx';
-import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch, onSwitchOpen } from '../switch-matrix';
+import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch, onSwitchOpen, SwitchEvent } from '../switch-matrix';
 import { wrap, assert, comma } from '../util';
 import { Text, Node } from 'aminogfx-gl';
 import { Player } from './player';
@@ -58,6 +58,7 @@ export class Skillshot extends Mode<MachineOutputs> {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
             // leftGate: () => (time()-this.startTime) % 3000 > 1500,
+            rightGate: false,
             upperMagnet: () => machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 5000 && this.lastSw < 2,
         });
         
@@ -79,7 +80,10 @@ export class Skillshot extends Mode<MachineOutputs> {
         this.listen(onAnySwitchClose(machine.sUpperEject), () => this.made(5));
         this.listen(onAnySwitchClose(machine.sLeftInlane, machine.sLeftOrbit), () => this.made(6));
 
-        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), 'finish');
+        this.listen<SwitchEvent>([
+            ...onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
+            e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
+        ], 'finish');
 
         this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
         this.listen([...onSwitchClose(machine.sLeftFlipper), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));

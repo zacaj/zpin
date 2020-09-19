@@ -47,16 +47,13 @@ Object {
     "iUpper31": "10C",
     "iUpper32": "5H",
     "iUpper33": "9H",
+    "ignoreSkillsot": Set {},
     "kickerEnable": true,
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
-    "lEjectStartMode": Array [
-      "Red",
-    ],
+    "lEjectStartMode": Array [],
     "lLaneLowerCenter": Array [],
-    "lLaneLowerLeft": Array [
-      "Orange",
-    ],
+    "lLaneLowerLeft": Array [],
     "lLaneLowerRight": Array [],
     "lLaneUpperCenter": Array [],
     "lLaneUpperLeft": Array [
@@ -78,9 +75,15 @@ Object {
     "lPower1": Array [
       "Orange",
     ],
-    "lPower2": Array [],
-    "lPower3": Array [],
-    "lPower4": Array [],
+    "lPower2": Array [
+      "Orange",
+    ],
+    "lPower3": Array [
+      "Orange",
+    ],
+    "lPower4": Array [
+      "Orange",
+    ],
     "lRampArrow": Array [],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
@@ -181,18 +184,22 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "PlayerOverrides78",
+                "name": "LeftOrbit78",
+                "state": Object {
+                  "comboMult": 1,
+                  "rounds": 1,
+                  "score": 20000,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "PlayerOverrides79",
                 "state": Object {},
               },
               Object {
                 "children": Array [
                   Object {
                     "children": Array [
-                      Object {
-                        "children": Array [],
-                        "name": "DropBankResetter81",
-                        "state": Object {},
-                      },
                       Object {
                         "children": Array [],
                         "name": "DropBankResetter82",
@@ -218,27 +225,32 @@ Object {
                         "name": "DropBankResetter86",
                         "state": Object {},
                       },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter87",
+                        "state": Object {},
+                      },
                     ],
-                    "name": "ResetAnyDropOnComplete80",
+                    "name": "ResetAnyDropOnComplete81",
                     "state": Object {},
                   },
                   Object {
                     "children": Array [],
-                    "name": "Skillshot91",
+                    "name": "Skillshot92",
                     "state": Object {
                       "curAward": 0,
                       "shooterOpen": true,
                     },
                   },
                 ],
-                "name": "Ball79",
+                "name": "Ball80",
                 "state": Object {
                   "miniReady": true,
                 },
               },
               Object {
                 "children": Array [],
-                "name": "Poker90",
+                "name": "Poker91",
                 "state": Object {
                   "bet": 100,
                   "closeShooter": false,
@@ -370,24 +382,20 @@ Object {
             ],
             "name": "Player74",
             "state": Object {
-              "chips": 1,
+              "chips": 4,
               "closeShooter": false,
               "curMbMode": undefined,
               "laneChips": Array [
                 true,
                 false,
                 false,
-                true,
+                false,
                 false,
                 false,
               ],
-              "lowerRampLit": false,
               "mbsQualified": Array [],
-              "modesQualified": Array [
-                11,
-                8,
-              ],
-              "poker": "Poker90",
+              "modesQualified": Array [],
+              "poker": "Poker91",
               "rampUp": true,
               "score": 31000,
             },
@@ -452,18 +460,13 @@ Object {
     "iUpper31": "",
     "iUpper32": "",
     "iUpper33": "",
+    "ignoreSkillsot": Set {},
     "kickerEnable": true,
     "lEjectArrow": Array [],
-    "lEjectShowCards": Array [
-      "Green",
-    ],
-    "lEjectStartMode": Array [
-      "White",
-    ],
+    "lEjectShowCards": Array [],
+    "lEjectStartMode": Array [],
     "lLaneLowerCenter": Array [],
-    "lLaneLowerLeft": Array [
-      "Orange",
-    ],
+    "lLaneLowerLeft": Array [],
     "lLaneLowerRight": Array [],
     "lLaneUpperCenter": Array [],
     "lLaneUpperLeft": Array [
@@ -485,18 +488,27 @@ Object {
     "lPower1": Array [
       "Orange",
     ],
-    "lPower2": Array [],
-    "lPower3": Array [],
-    "lPower4": Array [],
+    "lPower2": Array [
+      "Orange",
+    ],
+    "lPower3": Array [
+      "Orange",
+    ],
+    "lPower4": Array [
+      "Orange",
+    ],
     "lRampArrow": Array [],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [
-      "Green",
+      "White",
     ],
     "lShooterStartHand": Array [
-      "White",
+      Array [
+        "Green",
+        "fl",
+      ],
     ],
     "lSideShotArrow": Array [],
     "lSideTargetArrow": Array [],
@@ -521,21 +533,16 @@ Object {
     "right4": false,
     "right5": false,
     "rightBank": false,
-    "rightGate": false,
+    "rightGate": true,
     "shooterDiverter": true,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
-    "upperEject": false,
+    "upperEject": true,
     "upperMagnet": false,
   },
   "state": Object {
     "children": Array [
-      Object {
-        "children": Array [],
-        "name": "DropBank102",
-        "state": Object {},
-      },
       Object {
         "children": Array [],
         "name": "DropBank103",
@@ -562,14 +569,19 @@ Object {
         "state": Object {},
       },
       Object {
+        "children": Array [],
+        "name": "DropBank108",
+        "state": Object {},
+      },
+      Object {
         "children": Array [
           Object {
             "children": Array [],
-            "name": "EosPulse109",
+            "name": "EosPulse110",
             "state": Object {},
           },
         ],
-        "name": "MachineOverrides108",
+        "name": "MachineOverrides109",
         "state": Object {},
       },
       Object {
@@ -578,12 +590,12 @@ Object {
             "children": Array [
               Object {
                 "children": Array [],
-                "name": "ClearHoles112",
+                "name": "ClearHoles113",
                 "state": Object {},
               },
               Object {
                 "children": Array [],
-                "name": "Poker113",
+                "name": "Poker114",
                 "state": Object {
                   "bet": 100,
                   "closeShooter": false,
@@ -648,9 +660,7 @@ Object {
                   ],
                   "dealerHandDesc": "Two Pair",
                   "newMbs": Array [],
-                  "newModes": Array [
-                    13,
-                  ],
+                  "newModes": Array [],
                   "playerCardsUsed": Array [
                     Object {
                       "num": 13,
@@ -781,7 +791,7 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "Spinner114",
+                "name": "Spinner115",
                 "state": Object {
                   "comboMult": 1,
                   "rounds": 0,
@@ -790,23 +800,22 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "PlayerOverrides115",
+                "name": "LeftOrbit116",
+                "state": Object {
+                  "comboMult": 1,
+                  "rounds": 1,
+                  "score": 20000,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "PlayerOverrides117",
                 "state": Object {},
               },
               Object {
                 "children": Array [
                   Object {
                     "children": Array [
-                      Object {
-                        "children": Array [],
-                        "name": "DropBankResetter118",
-                        "state": Object {},
-                      },
-                      Object {
-                        "children": Array [],
-                        "name": "DropBankResetter119",
-                        "state": Object {},
-                      },
                       Object {
                         "children": Array [],
                         "name": "DropBankResetter120",
@@ -827,46 +836,55 @@ Object {
                         "name": "DropBankResetter123",
                         "state": Object {},
                       },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter124",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter125",
+                        "state": Object {},
+                      },
                     ],
-                    "name": "ResetAnyDropOnComplete117",
+                    "name": "ResetAnyDropOnComplete119",
                     "state": Object {},
                   },
                 ],
-                "name": "Ball116",
+                "name": "Ball118",
                 "state": Object {
                   "miniReady": true,
                 },
               },
             ],
-            "name": "Player111",
+            "name": "Player112",
             "state": Object {
-              "chips": 1,
+              "chips": 4,
               "closeShooter": false,
               "curMbMode": undefined,
               "laneChips": Array [
                 true,
                 false,
                 false,
-                true,
+                false,
                 false,
                 false,
               ],
-              "lowerRampLit": false,
               "mbsQualified": Array [],
               "modesQualified": Array [],
-              "poker": "Poker113",
+              "poker": "Poker114",
               "rampUp": true,
               "score": 26000,
             },
           },
         ],
-        "name": "Game110",
+        "name": "Game111",
         "state": Object {
           "ballNum": 1,
         },
       },
     ],
-    "name": "Machine101",
+    "name": "Machine102",
     "state": Object {
       "lastSwitchHit": Switch {
         "_state": true,
