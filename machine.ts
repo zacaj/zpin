@@ -453,9 +453,7 @@ export class Machine extends Tree<MachineOutputs> {
     sLeftOutlane = new Switch(1, 1, 'left outlane', Lane);
     sRightInlane = new Switch(0, 5, 'right inlane', Lane);
     sRightOutlane = new Switch(0, 4, 'right outlane', Lane);
-    sMiniEntry = new Switch(1, 3, 'mini entry', Lane);
     sMiniOut = new Switch(0, 3, 'mini out', Drain);
-    sMiniMissed = new Switch(1, 4, 'mini missed', Lane);
     sOuthole = new Switch(0, 2, 'outhole', Drain);
     sTroughFull = new Switch(0, 1, 'trough full', Drain);
     sLeftSling = new Switch(1, 0, 'left sling', Bumper);
@@ -507,7 +505,7 @@ export class Machine extends Tree<MachineOutputs> {
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
     sUpperLane2 = new Switch(6, 5, 'upper lane 2', Lane);
     sUpperLane3 = new Switch(5, 7, 'upper lane 3', Lane);
-    sUpperLane4 = new Switch(5, 6, 'upper lane 4', Lane);
+    sUpperLane4 = new Switch(5, 3, 'upper lane 4', Lane);
     sRampMade = new Switch(7, 0, 'ramp made', Lane);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
@@ -522,8 +520,6 @@ export class Machine extends Tree<MachineOutputs> {
         this.sLeftOutlane,
         this.sRightInlane,
         this.sRightOutlane,
-        this.sMiniEntry,
-        this.sMiniMissed,
         this.sLeftSling,
         this.sRightSling,
         this.sMiniLeft,
@@ -762,7 +758,7 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen([...onSwitchClose(this.sLeftOutlane), () => this.out!.treeValues.lMiniReady.includes(Color.Green)], () => {
             this.miniDown = true;
         });
-        this.listen(onAnySwitchClose(this.sMiniMissed, this.sMiniEntry, this.sOuthole), () => this.miniDown = false);
+        this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
         this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
     }

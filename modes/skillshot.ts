@@ -75,10 +75,9 @@ export class Skillshot extends Mode<MachineOutputs> {
             if (index >= this.lastSw)
                 this.lastSw = index;
         });
-        this.listen(onAnySwitchClose(machine.sUpperLaneLeft, machine.sUpperLaneRight, machine.sBackLane), () => this.made(4));
-        this.listen(onAnySwitchClose(machine.sLowerLaneCenter, machine.sLowerLaneRight, machine.sLowerLaneLeft), () => this.made(3));
-        this.listen(onAnySwitchClose(machine.sUpperEject), () => this.made(5));
-        this.listen(onAnySwitchClose(machine.sLeftInlane, machine.sLeftOrbit), () => this.made(6));
+        this.listen(onAnySwitchClose(...machine.sUpperLanes), () => this.made(3));
+        this.listen(onAnySwitchClose(machine.sUpperEject), () => this.made(4));
+        this.listen(onAnySwitchClose(machine.sLeftInlane), () => this.made(5));
 
         this.listen<SwitchEvent>([
             ...onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
@@ -174,12 +173,11 @@ export class Skillshot extends Mode<MachineOutputs> {
 
     getGenericAwards(): SkillshotAward[] {
         const base = 10000;
-        const switches = ['right inlane','lower magnet switch','upper magnet switch','lower lanes','upper lanes','upper eject hole','left inlane'];
+        const switches = ['right inlane','lower magnet switch','upper magnet switch','upper lanes','upper eject hole','left inlane'];
         const mults = [
             [[1, 1]],
             [[10, 5, 8], [10, 10, 15], [5, 30]],
             [[1, 3, 6]],
-            [[10, 3, 7], [20, 6, 14], [5, 30]],
             [[10, 1, 5], [3, 4, 8]],
             [[2, 10], [2, 20], [1, 40]],
             [[1, 1, 5]],
