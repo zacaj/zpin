@@ -38,14 +38,12 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
-    "lLaneLowerCenter": Array [],
-    "lLaneLowerLeft": Array [],
-    "lLaneLowerRight": Array [],
-    "lLaneUpperCenter": Array [],
-    "lLaneUpperLeft": Array [
+    "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpperRight": Array [],
+    "lLaneUpper2": Array [],
+    "lLaneUpper3": Array [],
+    "lLaneUpper4": Array [],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -359,8 +357,6 @@ Object {
               "curMbMode": undefined,
               "laneChips": Array [
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,

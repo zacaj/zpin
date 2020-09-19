@@ -27,6 +27,10 @@ export class Game extends Mode<MachineOutputs> {
         return this.players[this.playerUp];
     }
     ballNum = 1;
+
+    get ball() {
+        return this.curPlayer.ball;
+    }
     
     private constructor() {
         super(Modes.Game);
@@ -78,6 +82,7 @@ export class Game extends Mode<MachineOutputs> {
 
     static start(): Game {
         const game = new Game();
+        machine.game = game;
         machine.addChild(game);
         screen?.add(game.gfx!);
         return game;
@@ -140,11 +145,9 @@ export class Game extends Mode<MachineOutputs> {
         [machine.sUnderUpperFlipper,25000],
         [machine.sUpperSideTarget,  15000],
         [machine.sUpperEject,       1000],
-        [machine.sUpperLaneLeft,    1000],
-        [machine.sUpperLaneRight,   1000],
-        [machine.sLowerLaneLeft,    1000],
-        [machine.sLowerLaneRight,   1000],
-        [machine.sLowerLaneCenter,  1000],
+        [machine.sUpperLane2,    1000],
+        [machine.sUpperLane3,   1000],
+        [machine.sUpperLane4,    1000],
         [machine.sRampMade,         5000],
     ]);
 }

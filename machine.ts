@@ -15,6 +15,7 @@ import { MPU } from './mpu';
 import { Node } from 'aminogfx-gl';
 import { curRecording } from './recording';
 import { fork } from './promises';
+import { Game } from './game';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -320,6 +321,7 @@ export type SkillshotAward = {
 
 export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
     getSkillshot?: () => Partial<SkillshotAward>[];
+    ignoreSkillsot: Set<Switch>;
 };
 
 export type CoilOutputs = {
@@ -369,12 +371,10 @@ export type LightOutputs = {
     lPower4: LightState[];
     lPopperStatus: LightState[];
     lMagnaSaveStatus: LightState[];
-    lLaneUpperLeft: LightState[];
-    lLaneUpperCenter: LightState[];
-    lLaneUpperRight: LightState[];
-    lLaneLowerLeft: LightState[];
-    lLaneLowerCenter: LightState[];
-    lLaneLowerRight: LightState[];
+    lLaneUpper1: LightState[];
+    lLaneUpper2: LightState[];
+    lLaneUpper3: LightState[];
+    lLaneUpper4: LightState[];
     lSideShotArrow: LightState[];
     lEjectArrow: LightState[];
     lUpperLaneArrow: LightState[];
@@ -505,11 +505,9 @@ export class Machine extends Tree<MachineOutputs> {
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', Standup);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', Standup);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
-    sUpperLaneLeft = new Switch(6, 5, 'upper lane left', Lane);
-    sUpperLaneRight = new Switch(5, 7, 'upper lane right', Lane);
-    sLowerLaneLeft = new Switch(5, 6, 'lower lane left', Lane);
-    sLowerLaneRight = new Switch(5, 4, 'lower lane right', Lane);
-    sLowerLaneCenter = new Switch(5, 3, 'lower lane center', Lane);
+    sUpperLane2 = new Switch(6, 5, 'upper lane 2', Lane);
+    sUpperLane3 = new Switch(5, 7, 'upper lane 3', Lane);
+    sUpperLane4 = new Switch(5, 6, 'upper lane 4', Lane);
     sRampMade = new Switch(7, 0, 'ramp made', Lane);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
@@ -571,21 +569,17 @@ export class Machine extends Tree<MachineOutputs> {
         this.sUnderUpperFlipper,
         this.sUpperSideTarget,
         this.sUpperEject,
-        this.sUpperLaneLeft,
-        this.sUpperLaneRight,
-        this.sLowerLaneLeft,
-        this.sLowerLaneRight,
-        this.sLowerLaneCenter,
+        this.sUpperLane2,
+        this.sUpperLane3,
+        this.sUpperLane4,
         this.sRampMade,
     ];
 
-    sTopLanes = [
+    sUpperLanes = [
         this.sBackLane,
-        this.sUpperLaneLeft,
-        this.sUpperLaneRight,
-        this.sLowerLaneLeft,
-        this.sLowerLaneCenter,
-        this.sLowerLaneRight,
+        this.sUpperLane2,
+        this.sUpperLane3,
+        this.sUpperLane4,
     ];
 
     lastSwitchHit?: Switch;
@@ -604,12 +598,10 @@ export class Machine extends Tree<MachineOutputs> {
     lPower3 = new Light('lPower3', 0);
     lPopperStatus = new Light('lPopperStatus', 0);
     lMagnaSaveStatus = new Light('lMagnaSaveStatus', 0);
-    lLaneUpperLeft = new Light('lLaneUpperLeft', 0);
-    lLaneUpperCenter = new Light('lLaneUpperCenter', 0);
-    lLaneUpperRight = new Light('lLaneUpperRight', 0);
-    lLaneLowerLeft = new Light('lLaneLowerLeft', 0);
-    lLaneLowerCenter = new Light('lLaneLowerCenter', 0);
-    lLaneLowerRight = new Light('lLaneLowerRight', 0);
+    lLaneUpper1 = new Light('lLaneUpper1', 0);
+    lLaneUpper2 = new Light('lLaneUpper2', 0);
+    lLaneUpper3 = new Light('lLaneUpper3', 0);
+    lLaneUpper4 = new Light('lLaneUpper4', 0);
     lSideShotArrow = new Light('lSideShotArrow', 0);
     lEjectArrow = new Light('lEjectArrow', 0);
     lUpperLaneArrow = new Light('lUpperLaneArrow', 0);
@@ -665,6 +657,8 @@ export class Machine extends Tree<MachineOutputs> {
         }
     }
 
+    game!: Game;
+
     lockDown = false;
     miniDown = false;
     constructor() {
@@ -717,12 +711,10 @@ export class Machine extends Tree<MachineOutputs> {
             lPower4: [],
             lPopperStatus: [],
             lMagnaSaveStatus: [],
-            lLaneUpperLeft: [],
-            lLaneUpperCenter: [],
-            lLaneUpperRight: [],
-            lLaneLowerLeft: [],
-            lLaneLowerCenter: [],
-            lLaneLowerRight: [],
+            lLaneUpper1: [],
+            lLaneUpper2: [],
+            lLaneUpper3: [],
+            lLaneUpper4: [],
             lSideShotArrow: [],
             lEjectArrow: [],
             lUpperLaneArrow: [],
@@ -760,6 +752,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSS7: '',
             iSpinner: '',
             getSkillshot: undefined,
+            ignoreSkillsot: new Set(),
         });
     
 

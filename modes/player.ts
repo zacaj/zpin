@@ -26,7 +26,7 @@ export class Player extends Mode<MachineOutputs> {
     chips = 1;
     score = 0;
 
-    laneChips = [true, false, false, false, false, false];
+    laneChips = [true, false, false, false];
     
     poker?: Poker;
     curMbMode?: Mode;
@@ -72,12 +72,10 @@ export class Player extends Mode<MachineOutputs> {
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             lMagnaSaveStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
-            lLaneUpperLeft: () => light(this.laneChips[0], Color.Orange),
-            lLaneUpperCenter: () => light(this.laneChips[1], Color.Orange),
-            lLaneUpperRight: () => light(this.laneChips[2], Color.Orange),
-            lLaneLowerLeft: () => light(this.laneChips[3], Color.Orange),
-            lLaneLowerCenter: () => light(this.laneChips[4], Color.Orange),
-            lLaneLowerRight: () => light(this.laneChips[5], Color.Orange),
+            lLaneUpper1: () => light(this.laneChips[0], Color.Orange),
+            lLaneUpper2: () => light(this.laneChips[1], Color.Orange),
+            lLaneUpper3: () => light(this.laneChips[2], Color.Orange),
+            lLaneUpper4: () => light(this.laneChips[3], Color.Orange),
         });
         
         this.addChild(new ClearHoles(), -1);
@@ -110,9 +108,9 @@ export class Player extends Mode<MachineOutputs> {
             onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
             'addChip');
         this.listen(
-            onAnySwitchClose(...machine.sTopLanes),
+            onAnySwitchClose(...machine.sUpperLanes),
             (e) => {
-                const i = machine.sTopLanes.indexOf(e.sw);
+                const i = machine.sUpperLanes.indexOf(e.sw);
                 if (!this.laneChips[i]) return;
                 this.addChip();
                 this.addChip();                
@@ -250,14 +248,14 @@ class Spinner extends Tree<MachineOutputs> {
             this.comboMult+=2;
         });
 
-        this.listen([onAnySwitchClose(...machine.sTopLanes), () => this.rounds === 0], () => {
+        this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
             this.rounds = this.maxRounds;
             this.maxRounds++;
             if (this.maxRounds > 3)
                 this.maxRounds = 3;
         });
 
-        this.listen(onAnySwitchClose(...machine.sTopLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
+        this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
 
         this.watch(onChange(this, 'score'), () => this.updateDisplay());
         this.watch(onChange(this, 'comboMult'), () => this.updateDisplay());
@@ -320,7 +318,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
             this.comboMult+=2;
         });
 
-        this.listen([onAnySwitchClose(...machine.sTopLanes), () => this.rounds === 0], () => {
+        this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
             this.rounds = this.maxRounds;
             this.maxRounds++;
             this.score += 10000;
@@ -328,7 +326,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
                 this.maxRounds = 3;
         });
 
-        this.listen(onAnySwitchClose(...machine.sTopLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
+        this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
     }
 
     hit() {

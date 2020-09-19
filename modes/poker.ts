@@ -410,10 +410,9 @@ export class Poker extends Mode<MachineOutputs> {
 
     getSkillshot(): Partial<SkillshotAward>[] {
         const base = 10;
-        const switches = ['right inlane','lower magnet switch','upper magnet switch','lower lanes','upper lanes','upper eject hole','left inlane'];
+        const switches = ['right inlane','lower magnet switch','upper magnet switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
             this.step<=2? [[1, 0]] : [[1, -3, -1], [4, 1, 5]],
-            [[1, -6, -3], [4, 1, 10]],
             [[1, -6, -3], [4, 1, 10]],
             [[1, -6, -3], [4, 1, 10]],
             [[1, 10, 20], [4, 1, 10]],

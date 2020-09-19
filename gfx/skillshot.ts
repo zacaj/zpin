@@ -23,7 +23,7 @@ export class SkillShotGfx extends Group {
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
 
         this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.1));
-        this.add(makeText(ss.awards[7]?.award ?? '', 35, 'center', 'middle').x(this.w()/2).y(this.h()*.3));
+        this.add(makeText(ss.awards[6]?.award ?? '', 35, 'center', 'middle').x(this.w()/2).y(this.h()*.3));
         this.add(this.instr = makeText('', 30, 'center', 'middle').x(this.w()/2).y(this.h()*.5));
         this.add(this.award = makeText('', 43));
         this.award.x(this.w()/2);
