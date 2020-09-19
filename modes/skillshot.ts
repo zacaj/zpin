@@ -81,8 +81,8 @@ export class Skillshot extends Mode<MachineOutputs> {
 
         this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), 'finish');
 
-        this.listen([...onSwitchOpen(machine.sPopperButton), () => time() - machine.sPopperButton.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
-        this.listen([...onSwitchClose(machine.sMagnetButton), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));
+        this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
+        this.listen([...onSwitchClose(machine.sLeftFlipper), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));
 
 
         this.gfx?.add(new SkillShotGfx(this));

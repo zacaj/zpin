@@ -35,6 +35,6 @@ export class SkillShotGfx extends Group {
             this.instr.text(`plunge to ${ss.awards[ss.curAward].switch} for:`);
         });
 
-        ss.watch(() => this.visible(!machine.sPopperButton._state || time() - machine.sPopperButton.lastChange <= 300));
+        ss.watch(() => this.visible(!machine.sRightFlipper._state || time() - machine.sRightFlipper.lastChange <= 300));
     }
 }

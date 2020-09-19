@@ -26,7 +26,7 @@ export class Player extends Mode<MachineOutputs> {
     chips = 1;
     score = 0;
 
-    laneChips = [true, false, false, true, false, false];
+    laneChips = [true, false, false, false, false, false];
     
     poker?: Poker;
     curMbMode?: Mode;
@@ -101,6 +101,14 @@ export class Player extends Mode<MachineOutputs> {
             e => {
                 this.rampUp = true;
                 this.lowerRampLit = !this.lowerRampLit;
+                this.laneChips.rotate(1);
+            });
+        this.listen(onAnySwitchClose(machine.sLeftFlipper),
+            e => {
+                this.laneChips.rotate(-1);
+            });
+        this.listen(onAnySwitchClose(machine.sRightFlipper),
+            e => {
                 this.laneChips.rotate(1);
             });
 

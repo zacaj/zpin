@@ -513,6 +513,8 @@ export class Machine extends Tree<MachineOutputs> {
     sRampMade = new Switch(7, 0, 'ramp made', Lane);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
+    sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
+    sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
 
     pfSwitches = [

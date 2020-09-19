@@ -771,6 +771,8 @@ const gfxSwitches: { [name: string]: {
     'left back 2': { x: 1.85625, y: 25.3125 },
     'left back 1': { x: 1.6875, y: 24.3 },
     'start button': { x: 2.90625, y: 1.0687500000000014 },
+    'left flipper': { x: 0.39375, y: 1.3187500000000014 },
+    'right flipper': { x: 18.95625, y: 1.387500000000003 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
