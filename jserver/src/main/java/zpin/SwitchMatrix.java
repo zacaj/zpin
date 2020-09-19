@@ -139,16 +139,18 @@ public class SwitchMatrix extends Thread {
 						System.out.println("NEW switch event: "+e);
 					}
 				}
+				
+				curCol++;
+				if (curCol >= 9) {
+					curCol = 0;
+					Thread.sleep(0, 5);
+				}
 			} catch(Exception e) {
 				e.printStackTrace();
 			} finally {
 				unlock();
 			}
 			
-			
-			curCol++;
-			if (curCol >= 9)
-				curCol = 0;
 		}
 	}
 	
