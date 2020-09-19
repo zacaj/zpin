@@ -38,7 +38,6 @@ export class Player extends Mode<MachineOutputs> {
         return this.children.find(c => c instanceof Ball) as Ball;
     }
 
-    lowerRampLit = false;
     rampUp = true;
 
     modesQualified = new Set<(number)>();
@@ -59,12 +58,10 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'lowerRampLit', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'laneChips']);
+        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'laneChips']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
-            lLowerRamp: () => this.lowerRampLit? [Color.White] : [],
-            rightGate: () => this.chips<=1,
             lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[Color.Green, 'fl']] : [Color.Red]) : [],
@@ -87,22 +84,18 @@ export class Player extends Mode<MachineOutputs> {
 
         this.listen(e => e instanceof TreeEvent, () => this.curMbMode = this.getChildren().find(x => x instanceof Multiball || x instanceof GameMode) as Mode);
 
+        // natural inlane -> lower ramp
         this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => machine.sShooterLower.wasClosedWithin(2000) || machine.sShooterMagnet.wasClosedWithin(2000)],
-            e => {
-                this.rampUp = false;
-            });
-        this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => this.lowerRampLit],
+            [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000)],
             e => {
                 this.rampUp = false;
             });
         this.listen(onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling),
             e => {
                 this.rampUp = true;
-                this.lowerRampLit = !this.lowerRampLit;
                 this.laneChips.rotate(1);
             });
+        // lane change
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
             e => {
                 this.laneChips.rotate(-1);
@@ -112,6 +105,7 @@ export class Player extends Mode<MachineOutputs> {
                 this.laneChips.rotate(1);
             });
 
+        // add chips
         this.listen(
             onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
             'addChip');
@@ -123,6 +117,13 @@ export class Player extends Mode<MachineOutputs> {
                 this.addChip();
                 this.addChip();                
             });
+        // award chips on bank complete
+        this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
+            this.ball.miniReady = true;
+            for (let i=0; i<e.bank.targets.length; i++)
+                this.addChip();
+        });
+        // subtract chips
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state], async () => {
             if (this.chips === 0) return;
             await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
@@ -137,12 +138,12 @@ export class Player extends Mode<MachineOutputs> {
         });
 
         
-
+        // allow orbits to loop
         this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
-        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower), () => this.closeShooter = false);
+        this.listen([...onSwitchClose(machine.sLeftOrbit), () => machine.cRightGate.actual], () => this.closeShooter = true);
+        this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower, machine.sLeftOrbit), () => this.closeShooter = false);
 
-        
-        this.listen(e => e instanceof DropBankCompleteEvent, () => this.ball.miniReady = true);
+
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
             fork(StraightMb.start(this));
@@ -167,6 +168,7 @@ export class Player extends Mode<MachineOutputs> {
         this.addChild(this.poker);
 
         this.addChild(new Spinner(this));
+        this.addChild(new LeftOrbit(this));
 
         this.addChild(new PlayerOverrides(this));
 
@@ -234,13 +236,14 @@ class Spinner extends Tree<MachineOutputs> {
 
         this.out = new Outputs(this, {
             leftGate: () => this.rounds > 0,
-            rightGate: () => machine.lastSwitchHit === machine.sSpinner? false : undefined,
             iSpinner: () => this.display,
         });
 
         this.listen(onSwitchClose(machine.sSpinner), 'hit');
 
-        this.listen([...onSwitchClose(machine.sLeftOrbit), () => !!this.lastSpinAt && time()-this.lastSpinAt < 1200],
+        this.listen([
+            ...onSwitchClose(machine.sLeftInlane),
+            () => (!!this.lastSpinAt && time()-this.lastSpinAt < 2000) || machine.lastSwitchHit === machine.sSpinner],
         () => {
             if (this.rounds > 0)
                 this.rounds--;
@@ -288,11 +291,58 @@ export class SpinnerHit extends Event {
     
 }
 
+class LeftOrbit extends Tree<MachineOutputs> {
+    score = 20000;
+    comboMult = 1;
+
+    rounds = 1;
+    maxRounds = 1;
+
+    constructor(
+        public player: Player,
+    ) {
+        super();
+
+        State.declare<LeftOrbit>(this, ['rounds', 'score', 'comboMult']);
+
+        this.out = new Outputs(this, {
+            rightGate: () => this.rounds > 0,
+        });
+
+        this.listen(onSwitchClose(machine.sLeftOrbit), 'hit');
+
+        this.listen([
+            onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper, machine.sShooterLower),
+            () => (!!machine.sLeftOrbit.lastClosed && time()-machine.sLeftOrbit.lastClosed < 2000) || machine.lastSwitchHit === machine.sLeftOrbit],
+        () => {
+            if (this.rounds > 0)
+                this.rounds--;
+            this.comboMult+=2;
+        });
+
+        this.listen([onAnySwitchClose(...machine.sTopLanes), () => this.rounds === 0], () => {
+            this.rounds = this.maxRounds;
+            this.maxRounds++;
+            this.score += 10000;
+            if (this.maxRounds > 3)
+                this.maxRounds = 3;
+        });
+
+        this.listen(onAnySwitchClose(...machine.sTopLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
+    }
+
+    hit() {
+        this.player.score += this.score * this.comboMult;
+    }
+}
+
 class PlayerOverrides extends Mode<MachineOutputs> {
     constructor(public player: Player) {
         super(Modes.PlayerOverrides);
         this.out = new Outputs(this, {
             shooterDiverter: () => player.closeShooter? false : undefined,
+            leftGate: () => machine.lastSwitchHit === machine.sLeftOrbit? false : undefined,
+            rightGate: () => machine.lastSwitchHit === machine.sSpinner? false : undefined,
         });
     }
 }

@@ -10,7 +10,7 @@ import { initMachine } from './init';
 import { Log } from './log';
 import { DropBankCompleteEvent } from './drop-bank';
 import { GameGfx } from './gfx/game';
-import { screen } from './gfx';
+import { screen, alert } from './gfx';
 import { Player } from './modes/player';
 import { assert } from './util';
 import { Ball } from './modes/ball';
@@ -62,14 +62,15 @@ export class Game extends Mode<MachineOutputs> {
         if (this.playerUp >= this.players.length) {
             this.playerUp = 0;
             this.ballNum++;
-            // if (this.ballNum > 3) {
+            if (this.ballNum > 3) {
+                alert('GAME OVER', 5000);
             //     if (require.main === module) {
             //         debugger;
             //         process.exit(0);
             //     }
             //     else
             //         this.end();
-            // }
+            }
         }
         this.addChild(this.curPlayer);
         this.curPlayer.startBall();
