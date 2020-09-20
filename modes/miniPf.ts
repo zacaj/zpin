@@ -18,7 +18,7 @@ export class MiniPf extends Mode<MachineOutputs> {
         });
         ball.miniReady = false;
 
-        this.listen(onAnyPfSwitchExcept(machine.sMiniEntry, ...machine.miniBank.switches), 'end');
+        this.listen(onAnyPfSwitchExcept(...machine.miniBank.switches), 'end');
 
         this.listen(onAnyPfSwitchExcept(machine.sLeftOutlane), () => this.waitingForSwitch = false);
     }

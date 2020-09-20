@@ -341,3 +341,21 @@ export function comma(value: number): string {
     const s = value.toFixed();
     return Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',');
 }
+
+
+export function makeState<Name extends string, T extends {}, Args extends any[] = []>(name: Name, obj: T|((...args: Args) => T)): 
+(...args: Args) => {
+    [N in Name]: true;
+} & {
+    _: Name;
+} & T {
+    return  (...args: Args) => Object.assign({_: name, [name]: true}, typeof obj === 'object'? obj : (obj as any)(...args)) as any;
+}
+
+// type StateType<S extends []> = {};
+// type StateType<S extends [() => {_: string}] = ReturnType<S[0]>;
+
+// type States<State extends {_: string}> = 
+// function initState<Name extends string, Args extends (() => {_: Name})>(...states: Args[]): ReturnType<Args>&{[name in Name]: undefined} {
+//     return states[0]() as any;
+// }
