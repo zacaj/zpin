@@ -62,11 +62,12 @@ export class State {
             Events.fire(new StateEvent(obj, prop, state.data[prop] as any, undefined as any));
 
             function watchCollections<T>(c: T): T {
-                return watchArray(watchSet(watchMap(c)));
+                return watchArray(watchSet(watchMap(watchObject(c))));
             }
 
             function watchArray<T>(arr: T[]|any): T[]|any {
                 if (!Array.isArray(arr)) return arr;
+                if ((arr as any).$isProxy) return arr;
         
                 const newArr = new Proxy(arr, {
                     set: (_, key, val) => {
@@ -101,6 +102,7 @@ export class State {
             }
             function watchSet<T>(set: Set<T>|any): Set<T>|any {
                 if (!(set instanceof Set)) return set;
+                if ((set as any).$isProxy) return set;
         
                 const newSet = new Proxy(set, {
                     set: (_, key, val) => {
@@ -151,6 +153,7 @@ export class State {
             }
             function watchMap<T, U>(map: Map<T, U>|any): Map<T, U>|any {
                 if (!(map instanceof Map)) return map;
+                if ((map as any).$isProxy) return map;
         
                 const newMap = new Proxy(map, {
                     set: (_, key, val) => {
@@ -199,6 +202,33 @@ export class State {
                         enumerable: false,
                     });
                 return newMap;
+            }
+            function watchObject<T extends {}>(o: T|any): T|any {
+                if (!o) return o;
+                if (typeof o !== 'object' || Array.isArray(o) || o.constructor.name !== 'Object') return o;
+                if (o.$isProxy) return o;
+        
+                const newObj = new Proxy(o, {
+                    set: (_, key, val) => {
+                        const old = o[key];
+                        o[key] = val;
+                        Events.fire(new StateEvent(obj, prop, o as any, o as any));
+                        Events.fire(new StateEvent(o, key, val, old));
+                        return true;
+                    },
+                    get: (_, key) => {
+                        if (key === 'original') return o;
+                        if (key === '$isProxy') return true;
+                        recordStateAccess(o, prop);
+                        return (o as any)[key];
+                    },
+                });
+                if (!Object.getOwnPropertyDescriptor(o, '$state'))
+                    Object.defineProperty(o, '$state', {
+                        value: new State(),
+                        enumerable: false,
+                    });
+                return newObj;
             }
         }
     }

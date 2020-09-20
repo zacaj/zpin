@@ -1,0 +1,458 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`recordings play test 1`] = `
+Object {
+  "outputs": Object {
+    "centerBank": false,
+    "getSkillshot": [Function],
+    "iCenter1": "",
+    "iCenter2": "",
+    "iCenter3": "",
+    "iLeft1": "",
+    "iLeft2": "",
+    "iLeft3": "",
+    "iLeft4": "",
+    "iMini1": "",
+    "iMini2": "",
+    "iMini3": "",
+    "iRight1": "",
+    "iRight2": "",
+    "iRight3": "",
+    "iRight4": "",
+    "iRight5": "",
+    "iSS1": "",
+    "iSS2": "",
+    "iSS3": "",
+    "iSS4": "",
+    "iSS5": "",
+    "iSS6": "",
+    "iSS7": "",
+    "iSpinner": "",
+    "iUpper21": "",
+    "iUpper22": "",
+    "iUpper31": "",
+    "iUpper32": "",
+    "iUpper33": "",
+    "ignoreSkillsot": Set {},
+    "kickerEnable": true,
+    "lEjectArrow": Array [],
+    "lEjectShowCards": Array [
+      "White",
+    ],
+    "lEjectStartMode": Array [],
+    "lLaneUpper1": Array [
+      "Orange",
+    ],
+    "lLaneUpper2": Array [],
+    "lLaneUpper3": Array [],
+    "lLaneUpper4": Array [],
+    "lLeftArrow": Array [],
+    "lLowerRamp": Array [],
+    "lMagnaSaveStatus": Array [
+      "Green",
+    ],
+    "lMainTargetArrow": Array [],
+    "lMiniReady": Array [
+      "Red",
+    ],
+    "lPopperStatus": Array [
+      "Green",
+    ],
+    "lPower1": Array [
+      "Orange",
+    ],
+    "lPower2": Array [],
+    "lPower3": Array [],
+    "lPower4": Array [],
+    "lRampArrow": Array [],
+    "lRampShowCards": Array [
+      "White",
+    ],
+    "lRampStartMb": Array [
+      Array [
+        "Green",
+        "fl",
+      ],
+    ],
+    "lShooterLaneArrow": Array [],
+    "lShooterShowCards": Array [
+      "White",
+    ],
+    "lShooterStartHand": Array [
+      Array [
+        "Green",
+        "fl",
+      ],
+    ],
+    "lSideShotArrow": Array [],
+    "lSideTargetArrow": Array [],
+    "lSpinnerArrow": Array [],
+    "lUpperLaneArrow": Array [],
+    "leftBank": false,
+    "leftGate": false,
+    "leftMagnet": false,
+    "lockPost": false,
+    "magnetPost": false,
+    "miniBank": false,
+    "miniDiverter": false,
+    "miniEject": false,
+    "miniFlipperEnable": false,
+    "outhole": false,
+    "popper": false,
+    "rampUp": false,
+    "realRightBank": false,
+    "right1": false,
+    "right2": false,
+    "right3": false,
+    "right4": false,
+    "right5": false,
+    "rightBank": false,
+    "rightGate": true,
+    "shooterDiverter": true,
+    "troughRelease": false,
+    "upper2": false,
+    "upper3": false,
+    "upperEject": false,
+    "upperMagnet": false,
+  },
+  "state": Object {
+    "children": Array [
+      Object {
+        "children": Array [],
+        "name": "DropBank20",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank21",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank22",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank23",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank24",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [],
+        "name": "DropBank25",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [],
+            "name": "EosPulse27",
+            "state": Object {},
+          },
+        ],
+        "name": "MachineOverrides26",
+        "state": Object {},
+      },
+      Object {
+        "children": Array [
+          Object {
+            "children": Array [
+              Object {
+                "children": Array [],
+                "name": "ClearHoles30",
+                "state": Object {},
+              },
+              Object {
+                "children": Array [],
+                "name": "Poker31",
+                "state": Object {
+                  "bet": 100,
+                  "closeShooter": false,
+                  "dealerCardsUsed": Array [],
+                  "dealerHand": Array [
+                    Object {
+                      "flipped": true,
+                      "num": 3,
+                      "suit": "h",
+                    },
+                    Object {
+                      "flipped": true,
+                      "num": 4,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 9,
+                      "suit": "h",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 5,
+                      "suit": "s",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 9,
+                      "suit": "d",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 4,
+                      "suit": "h",
+                    },
+                    Object {
+                      "flipped": true,
+                      "num": 2,
+                      "suit": "c",
+                    },
+                  ],
+                  "dealerHandDesc": "Pair",
+                  "newMbs": Array [
+                    Array [
+                      "StraightMb",
+                      Array [
+                        Object {
+                          "num": 7,
+                          "suit": "s",
+                        },
+                        Object {
+                          "num": 8,
+                          "suit": "c",
+                        },
+                        Object {
+                          "num": 9,
+                          "suit": "c",
+                        },
+                        Object {
+                          "num": 10,
+                          "suit": "s",
+                        },
+                        Object {
+                          "num": 11,
+                          "suit": "s",
+                        },
+                      ],
+                    ],
+                  ],
+                  "newModes": Array [],
+                  "playerCardsUsed": Array [],
+                  "playerHand": Array [
+                    Object {
+                      "num": 7,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 11,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 9,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "c",
+                    },
+                  ],
+                  "playerHandDesc": "Straight",
+                  "playerWins": undefined,
+                  "pot": 1000,
+                  "slots": Array [
+                    Object {
+                      "num": 1,
+                      "suit": "d",
+                    },
+                    null,
+                    null,
+                    null,
+                    Object {
+                      "num": 1,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 3,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 13,
+                      "suit": "d",
+                    },
+                    null,
+                    null,
+                    Object {
+                      "num": 11,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 12,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 1,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 9,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 1,
+                      "suit": "c",
+                    },
+                  ],
+                  "step": 7,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "Spinner32",
+                "state": Object {
+                  "comboMult": 1,
+                  "rounds": 0,
+                  "score": 300,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "LeftOrbit33",
+                "state": Object {
+                  "comboMult": 1,
+                  "rounds": 1,
+                  "score": 20000,
+                },
+              },
+              Object {
+                "children": Array [],
+                "name": "PlayerOverrides34",
+                "state": Object {},
+              },
+              Object {
+                "children": Array [
+                  Object {
+                    "children": Array [
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter37",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter38",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter39",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter40",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter41",
+                        "state": Object {},
+                      },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter42",
+                        "state": Object {},
+                      },
+                    ],
+                    "name": "ResetAnyDropOnComplete36",
+                    "state": Object {},
+                  },
+                ],
+                "name": "Ball35",
+                "state": Object {
+                  "miniReady": false,
+                },
+              },
+            ],
+            "name": "Player29",
+            "state": Object {
+              "chips": 1,
+              "closeShooter": false,
+              "curMbMode": undefined,
+              "laneChips": Array [
+                true,
+                false,
+                false,
+                false,
+              ],
+              "mbsQualified": Array [],
+              "modesQualified": Array [],
+              "poker": "Poker31",
+              "rampUp": true,
+              "score": 35000,
+            },
+          },
+        ],
+        "name": "Game28",
+        "state": Object {
+          "ballNum": 1,
+        },
+      },
+    ],
+    "name": "Machine19",
+    "state": Object {
+      "lastSwitchHit": Switch {
+        "_state": true,
+        "column": 3,
+        "lastChange": 30053,
+        "lastClosed": 30053,
+        "lastOpened": undefined,
+        "minOffTime": 150,
+        "minOnTime": 10,
+        "name": "right 3",
+        "row": 2,
+      },
+      "lockDown": false,
+      "miniDown": false,
+    },
+  },
+}
+`;

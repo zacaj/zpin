@@ -6,11 +6,13 @@ import { tryNum, comma } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
 import { Player } from '../modes/player';
+import { GameGfx } from './game';
 
 export class PlayerGfx extends Group {
     instr = makeText('START HAND IN SHOOTER LANE', 40, 'center', 'bottom');
     score = makeText('00', 60, 'center', 'top').y(-Screen.h/2);
     bank = makeText('00', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
+    handsLeft = makeText('', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2+GameGfx.top);
     constructor(
         public player: Player,
     ) {
@@ -32,5 +34,11 @@ export class PlayerGfx extends Group {
         player.watch(() => this.score.text(comma(player.score)));
 
         player.watch(() => this.bank.text('Bank: '+comma(player.store.Poker?.bank ?? 0)));
+
+        this.add(this.handsLeft);
+        player.watch(() => {
+            const left = player.store.Poker?.handsForMb-player.store.Poker?.handsWon;
+            this.handsLeft.text(`${left} win${left>1?'s':''} for MB`);
+        });
     }
 }

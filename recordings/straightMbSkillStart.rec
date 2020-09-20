@@ -1,0 +1,97 @@
+Sun Sep 20 2020 16:52:47 GMT-0400 (Eastern Daylight Time)
+42:27.312.900 create mode MachineOverrides
+42:27.781.500 create mode Game
+42:27.782.300 create mode Player
+42:27.881.900 create mode Poker
+42:28.169.600 create mode PlayerOverrides
+42:28.189.700 create mode Ball
+42:28.606.600 switch 'shooter lane' state -> true (0,0) at 2615 via recording recordings/lightStraight.rec
+42:28.645.200 create mode Skillshot
+42:28.767.200 switch 'shooter lane' state -> false (0,0) at 3615 via recording recordings/lightStraight.rec
+42:28.917.900 switch 'left 1' state -> true (1,3) at 6150 via recording recordings/lightStraight.rec
+42:28.946.100 drop switch left 1 down
+42:29.107.100 switch 'right 1' state -> true (5,2) at 7752 via recording recordings/lightStraight.rec
+42:29.127.200 drop switch right 1 down
+42:29.266.200 switch 'left 2' state -> true (2,3) at 9920 via recording recordings/lightStraight.rec
+42:29.294.800 drop switch left 2 down
+42:30.395.200 switch 'center right' state -> true (1,4) at 28122 via recording recordings/lightStraight.rec
+42:30.414.100 drop switch center right down
+42:30.505.000 switch 'center center' state -> true (2,4) at 29556 via recording recordings/lightStraight.rec
+42:30.596.200 drop switch center center down
+42:30.766.000 switch 'right 2' state -> true (4,2) at 29905 via recording recordings/lightStraight.rec
+42:30.769.300 drop switch right 2 detected, but was already down
+42:30.779.700 switch 'ramp down' state -> true (4,7) at 29922 via recording recordings/lightStraight.rec
+42:30.796.400 switch 'right 3' state -> true (3,2) at 30053 via recording recordings/lightStraight.rec
+42:30.802.300 drop switch right 3 detected, but was already down
+42:30.810.100 recording recordings/lightStraight.rec finished at 30056
+42:38.348.500 force state of ramp made to on
+42:38.349.800 switch 'ramp made' state -> true (0,7) at 37595 via force
+42:38.620.300 switch 'ramp made' state -> false (0,7) at 37866 via force
+42:41.440.500 create mode StraightMb
+42:44.634.300 switch 'left 1' state -> false (1,3) at 43880 via fake
+42:44.636.500 switch 'left 2' state -> false (2,3) at 43882 via fake
+42:44.644.700 drop bank leftBank reset successfully
+42:44.778.000 switch 'right 1' state -> false (5,2) at 44024 via fake
+42:44.780.100 switch 'right 2' state -> false (4,2) at 44026 via fake
+42:44.782.100 switch 'right 3' state -> false (3,2) at 44028 via fake
+42:44.793.800 drop bank rightBank reset successfully
+42:44.916.000 switch 'center center' state -> false (2,4) at 44162 via fake
+42:44.918.700 switch 'center right' state -> false (1,4) at 44164 via fake
+42:44.922.700 drop bank centerBank reset successfully
+42:45.762.00 switch 'shooter lane' state -> true (0,0) at 44322 via fake
+42:45.827.00 create mode Skillshot
+42:47.366.700 force state of shooter lane to off
+42:47.366.300 switch 'shooter lane' state -> false (0,0) at 46612 via force
+42:48.431.400 force state of shooter lower to on
+42:48.432.700 switch 'shooter lower' state -> true (0,2) at 47678 via force
+42:48.697.500 switch 'shooter lower' state -> false (0,2) at 47943 via force
+42:50.689.00 force state of right inlane to on
+42:50.697.00 switch 'right inlane' state -> true (5,0) at 49315 via force
+42:50.330.700 switch 'right inlane' state -> false (5,0) at 49576 via force
+42:51.500.100 force state of ramp made to on
+42:51.501.100 switch 'ramp made' state -> true (0,7) at 50747 via force
+42:51.627.400 switch 'shooter lane' state -> true (0,0) at 50873 via fake
+42:51.639.600 switch 'ramp down' state -> false (4,7) at 50885 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:275:113) <-  A:\source\zpin\build\machine.js:195:52
+42:51.768.300 switch 'ramp made' state -> false (0,7) at 51014 via force
+42:55.825.400 force state of shooter lane to off
+42:55.826.600 switch 'shooter lane' state -> false (0,0) at 55072 via force
+42:57.656.200 force state of right flipper to on
+42:57.657.700 switch 'right flipper' state -> true (8,1) at 56903 via force
+42:57.925.900 switch 'right flipper' state -> false (8,1) at 57171 via force
+42:59.560.300 force state of right flipper to on
+42:59.560.000 switch 'right flipper' state -> true (8,1) at 58806 via force
+42:59.829.700 switch 'right flipper' state -> false (8,1) at 59075 via force
+43:01.128.300 force state of right flipper to on
+43:01.129.200 switch 'right flipper' state -> true (8,1) at 60375 via force
+43:01.398.900 switch 'right flipper' state -> false (8,1) at 60644 via force
+43:02.329.900 force state of right flipper to on
+43:02.330.100 switch 'right flipper' state -> true (8,1) at 61576 via force
+43:02.596.300 switch 'right flipper' state -> false (8,1) at 61842 via force
+43:03.298.700 force state of right flipper to on
+43:03.299.700 switch 'right flipper' state -> true (8,1) at 62545 via force
+43:03.571.900 switch 'right flipper' state -> false (8,1) at 62817 via force
+43:04.635.00 force state of right flipper to on
+43:04.644.00 switch 'right flipper' state -> true (8,1) at 63310 via force
+43:04.331.600 switch 'right flipper' state -> false (8,1) at 63577 via force
+43:05.816.000 force state of popper button to on
+43:05.816.900 switch 'popper button' state -> true (8,5) at 65062 via force
+43:06.754.00 switch 'popper button' state -> false (8,5) at 65321 via force
+43:17.811.300 force state of shooter lane to on
+43:17.812.200 switch 'shooter lane' state -> true (0,0) at 77058 via force
+43:19.195.900 force state of right flipper to on
+43:19.196.100 switch 'right flipper' state -> true (8,1) at 78442 via force
+43:19.462.100 switch 'right flipper' state -> false (8,1) at 78708 via force
+44:48.100.000 force state of shooter lane to off
+44:48.100.900 switch 'shooter lane' state -> false (0,0) at 167347 via force
+44:49.677.00 force state of shooter lower to on
+44:49.686.00 switch 'shooter lower' state -> true (0,2) at 168315 via force
+44:49.332.500 switch 'shooter lower' state -> false (0,2) at 168578 via force
+44:50.836.300 force state of shooter magnet to on
+44:50.836.400 switch 'shooter magnet' state -> true (7,2) at 170083 via force
+44:51.983.00 switch 'shooter magnet' state -> false (7,2) at 170344 via force
+44:55.109.400 force state of shooter lower to on
+44:55.110.500 switch 'shooter lower' state -> true (0,2) at 174356 via force
+44:55.369.300 switch 'shooter lower' state -> false (0,2) at 174615 via force
+45:31.876.900 force state of right inlane to on
+45:31.877.500 switch 'right inlane' state -> true (5,0) at 211124 via force
+46:30.674.00 switch 'right inlane' state -> false (5,0) at 269313 via force

@@ -71,10 +71,11 @@ export class StraightMb extends Multiball {
             ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
         });
 
-        this.listen(onSwitchClose(machine.sRampMade), () => {
+        this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
-                return this.releaseBallFromTrough();
+                await alert('ball locked')[1];
+                await this.releaseBallFromTrough();
             }
             return this.jackpot();
         });
@@ -130,7 +131,7 @@ export class StraightMb extends Multiball {
         if (this.state.awardingJp)
             fork(this.releaseBallFromLock());
         this.state.awardingJp++;
-        const [group, promise] = alert('JACKPOT!', 5000, comma(this.value));
+        const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.player.score += this.value;
         const anim: AnimParams = {
             from: 1,

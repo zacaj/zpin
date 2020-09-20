@@ -752,8 +752,6 @@ const gfxSwitches: { [name: string]: {
     'left orbit': { x: 1.0125, y: 39.76875 },
     'left outlane': { x: 2.5875, y: 15.1875 },
     'right outlane': { x: 16.9875, y: 14.681250000000002 },
-    'mini entry': { x: 1.4625, y: 7.931249999999999 },
-    'mini missed': { x: 3.5999999999999996, y: 9.168750000000003 },
     'mini out': { x: 5.90625, y: 1.0687500000000014 },
     'ramp mini outer': { x: 1.85625, y: 28.743750000000002 },
     'ramp mini': { x: 2.8125, y: 28.125 },

@@ -459,7 +459,9 @@ Object {
     "ignoreSkillsot": Set {},
     "kickerEnable": true,
     "lEjectArrow": Array [],
-    "lEjectShowCards": Array [],
+    "lEjectShowCards": Array [
+      "White",
+    ],
     "lEjectStartMode": Array [],
     "lLaneUpper1": Array [
       "Orange",
@@ -492,7 +494,9 @@ Object {
       "Orange",
     ],
     "lRampArrow": Array [],
-    "lRampShowCards": Array [],
+    "lRampShowCards": Array [
+      "White",
+    ],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [
@@ -519,7 +523,7 @@ Object {
     "miniFlipperEnable": false,
     "outhole": false,
     "popper": false,
-    "rampUp": true,
+    "rampUp": false,
     "realRightBank": false,
     "right1": false,
     "right2": false,
@@ -532,7 +536,7 @@ Object {
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
-    "upperEject": true,
+    "upperEject": false,
     "upperMagnet": false,
   },
   "state": Object {

@@ -5,7 +5,7 @@ import { MPU } from './mpu';
 import { Timer, setTime, wait } from './timer';
 import { Log } from './log';
 import { Tree } from './tree';
-import { objectMap } from './util';
+import { clone, objectMap } from './util';
 
 beforeEach(async () => {
     jest.spyOn(Timer, 'schedule').mockRestore();
@@ -53,7 +53,8 @@ const statify = (tree: Tree<any>): {name: string; state: any; children: any} => 
     const state = (tree as any).$state;
     return {
         name: tree.name+tree.num,
-        state: objectMap(state?.data??{}, val => (val as any)?.$isProxy? [...(val as any).original] : (val instanceof Tree? val.name+val.num : val)),
+        state: objectMap(state?.data??{}, val => (val as any)?.$isProxy? 
+            ((val as any).constructor.name==='Object'? clone(val) : [...(val as any).original]) : (val instanceof Tree? val.name+val.num : val)),
         children: tree.children.map(statify),
     };
 };

@@ -36,7 +36,7 @@ export abstract class Mode<Outs extends {} = Partial<MachineOutputs>> extends Tr
     ) {
         super(type);
 
-        Log.log(['game', 'console', 'switch'], 'start mode %s', this.constructor.name);
+        Log.log(['game', 'console', 'switch'], 'create mode %s', this.constructor.name);
     }
 
     addChild<T extends Tree<Outs>>(node: T, priority?: number): T {

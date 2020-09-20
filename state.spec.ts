@@ -64,6 +64,43 @@ describe('state', () => {
         expect(changed1!).toBeCalled();
         expect(changed2!).toBeCalled();
     });
+    test('watches objects', () => {
+        let changed: jest.Mock;
+        const obj = new class extends Tree {
+            data: any = {
+                x: 3,
+            };
+
+            constructor() {
+                super();
+                this.makeRoot();
+                State.declare<any>(this, ['data']);
+                changed = jest.fn(() => this.data.x === 3);
+
+                this.out = new Outputs(this, {
+                    x: changed,
+                });
+            }
+        };
+        expect(obj.data.x).toBe(3);
+        changed!.mockReset();
+
+        obj.data.x++;
+        expect(obj.data.x).toBe(4);
+        expect(changed!).toBeCalled();
+        changed!.mockReset();
+
+        obj.data.y = 1;
+        expect(obj.data.x).toBe(4);
+        expect(obj.data.y).toBe(1);
+        expect(changed!).toBeCalled();
+        changed!.mockReset();
+
+        obj.data = { x: 4 };
+        expect(obj.data.x).toBe(4);
+        expect(changed!).toBeCalled();
+        changed!.mockReset();
+    });
     test('watches sets', () => {
         let changed: jest.Mock;
         const obj = new class extends Tree {

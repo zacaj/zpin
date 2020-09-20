@@ -1,0 +1,50 @@
+Sat Sep 19 2020 15:19:30 GMT-0400 (Eastern Daylight Time)
+09:14.416.000 create mode MachineOverrides
+09:14.919.900 create mode Game
+09:14.926.500 create mode Player
+09:15.367.00 create mode Poker
+09:15.352.800 create mode PlayerOverrides
+09:15.372.600 create mode Ball
+09:15.883.200 switch 'shooter lane' state -> true (0,0) at 2615 via recording recordings/straightMbStarting.rec
+09:15.921.100 create mode Skillshot
+09:16.464.00 switch 'shooter lane' state -> false (0,0) at 3615 via recording recordings/straightMbStarting.rec
+09:16.196.900 switch 'left 1' state -> true (1,3) at 6150 via recording recordings/straightMbStarting.rec
+09:16.227.100 drop switch left 1 down
+09:16.392.900 switch 'right 1' state -> true (5,2) at 7752 via recording recordings/straightMbStarting.rec
+09:16.411.700 drop switch right 1 down
+09:16.554.100 switch 'left 2' state -> true (2,3) at 9920 via recording recordings/straightMbStarting.rec
+09:16.579.600 drop switch left 2 down
+09:17.666.700 switch 'center right' state -> true (1,4) at 28122 via recording recordings/straightMbStarting.rec
+09:17.686.400 drop switch center right down
+09:17.795.700 switch 'center center' state -> true (2,4) at 29556 via recording recordings/straightMbStarting.rec
+09:17.887.700 drop switch center center down
+09:18.147.500 switch 'right 2' state -> true (4,2) at 29905 via recording recordings/straightMbStarting.rec
+09:18.151.800 drop switch right 2 detected, but was already down
+09:18.160.200 switch 'ramp down' state -> true (4,7) at 29922 via recording recordings/straightMbStarting.rec
+09:18.182.800 switch 'right 3' state -> true (3,2) at 30053 via recording recordings/straightMbStarting.rec
+09:18.185.400 drop switch right 3 detected, but was already down
+09:19.315.500 switch 'ramp made' state -> true (0,7) at 48957 via recording recordings/straightMbStarting.rec
+09:19.577.700 create mode StraightMb
+09:19.863.200 switch 'ramp made' state -> false (0,7) at 53612 via recording recordings/straightMbStarting.rec
+09:20.139.700 switch 'ramp down' state -> false (4,7) at 56758 via recording recordings/straightMbStarting.rec
+09:20.381.800 switch 'left 1' state -> false (1,3) at 59876 via recording recordings/straightMbStarting.rec
+09:20.388.600 switch 'left 2' state -> false (2,3) at 59879 via recording recordings/straightMbStarting.rec
+09:20.392.000 drop bank leftBank reset successfully
+09:20.413.200 switch 'center center' state -> false (2,4) at 60028 via recording recordings/straightMbStarting.rec
+09:20.420.900 switch 'center right' state -> false (1,4) at 60030 via recording recordings/straightMbStarting.rec
+09:20.424.400 drop bank centerBank reset successfully
+09:20.447.100 switch 'right 1' state -> false (5,2) at 60349 via recording recordings/straightMbStarting.rec
+09:20.454.600 switch 'right 2' state -> false (4,2) at 60352 via recording recordings/straightMbStarting.rec
+09:20.459.400 switch 'right 3' state -> false (3,2) at 60354 via recording recordings/straightMbStarting.rec
+09:20.475.600 drop bank rightBank reset successfully
+09:20.536.500 switch 'shooter lane' state -> true (0,0) at 60854 via recording recordings/straightMbStarting.rec
+09:20.552.100 recording recordings/straightMbStarting.rec finished at 60863
+09:20.553.600 create mode Skillshot
+10:00.934.800 force state of shooter lane to off
+10:00.935.100 switch 'shooter lane' state -> false (0,0) at 101246 via force
+10:02.419.200 force state of shooter lower to on
+10:02.420.000 switch 'shooter lower' state -> true (0,2) at 102731 via force
+10:02.680.200 switch 'shooter lower' state -> false (0,2) at 102992 via force
+10:04.551.0 force state of right inlane to on
+10:04.637.0 switch 'right inlane' state -> true (5,0) at 104317 via force
+10:04.331.000 switch 'right inlane' state -> false (5,0) at 104642 via force
