@@ -11,11 +11,15 @@ import { onSwitchClose } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
-import { comma, assert } from '../util';
+import { comma, and, assert, makeState } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
 
+
+const Starting = makeState('starting', { secondBallLocked: false});
+const BankLit = makeState('bankLit', (curBank: DropBank) => ({ curBank}));
+const JackpotLit = makeState('jackpotLit', { awardingJp: 0});
 
 export class StraightMb extends Multiball {
     readonly bankColors = new Map<DropBank, Color>([
@@ -26,12 +30,9 @@ export class StraightMb extends Multiball {
         [machine.upper3Bank, Color.Blue],
     ]);
 
-    jackpotLit = false;
-    curBank?: DropBank;
+    state: ReturnType<typeof Starting>|ReturnType<typeof BankLit>|ReturnType<typeof JackpotLit> = Starting();
+
     value = 1000000;
-    awardingJp = 0;
-    started = false;
-    secondBallLocked = false;
 
     skillshotRng!: Rng;
     bankRng!: Rng;
@@ -43,48 +44,44 @@ export class StraightMb extends Multiball {
         super(player);
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
-        State.declare<StraightMb>(this, ['curBank', 'awardingJp', 'jackpotLit', 'started', 'secondBallLocked']);
+        State.declare<StraightMb>(this, ['state']);
         player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             outs[target.image.name] = () => {
-                if (!this.started)
-                    return colorToArrow(this.bankColors.get(target.bank));
-
-                if (target.state || this.jackpotLit) return undefined;
-                
-                if (this.curBank && !this.jackpotLit) {
-                    if (target.bank === this.curBank)
-                        return colorToArrow(this.bankColors.get(this.curBank));
-                    return undefined;
+                switch (this.state._) {
+                    case 'starting':
+                        return colorToArrow(this.bankColors.get(target.bank));
+                    case 'bankLit':
+                        if (target.bank === this.state.curBank)
+                            return colorToArrow(this.bankColors.get(this.state.curBank));
+                        return undefined;
+                    case 'jackpotLit':
+                    default:
+                        return undefined;
                 }
-                return undefined;
             };
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => !this.jackpotLit && !this.awardingJp && (this.started || this.secondBallLocked),
+            rampUp: () => this.state._==='bankLit' || this.state._==='starting' && this.state.secondBallLocked,
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => light(this.jackpotLit, Color.Red),
+            lRampArrow: () => light(this.state._ === 'jackpotLit', Color.Red),
             getSkillshot: () => () => this.getSkillshot(),
-            ignoreSkillsot: set => (this.started)? set : new Set([...set ?? [], machine.sRampMade, ...(this.secondBallLocked? [] : [machine.sRightInlane])]),
+            ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
         });
 
         this.listen(onSwitchClose(machine.sRampMade), () => {
-            if (!this.started && !this.secondBallLocked) {
-                this.secondBallLocked = true;
+            if (this.state._==='starting' && !this.state.secondBallLocked) {
+                this.state.secondBallLocked = true;
                 return this.releaseBallFromTrough();
             }
             return this.jackpot();
         });
 
-        this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => e.bank === this.curBank], () => this.jackpotLit = true);
-
-        this.listen(e => e instanceof SkillshotComplete, () => {
-            this.started = true;
-            this.secondBallLocked = false;
-            return this.releaseBallsFromLock();
-        });
+        this.listen<DropBankCompleteEvent>([
+            e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
+        () => this.state = JackpotLit());
 
         this.gfx?.add(new StraightMbGfx(this));
     }
@@ -115,24 +112,24 @@ export class StraightMb extends Multiball {
     end() {
         return super.end();
     }
-
-    firstSwitchHit() {        
-        return super.firstSwitchHit();
-    }
-
+    
     selectBank(bank?: DropBank) {
         if (bank) {
-            this.curBank = bank;
+            this.state = BankLit(bank);
             return;
         }
         const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 3);
-        this.curBank = machine.dropBanks[i];
+        this.state = BankLit(machine.dropBanks[i]);
     }
 
     async jackpot() {
-        if (this.awardingJp)
+        if (this.state._ !== 'jackpotLit') {
+            debugger;
+            return;
+        }
+        if (this.state.awardingJp)
             fork(this.releaseBallFromLock());
-        this.awardingJp++;
+        this.state.awardingJp++;
         const [group, promise] = alert('JACKPOT!', 5000, comma(this.value));
         this.player.score += this.value;
         const anim: AnimParams = {
@@ -145,11 +142,10 @@ export class StraightMb extends Multiball {
         group.sx.anim(anim).start();
         group.sy.anim(anim).start();
         await promise;
-        this.awardingJp--;
-        if (this.awardingJp === 0) {
+        this.state.awardingJp--;
+        if (this.state.awardingJp === 0) {
             fork(this.releaseBallFromLock());
             this.value += 500000;
-            this.jackpotLit = false;
             this.selectBank();
         }
     }
@@ -180,7 +176,10 @@ export class StraightMb extends Multiball {
                 award: verb[i]+' Jackpot',
                 display: typeof selections[i] === 'string'? selections[i] as string
                     : gfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
-                collect: () => this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank)),
+                collect: () => {
+                    this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank));
+                    fork(this.releaseBallsFromLock());
+                },
                 made: () => {
                     switch (verb[i]) {
                         case 'ADD 50K TO': this.value += 50000; break;

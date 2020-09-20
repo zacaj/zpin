@@ -37,8 +37,8 @@ export class StraightMbGfx extends Group {
         this.add(this.lightJp);
         this.add(this.getJp);
         mb.watch(() => {
-            this.lightJp.visible(!mb.jackpotLit);
-            this.getJp.visible(mb.jackpotLit);
+            this.lightJp.visible(mb.state._ !== 'jackpotLit');
+            this.getJp.visible(mb.state._ === 'jackpotLit');
         });
 
         this.add(this.value);

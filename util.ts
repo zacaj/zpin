@@ -96,6 +96,10 @@ declare global {
         sum(conv?: (val: T, index: number) => number): number;
         rotate(amount: number): this;
     }
+
+    interface String {
+        and<T extends {}>(obj: T): string&T;
+    }
 }
 Array.prototype.remove = function<T>(this: T[], ...elems: T[]): T[] {
     for (const element of elems) {
@@ -186,6 +190,19 @@ if (!Array.prototype.flat) {
     },
   });
 }
+
+
+export function and<S extends string, O extends {}>(_str: S, obj: O): S&O {
+    const str: any = _str;
+    objectMap(obj, (val, key) => {
+        str[key] = val;
+    });
+    return str;
+}
+
+String.prototype.and = function<T extends {}>(this: string, obj: T): T&string {
+    return and(this, obj);
+};
 
 export function clone<T>(obj: T): T {
     return Object.create(

@@ -251,12 +251,12 @@ Object {
                     "children": Array [],
                     "name": "StraightMb111",
                     "state": Object {
-                      "awardingJp": 0,
-                      "curBank": undefined,
-                      "jackpotLit": false,
                       "lockPost": false,
-                      "secondBallLocked": false,
-                      "started": false,
+                      "state": Object {
+                        "_": "starting",
+                        "secondBallLocked": false,
+                        "starting": true,
+                      },
                     },
                   },
                   Object {
@@ -1025,12 +1025,12 @@ Object {
                     "children": Array [],
                     "name": "StraightMb73",
                     "state": Object {
-                      "awardingJp": 0,
-                      "curBank": undefined,
-                      "jackpotLit": false,
                       "lockPost": false,
-                      "secondBallLocked": false,
-                      "started": false,
+                      "state": Object {
+                        "_": "starting",
+                        "secondBallLocked": false,
+                        "starting": true,
+                      },
                     },
                   },
                   Object {
