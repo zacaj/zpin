@@ -41,7 +41,7 @@ export class Player extends Mode<MachineOutputs> {
     rampUp = true;
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Map<'StraightMb'|'FlushMb', Card[]>();
+    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandsMb', Card[]>();
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);

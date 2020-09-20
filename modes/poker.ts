@@ -42,6 +42,8 @@ export class Poker extends Mode<MachineOutputs> {
     bank = 3000;
     cardRng!: Rng;
     skillshotRng!: Rng;
+    handsWon = 0;
+    handsForMb = 2;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();
@@ -53,7 +55,7 @@ export class Poker extends Mode<MachineOutputs> {
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng']);
+        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb']);
         this.deal();
 
         const outs: any  = {};
@@ -66,8 +68,8 @@ export class Poker extends Mode<MachineOutputs> {
             lockPost: () => machine.lRampShowCards.lit()? false : undefined,
             upperEject: () => machine.lEjectShowCards.lit()? false : undefined,
             lShooterShowCards: () => this.step >= 7? [Color.White] : [],
-            lEjectShowCards: () => this.step >= 7 && player.modesReady.size>0? [Color.White] : [],
-            lRampShowCards: () => this.step >= 7 && player.mbsReady.size>0? [Color.White] : [],
+            lEjectShowCards: () => this.step >= 7? [Color.White] : [],
+            lRampShowCards: () => this.step >= 7? [Color.White] : [],
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => () => this.getSkillshot(),
         });
@@ -240,8 +242,19 @@ export class Poker extends Mode<MachineOutputs> {
         Log.info('game', 'poker results: %o', result);
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
-        if (this.playerWins)
+        if (this.playerWins) {
             this.bank += this.pot;
+            this.handsWon++;
+            if (this.handsWon >= this.handsForMb) {
+                this.handsForMb += 3;
+                    
+                if (!this.player.mbsQualified.has('HandsMb')) {
+                    Log.info('game', 'qualified hands multiball');
+                    alert('multiball qualified', undefined, `${this.handsWon} hands won`);
+                }
+                this.player.mbsQualified.set('HandsMb', result.aCards);
+            }
+        }
         
         await wait(3000, 'showing cards');
         this.end();

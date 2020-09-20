@@ -378,6 +378,7 @@ export type LightOutputs = {
     lSideShotArrow: LightState[];
     lEjectArrow: LightState[];
     lUpperLaneArrow: LightState[];
+    lUpperTargetArrow: LightState[];
     lSpinnerArrow: LightState[];
     lShooterLaneArrow: LightState[];
     lLeftArrow: LightState[];
@@ -601,6 +602,7 @@ export class Machine extends Tree<MachineOutputs> {
     lSideShotArrow = new Light('lSideShotArrow', 0);
     lEjectArrow = new Light('lEjectArrow', 0);
     lUpperLaneArrow = new Light('lUpperLaneArrow', 0);
+    lUpperTargetArrow = new Light('lUpperTargetArrow', 0);
     lSpinnerArrow = new Light('lSpinnerArrow', 0);
     lShooterLaneArrow = new Light('lShooterLaneArrow', 0);
     lLeftArrow = new Light('lLeftArrow', 0);
@@ -714,6 +716,7 @@ export class Machine extends Tree<MachineOutputs> {
             lSideShotArrow: [],
             lEjectArrow: [],
             lUpperLaneArrow: [],
+            lUpperTargetArrow: [],
             lSpinnerArrow: [],
             lShooterLaneArrow: [],
             lLeftArrow: [],
