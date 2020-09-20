@@ -1,0 +1,74 @@
+Sun Sep 20 2020 15:31:10 GMT-0400 (Eastern Daylight Time)
+20:51.802.00 create mode MachineOverrides
+20:51.588.000 create mode Game
+20:51.590.100 create mode Player
+20:51.691.400 create mode Poker
+20:52.158.0 create mode PlayerOverrides
+20:52.253.00 create mode Ball
+20:52.355.800 switch 'shooter lane' state -> true (0,0) at 2813 via fake
+20:52.390.100 create mode Skillshot
+20:57.109.200 force state of right inlane to on
+20:57.110.600 switch 'right inlane' state -> true (5,0) at 7568 via force
+20:57.280.300 switch 'ramp down' state -> true (4,7) at 7738 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:275:113) <-  A:\source\zpin\build\machine.js:195:52
+20:57.388.100 switch 'right inlane' state -> false (5,0) at 7846 via force
+21:03.515.500 force state of left 3 to on
+21:03.516.600 switch 'left 3' state -> true (3,3) at 13973 via force
+21:03.540.000 drop switch left 3 down
+21:06.218.400 force state of center center to on
+21:06.219.700 switch 'center center' state -> true (2,4) at 16676 via force
+21:06.239.700 drop switch center center down
+21:07.192.00 force state of center right to on
+21:07.201.00 switch 'center right' state -> true (1,4) at 17477 via force
+21:07.425.00 drop switch center right down
+21:14.726.700 force state of right 4 to on
+21:14.727.400 switch 'right 4' state -> true (2,2) at 25184 via force
+21:14.748.500 drop switch right 4 down
+21:18.647.00 force state of mini center to on
+21:18.654.00 switch 'mini center' state -> true (6,1) at 28523 via force
+21:18.158.400 drop switch mini center down
+21:18.507.700 switch 'right 1' state -> true (5,2) at 28965 via fake
+21:18.511.300 drop switch right 1 detected, but was already down
+21:18.645.400 switch 'right 3' state -> true (3,2) at 29102 via fake
+21:18.648.500 drop switch right 3 detected, but was already down
+21:18.796.100 switch 'right 2' state -> true (4,2) at 29253 via fake
+21:18.799.900 drop switch right 2 detected, but was already down
+21:22.768.500 force state of shooter lane to off
+21:22.769.300 switch 'shooter lane' state -> false (0,0) at 33226 via force
+21:23.266.00 switch 'shooter lane' state -> true (0,0) at 33484 via force
+21:26.910.00 create mode Poker
+21:26.393.900 switch 'left 3' state -> false (3,3) at 36851 via fake
+21:26.397.000 drop bank leftBank reset successfully
+21:26.542.700 switch 'center center' state -> false (2,4) at 37000 via fake
+21:26.642.400 switch 'center right' state -> false (1,4) at 37100 via fake
+21:26.653.000 drop bank centerBank reset successfully
+21:26.766.800 switch 'mini center' state -> false (6,1) at 37223 via fake
+21:26.770.100 drop bank miniBank reset successfully
+21:26.913.100 switch 'right 1' state -> false (5,2) at 37371 via fake
+21:26.916.300 switch 'right 2' state -> false (4,2) at 37373 via fake
+21:26.922.100 switch 'right 3' state -> false (3,2) at 37380 via fake
+21:26.925.600 switch 'right 4' state -> false (2,2) at 37382 via fake
+21:26.933.900 drop bank rightBank reset successfully
+21:27.444.800 create mode Skillshot
+22:09.828.300 force state of center right to on
+22:09.829.600 switch 'center right' state -> true (1,4) at 80288 via force
+22:09.848.800 drop switch center right down
+22:11.250.900 force state of center center to on
+22:11.251.100 switch 'center center' state -> true (2,4) at 81709 via force
+22:11.272.600 drop switch center center down
+22:13.449.000 force state of shooter lane to off
+22:13.450.100 switch 'shooter lane' state -> false (0,0) at 83909 via force
+22:16.354.300 force state of left 3 to on
+22:16.354.500 switch 'left 3' state -> true (3,3) at 86813 via force
+22:16.376.000 drop switch left 3 down
+22:19.472.900 force state of left 2 to on
+22:19.473.500 switch 'left 2' state -> true (2,3) at 89931 via force
+22:19.495.700 drop switch left 2 down
+22:24.644.600 force state of upper 3 right to on
+22:24.644.500 switch 'upper 3 right' state -> true (0,5) at 95103 via force
+22:24.743.200 drop switch upper 3 right down
+22:24.945.200 switch 'right 1' state -> true (5,2) at 95403 via fake
+22:24.948.600 drop switch right 1 detected, but was already down
+22:25.813.00 switch 'right 3' state -> true (3,2) at 95539 via fake
+22:25.846.00 drop switch right 3 detected, but was already down
+22:25.223.600 switch 'right 2' state -> true (4,2) at 95682 via fake
+22:25.227.100 drop switch right 2 detected, but was already down

@@ -205,7 +205,8 @@ export class Poker extends Mode<MachineOutputs> {
             }
         }
         for (const straight of straights) {
-            if (!this.newMbs.has('StraightMb')) {
+            if (!this.newMbs.size) {
+            // if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
                 alert('multiball qualified');
             }
@@ -213,7 +214,8 @@ export class Poker extends Mode<MachineOutputs> {
             break;
         }
         if (flushes.length > 0) {
-            if (!this.newMbs.has('FlushMb')) {
+            if (!this.newMbs.size) {
+            // if (!this.newMbs.has('FlushMb')) {
                 Log.info('game', 'qualified flush multiball');
                 alert('multiball qualified');
             }
@@ -221,7 +223,8 @@ export class Poker extends Mode<MachineOutputs> {
         }
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house
-            if (!this.newMbs.has('FlushMb')) {
+            if (!this.newMbs.size) {
+            // if (!this.newMbs.has('FlushMb')) {
                 Log.info('game', 'qualified full house multiball');
                 alert('multiball qualified');
             }
@@ -248,9 +251,10 @@ export class Poker extends Mode<MachineOutputs> {
             if (this.handsWon >= this.handsForMb) {
                 this.handsForMb += 3;
                     
-                if (!this.player.mbsQualified.has('HandsMb')) {
+                if (!this.player.mbsQualified.size) {
+                // if (!this.player.mbsQualified.has('HandsMb')) {
                     Log.info('game', 'qualified hands multiball');
-                    alert('multiball qualified', undefined, `${this.handsWon} hands won`);
+                    wait(200).then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
                 }
                 this.player.mbsQualified.set('HandsMb', result.aCards);
             }

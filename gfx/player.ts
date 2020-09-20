@@ -13,13 +13,22 @@ export class PlayerGfx extends Group {
     score = makeText('00', 60, 'center', 'top').y(-Screen.h/2);
     bank = makeText('00', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
     handsLeft = makeText('', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2+GameGfx.top);
+
+    noMode!: Group;
+    pokerOrNo!: Group;
+
     constructor(
         public player: Player,
     ) {
         super(gfx);
         this.z(player.gPriority);
 
-        this.add(this.instr.y(Screen.h*.49));
+        this.add(this.noMode = gfx.createGroup());
+        player.watch(() => this.noMode.visible(!player.curMbMode));
+        this.add(this.pokerOrNo = gfx.createGroup());
+        player.watch(() => this.pokerOrNo.visible(!player.curMode || !!player.poker));
+
+        this.noMode.add(this.instr.y(Screen.h*.49));
         player.watch(() => this.instr.visible(!player.curMode));
         player.watch(() => this.instr.text([
             machine.lShooterStartHand.lit()? 'START HAND IN SHOOTER LANE' : undefined,
@@ -30,12 +39,10 @@ export class PlayerGfx extends Group {
         this.add(this.score);
         player.watch(() => this.score.text(comma(player.score)));
 
-        this.add(this.bank);
-        player.watch(() => this.score.text(comma(player.score)));
-
+        this.pokerOrNo.add(this.bank);
         player.watch(() => this.bank.text('Bank: '+comma(player.store.Poker?.bank ?? 0)));
 
-        this.add(this.handsLeft);
+        this.pokerOrNo.add(this.handsLeft);
         player.watch(() => {
             const left = player.store.Poker?.handsForMb-player.store.Poker?.handsWon;
             this.handsLeft.text(`${left} win${left>1?'s':''} for MB`);
