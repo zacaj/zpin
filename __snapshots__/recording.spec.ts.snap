@@ -426,6 +426,7 @@ Object {
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
+              "noMode": undefined,
               "poker": "Poker31",
               "rampUp": true,
               "score": 35000,

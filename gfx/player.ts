@@ -24,9 +24,9 @@ export class PlayerGfx extends Group {
         this.z(player.gPriority);
 
         this.add(this.noMode = gfx.createGroup());
-        player.watch(() => this.noMode.visible(!player.curMbMode));
+        player.watch(() => this.noMode.visible(!!player.noMode));
         this.add(this.pokerOrNo = gfx.createGroup());
-        player.watch(() => this.pokerOrNo.visible(!player.curMode || !!player.poker));
+        player.watch(() => this.pokerOrNo.visible(!!player.noMode || !!player.poker));
 
         this.noMode.add(this.instr.y(Screen.h*.49));
         player.watch(() => this.instr.visible(!player.curMode));

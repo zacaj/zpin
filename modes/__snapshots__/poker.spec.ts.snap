@@ -235,7 +235,7 @@ Object {
                   },
                   Object {
                     "children": Array [],
-                    "name": "Skillshot92",
+                    "name": "Skillshot93",
                     "state": Object {
                       "curAward": 0,
                       "shooterOpen": true,
@@ -249,7 +249,7 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "Poker91",
+                "name": "Poker92",
                 "state": Object {
                   "bet": 100,
                   "closeShooter": false,
@@ -392,7 +392,8 @@ Object {
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
-              "poker": "Poker91",
+              "noMode": undefined,
+              "poker": "Poker92",
               "rampUp": true,
               "score": 31000,
             },
@@ -545,11 +546,6 @@ Object {
     "children": Array [
       Object {
         "children": Array [],
-        "name": "DropBank103",
-        "state": Object {},
-      },
-      Object {
-        "children": Array [],
         "name": "DropBank104",
         "state": Object {},
       },
@@ -574,14 +570,19 @@ Object {
         "state": Object {},
       },
       Object {
+        "children": Array [],
+        "name": "DropBank109",
+        "state": Object {},
+      },
+      Object {
         "children": Array [
           Object {
             "children": Array [],
-            "name": "EosPulse110",
+            "name": "EosPulse111",
             "state": Object {},
           },
         ],
-        "name": "MachineOverrides109",
+        "name": "MachineOverrides110",
         "state": Object {},
       },
       Object {
@@ -590,12 +591,12 @@ Object {
             "children": Array [
               Object {
                 "children": Array [],
-                "name": "ClearHoles113",
+                "name": "ClearHoles114",
                 "state": Object {},
               },
               Object {
                 "children": Array [],
-                "name": "Poker114",
+                "name": "Poker115",
                 "state": Object {
                   "bet": 100,
                   "closeShooter": false,
@@ -791,7 +792,7 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "Spinner115",
+                "name": "Spinner116",
                 "state": Object {
                   "comboMult": 1,
                   "rounds": 0,
@@ -800,7 +801,7 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "LeftOrbit116",
+                "name": "LeftOrbit117",
                 "state": Object {
                   "comboMult": 1,
                   "rounds": 1,
@@ -809,18 +810,13 @@ Object {
               },
               Object {
                 "children": Array [],
-                "name": "PlayerOverrides117",
+                "name": "PlayerOverrides118",
                 "state": Object {},
               },
               Object {
                 "children": Array [
                   Object {
                     "children": Array [
-                      Object {
-                        "children": Array [],
-                        "name": "DropBankResetter120",
-                        "state": Object {},
-                      },
                       Object {
                         "children": Array [],
                         "name": "DropBankResetter121",
@@ -846,18 +842,23 @@ Object {
                         "name": "DropBankResetter125",
                         "state": Object {},
                       },
+                      Object {
+                        "children": Array [],
+                        "name": "DropBankResetter126",
+                        "state": Object {},
+                      },
                     ],
-                    "name": "ResetAnyDropOnComplete119",
+                    "name": "ResetAnyDropOnComplete120",
                     "state": Object {},
                   },
                 ],
-                "name": "Ball118",
+                "name": "Ball119",
                 "state": Object {
                   "miniReady": true,
                 },
               },
             ],
-            "name": "Player112",
+            "name": "Player113",
             "state": Object {
               "chips": 4,
               "closeShooter": false,
@@ -870,19 +871,20 @@ Object {
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
-              "poker": "Poker114",
+              "noMode": undefined,
+              "poker": "Poker115",
               "rampUp": true,
               "score": 26000,
             },
           },
         ],
-        "name": "Game111",
+        "name": "Game112",
         "state": Object {
           "ballNum": 1,
         },
       },
     ],
-    "name": "Machine102",
+    "name": "Machine103",
     "state": Object {
       "lastSwitchHit": Switch {
         "_state": true,

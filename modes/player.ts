@@ -30,14 +30,20 @@ export class Player extends Mode<MachineOutputs> {
     
     poker?: Poker;
     curMbMode?: Mode;
+    noMode?: NoMode;
     get curMode() {
         return this.poker ?? this.curMbMode;
+    }
+    get gameMode() {
+        return this.curMbMode;
+    }
+    get focus() {
+        return this.curMode ?? this.noMode!;
     }
   
     get ball(): Ball {
         return this.children.find(c => c instanceof Ball) as Ball;
     }
-
     rampUp = true;
 
     modesQualified = new Set<(number)>();
@@ -58,7 +64,7 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'laneChips']);
+        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'noMode', 'laneChips']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
@@ -80,7 +86,19 @@ export class Player extends Mode<MachineOutputs> {
         
         this.addChild(new ClearHoles(), -1);
 
-        this.listen(e => e instanceof TreeEvent, () => this.curMbMode = this.getChildren().find(x => x instanceof Multiball || x instanceof GameMode) as Mode);
+        this.listen(e => e instanceof TreeEvent, 
+        () => {
+            this.curMbMode = this.getChildren().find(x => x instanceof Multiball || x instanceof GameMode) as Mode;
+            this.poker = this.getChildren().find(x => x instanceof Poker) as Poker;
+            this.noMode = this.getChildren().find(x => x instanceof NoMode) as NoMode;
+            if (!this.curMode && !this.noMode) {
+                this.addChild(new NoMode(this));
+            } 
+
+            if (this.noMode && this.curMode) {
+                this.noMode.end();
+            }
+        });
 
         // natural inlane -> lower ramp
         this.listen(
@@ -152,8 +170,7 @@ export class Player extends Mode<MachineOutputs> {
             if (!finish) return;
 
             if (!this.curMode) {
-                this.poker = new Poker(this);
-                this.addChild(this.poker);
+                this.addChild(new Poker(this));
                 if (MPU.isConnected || gfx) {
                     await this.await(this.addChild(new ResetMechs()).onEnd());
                 }
@@ -162,8 +179,7 @@ export class Player extends Mode<MachineOutputs> {
             finish();
         });
         
-        this.poker = new Poker(this);
-        this.addChild(this.poker);
+        this.addChild(new Poker(this));
 
         this.addChild(new Spinner(this));
         this.addChild(new LeftOrbit(this));
@@ -212,6 +228,14 @@ export class Player extends Mode<MachineOutputs> {
             this.chips++;
         else 
             this.store.Poker.bank += 50;
+    }
+}
+
+class NoMode extends Tree<MachineOutputs> {
+    constructor(
+        public player: Player,
+    ) {
+        super();
     }
 }
 
