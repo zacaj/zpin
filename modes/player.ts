@@ -21,6 +21,7 @@ import { assert } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
+import { Restart } from './restart';
 
 export class Player extends Mode<MachineOutputs> {
     chips = 1;
@@ -92,7 +93,7 @@ export class Player extends Mode<MachineOutputs> {
             this.poker = this.getChildren().find(x => x instanceof Poker) as Poker;
             this.noMode = this.getChildren().find(x => x instanceof NoMode) as NoMode;
             if (!this.curMode && !this.noMode) {
-                this.addChild(new NoMode(this));
+                this.ball.addChild(new NoMode(this));
             } 
 
             if (this.noMode && this.curMode) {
@@ -178,7 +179,10 @@ export class Player extends Mode<MachineOutputs> {
             }
             finish();
         });
-        
+
+        // this.listen(onSwitchClose(machine.sShooterUpper), () => {
+        // });
+
         this.addChild(new Poker(this));
 
         this.addChild(new Spinner(this));
@@ -231,11 +235,15 @@ export class Player extends Mode<MachineOutputs> {
     }
 }
 
-class NoMode extends Tree<MachineOutputs> {
+class NoMode extends Mode<MachineOutputs> {
     constructor(
         public player: Player,
     ) {
-        super();
+        super(Modes.NoMode);
+    }
+
+    end() {
+        return super.end();
     }
 }
 

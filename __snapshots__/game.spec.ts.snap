@@ -197,7 +197,7 @@ Object {
                   ],
                   "playerHandDesc": undefined,
                   "playerWins": undefined,
-                  "pot": 0,
+                  "pot": 400,
                   "slots": Array [
                     Object {
                       "num": 1,
@@ -364,6 +364,7 @@ Object {
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
+              "noMode": undefined,
               "poker": "Poker22",
               "rampUp": false,
               "score": 12010,

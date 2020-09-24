@@ -795,7 +795,8 @@ export async function popup(node: Node, ms = 2000) {
         node.z(100);
         screen.add(node);
     }
-    await wait(ms, 'popup');
+    if (ms)
+        await wait(ms, 'popup');
     if (gfx) screen.remove(node);
     return;
 }
@@ -832,4 +833,44 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
     }
 
     return [g, popup(g, ms)]; 
+}
+
+export function textBox(settings: {maxWidth?: number; padding?: number}, ...lines: [text: string, size: number, spacing?: number][]): Group {
+    let g: Group;
+    const maxWidth = settings.maxWidth ?? 0.6;
+    const padding = settings.padding ?? 30;
+    if (gfx) {
+        g = gfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
+
+        const texts = lines.map(([text, size]) => makeText(text, size, 'center', 'top').wrap('word').w(Screen.w*maxWidth).x(-Screen.w*maxWidth/2));
+
+        const r = gfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
+
+        function setW() {
+            r.w(texts.map(t => t.lineW()).reduce((a,b) => Math.max(a,b), 0) + padding * 2);
+            g.w(r.w());
+        }
+        texts.forEach(t => t.lineW.watch(setW));
+        setW();
+        function setH() {
+            let y = 0;
+            let i = 0;
+            for (const t of texts) {
+                t.y(y);
+                y += t.lineNr()*t.fontSize();
+                y += lines[i++][2] ?? 0.1;
+            }
+            r.y(-padding);
+            r.h(y + padding * 2);
+            g.y(-y/2);
+        }
+        texts.forEach(t => t.lineNr.watch(setH));
+        setH();
+        g.add(r);
+        texts.forEach(t => g.add(t));
+    } else {
+        g = new FakeGroup() as any;
+    }
+
+    return g;
 }

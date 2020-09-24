@@ -274,7 +274,7 @@ Object {
                   ],
                   "playerHandDesc": "Straight",
                   "playerWins": undefined,
-                  "pot": 1000,
+                  "pot": 1400,
                   "slots": Array [
                     Object {
                       "num": 1,

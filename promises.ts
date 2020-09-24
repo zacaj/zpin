@@ -31,13 +31,13 @@ export class FakePromise<T = any> implements Promise<T> {
 }
 
 export const forks = new Set<FakePromise<any>>();
-export function fork<T>(promise?: Promise<T>|void, name?: string): FakePromise<T> {
-    if (!promise) return null as any;
+export function fork<T>(promise?: Promise<T>|void|any, name?: string): FakePromise<T> {
+    if (!promise || !('then' in promise)) return null as any;
     if (promise instanceof FakePromise) return promise;
     if (!name) name = getCallerLoc(true);
     const e = new Error();
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    promise.catch(err => {
+    promise.catch((err: any) => {
         Log.error('console', 'fork %s errored: ', name, err);
         Log.error('console', 'fork source stack: ', e.stack);
     });

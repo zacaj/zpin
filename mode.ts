@@ -22,6 +22,8 @@ export enum Modes {
     Poker,
 
     Skillshot,
+    NoMode,
+    Restart,
 
     PlayerOverrides,
     MachineOverrides,

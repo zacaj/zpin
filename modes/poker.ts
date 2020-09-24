@@ -179,6 +179,8 @@ export class Poker extends Mode<MachineOutputs> {
         }
         for (let i=0; i<this.step; i++) {
             this.dealerHand.push({...this.deck.shift()!, flipped: true});
+            this.pot += this.bet * 2;
+            this.bank -= this.bet;
         }
         for (let i=0; i<7-this.step; i++) {
             this.playerHand.push(null);
@@ -260,7 +262,7 @@ export class Poker extends Mode<MachineOutputs> {
             }
         }
         
-        await wait(3000, 'showing cards');
+        await wait(5000, 'showing cards');
         this.end();
     }
 

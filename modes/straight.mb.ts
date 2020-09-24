@@ -1,7 +1,7 @@
 import { Multiball } from './multiball';
 import { alert, gfx } from '../gfx';
 import { fork } from '../promises';
-import { DropBank, DropBankCompleteEvent } from '../drop-bank';
+import { DropBank, DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Player } from './player';
 import { machine, SkillshotAward } from '../machine';
 import { State } from '../state';
@@ -11,10 +11,11 @@ import { onSwitchClose } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
-import { comma, and, assert, makeState } from '../util';
+import { comma, and, assert, makeState, repeat } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
+import { Restart } from './restart';
 
 
 const Starting = makeState('starting', { secondBallLocked: false});
@@ -37,11 +38,17 @@ export class StraightMb extends Multiball {
     skillshotRng!: Rng;
     bankRng!: Rng;
 
+    jackpots = 0;
+    drops = 0;
+    lastBank?: DropBank;
+
     protected constructor(
         player: Player,
         public hand: Card[],
+        isRestarted = false,
+        public restartBank?: DropBank,
     ) {
-        super(player);
+        super(player, isRestarted);
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
         State.declare<StraightMb>(this, ['state']);
@@ -70,6 +77,7 @@ export class StraightMb extends Multiball {
             getSkillshot: () => () => this.getSkillshot(),
             ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
         });
+        if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
@@ -84,23 +92,29 @@ export class StraightMb extends Multiball {
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => this.state = JackpotLit());
 
+        this.listen<DropDownEvent>(e => e instanceof DropDownEvent, () => this.drops++);
+
         this.gfx?.add(new StraightMbGfx(this));
     }
 
-    static async start(player: Player): Promise<StraightMb|false> {
+    static async start(player: Player, isRestarted = false, bank?: DropBank): Promise<StraightMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
         if (!player.curMode) {
             const hand = player.mbsQualified.get('StraightMb') ?? [];
-            player.mbsQualified.delete('StraightMb');
-            player.mbsQualified.clear();
-            const mb = new StraightMb(player, hand);
+            if (!isRestarted) {
+                player.mbsQualified.delete('StraightMb');
+                player.mbsQualified.clear();
+            }
+            const mb = new StraightMb(player, hand, isRestarted, bank);
             mb.gfx?.visible(false);
             player.ball.addChild(mb);
             await alert('Multiball!', 3000)[1];
             mb.gfx?.visible(true);
-            await mb.start();
+            if (!isRestarted) {
+                await mb.start();
+            }
             await mb.releaseBallFromTrough();
             finish();
             return mb;
@@ -111,16 +125,22 @@ export class StraightMb extends Multiball {
     }
 
     end() {
-        return super.end();
+        const ret = super.end();
+        if (this.jackpots === 0 && !this.isRestarted) {
+            this.player.noMode?.addChild(new Restart(Math.max(15 - this.drops * 4, 6), () => {
+                return StraightMb.start(this.player, true, this.lastBank);
+            }));
+        }
+        return ret;
     }
     
     selectBank(bank?: DropBank) {
-        if (bank) {
-            this.state = BankLit(bank);
-            return;
+        if (!bank) {
+            const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 3);
+            bank = machine.dropBanks[i];
         }
-        const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 3);
-        this.state = BankLit(machine.dropBanks[i]);
+        this.state = BankLit(bank);
+        this.lastBank = bank;
     }
 
     async jackpot() {
@@ -128,6 +148,7 @@ export class StraightMb extends Multiball {
             debugger;
             return;
         }
+        this.jackpots++;
         if (this.state.awardingJp)
             fork(this.releaseBallFromLock());
         this.state.awardingJp++;
@@ -156,13 +177,13 @@ export class StraightMb extends Multiball {
         const switches = ['right inlane','lower magnet switch','upper magnet switch','upper lanes','upper eject hole','left inlane'];
         const selections: (string|DropBank)[] = [
             'random', 
-            this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
-            this.skillshotRng.weightedSelect([5, machine.leftBank], [2, machine.centerBank], [2, machine.rightBank]),
-            this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
-            this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
-            this.skillshotRng.weightedSelect([5, machine.leftBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [2, machine.centerBank], [2, machine.rightBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank]),
         ];
-        const verb = [
+        const verb = this.isRestarted? repeat('ADD 50K TO', 6) : [
             'ADD 50K TO',
             'DOUBLE',
             'DOUBLE',

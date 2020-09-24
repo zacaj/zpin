@@ -12,14 +12,14 @@ import { fork } from '../promises';
 import { Player } from './player';
 
 export abstract class Multiball extends Mode<MachineOutputs> {
-
-    balls = 1;
+    balls = 1; // balls that need to drain to end mode
 
     lockPost? = false;
 
     protected constructor(
         public player: Player,
-        ballsOnPf = 1,
+        public isRestarted = false,
+        ballsOnPf = 1, // not in trough
     ) {
         super(Modes.Multiball);
         this.balls = ballsOnPf;

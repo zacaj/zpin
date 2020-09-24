@@ -163,7 +163,7 @@ export class Skillshot extends Mode<MachineOutputs> {
                 made: () => {
                     if (cur?.made)
                         cur.made();
-                    if (!cur.award)
+                    if (!cur?.award)
                         gen.made();
                 },
             });
