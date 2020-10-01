@@ -797,6 +797,7 @@ const gfxSwitches: { [name: string]: {
     'start button': { x: 2.90625, y: 1.0687500000000014 },
     'left flipper': { x: 0.39375, y: 1.3187500000000014 },
     'right flipper': { x: 18.95625, y: 1.387500000000003 },
+    'both flippers': { x: 9.674999999999999, y: 0.3374999999999986 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
@@ -817,7 +818,11 @@ export function createGroup(): Group|undefined {
 }
 
 export async function gWait(ms: number, context: string) {
-    await wait(ms, context);
+    if (machine.sBothFlippers.state) return;
+    await Promise.race([
+        wait(ms, context),
+        machine.await(onSwitchClose(machine.sBothFlippers)),
+    ]);
 }
 
 export async function popup(node: Node, ms = 2000) {

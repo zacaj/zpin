@@ -11,7 +11,7 @@ import { GameGfx } from './game';
 export class PlayerGfx extends ModeGroup {
     instr = makeText('START HAND IN SHOOTER LANE', 40, 'center', 'bottom');
     score = makeText('00', 60, 'center', 'top').y(-Screen.h/2);
-    bank = makeText('00', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
+    bank = makeText('00', 40, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
     handsLeft = makeText('', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2+GameGfx.top);
 
     noMode!: Group;

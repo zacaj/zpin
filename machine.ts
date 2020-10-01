@@ -1,7 +1,7 @@
 import { State, StateEvent } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup, Hole } from './switch-matrix';
-import { Events, Event, EventTypePredicate, EventListener } from './events';
+import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup, Hole, onSwitch } from './switch-matrix';
+import { Events, Event, EventTypePredicate, EventListener, onAny } from './events';
 import { Mode, Modes } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
@@ -513,6 +513,8 @@ export class Machine extends Tree<MachineOutputs> {
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
+    sActionButton = new Switch(2, 8, 'action button', 1, 50);
+    sBothFlippers = new Switch(0, 15, 'both flippers', 1, 50);
 
     pfSwitches = [
         this.sMiniOut,
@@ -791,6 +793,10 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
         this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
+
+        this.listen(onAny(onSwitch(this.sLeftFlipper), onSwitch(this.sRightFlipper)), () => {
+            this.sBothFlippers.state = this.sLeftFlipper.state && this.sRightFlipper.state;
+        });
 
         this.overrides = new MachineOverrides(this);
     }

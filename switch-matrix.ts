@@ -54,6 +54,7 @@ export class Switch {
     }
 
     async init() {
+        if (this.column === 15) return;
         if (this.minOffTime !== 1 || this.minOnTime !== 1) {
             Log.info('switch', 'set %s settle to %i/%i', this.name, this.minOnTime, this.minOffTime);
             await MPU.sendCommand(`sw-config ${this.row} ${this.column} ${this.minOnTime} ${this.minOffTime}`);
