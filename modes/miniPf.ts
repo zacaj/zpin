@@ -5,7 +5,7 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 
-export class MiniPf extends Mode<MachineOutputs> {
+export class MiniPf extends Mode {
     waitingForSwitch = true;
     constructor(
         public ball: Ball,

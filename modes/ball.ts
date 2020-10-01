@@ -14,15 +14,25 @@ import { Outputs } from '../outputs';
 import { Color } from '../light';
 import { MiniPf } from './miniPf';
 
-export class Ball extends Mode<MachineOutputs> {
+export class Ball extends Mode {
 
     miniReady = false;
 
-    get skillshot(): Skillshot|undefined {
-        return this.children.find(c => c instanceof Skillshot) as Skillshot;
+    resetDrops = new ResetAnyDropOnComplete();
+
+    skillshot?: Skillshot;
+    miniPf?: MiniPf;
+
+    get children() {
+        return [
+            this.resetDrops,
+            this.skillshot,
+            this.miniPf,
+            ...this.tempNodes,
+        ].truthy();
     }
 
-    constructor(
+    private constructor(
         public player: Player,
     ) {
         super(Modes.Ball);
@@ -36,25 +46,29 @@ export class Ball extends Mode<MachineOutputs> {
         });
 
         this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.is(Color.Green)], () => {
-            this.addChild(new MiniPf(this));
+            this.miniPf = new MiniPf(this);
+            this.miniPf.started();
         });
 
-        fork(this.start());
+        this.listen(onSwitchClose(machine.sTroughFull), 'end');
     }
 
-    async start() {
-        if (MPU.isConnected || gfx) {
-            await this.await(this.addChild(new ResetMechs()).onEnd());
-            await this.await(this.addChild(new ReleaseBall()).onEnd());
-        }
+    static async start(player: Player) {
+        const ball = new Ball(player);
         
-        this.addChild(new ResetAnyDropOnComplete(), -1);
-        this.listen(onSwitchClose(machine.sTroughFull), 'end');
+        player.ball = ball;
 
+        ball.started();
+        if (MPU.isConnected || gfx) {
+            await ResetMechs(ball);
+            await ReleaseBall(ball);
+        }
+        Events.fire(new BallStart(ball));
 
-        Events.fire(new BallStart(this));
-        if (this.player.chips === 0)
-            this.player.chips++;
+        if (player.chips === 0)
+            player.chips++;
+
+        return ball;
     }
 
     end() {

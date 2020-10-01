@@ -103,7 +103,7 @@ describe('machine', () => {
                 });
             }
         };
-        machine.addChild(child);
+        machine.addTemp(child);
 
         // check that diverter works by itself
         expect(machine.cShooterDiverter.val).toBe(false);
@@ -159,7 +159,7 @@ describe('machine', () => {
     //     expectMachineOutputs('rampUp');
     //     expect(machine.cRamp.actual).toBe(false);
     //     await passTime(100);
-    //     const child = new class extends Mode<MachineOutputs> {
+    //     const child = new class extends Mode {
     //         rampUp = true;
     //         constructor() {
     //             super();
@@ -170,7 +170,7 @@ describe('machine', () => {
     //             });
     //         }
     //     };
-    //     machine.addChild(child);
+    //     machine.addTemp(child);
     //     machine.sRampDown.state = false;
     //     await passTime(5);
     //     expect(machine.cRamp.actual).toBe(true);

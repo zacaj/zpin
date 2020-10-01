@@ -10,7 +10,7 @@ describe('drops', () => {
         await setTime(1);
         const bank = new DropBankResetter(machine.upper3Bank);
         bank.makeRoot();
-        machine.addChild(bank);
+        machine.addTemp(bank);
         expect(bank.out!.treeValues.upper3).toBe(false);
 
         await passTime();
@@ -53,7 +53,7 @@ describe('drops', () => {
         await passTime(2);
 
         const bank = new DropBankResetter(machine.upper3Bank);
-        machine.addChild(bank);
+        machine.addTemp(bank);
         await passTime(255);
         expect(bank.out!.treeValues.upper3).toBe(true);
         expect(machine.cUpper3.pending).toBe(true);

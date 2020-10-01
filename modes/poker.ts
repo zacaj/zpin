@@ -5,10 +5,10 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
-import { screen, alert, makeText } from '../gfx';
+import { screen, alert, makeText, gfx, addToScreen } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
-import { KnockTarget, ResetMechs as ResetDropBanks } from '../util-modes';
+import { KnockTarget, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
 import { wait } from '../timer';
 import { Color } from '../light';
 import { StraightMb } from './straight.mb';
@@ -16,9 +16,12 @@ import { Events, Priorities } from '../events';
 import { fork } from '../promises';
 import { comma, seq, range, repeat } from '../util';
 import { Rng } from '../rand';
+import { MPU } from '../mpu';
+import { Tree } from '../tree';
 
 
-export class Poker extends Mode<MachineOutputs> {
+export class Poker extends Mode {
+
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
 
@@ -93,8 +96,9 @@ export class Poker extends Mode<MachineOutputs> {
                     for (let i=0; i<3; i++) {
                         if (machine.rightBank.targets.slice(i+1).every(t => t.state))
                             break;
-                        if (!machine.rightBank.targets[i].state)
-                            this.addChild(new KnockTarget(i));
+                        if (!machine.rightBank.targets[i].state) {
+                            fork(KnockTarget(this, i));
+                        }
                     }
                 }
             }
@@ -127,7 +131,7 @@ export class Poker extends Mode<MachineOutputs> {
 
             // if (e.sw === machine.sShooterLane) {
             //     this.player.poker = new Poker(this.player);
-            //     this.player.addChild(this.player.poker);
+            //     this.player.addTemp(this.player.poker);
             // }
             // done();
         });
@@ -144,7 +148,28 @@ export class Poker extends Mode<MachineOutputs> {
 
         this.listen(onSwitchClose(machine.sStartButton), 'snail');
 
-        this.gfx?.add(new PokerGfx(this));
+
+        addToScreen(() => new PokerGfx(this));
+    }
+
+    
+    static async start(player: Player): Promise<Poker|false> {
+        const finish = await Events.tryPriority(Priorities.StartPoker);
+        if (!finish) return false;
+
+        if (!player.curMode) {
+            const poker = new Poker(player);
+            player.focus = poker;
+            if (MPU.isConnected || gfx) {
+                await ResetMechs(poker);
+            }
+            await wait(500);
+            finish();
+            return poker;
+        } else {
+            finish();
+            return false;
+        }
     }
 
     deal() {
@@ -272,7 +297,6 @@ export class Poker extends Mode<MachineOutputs> {
         for (const [mb, hand] of this.newMbs)
             this.player.mbsQualified.set(mb, hand);
 
-        this.player.poker = undefined;
         if (this.finishShow)
             this.finishShow();
         return super.end();

@@ -8,10 +8,10 @@ import { Color, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
 import { Ball } from './ball';
-import { Tree, TreeEvent } from '../tree';
+import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
-import { makeText, gfx } from '../gfx';
+import { makeText, gfx, screen, addToScreen } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
@@ -23,28 +23,56 @@ import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
 import { Restart } from './restart';
 
-export class Player extends Mode<MachineOutputs> {
+export class Player extends Mode {
     chips = 1;
     score = 0;
 
     laneChips = [true, false, false, false];
     
-    poker?: Poker;
-    curMbMode?: Mode;
-    noMode?: NoMode;
+    get curMbMode(): Multiball|undefined {
+        if (this.focus instanceof Multiball) return this.focus;
+        return undefined;
+    }
+    get poker(): Poker|undefined {
+        if (this.focus instanceof Poker) return this.focus;
+        return undefined;
+    }
+    // private _noMode?: NoMode;
+    get noMode(): NoMode|undefined {
+        // return this._noMode;
+        if (this.focus instanceof NoMode) return this.focus;
+        return undefined;
+    }
     get curMode() {
         return this.poker ?? this.curMbMode;
     }
-    get gameMode() {
-        return this.curMbMode;
+    // get gameMode() {
+    //     return this.curMbMode;
+    // }
+    // get focus() {
+    //     return this.curMode ?? this.noMode!;
+    // }
+    focus?: Poker|Multiball|NoMode;
+
+    clearHoles = new ClearHoles();
+    spinner = new Spinner(this);
+    leftOrbit = new LeftOrbit(this);
+    overrides = new PlayerOverrides(this);
+    ball?: Ball;
+
+    get children() {
+        return [
+            this.clearHoles,
+            this.ball,
+            this.spinner,
+            this.leftOrbit,
+            this.focus,
+            ...this.tempNodes,
+            this.overrides,
+        ].filter(x => !!x) as Tree<MachineOutputs>[];
     }
-    get focus() {
-        return this.curMode ?? this.noMode!;
-    }
-  
-    get ball(): Ball {
-        return this.children.find(c => c instanceof Ball) as Ball;
-    }
+
+
     rampUp = true;
 
     modesQualified = new Set<(number)>();
@@ -65,7 +93,8 @@ export class Player extends Mode<MachineOutputs> {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'poker', 'closeShooter', 'curMbMode', 'noMode', 'laneChips']);
+        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
@@ -85,21 +114,6 @@ export class Player extends Mode<MachineOutputs> {
             lLaneUpper4: () => light(this.laneChips[3], Color.Orange),
         });
         
-        this.addChild(new ClearHoles(), -1);
-
-        this.listen(e => e instanceof TreeEvent, 
-        () => {
-            this.curMbMode = this.getChildren().find(x => x instanceof Multiball || x instanceof GameMode) as Mode;
-            this.poker = this.getChildren().find(x => x instanceof Poker) as Poker;
-            this.noMode = this.getChildren().find(x => x instanceof NoMode) as NoMode;
-            if (!this.curMode && !this.noMode) {
-                this.ball.addChild(new NoMode(this));
-            } 
-
-            if (this.noMode && this.curMode) {
-                this.noMode.end();
-            }
-        });
 
         // natural inlane -> lower ramp
         this.listen(
@@ -136,7 +150,7 @@ export class Player extends Mode<MachineOutputs> {
             });
         // award chips on bank complete
         this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
-            this.ball.miniReady = true;
+            this.ball!.miniReady = true;
             for (let i=0; i<e.bank.targets.length; i++)
                 this.addChip();
         });
@@ -154,6 +168,22 @@ export class Player extends Mode<MachineOutputs> {
             this.chips--;
         });
 
+        this.listen(onChange(this, 'focus'), e => {
+            if (e.oldValue) {
+                e.oldValue.end();
+            }
+            if (e.value) {
+                e.value.started();
+                this.listen(e.value.onEnding, () => {
+                    if (this.focus === e.value)
+                        this.focus = undefined;
+                    return 'remove';
+                });
+            } else {
+                this.focus = new NoMode(this);
+            }
+        });
+
         
         // allow orbits to loop
         this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
@@ -163,34 +193,14 @@ export class Player extends Mode<MachineOutputs> {
 
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
-            fork(StraightMb.start(this));
+            return StraightMb.start(this);
         });
 
         this.listen(onSwitchClose(machine.sShooterLane), async () => {
-            const finish = await Events.tryPriority(Priorities.StartPoker);
-            if (!finish) return;
-
-            if (!this.curMode) {
-                this.addChild(new Poker(this));
-                if (MPU.isConnected || gfx) {
-                    await this.await(this.addChild(new ResetMechs()).onEnd());
-                }
-                await wait(500);
-            }
-            finish();
+            await Poker.start(this);
         });
 
-        // this.listen(onSwitchClose(machine.sShooterUpper), () => {
-        // });
-
-        this.addChild(new Poker(this));
-
-        this.addChild(new Spinner(this));
-        this.addChild(new LeftOrbit(this));
-
-        this.addChild(new PlayerOverrides(this));
-
-        this.gfx?.add(new PlayerGfx(this));
+        addToScreen(() => new PlayerGfx(this));
     }
 
     rng(): Rng {
@@ -198,8 +208,8 @@ export class Player extends Mode<MachineOutputs> {
     }
 
     
-    startBall() {
-        this.addChild(new Ball(this));
+    async startBall() {
+        await Ball.start(this);
     }
     store: { [name: string]: any } = {
         Poker: {},
@@ -235,7 +245,7 @@ export class Player extends Mode<MachineOutputs> {
     }
 }
 
-class NoMode extends Mode<MachineOutputs> {
+class NoMode extends Mode {
     constructor(
         public player: Player,
     ) {
@@ -366,7 +376,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
     }
 }
 
-class PlayerOverrides extends Mode<MachineOutputs> {
+class PlayerOverrides extends Mode {
     constructor(public player: Player) {
         super(Modes.PlayerOverrides);
         this.out = new Outputs(this, {

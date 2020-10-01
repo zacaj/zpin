@@ -1,10 +1,10 @@
 import { Group, Text } from 'aminogfx-gl';
 import { Game } from '../game';
-import { gfx, makeText, Screen } from '../gfx';
+import { gfx, makeText, ModeGroup, Screen } from '../gfx';
 import { onChange } from '../state';
 import { comma } from '../util';
 
-export class GameGfx extends Group {
+export class GameGfx extends ModeGroup {
     static readonly top = 70;
     static readonly main = Screen.h - GameGfx.top;
 
@@ -12,7 +12,7 @@ export class GameGfx extends Group {
     constructor(
         public game: Game,
     ) {
-        super(gfx);
+        super(game);
         const group = gfx.createGroup();
         group.z(game.gPriority);
         group.add(gfx.createRect().fill('#999999').h(GameGfx.top).w(Screen.w).x(-Screen.w/2).y(-Screen.h/2).z(-.1));
@@ -20,6 +20,5 @@ export class GameGfx extends Group {
         group.add(this.ball.x(Screen.w/2).y(-Screen.h/2));
         game.watch(() => this.ball.text('BALL '+game.ballNum.toFixed(0)));
         this.add(group);
-
     }
 }

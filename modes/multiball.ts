@@ -11,7 +11,7 @@ import { wait } from '../timer';
 import { fork } from '../promises';
 import { Player } from './player';
 
-export abstract class Multiball extends Mode<MachineOutputs> {
+export abstract class Multiball extends Mode {
     balls = 1; // balls that need to drain to end mode
 
     lockPost? = false;
@@ -38,13 +38,13 @@ export abstract class Multiball extends Mode<MachineOutputs> {
 
     async start() {
         if (MPU.isConnected || gfx) {
-            await this.await(this.addChild(new ResetMechs()).onEnd());
+            await ResetMechs(this);
         }
     }
 
     async releaseBallFromTrough() {
         if (MPU.isConnected || gfx) {
-            await this.await(this.addChild(new ReleaseBall()).onEnd());
+            await ReleaseBall(this);
         }
         this.listen(onAnyPfSwitchExcept(machine.sShooterLower), 'firstSwitchHit');
     }

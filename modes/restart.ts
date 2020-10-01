@@ -1,5 +1,5 @@
 import { Group, Text } from 'aminogfx-gl';
-import { gfx, textBox } from '../gfx';
+import { gfx, screen, textBox } from '../gfx';
 import { Color, flash } from '../light';
 import { machine, MachineOutputs } from '../machine';
 import { Mode, Modes } from '../mode';
@@ -8,7 +8,8 @@ import { fork } from '../promises';
 import { State } from '../state';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 
-export class Restart extends Mode<MachineOutputs> {
+export class Restart extends Mode {
+    text!: Group;
 
     constructor(
         public flips: number,
@@ -37,15 +38,20 @@ export class Restart extends Mode<MachineOutputs> {
             return this.end();
         });
 
-        const text = textBox({maxWidth: 0.8}, 
+        this.text = textBox({maxWidth: 0.8}, 
             ['MULTIBALL RESTART', 80, 70],
             ['SHOOT RAMP', 70, 80],
             ['', 45],
         );
-        if (this.gfx) {
-            this.gfx?.add(text);
-            text.z(100);
-            this.watch(() => (text.children[3] as Text).text(`${this.flips} flip${this.flips>1?'s':''} left`));
+        if (screen) {
+            screen.add(this.text);
+            this.text.z(100);
+            this.watch(() => (this.text.children[3] as Text).text(`${this.flips} flip${this.flips>1?'s':''} left`));
         }
+    }
+
+    end() {
+        screen?.remove(this.text);
+        return super.end();
     }
 }

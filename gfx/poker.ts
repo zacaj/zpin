@@ -1,13 +1,13 @@
 import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
-import { gfx, makeImage, Screen, Image, makeText } from '../gfx';
+import { gfx, makeImage, Screen, Image, makeText, ModeGroup } from '../gfx';
 import { onChange } from '../state';
 import { tryNum, comma } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
 import { Mode } from '../mode';
 
-export class PokerGfx extends Group {
+export class PokerGfx extends ModeGroup {
     bet = makeText('BET: 0', 40);
     pot = makeText('POT: 0', 40);
     winnings = makeText('winnings', 40, 'center', 'middle');
@@ -20,7 +20,7 @@ export class PokerGfx extends Group {
     constructor(
         public poker: Poker,
     ) {
-        super(gfx);
+        super(poker);
         this.z(poker.gPriority);
 
         this.add(this.playerHand = new PokerHand(poker, poker.playerHand).x(0).y(-PokerHand.h*1.05/2-20));

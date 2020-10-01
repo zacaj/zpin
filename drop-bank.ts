@@ -28,7 +28,7 @@ export class DropBank extends Tree<MachineOutputs> {
         nums: number[],
         images: (keyof ImageOutputs)[],
     ) {
-        super(undefined, machine);
+        super();
         let i=0;
         for (const sw of switches) {
             const target: DropTarget = {

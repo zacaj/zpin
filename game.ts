@@ -10,16 +10,18 @@ import { initMachine } from './init';
 import { Log } from './log';
 import { DropBankCompleteEvent } from './drop-bank';
 import { GameGfx } from './gfx/game';
-import { screen, alert } from './gfx';
+import { screen, alert, gfx, addToScreen } from './gfx';
 import { Player } from './modes/player';
 import { assert } from './util';
 import { Ball } from './modes/ball';
 import { StraightMb } from './modes/straight.mb';
 import { fork } from './promises';
-import { Tree } from './tree';
+import { Tree, TreeChangeEvent } from './tree';
 
-export class Game extends Mode<MachineOutputs> {
-
+export class Game extends Mode {
+    get children() {
+        return [this.curPlayer, ...this.tempNodes];
+    }
 
     players = [new Player(this, 1)];
     playerUp = 0;
@@ -32,6 +34,7 @@ export class Game extends Mode<MachineOutputs> {
         return this.curPlayer.ball;
     }
     
+    
     private constructor() {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
@@ -43,27 +46,21 @@ export class Game extends Mode<MachineOutputs> {
             // upperMagnet: () => machine.sShooterUpper.wasClosedWithin(5000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
-        this.gfx?.add(new GameGfx(this));
-
         
 
         // this.listen(onSwitchClose(machine.sLeftInlane),
-        //     () => this.addChild(new KnockTarget()));
+        //     () => this.addTemp(new KnockTarget()));
 
         this.listen(onClose(), (e) => this.curPlayer.score += this.scores.get(e.sw) ?? 0);
 
-
-        this.playerUp = 0;
-        this.ballNum = 1;
-        this.addChild(this.curPlayer);
-        this.curPlayer.startBall();
+        addToScreen(() => new GameGfx(this));
     }
 
-    onBallEnd() {
+    async onBallEnd() {
         const lastPlayer = this.curPlayer;
-        this.removeChild(lastPlayer);
-        this.playerUp++;
-        if (this.playerUp >= this.players.length) {
+        if (this.playerUp+1 < this.players.length)
+            this.playerUp++;
+        else {
             this.playerUp = 0;
             this.ballNum++;
             if (this.ballNum > 3) {
@@ -76,15 +73,16 @@ export class Game extends Mode<MachineOutputs> {
             //         this.end();
             }
         }
-        this.addChild(this.curPlayer);
-        this.curPlayer.startBall();
+        Events.fire(new TreeChangeEvent(this));
+        await this.curPlayer.startBall();
     }
 
-    static start(): Game {
+    static async start(): Promise<Game> {
         const game = new Game();
         machine.game = game;
-        machine.addChild(game);
-        screen?.add(game.gfx!);
+        game.started();
+        game.curPlayer.started();
+        await game.curPlayer.startBall();
         return game;
     }
 
@@ -148,18 +146,6 @@ export class Game extends Mode<MachineOutputs> {
         [machine.sUpperLane4,    1000],
         [machine.sRampMade,         5000],
     ]);
-}
-
-export class LockLit extends Mode<Pick<MachineOutputs, 'rampUp'>> {
-    rampUp = false;
-
-    constructor() {
-        super(Modes.LockLit);
-
-        this.out = new Outputs(this, {
-            rampUp: () => this.rampUp,
-        });
-    }
 }
 
 if (require.main === module) {

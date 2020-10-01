@@ -1,5 +1,5 @@
 import { Event, EventPredicate, EventTypePredicate, Events, EventListener } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc, recordStateAccess } from './util';
+import { JSONObject, NonFunctionPropertyNames, clone, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc, recordStateAccess, getPropertyDescriptor } from './util';
 
 import { Tree } from './tree';
 
@@ -42,7 +42,8 @@ export class State {
         for (const prop of props) {
             if (prop in state.data) continue;
             state.data[prop] = (obj as any)[prop];
-            const existingProperty = Object.getOwnPropertyDescriptor(obj, prop);
+            const existingProperty = getPropertyDescriptor(obj, prop);
+            assert(!existingProperty || !existingProperty.get);
             Object.defineProperty(obj, prop, {
                 get() {
                     recordStateAccess(obj, prop);

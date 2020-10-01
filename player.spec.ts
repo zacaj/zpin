@@ -3,8 +3,9 @@ import { Game } from "./game";
 import { Tree } from "./tree";
 
 describe('player', () => {
-    test('store', () => {
-        const player = new Player(Game.start(), 1);
+    test('store', async () => {
+        const game = await Game.start();
+        const player = game.curPlayer;
         const child1 = new class extends Tree {
             bet = 2;
 

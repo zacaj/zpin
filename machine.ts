@@ -656,6 +656,16 @@ export class Machine extends Tree<MachineOutputs> {
     }
 
     game!: Game;
+    overrides!: MachineOverrides;
+
+    get children() {
+        return [
+            ...this.dropBanks,
+            this.game,
+            ...this.tempNodes,
+            this.overrides,
+        ].truthy();
+    }
 
     lockDown = false;
     miniDown = false;
@@ -764,10 +774,10 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
         this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
+
+        this.overrides = new MachineOverrides(this);
     }
 }
-
-export type MachineMode = Mode<MachineOutputs>;
 
 
 
@@ -782,8 +792,14 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
     return ret;
 }
 
-class MachineOverrides extends Mode<MachineOutputs> {
-    constructor() {
+class MachineOverrides extends Mode {
+    eosPulse = new EosPulse(this.machine.cRamp, this.machine.sRampDown);
+
+    get children() {
+        return [this.eosPulse];
+    }
+
+    constructor(public machine: Machine) {
         super(Modes.MachineOverrides);
         this.out = new Outputs(this, {
             rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
@@ -793,8 +809,6 @@ class MachineOverrides extends Mode<MachineOutputs> {
                 !machine.cShooterDiverter.actual && time()-(machine.cShooterDiverter.lastActualChange??0) > 500,
             shooterDiverter: (on) => machine.out!.treeValues.rightBank? false : on,            
         });
-
-        this.addChild(new EosPulse(machine.cRamp, machine.sRampDown));
     }
 }
 
@@ -814,8 +828,6 @@ export function resetMachine(): Machine {
     machine = new Machine();
     (global as any).machine = machine;
     MomentarySolenoid.firingUntil = undefined;
-
-    machine.addChild(new MachineOverrides());
 
     return machine;
 }

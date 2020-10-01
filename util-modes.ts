@@ -11,6 +11,8 @@ import { MPU } from './mpu';
 import { wait } from './timer';
 import { fork } from './promises';
 
+
+
 export class ClearHoles extends Tree<MachineOutputs> {
 
     constructor() {
@@ -26,69 +28,92 @@ export class ClearHoles extends Tree<MachineOutputs> {
 }
 
 export class ResetAnyDropOnComplete extends Tree<MachineOutputs> {
+    get children() {
+        return this.resetters;
+    }
+
+    resetters: DropBankResetter[] = [];
+
     constructor() {
         super();
         for (const bank of getTypeIn<DropBank>(machine, DropBank)) {
-            this.addChild(new DropBankResetter(bank));
+            this.resetters.push(new DropBankResetter(bank));
         }
     }
 }
 
-export class ResetMechs extends Tree<MachineOutputs> {
-    constructor() {
-        super();
-
-        const outs: any  = {};
-        for (const bank of machine.dropBanks) {
-            if (!bank.targets.some(t => t.switch.state)) continue;
-            outs[bank.coil.name] = () => bank.targets.some(t => t.switch.state);
-        }
-        if (Object.keys(outs).length === 0) {
-            fork(wait(1).then(() => this.end()));
-            return;
-        }
-        this.out = new Outputs(this, outs);
-
-        this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
-        // fork(wait(1000).then(() => this.end()));
+export async function ResetMechs(parent: Tree<MachineOutputs>) {
+    const outs: any  = {};
+    for (const bank of machine.dropBanks) {
+        if (!bank.targets.some(t => t.switch.state)) continue;
+        outs[bank.coil.name] = () => bank.targets.some(t => t.switch.state);
     }
+    if (Object.keys(outs).length === 0) {
+        return;
+    }
+    const node = new class ResetMechs extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+
+            this.out = new Outputs(this, outs);
+
+            this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
+            // fork(wait(1000).then(() => this.end()));
+        }
+    };
+
+    parent.addTemp(node);
+
+    await parent.await(node.onEnd());
 }
 
-export class KnockTarget extends Tree<MachineOutputs> {
-    constructor(i?: number) {
-        super();
-        if (i === undefined)
-            i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).slice().find(i => i !== undefined);
-        else
-            assert(!machine.rightBank.targets[i].state);
-        if (i === undefined) {
-            Log.info('game', 'no target to knock down');
-            fork(wait(1).then(() => this.end()));
-            return;
-        }
-
-        const coil = machine.cRightDown[i];
-        Log.info('game', 'knock down target %i', i);
-        machine.rightBank.targets[i].state = true;
-        this.out = new Outputs(this, {
-            [coil.name]: !machine.rightBank.targets[i].switch.state,
-        });
-        this.listen(onSwitchClose(machine.rightBank.targets[i].switch), 'end');
+export async function KnockTarget(parent: Tree<MachineOutputs>, i?: number) {
+    if (i === undefined)
+        i = machine.rightBank.targets.map((t, i) => !t.state? i:undefined).slice().find(i => i !== undefined);
+    else
+        assert(!machine.rightBank.targets[i].state);
+    if (i === undefined) {
+        Log.info('game', 'no target to knock down');
+        return;
     }
+
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+            
+            const coil = machine.cRightDown[i!];
+            Log.info('game', 'knock down target %i', i);
+            machine.rightBank.targets[i!].state = true;
+            this.out = new Outputs(this, {
+                [coil.name]: !machine.rightBank.targets[i!].switch.state,
+            });
+            this.listen(onSwitchClose(machine.rightBank.targets[i!].switch), 'end');
+        }
+    };
+
+    parent.addTemp(node);
+
+    await parent.await(node.onEnd());
 }
 
-export class ReleaseBall extends Tree<MachineOutputs> {
-    constructor() {
-        super();
-        if (machine.sShooterLane.state) {
-            fork(wait(1).then(() => this.end()));
-            return;
-        }
-        // assert(!machine.sShooterLane.state);
-        this.out = new Outputs(this, {
-            troughRelease: !machine.sShooterLane.state,
-        });
-        this.listen(onSwitchClose(machine.sShooterLane), 'end');
-        this.listen(onSwitchOpen(machine.sTroughFull), 'end');
+export async function ReleaseBall(parent: Tree<MachineOutputs>) {
+    if (machine.sShooterLane.state) {
+        return;
     }
+
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+            // assert(!machine.sShooterLane.state);
+            this.out = new Outputs(this, {
+                troughRelease: !machine.sShooterLane.state,
+            });
+            this.listen(onSwitchClose(machine.sShooterLane), 'end');
+            this.listen(onSwitchOpen(machine.sTroughFull), 'end');
+        }
+    };
+
+    parent.addTemp(node);
+
+    await parent.await(node.onEnd());
 }

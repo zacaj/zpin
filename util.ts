@@ -95,6 +95,7 @@ declare global {
         shuffle(rand?: () => number, times?: number): this;
         sum(conv?: (val: T, index: number) => number): number;
         rotate(amount: number): this;
+        truthy(): Array<NonNullable<T>>;
     }
 
     interface String {
@@ -172,6 +173,9 @@ Array.prototype.rotate = function<T>(this: T[], amount: number): T[] {
         amount++;
     }
     return this;
+};
+Array.prototype.truthy = function<T>(this: T[]): NonNullable<T>[] {
+    return this.filter(x => !!x) as any;
 };
 // polyfill flatmap for jest
 if (!Array.prototype.flatMap) {
@@ -261,6 +265,13 @@ export function getTypeIn<T>(obj: {}, type: any): T[] {
     }
     return ret;
 } 
+
+export function getPropertyDescriptor<O extends {}>(o: O|undefined, key: keyof O): PropertyDescriptor|undefined {
+    if (!o) return undefined;
+    const own = Object.getOwnPropertyDescriptor(o, key);
+    if (own) return own;
+    return getPropertyDescriptor(Object.getPrototypeOf(o), key);
+}
 
 export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
     let props: string[] = [];

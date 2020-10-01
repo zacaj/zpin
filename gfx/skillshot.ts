@@ -1,6 +1,6 @@
 import { Group, Text } from 'aminogfx-gl';
 import { Skillshot } from '../modes/skillshot';
-import { gfx, makeText, Screen, alert } from '../gfx';
+import { gfx, makeText, Screen, alert, ModeGroup } from '../gfx';
 import { wrap } from '../util';
 import { onChange } from '../state';
 import { TreeEndEvent } from '../tree';
@@ -8,13 +8,13 @@ import { GameGfx } from './game';
 import { machine } from '../machine';
 import { time, Timer, onTick } from '../timer';
 
-export class SkillShotGfx extends Group {
+export class SkillShotGfx extends ModeGroup {
     award!: Text;
     instr!: Text;
     constructor(
         public ss: Skillshot,
     ) {
-        super(gfx);
+        super(ss);
         this.z(ss.gPriority);
         this.w(Screen.w*.6);
         this.h(GameGfx.main);

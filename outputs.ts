@@ -3,7 +3,7 @@ import { StateEvent, State } from './state';
 import { assert, selectiveClone, eq } from './util';
 import { time } from './timer';
 import { Log } from './log';
-import { Tree, TreeEvent } from './tree';
+import { Tree, TreeChangeEvent } from './tree';
 
 type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;
@@ -47,17 +47,9 @@ export class Outputs<Outs extends {}> {
         tree.out = this;
 
         // catch child tree structure changes
-        this.tree.listen<TreeEvent<any>>(e => e instanceof TreeEvent
-            && (this.tree.hasChild(e.before)
-                || this.tree.hasChild(e.after)
-                || e.before.hasParent(this.tree)
-                || e.after.hasParent(this.tree)
-            ),
+        this.tree.listen<TreeChangeEvent<any>>(e => e instanceof TreeChangeEvent,
             ev => {
-                if (ev.after.parent)
-                    this.checkChildChange(ev.after);
-                if (ev.before.parent)
-                    this.checkChildChange(ev.before);
+                this.updateTreeValues();
             });
 
         // catch child tree value changes
@@ -145,13 +137,10 @@ export class Outputs<Outs extends {}> {
         Events.fire(new TreeOutputEvent(this.tree, key, this.treeValues[key], oldValue));
     }
 
-    checkChildChange(child: Tree) {
-        if (child.out)
-            for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
-                if (!(key in child.out.origFuncs)) continue;
-                this.updateTreeValue(key);
-            }
-        child.children.forEach(c => this.checkChildChange(c));
+    updateTreeValues() {
+        for (const key of Object.keys(this.ownValues) as (keyof Outs)[]) {
+            this.updateTreeValue(key);
+        }
     }
     
 

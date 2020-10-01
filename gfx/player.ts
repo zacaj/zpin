@@ -1,6 +1,6 @@
 import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
-import { gfx, makeImage, Screen, Image, makeText } from '../gfx';
+import { gfx, makeImage, Screen, Image, makeText, ModeGroup } from '../gfx';
 import { onChange } from '../state';
 import { tryNum, comma } from '../util';
 import { machine } from '../machine';
@@ -8,7 +8,7 @@ import { onAny } from '../events';
 import { Player } from '../modes/player';
 import { GameGfx } from './game';
 
-export class PlayerGfx extends Group {
+export class PlayerGfx extends ModeGroup {
     instr = makeText('START HAND IN SHOOTER LANE', 40, 'center', 'bottom');
     score = makeText('00', 60, 'center', 'top').y(-Screen.h/2);
     bank = makeText('00', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
@@ -20,7 +20,7 @@ export class PlayerGfx extends Group {
     constructor(
         public player: Player,
     ) {
-        super(gfx);
+        super(player);
         this.z(player.gPriority);
 
         this.add(this.noMode = gfx.createGroup());

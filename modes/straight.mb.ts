@@ -1,5 +1,5 @@
 import { Multiball } from './multiball';
-import { alert, gfx } from '../gfx';
+import { addToScreen, alert, gfx, screen } from '../gfx';
 import { fork } from '../promises';
 import { DropBank, DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Player } from './player';
@@ -94,7 +94,7 @@ export class StraightMb extends Multiball {
 
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent, () => this.drops++);
 
-        this.gfx?.add(new StraightMbGfx(this));
+        addToScreen(() => new StraightMbGfx(this));
     }
 
     static async start(player: Player, isRestarted = false, bank?: DropBank): Promise<StraightMb|false> {
@@ -109,7 +109,7 @@ export class StraightMb extends Multiball {
             }
             const mb = new StraightMb(player, hand, isRestarted, bank);
             mb.gfx?.visible(false);
-            player.ball.addChild(mb);
+            player.focus = mb;
             await alert('Multiball!', 3000)[1];
             mb.gfx?.visible(true);
             if (!isRestarted) {
@@ -127,7 +127,7 @@ export class StraightMb extends Multiball {
     end() {
         const ret = super.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addChild(new Restart(Math.max(15 - this.drops * 4, 6), () => {
+            this.player.noMode?.addTemp(new Restart(Math.max(15 - this.drops * 4, 6), () => {
                 return StraightMb.start(this.player, true, this.lastBank);
             }));
         }

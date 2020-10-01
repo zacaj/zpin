@@ -51,12 +51,17 @@ export function snapshotOutputs(tree: Tree<any> = machine) {
 
 const statify = (tree: Tree<any>): {name: string; state: any; children: any} => {
     const state = (tree as any).$state;
-    return {
-        name: tree.name+tree.num,
-        state: objectMap(state?.data??{}, val => (val as any)?.$isProxy? 
-            ((val as any).constructor.name==='Object'? clone(val) : [...(val as any).original]) : (val instanceof Tree? val.name+val.num : val)),
-        children: tree.children.map(statify),
-    };
+    const obj = Object.create({}) as any;
+    // // Object.defineProperty(obj.__proto__, 'constructor', { value: Object.create(obj)});
+    // Object.defineProperty(obj.__proto__, 'name', { value: tree.name+tree.num });
+    obj.name = tree.name+tree.num;
+    obj._name = tree.name+tree.num;
+    obj.state = objectMap(state?.data??{}, val => (val as any)?.$isProxy? 
+            ((val as any).constructor.name==='Object'? clone(val) : [...(val as any).original]) : (val instanceof Tree? val.name+val.num : val));
+    obj.children = tree.children.map(statify);
+    obj.ownOuts = tree.out?.ownValues;
+    
+    return obj;
 };
 export function snapshotState(tree: Tree<any> = machine) {
     expect(statify(tree)).toMatchSnapshot();

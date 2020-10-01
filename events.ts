@@ -5,6 +5,9 @@ import * as util from 'util';
 import { fork } from './promises';
 
 export abstract class Event {
+    static eventCount = 0;
+    num = ++Event.eventCount;
+
     constructor(
         public when = time(),
     ) {
@@ -24,7 +27,9 @@ export type EventListener<E extends Event = Event> = {
     predicates: EventPredicate<E>[];
     cancelled?: true;
     source?: string;
+    num: number;
 };
+let listenerCount = 0;
 
 export const Events = {
     listeners: [] as EventListener<any>[],
@@ -76,6 +81,7 @@ export const Events = {
             callback: l as any,
             predicates: [typepred, ...preds].flat(),
             source: getCallerLoc(true),
+            num: ++listenerCount,
         };
         this.listeners.push(listener);
         return listener;

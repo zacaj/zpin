@@ -18,6 +18,7 @@ export enum Modes {
     MiniPf,
 
     LockLit,
+    GameMode,
     Multiball,
     Poker,
 
@@ -29,33 +30,31 @@ export enum Modes {
     MachineOverrides,
 }
 
-export abstract class Mode<Outs extends {} = Partial<MachineOutputs>> extends Tree<Outs> {
+export abstract class Mode extends Tree<MachineOutputs> {
     gPriority!: number;
+
+    gfx?: Group;
 
     constructor(
         type: Modes,
-        public gfx: Group|undefined = createGroup(),
+        // public gfx: Group|undefined = createGroup(),
     ) {
         super(type);
 
-        Log.log(['game', 'console', 'switch'], 'create mode %s', this.constructor.name);
+        Log.info(['game', 'console', 'switch'], 'create mode %s', this.constructor.name);
     }
 
-    addChild<T extends Tree<Outs>>(node: T, priority?: number): T {
-        super.addChild(node, priority);
-        if (node instanceof Mode)
-            this.gfx?.add(node.gfx!);
-        return node;
-    }
-    removeChild<T extends Tree<Outs>>(node: T): T {
-        super.removeChild(node);
-        if (node instanceof Mode)
-            this.gfx?.remove(node.gfx!);
-        return node;
+    started() {
+        Log.log('game', 'start mode %s', this.constructor.name);
+        super.started();
+        // if (this instanceof Mode)
+        //     this.gfx?.add(node.gfx!);    
     }
 
     end() {
         Log.log('game', 'end mode %s', this.constructor.name);
+        if (this.gfx) 
+            this.gfx.parent?.remove(this.gfx);
         return super.end();
     }
 }

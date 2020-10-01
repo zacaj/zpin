@@ -7,9 +7,11 @@ import { fork } from './promises';
 import { machine } from './machine';
 import { Timer } from './timer';
 
-
 export abstract class Tree<Outs extends {} = {}> {
-    children: Tree<Outs>[] = [];
+    tempNodes: Tree<Outs>[] = [];
+    get children(): Tree<Outs>[] {
+        return this.tempNodes;
+    }
     out?: Outputs<Outs>;
     parent?: Tree<Outs>;
 
@@ -36,22 +38,23 @@ export abstract class Tree<Outs extends {} = {}> {
 
     constructor(
         public readonly gPriority?: number,
-        parent?: Tree<Outs>,
-        lPriority?: number,
     ) {
-        if (parent)
-            parent.addChild(this, lPriority);
 
         this.findListeners();
+    }
+
+    started() {
+        Events.fire(new TreeStartEvent(this));
+        for (const child of this.getChildren())
+            child.started();
     }
 
     end(): 'remove' {
         Events.fire(new TreeWillEndEvent(this));
         for (const child of this.getChildren())
             child.end();
-        if (this.parent)
-            this.parent.removeChild(this);
-	    this.ended = true;
+        this.ended = true;
+        this.parent?.tempNodes.remove(this);
         Events.fire(new TreeEndEvent(this));
         return 'remove';
     }
@@ -66,26 +69,6 @@ export abstract class Tree<Outs extends {} = {}> {
                 return 'remove';
             });
         });
-    }
-
-    addChild(node: Tree<Outs>, priority = 0): Tree<Outs> {
-        if (node.parent)
-            node.parent.removeChild(node);
-        if (node.gPriority)
-            assert(this.getRoot().getAndChildren().filter(t => t.gPriority === node.gPriority && t !== node).length === 0);
-        const before = clone(node);
-        node.parent = this;
-        node.lPriority = priority;
-        this.children.insert(node, before => before.lPriority! > priority);
-        Events.fire(new TreeEvent(before, node));
-        return node;
-    }
-    removeChild(node: Tree<Outs>) {
-        assert(this.children.includes(node));
-        const before = clone(node);
-        this.children.remove(node);
-        node.parent = undefined;
-        Events.fire(new TreeEvent(before, node));
     }
 
     getRoot(): Tree<Outs> {
@@ -128,7 +111,17 @@ export abstract class Tree<Outs extends {} = {}> {
         return this.getParents().includes(node);
     }
 
-
+    addTemp(node: Tree<Outs>, priority = 0): Tree<Outs> {
+        assert(!node.parent);
+        if (node.gPriority)
+            assert(this.getRoot().getAndChildren().filter(t => t.gPriority === node.gPriority && t !== node).length === 0);
+        const before = clone(node);
+        node.parent = this;
+        node.lPriority = priority;
+        this.tempNodes.insert(node, before => before.lPriority! > priority);
+        node.started();
+        return node;
+    }
 
 
     listen<T extends Event>(
@@ -139,6 +132,7 @@ export abstract class Tree<Outs extends {} = {}> {
             callback: func as any,
             predicates: arrayify(pred) as any,
             source: getCallerLoc(true),
+            num: ++listenerCount,
         });
         if (typeof func === 'function') 
             return func;
@@ -244,28 +238,38 @@ export abstract class Tree<Outs extends {} = {}> {
         Events.listen(e => this.handleEvent(e), () => true);
     }
 }
+let listenerCount = 0;
 type TreeEventCallback<T extends Tree<any>> = ((e: Event) => 'remove'|any) | FunctionPropertyNames<T>;
 type TreeEventListener<T extends Tree<any>> = {
     callback: TreeEventCallback<T>;
     predicates: EventPredicate[];
     source?: string;
+    num: number;
 };
 
 
-export class TreeEvent<T> extends Event {
+
+export class TreeChangeEvent<T extends Tree<any>> extends Event {
     constructor(
-        public before: Tree<T>,
-        public after: Tree<T>,
+        public tree: T,
     ) {
         super();
     }
 }
 
-export class TreeEndEvent<T extends Tree<any>> extends Event {
+export class TreeStartEvent<T extends Tree<any>> extends TreeChangeEvent<T> {
     constructor(
-        public tree: T,
+        tree: T,
     ) {
-        super();
+        super(tree);
+    }
+}
+
+export class TreeEndEvent<T extends Tree<any>> extends TreeChangeEvent<T> {
+    constructor(
+        tree: T,
+    ) {
+        super(tree);
     }
 }
 

@@ -1,6 +1,6 @@
 import { Group, Text } from 'aminogfx-gl';
 import { Skillshot } from '../modes/skillshot';
-import { gfx, makeText, Screen, alert } from '../gfx';
+import { gfx, makeText, Screen, alert, ModeGroup } from '../gfx';
 import { wrap, comma } from '../util';
 import { onChange } from '../state';
 import { TreeEndEvent } from '../tree';
@@ -8,7 +8,8 @@ import { GameGfx } from './game';
 import { StraightMb } from '../modes/straight.mb';
 import { PokerHand } from './poker';
 
-export class StraightMbGfx extends Group {
+// eslint-disable-next-line no-undef
+export class StraightMbGfx extends ModeGroup {
     lightJp = makeText('COMPLETE LIT BANK TO LIGHT JACKPOT', 40, 'center', 'bottom').y(Screen.h*.15);
     getJp = makeText('SHOOT RAMP FOR JACKPOT', 60, 'center', 'bottom').y(Screen.h*.15);
     value = makeText('100000', 35, 'center', 'bottom').y(Screen.h*.4);
@@ -18,7 +19,7 @@ export class StraightMbGfx extends Group {
     constructor(
         public mb: StraightMb,
     ) {
-        super(gfx);
+        super(mb);
         this.z(mb.gPriority);
 
         this.hand = new PokerHand(mb, mb.hand, true);

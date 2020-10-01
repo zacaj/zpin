@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import { wait, Timer, time } from './timer';
 import { fork } from './promises';
 import { onChange } from './state';
+import { Mode } from './mode';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -549,6 +550,34 @@ export function makeImage(name: string, w: number, h: number, flip = true): Imag
     img.size('stretch');
     img.set(name);
     return img;
+}
+
+export class ModeGroup extends Group {
+    constructor(
+        public mode: Mode,
+    ) {
+        super(gfx);
+    }
+}
+
+export function addToScreen(cb: () => ModeGroup) {
+    if (!screen) return;
+    const node = cb();
+    node.mode.gfx = node;
+
+    const modes = screen.children.filter(n => n instanceof ModeGroup) as ModeGroup[];
+    if (modes.length === 0) {
+        screen.add(node);
+        return;
+    }
+
+    for (const mode of modes) {
+        if (mode.mode.gPriority >= node.mode.gPriority) {
+            screen.insertBefore(node, mode);
+            return;
+        }
+    }
+    screen.add(node);
 }
 
 export function makeText(text: string, height: number,
