@@ -1,6 +1,6 @@
 import { Outputs } from './outputs';
 import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
-import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, pushStateAccessRecorder, popStateAccessRecorder } from './util';
+import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, pushStateAccessRecorder, popStateAccessRecorder, eq } from './util';
 import { Log } from './log';
 import { State, StateEvent } from './state';
 import { fork } from './promises';
@@ -9,9 +9,23 @@ import { Timer } from './timer';
 
 export abstract class Tree<Outs extends {} = {}> {
     tempNodes: Tree<Outs>[] = [];
-    get children(): Tree<Outs>[] {
+    protected get nodes(): Tree<Outs>[] {
         return this.tempNodes;
     }
+
+    private lastChildren: Tree<Outs>[] = [];
+    get children(): Tree<Outs>[] {
+        const nodes = this.nodes;
+        assert(eq(nodes, this.lastChildren)) ;
+        // {
+        //     Events.fire(new TreeChangeEvent(this));
+        // }
+        this.lastChildren = nodes;
+        return nodes;
+    }
+
+
+
     out?: Outputs<Outs>;
     parent?: Tree<Outs>;
 

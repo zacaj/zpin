@@ -2192,6 +2192,7 @@ Object {
                       },
                       "ended": false,
                       "gPriority": undefined,
+                      "lastChildren": Array [],
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
