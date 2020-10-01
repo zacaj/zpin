@@ -348,11 +348,37 @@ export function debugging(): boolean {
     return isDebug;
 }
 
-export function comma(value: number): string {
+export function comma(value: number, minWidth = 0): string {
     const s = value.toFixed();
-    return Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',');
+    const commad = Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',')
+    return commad.padStart(minWidth, ' ');
 }
 
+export function score(value: number, minWidth = 0): string {
+    return comma(value, minWidth).trim().padStart(2, '0').padStart(minWidth, ' ');
+}
+
+export function short(number: number, minWidth = 0): string {
+    const SI_PREFIXES = [
+        { value: 1, symbol: '' },
+        { value: 1e3, symbol: 'k' },
+        { value: 1e6, symbol: 'M' },
+        { value: 1e9, symbol: 'G' },
+        { value: 1e12, symbol: 'T' },
+        { value: 1e15, symbol: 'P' },
+        { value: 1e18, symbol: 'E' },
+        
+    ].reverse();
+
+    if (number === 0) return '00';
+
+    const tier = SI_PREFIXES.find((n) => number >= n.value)!;
+    let numberFixed = (number / tier.value).toFixed(1);
+    if (numberFixed.endsWith('.0'))
+        numberFixed = numberFixed.slice(0, numberFixed.length-2);
+
+    return `${numberFixed}${tier.symbol}`.padStart(minWidth, ' ');
+}
 
 export function makeState<Name extends string, T extends {}, Args extends any[] = []>(name: Name, obj: T|((...args: Args) => T)): 
 (...args: Args) => {

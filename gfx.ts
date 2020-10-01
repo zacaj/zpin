@@ -37,7 +37,7 @@ export async function initGfx() {
         path: './media/',
         weights: {
             400: {
-                normal: 'CARDC__.TTF',
+                normal: 'CardCharacters.TTF',
             },
         },
     });
@@ -816,6 +816,10 @@ export function createGroup(): Group|undefined {
     return undefined;
 }
 
+export async function gWait(ms: number, context: string) {
+    await wait(ms, context);
+}
+
 export async function popup(node: Node, ms = 2000) {
     // if (!gfx) return;
     // node.x(Screen.w/2);
@@ -825,7 +829,7 @@ export async function popup(node: Node, ms = 2000) {
         screen.add(node);
     }
     if (ms)
-        await wait(ms, 'popup');
+        await gWait(ms, 'popup');
     if (gfx) screen.remove(node);
     return;
 }

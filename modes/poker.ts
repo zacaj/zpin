@@ -5,11 +5,10 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
-import { screen, alert, makeText, gfx, addToScreen } from '../gfx';
+import { screen, alert, makeText, gfx, addToScreen, gWait } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
 import { KnockTarget, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
-import { wait } from '../timer';
 import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
@@ -163,7 +162,7 @@ export class Poker extends Mode {
             if (MPU.isConnected || gfx) {
                 await ResetMechs(poker);
             }
-            await wait(500);
+            await gWait(500, 'poker settle');
             finish();
             return poker;
         } else {
@@ -281,13 +280,13 @@ export class Poker extends Mode {
                 if (!this.player.mbsQualified.size) {
                 // if (!this.player.mbsQualified.has('HandsMb')) {
                     Log.info('game', 'qualified hands multiball');
-                    wait(200).then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
+                    gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
                 }
                 this.player.mbsQualified.set('HandsMb', result.aCards);
             }
         }
         
-        await wait(5000, 'showing cards');
+        await gWait(5000, 'showing cards');
         this.end();
     }
 

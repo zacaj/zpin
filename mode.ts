@@ -26,6 +26,8 @@ export enum Modes {
     NoMode,
     Restart,
 
+    Bonus,
+
     PlayerOverrides,
     MachineOverrides,
 }

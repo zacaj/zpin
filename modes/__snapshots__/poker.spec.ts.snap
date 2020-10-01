@@ -41,9 +41,15 @@ Object {
     "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
-    "lLaneUpper4": Array [],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
+    "lLaneUpper4": Array [
+      "Orange",
+    ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -451,9 +457,15 @@ Object {
               "lLaneUpper1": Array [
                 "Orange",
               ],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
-              "lLaneUpper4": Array [],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
+              "lLaneUpper4": Array [
+                "Orange",
+              ],
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
@@ -484,14 +496,14 @@ Object {
               "focus": "Poker92",
               "laneChips": Array [
                 true,
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 31000,
+              "score": 52000,
             },
           },
         ],
@@ -676,9 +688,15 @@ Object {
     "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
-    "lLaneUpper4": Array [],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
+    "lLaneUpper4": Array [
+      "Orange",
+    ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -1166,9 +1184,15 @@ Object {
               "lLaneUpper1": Array [
                 "Orange",
               ],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
-              "lLaneUpper4": Array [],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
+              "lLaneUpper4": Array [
+                "Orange",
+              ],
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
@@ -1204,14 +1228,14 @@ Object {
               "focus": "Poker125",
               "laneChips": Array [
                 true,
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 26000,
+              "score": 41000,
             },
           },
         ],

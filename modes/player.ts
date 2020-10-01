@@ -11,7 +11,7 @@ import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
-import { makeText, gfx, screen, addToScreen } from '../gfx';
+import { makeText, gfx, screen, addToScreen, alert } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
@@ -27,7 +27,7 @@ export class Player extends Mode {
     chips = 1;
     score = 0;
 
-    laneChips = [true, false, false, false];
+    laneChips = [true, true, true, true];
     
     get curMbMode(): Multiball|undefined {
         if (this.focus instanceof Multiball) return this.focus;
@@ -146,7 +146,13 @@ export class Player extends Mode {
                 const i = machine.sUpperLanes.indexOf(e.sw);
                 if (!this.laneChips[i]) return;
                 this.addChip();
-                this.addChip();                
+                this.addChip();             
+                this.laneChips[i] = false;
+                if (this.laneChips.every(c => !c)) {
+                    this.laneChips.fill(true);
+                    this.ball!.bonusX++;
+                    alert(`bonus ${this.ball!.bonusX}X`);
+                }
             });
         // award chips on bank complete
         this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {

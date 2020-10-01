@@ -166,6 +166,8 @@ export abstract class Tree<Outs extends {} = {}> {
 
     listeners: TreeEventListener<any>[] = [];
     handleEvent(e: Event) {
+        if (this.ended) return;
+
         assert(!this.ended);
         // Log.trace([], 'tree fire event %s: %j', e.name, e);
 

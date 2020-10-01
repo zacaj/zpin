@@ -579,6 +579,22 @@ export class Machine extends Tree<MachineOutputs> {
         this.sUpperLane4,
     ];
 
+    sLowerlanes = [
+        this.sLeftInlane,
+        this.sLeftOutlane,
+        this.sRightInlane,
+        this.sRightOutlane,
+    ];
+
+    sLanes = [
+        ...this.sUpperLanes,
+        ...this.sLowerlanes,
+    ];
+
+    sStandups = [
+        this.sRampMini, this.sRampMiniOuter, this.sSpinnerMini, this.sSidePopMini, this.sUpperPopMini,
+    ];
+
     lastSwitchHit?: Switch;
 
     lRampDown = new Light('lLowerRamp', 0);
@@ -593,6 +609,7 @@ export class Machine extends Tree<MachineOutputs> {
     lPower1 = new Light('lPower1', 0);
     lPower2 = new Light('lPower2', 0);
     lPower3 = new Light('lPower3', 0);
+    lPower4 = new Light('lPower4', 0);
     lPopperStatus = new Light('lPopperStatus', 0);
     lMagnaSaveStatus = new Light('lMagnaSaveStatus', 0);
     lLaneUpper1 = new Light('lLaneUpper1', 0);

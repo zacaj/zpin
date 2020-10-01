@@ -13,6 +13,8 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { Color } from '../light';
 import { MiniPf } from './miniPf';
+import { DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
+import { Bonus } from './bonus';
 
 export class Ball extends Mode {
 
@@ -22,6 +24,16 @@ export class Ball extends Mode {
 
     skillshot?: Skillshot;
     miniPf?: MiniPf;
+    bonus?: Bonus;
+
+    bonusX = 1;
+
+    drops = 0;
+    banks = 0;
+    targets = 0;
+    ramps = 0;
+    spins = 0;
+    lanes = 0;
 
     get children() {
         return [
@@ -29,6 +41,7 @@ export class Ball extends Mode {
             this.skillshot,
             this.miniPf,
             ...this.tempNodes,
+            this.bonus,
         ].truthy();
     }
 
@@ -50,7 +63,19 @@ export class Ball extends Mode {
             this.miniPf.started();
         });
 
-        this.listen(onSwitchClose(machine.sTroughFull), 'end');
+        this.listen(onSwitchClose(machine.sTroughFull), async () => {
+            this.bonus = new Bonus(this);
+            this.bonus.started();
+            await this.await(this.bonus.onEnding);
+            return this.end();
+        });
+
+        this.listen(e => e instanceof DropDownEvent, () => this.drops++);
+        this.listen(e => e instanceof DropBankCompleteEvent, () => this.banks++);
+        this.listen(onSwitchClose(machine.sSpinner), () => this.spins++);
+        this.listen(onSwitchClose(machine.sRampMade), () => this.ramps++);
+        this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
+        this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
     }
 
     static async start(player: Player) {

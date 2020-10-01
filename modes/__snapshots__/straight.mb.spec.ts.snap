@@ -64,9 +64,15 @@ Object {
     "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
-    "lLaneUpper4": Array [],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
+    "lLaneUpper4": Array [
+      "Orange",
+    ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -408,9 +414,15 @@ Object {
               "lLaneUpper1": Array [
                 "Orange",
               ],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
-              "lLaneUpper4": Array [],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
+              "lLaneUpper4": Array [
+                "Orange",
+              ],
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
@@ -435,14 +447,14 @@ Object {
               "focus": "StraightMb74",
               "laneChips": Array [
                 true,
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 41010,
+              "score": 64010,
             },
           },
         ],
@@ -648,9 +660,15 @@ Object {
     "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
-    "lLaneUpper4": Array [],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
+    "lLaneUpper4": Array [
+      "Orange",
+    ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -992,9 +1010,15 @@ Object {
               "lLaneUpper1": Array [
                 "Orange",
               ],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
-              "lLaneUpper4": Array [],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
+              "lLaneUpper4": Array [
+                "Orange",
+              ],
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
@@ -1019,14 +1043,14 @@ Object {
               "focus": "StraightMb152",
               "laneChips": Array [
                 true,
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 40000,
+              "score": 63000,
             },
           },
         ],
@@ -1211,9 +1235,15 @@ Object {
     "lLaneUpper1": Array [
       "Orange",
     ],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
-    "lLaneUpper4": Array [],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
+    "lLaneUpper4": Array [
+      "Orange",
+    ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
     "lMagnaSaveStatus": Array [
@@ -1681,9 +1711,15 @@ Object {
               "lLaneUpper1": Array [
                 "Orange",
               ],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
-              "lLaneUpper4": Array [],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
+              "lLaneUpper4": Array [
+                "Orange",
+              ],
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
@@ -1718,14 +1754,14 @@ Object {
               "focus": "Poker33",
               "laneChips": Array [
                 true,
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 35000,
+              "score": 58000,
             },
           },
         ],
@@ -1905,9 +1941,15 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
-    "lLaneUpper1": Array [],
-    "lLaneUpper2": Array [],
-    "lLaneUpper3": Array [],
+    "lLaneUpper1": Array [
+      "Orange",
+    ],
+    "lLaneUpper2": Array [
+      "Orange",
+    ],
+    "lLaneUpper3": Array [
+      "Orange",
+    ],
     "lLaneUpper4": Array [
       "Orange",
     ],
@@ -2177,7 +2219,7 @@ Object {
                         "debounce": 5,
                         "fake": [Function],
                         "i": 0,
-                        "id": 423,
+                        "id": 428,
                         "initial": 50,
                         "lastActualChange": undefined,
                         "max": 100,
@@ -2196,7 +2238,7 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1177,
+                          "num": 1189,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2204,7 +2246,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnd",
-                          "num": 1178,
+                          "num": 1190,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2212,7 +2254,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnding",
-                          "num": 1179,
+                          "num": 1191,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2220,7 +2262,7 @@ Object {
                         },
                         Object {
                           "callback": "onTargetDown",
-                          "num": 1180,
+                          "num": 1192,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2228,7 +2270,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1181,
+                          "num": 1193,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2237,7 +2279,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1182,
+                          "num": 1194,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2288,10 +2330,10 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 3,
                             "debounce": 5,
-                            "id": 484,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "id": 490,
+                            "lastActualChange": 42605,
+                            "lastPendingChange": 42600,
+                            "lastValChange": 42605,
                             "name": "iCenter1",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2316,10 +2358,10 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 485,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "id": 491,
+                            "lastActualChange": 42605,
+                            "lastPendingChange": 42600,
+                            "lastValChange": 42605,
                             "name": "iCenter2",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2344,10 +2386,10 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 486,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "id": 492,
+                            "lastActualChange": 42605,
+                            "lastPendingChange": 42600,
+                            "lastValChange": 42605,
                             "name": "iCenter3",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2387,9 +2429,15 @@ Object {
             "name": "Player95",
             "ownOuts": Object {
               "lEjectStartMode": Array [],
-              "lLaneUpper1": Array [],
-              "lLaneUpper2": Array [],
-              "lLaneUpper3": Array [],
+              "lLaneUpper1": Array [
+                "Orange",
+              ],
+              "lLaneUpper2": Array [
+                "Orange",
+              ],
+              "lLaneUpper3": Array [
+                "Orange",
+              ],
               "lLaneUpper4": Array [
                 "Orange",
               ],
@@ -2414,15 +2462,15 @@ Object {
               "closeShooter": false,
               "focus": "StraightMb113",
               "laneChips": Array [
-                false,
-                false,
-                false,
+                true,
+                true,
+                true,
                 true,
               ],
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": false,
-              "score": 47040,
+              "score": 70040,
             },
           },
         ],

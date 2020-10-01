@@ -1,0 +1,17 @@
+Thu Oct 01 2020 17:15:04 GMT-0400 (Eastern Daylight Time)
+12:48.340.700 create mode MachineOverrides
+12:48.929.700 create mode Game
+12:48.930.000 create mode Player
+12:48.982.900 create mode PlayerOverrides
+12:49.330.300 create mode Ball
+12:49.801.500 switch 'shooter lane' state -> true (0,0) at 3400 via fake
+12:49.833.700 create mode Poker
+12:50.543.400 create mode Skillshot
+12:54.393.500 force state of shooter lane to off
+12:54.394.400 switch 'shooter lane' state -> false (0,0) at 7993 via force
+12:56.426.100 force state of shooter lower to on
+12:56.427.900 switch 'shooter lower' state -> true (0,2) at 10025 via force
+12:56.691.500 switch 'shooter lower' state -> false (0,2) at 10289 via force
+12:58.792.00 force state of right inlane to on
+12:58.800.00 switch 'right inlane' state -> true (5,0) at 11678 via force
+12:58.370.900 switch 'right inlane' state -> false (5,0) at 11968 via force
