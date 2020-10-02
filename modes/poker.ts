@@ -145,7 +145,7 @@ export class Poker extends Mode {
             }
         });
 
-        this.listen(onSwitchClose(machine.sStartButton), 'snail');
+        this.listen(onSwitchClose(machine.sActionButton), 'snail');
 
 
         addToScreen(() => new PokerGfx(this));
@@ -472,6 +472,7 @@ export class Poker extends Mode {
     }
 
     snail() {
+        if (machine.sShooterLane.state) return;
         if (this.player.chips < 2) return;
         if (this.step <= 2)
             return;

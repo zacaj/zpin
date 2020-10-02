@@ -306,7 +306,7 @@ Object {
                   "upperEject": undefined,
                 },
                 "state": Object {
-                  "bet": 160,
+                  "bet": 100,
                   "closeShooter": false,
                   "dealerCardsUsed": Array [],
                   "dealerHand": Array [
@@ -491,7 +491,7 @@ Object {
               "mbsQualified": Array [],
               "modesQualified": Array [],
               "rampUp": false,
-              "score": 2010,
+              "score": 12010,
             },
           },
         ],
@@ -501,6 +501,7 @@ Object {
         },
         "state": Object {
           "ballNum": 1,
+          "playerUp": 0,
         },
       },
       Object {

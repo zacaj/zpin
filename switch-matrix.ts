@@ -40,6 +40,7 @@ export class Switch {
         public readonly name = `${row},${column}`,
         minOnTime: number[]|number = 1,
         public minOffTime = 1,
+        force = false,
     ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
         if (Array.isArray(minOnTime)) {
@@ -48,9 +49,11 @@ export class Switch {
         } else
             this.minOnTime = minOnTime;
 
-        const m = matrix;
-        assert(!matrix[column][row]);
-        matrix[column][row] = this;
+        if (!force) {
+            const m = matrix;
+            assert(!matrix[column][row]);
+            matrix[column][row] = this;
+        }
     }
 
     async init() {

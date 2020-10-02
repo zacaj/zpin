@@ -119,7 +119,7 @@ describe('poker', () => {
         await finishRecording();
         await passTime(10);
         expect(machine.cShooterDiverter.val).toBe(false);
-        await passTime(5000);
+        await passTime(20000);
         expect(machine.cShooterDiverter.val).toBe(true);
         snapshot();
     });

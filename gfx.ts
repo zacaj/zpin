@@ -4,7 +4,7 @@ import { initMachine } from './init';
 import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
 import { Color, colorToHex, LightState, normalizeLight } from './light';
 import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
-import { Events, Priorities } from './events';
+import { Event, EventListener, Events, Priorities } from './events';
 import { assert, num, tryNum, getCallerLoc } from './util';
 // import { Game } from './game';
 // import { MPU } from './mpu';
@@ -13,6 +13,7 @@ import { wait, Timer, time } from './timer';
 import { fork } from './promises';
 import { onChange } from './state';
 import { Mode } from './mode';
+import { TreeChangeEvent } from './tree';
 
 export let gfx: AminoGfx;
 let screenW: number;
@@ -553,10 +554,19 @@ export function makeImage(name: string, w: number, h: number, flip = true): Imag
 }
 
 export class ModeGroup extends Group {
+    listener!: EventListener;
+
     constructor(
         public mode: Mode,
     ) {
         super(gfx);
+
+        this.listener = Events.listen(() => this.visible(machine.getChildren().includes(mode)), e => e instanceof TreeChangeEvent);
+        Events.listen(() => {
+            this.parent?.remove(this);
+            Events.cancel(this.listener);
+            return 'remove';
+        }, mode.onEnd());
     }
 }
 

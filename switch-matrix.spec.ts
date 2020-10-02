@@ -6,7 +6,7 @@ import { Tree } from './tree';
 
 describe('switch-matrix', () => {
     test('switch triggers output change', () => {
-        const sw = new Switch(0, 15);
+        const sw = new Switch(0, 15, 'temp', 1, 1, true);
         const obj = new class extends Tree<{rampUp: boolean}> {
             constructor() {
                 super();

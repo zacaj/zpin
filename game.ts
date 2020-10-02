@@ -29,6 +29,7 @@ export class Game extends Mode {
         return this.players[this.playerUp];
     }
     ballNum = 1;
+    ballCount = 3;
 
     get ball() {
         return this.curPlayer.ball;
@@ -38,7 +39,7 @@ export class Game extends Mode {
     private constructor() {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
-        State.declare<Game>(this, ['ballNum']);
+        State.declare<Game>(this, ['ballNum', 'playerUp']);
 
         this.out = new Outputs(this, {
             kickerEnable: true,
@@ -46,6 +47,7 @@ export class Game extends Mode {
             // upperMagnet: () => machine.sShooterUpper.wasClosedWithin(5000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
+        this.listen(onSwitchClose(machine.sStartButton), 'addPlayer');
         
 
         // this.listen(onSwitchClose(machine.sLeftInlane),
@@ -63,7 +65,7 @@ export class Game extends Mode {
         else {
             this.playerUp = 0;
             this.ballNum++;
-            if (this.ballNum > 3) {
+            if (this.ballNum > this.ballCount) {
                 alert('GAME OVER', 5000);
             //     if (require.main === module) {
             //         debugger;
@@ -73,6 +75,7 @@ export class Game extends Mode {
             //         this.end();
             }
         }
+        Log.log('console', 'player %i starting ball %i', this.curPlayer.number, this.ballNum);
         Events.fire(new TreeChangeEvent(this));
         await this.curPlayer.startBall();
     }
@@ -84,6 +87,12 @@ export class Game extends Mode {
         game.curPlayer.started();
         await game.curPlayer.startBall();
         return game;
+    }
+
+    addPlayer() {
+        if (!machine.sShooterLane.state || this.ballNum > 1) return;
+        this.players.push(new Player(this, this.players.length+1));
+        alert(`PLAYER ${this.players.length} ADDED`);
     }
 
     scores = new Map<Switch, number>([

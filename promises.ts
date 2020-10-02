@@ -54,8 +54,8 @@ export async function settleForks() {
         await new Promise(r => r());
         const newForks = [...forks];
         if (eq(oldForks, newForks)) {
-            // if (!settlesLeft--) 
-            break;
+            if (!settlesLeft--) 
+                break;
         }
         times++;
 

@@ -464,6 +464,7 @@ Object {
         },
         "state": Object {
           "ballNum": 1,
+          "playerUp": 0,
         },
       },
       Object {
@@ -1060,6 +1061,7 @@ Object {
         },
         "state": Object {
           "ballNum": 1,
+          "playerUp": 0,
         },
       },
       Object {
@@ -1771,6 +1773,7 @@ Object {
         },
         "state": Object {
           "ballNum": 1,
+          "playerUp": 0,
         },
       },
       Object {
@@ -2238,7 +2241,7 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1189,
+                          "num": 1204,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2246,7 +2249,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnd",
-                          "num": 1190,
+                          "num": 1205,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2254,7 +2257,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnding",
-                          "num": 1191,
+                          "num": 1206,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2262,7 +2265,7 @@ Object {
                         },
                         Object {
                           "callback": "onTargetDown",
-                          "num": 1192,
+                          "num": 1207,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2270,7 +2273,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1193,
+                          "num": 1208,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2279,7 +2282,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1194,
+                          "num": 1209,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2331,9 +2334,9 @@ Object {
                             "changeAttempts": 3,
                             "debounce": 5,
                             "id": 490,
-                            "lastActualChange": 42605,
-                            "lastPendingChange": 42600,
-                            "lastValChange": 42605,
+                            "lastActualChange": 42600,
+                            "lastPendingChange": 42595,
+                            "lastValChange": 42600,
                             "name": "iCenter1",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2359,9 +2362,9 @@ Object {
                             "changeAttempts": 4,
                             "debounce": 5,
                             "id": 491,
-                            "lastActualChange": 42605,
-                            "lastPendingChange": 42600,
-                            "lastValChange": 42605,
+                            "lastActualChange": 42600,
+                            "lastPendingChange": 42595,
+                            "lastValChange": 42600,
                             "name": "iCenter2",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2387,9 +2390,9 @@ Object {
                             "changeAttempts": 4,
                             "debounce": 5,
                             "id": 492,
-                            "lastActualChange": 42605,
-                            "lastPendingChange": 42600,
-                            "lastValChange": 42605,
+                            "lastActualChange": 42600,
+                            "lastPendingChange": 42595,
+                            "lastValChange": 42600,
                             "name": "iCenter3",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2480,6 +2483,7 @@ Object {
         },
         "state": Object {
           "ballNum": 1,
+          "playerUp": 0,
         },
       },
       Object {
