@@ -63,12 +63,16 @@ export abstract class Multiball extends Mode {
         return 'remove';
     }
 
+    async lastBallDrained() {
+        return this.end();
+    }
+
     ballDrained() {
         this.balls--;
         Log.log('game', 'lost ball from multiball, now at %i balls', this.balls);
         if (this.balls <= 1) {
             Log.log('game', 'multiball over');
-            return this.end();
+            return this.lastBallDrained();
         }
 
         return undefined;

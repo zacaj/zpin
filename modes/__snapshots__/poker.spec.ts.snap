@@ -20,13 +20,27 @@ Object {
     "iRight3": "JS",
     "iRight4": "5D",
     "iRight5": "6S",
-    "iSS1": "",
-    "iSS2": "",
-    "iSS3": "",
-    "iSS4": "",
-    "iSS5": "",
-    "iSS6": "",
-    "iSS7": "",
+    "iSS1": Object {
+      "fill": [Function],
+    },
+    "iSS2": Object {
+      "fill": [Function],
+    },
+    "iSS3": Object {
+      "fill": [Function],
+    },
+    "iSS4": Object {
+      "fill": [Function],
+    },
+    "iSS5": Object {
+      "fill": [Function],
+    },
+    "iSS6": Object {
+      "fill": [Function],
+    },
+    "iSS7": Object {
+      "fill": [Function],
+    },
     "iSpinner": "",
     "iUpper21": "JH",
     "iUpper22": "7C",
@@ -104,7 +118,7 @@ Object {
     "right4": false,
     "right5": false,
     "rightBank": false,
-    "rightGate": true,
+    "rightGate": false,
     "shooterDiverter": true,
     "troughRelease": false,
     "upper2": false,

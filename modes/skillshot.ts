@@ -81,9 +81,11 @@ export class Skillshot extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftInlane), () => this.made(5));
 
         this.listen<SwitchEvent>([
-            ...onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
+            ...onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
         ], 'finish');
+
+        this.listen(onSwitchClose(machine.sOuthole), 'end');
 
         this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
         this.listen([...onSwitchClose(machine.sLeftFlipper), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));

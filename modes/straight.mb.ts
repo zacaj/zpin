@@ -124,10 +124,13 @@ export class StraightMb extends Multiball {
         }
     }
 
-    end() {
-        const ret = super.end();
+    async lastBallDrained() {
+        if (this.state._==='starting') {
+            await this.releaseBallsFromLock();
+        }
+        const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(Math.max(15 - this.drops * 4, 6), () => {
+            this.player.noMode?.addTemp(new Restart(Math.max(20 - this.drops * 4, 6), () => {
                 return StraightMb.start(this.player, true, this.lastBank);
             }));
         }

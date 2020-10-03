@@ -20,13 +20,27 @@ Object {
     "iRight3": "yellowArrow",
     "iRight4": "yellowArrow",
     "iRight5": "yellowArrow",
-    "iSS1": "",
-    "iSS2": "",
-    "iSS3": "",
-    "iSS4": "",
-    "iSS5": "",
-    "iSS6": "",
-    "iSS7": "",
+    "iSS1": Object {
+      "fill": [Function],
+    },
+    "iSS2": Object {
+      "fill": [Function],
+    },
+    "iSS3": Object {
+      "fill": [Function],
+    },
+    "iSS4": Object {
+      "fill": [Function],
+    },
+    "iSS5": Object {
+      "fill": [Function],
+    },
+    "iSS6": Object {
+      "fill": [Function],
+    },
+    "iSS7": Object {
+      "fill": [Function],
+    },
     "iSpinner": "",
     "iUpper21": "orangeArrow",
     "iUpper22": "orangeArrow",
@@ -119,7 +133,7 @@ Object {
     "right4": false,
     "right5": false,
     "rightBank": false,
-    "rightGate": true,
+    "rightGate": false,
     "shooterDiverter": false,
     "troughRelease": false,
     "upper2": false,
@@ -620,13 +634,27 @@ Object {
     "iRight3": "yellowArrow",
     "iRight4": "yellowArrow",
     "iRight5": "yellowArrow",
-    "iSS1": "",
-    "iSS2": "",
-    "iSS3": "",
-    "iSS4": "",
-    "iSS5": "",
-    "iSS6": "",
-    "iSS7": "",
+    "iSS1": Object {
+      "fill": [Function],
+    },
+    "iSS2": Object {
+      "fill": [Function],
+    },
+    "iSS3": Object {
+      "fill": [Function],
+    },
+    "iSS4": Object {
+      "fill": [Function],
+    },
+    "iSS5": Object {
+      "fill": [Function],
+    },
+    "iSS6": Object {
+      "fill": [Function],
+    },
+    "iSS7": Object {
+      "fill": [Function],
+    },
     "iSpinner": "",
     "iUpper21": "orangeArrow",
     "iUpper22": "orangeArrow",
@@ -719,8 +747,8 @@ Object {
     "right4": false,
     "right5": false,
     "rightBank": false,
-    "rightGate": true,
-    "shooterDiverter": false,
+    "rightGate": false,
+    "shooterDiverter": true,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -2250,14 +2278,6 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1204,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnd",
                           "num": 1205,
                           "predicates": Array [
                             [Function],
@@ -2265,7 +2285,7 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": "onEnding",
+                          "callback": "onEnd",
                           "num": 1206,
                           "predicates": Array [
                             [Function],
@@ -2273,7 +2293,7 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": "onTargetDown",
+                          "callback": "onEnding",
                           "num": 1207,
                           "predicates": Array [
                             [Function],
@@ -2281,8 +2301,16 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": [Function],
+                          "callback": "onTargetDown",
                           "num": 1208,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": [Function],
+                          "num": 1209,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2291,7 +2319,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1209,
+                          "num": 1210,
                           "predicates": Array [
                             [Function],
                           ],
