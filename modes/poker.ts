@@ -45,6 +45,7 @@ export class Poker extends Mode {
     cardRng!: Rng;
     skillshotRng!: Rng;
     handsWon = 0;
+    handsPlayed = 0;
     handsForMb = 2;
 
     newModes = new Set<number>();
@@ -57,7 +58,7 @@ export class Poker extends Mode {
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb']);
+        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed']);
         this.deal();
 
         const outs: any  = {};
@@ -271,19 +272,20 @@ export class Poker extends Mode {
         Log.info('game', 'poker results: %o', result);
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
+        this.handsPlayed++;
         if (this.playerWins) {
             this.bank += this.pot;
             this.handsWon++;
-            if (this.handsWon >= this.handsForMb) {
-                this.handsForMb += 3;
-                    
-                if (!this.player.mbsQualified.size) {
-                // if (!this.player.mbsQualified.has('HandsMb')) {
-                    Log.info('game', 'qualified hands multiball');
-                    gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
-                }
-                this.player.mbsQualified.set('HandsMb', result.aCards);
+        }
+        if (this.handsPlayed >= this.handsForMb) {
+            this.handsForMb += 3;
+                
+            if (!this.player.mbsQualified.size) {
+            // if (!this.player.mbsQualified.has('HandsMb')) {
+                Log.info('game', 'qualified hands multiball');
+                gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
             }
+            this.player.mbsQualified.set('HandsMb', result.aCards);
         }
         
         await gWait(5000, 'showing cards');

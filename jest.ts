@@ -57,7 +57,8 @@ const statify = (tree: Tree<any>): {name: string; state: any; children: any} => 
     obj.name = tree.name+tree.num;
     obj._name = tree.name+tree.num;
     obj.state = objectMap(state?.data??{}, val => (val as any)?.$isProxy? 
-            ((val as any).constructor.name==='Object'? clone(val) : [...(val as any).original]) : (val instanceof Tree? val.name+val.num : val));
+            ((val as any).constructor.name==='Object'? clone(val) : [...(val as any).original].map(val => (val instanceof Tree? val.name+val.num : val))) 
+            : (val instanceof Tree? val.name+val.num : val));
     obj.children = tree.children.map(statify);
     obj.ownOuts = tree.out?.ownValues;
     

@@ -552,6 +552,9 @@ Object {
         "state": Object {
           "ballNum": 1,
           "playerUp": 0,
+          "players": Array [
+            "Player74",
+          ],
         },
       },
       Object {
@@ -1285,6 +1288,9 @@ Object {
         "state": Object {
           "ballNum": 1,
           "playerUp": 0,
+          "players": Array [
+            "Player113",
+          ],
         },
       },
       Object {

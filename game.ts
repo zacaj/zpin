@@ -20,10 +20,10 @@ import { Tree, TreeChangeEvent } from './tree';
 
 export class Game extends Mode {
     get children() {
-        return [this.curPlayer, ...this.tempNodes];
+        return [this.curPlayer, ...this.tempNodes].truthy();
     }
 
-    players = [new Player(this, 1)];
+    players: Player[] = [];
     playerUp = 0;
     get curPlayer(): Player {
         return this.players[this.playerUp];
@@ -39,7 +39,7 @@ export class Game extends Mode {
     private constructor() {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
-        State.declare<Game>(this, ['ballNum', 'playerUp']);
+        State.declare<Game>(this, ['ballNum', 'playerUp', 'players']);
 
         this.out = new Outputs(this, {
             kickerEnable: true,
@@ -84,6 +84,7 @@ export class Game extends Mode {
         const game = new Game();
         machine.game = game;
         game.started();
+        game.players.push(new Player(game, 1));
         game.curPlayer.started();
         await game.curPlayer.startBall();
         return game;

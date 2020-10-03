@@ -502,6 +502,9 @@ Object {
         "state": Object {
           "ballNum": 1,
           "playerUp": 0,
+          "players": Array [
+            "Player20",
+          ],
         },
       },
       Object {
