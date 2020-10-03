@@ -354,6 +354,11 @@ export function comma(value: number, minWidth = 0): string {
     return commad.padStart(minWidth, ' ');
 }
 
+export function money(value: number, minWidth = 0): string {
+    const s = comma(value, 0);
+    return ((s.startsWith('-')? '-':'')+'$'+(s.startsWith('-')? s.slice(1):s)).padStart(minWidth, ' ');
+}
+
 export function score(value: number, minWidth = 0): string {
     return comma(value, minWidth).trim().padStart(2, '0').padStart(minWidth, ' ');
 }

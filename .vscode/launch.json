@@ -57,15 +57,20 @@
 			"program": "${workspaceFolder}/game.ts",
 			"console": "integratedTerminal",
 			"outFiles": [
-				"${workspaceFolder}/build/*.js"
+				"${workspaceFolder}/build/**/*.js"
 			],
+			"sourceMaps": true,
 			"args": [
                 "zpin/",
                 "--no-mpu",
                 // "--no-trace",
                 // "--no-gfx",
                 "--ip",
-                "192.168.2.41",
+				"192.168.2.41",
+				// "--recording","recordings/straightMbStarting.rec",
+				// "--recording","recordings/lightStraight.rec",
+				// "--recording","recordings/2ndWinReady.rec",
+				// "--recording","recordings/ballStarted.rec",
             ],
             // "runtimeArgs": [ "--prof"]
         },

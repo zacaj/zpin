@@ -100,6 +100,7 @@ export class Skillshot extends Mode {
         skillshot.finishDisplay = finish;
         assert(!ball.skillshot);
         ball.skillshot = skillshot;
+        skillshot.started();
         return skillshot;
     }
 

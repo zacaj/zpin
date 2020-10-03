@@ -305,8 +305,7 @@ class Spinner extends Tree<MachineOutputs> {
 
         this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
 
-        this.watch(onChange(this, 'score'), () => this.updateDisplay());
-        this.watch(onChange(this, 'comboMult'), () => this.updateDisplay());
+        this.watch(() => this.updateDisplay());
 
         this.listen(e => e instanceof DropDownEvent, () => this.calcScore());
         this.listen(e => e instanceof DropBankResetEvent, () => this.calcScore());
@@ -324,7 +323,7 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     calcScore() {
-        const down = [3, 2, 1].map(num => ([num, machine.dropBanks.filter(bank => bank.targets.filter(t => t.state).length === num).length]));
+        const down = [4, 3, 2, 1].map(num => ([num, machine.dropBanks.filter(bank => bank.targets.filter(t => t.state).length === num).length]));
         const countValue = [0, 100, 400, 1000, 3000, 6000, 20000];
         const best = down.find(([n, c]) => c > 0);
         if (best)

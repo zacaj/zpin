@@ -13,7 +13,7 @@ import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
-import { comma, seq, range, repeat } from '../util';
+import { comma, seq, range, repeat, money } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
@@ -283,7 +283,7 @@ export class Poker extends Mode {
             if (!this.player.mbsQualified.size) {
             // if (!this.player.mbsQualified.has('HandsMb')) {
                 Log.info('game', 'qualified hands multiball');
-                gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsWon} hands won`));
+                void gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsPlayed} hands played`));
             }
             this.player.mbsQualified.set('HandsMb', result.aCards);
         }
@@ -467,7 +467,7 @@ export class Poker extends Mode {
             const value = base * this.skillshotRng.weightedRange(...mults[i] as any);
             return {
                 switch: sw,
-                display: comma(value),
+                display: money(value),
                 collect: () => this.bet += value,
             };
         }), { award: 'plunge to choose bet amount'}];

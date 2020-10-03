@@ -167,7 +167,7 @@ export class Outputs<Outs extends {}> {
             const diff = affectors.filter(([v]) => !eq(v, baseValue));
             if (diff.length === 0) continue;
             const value = affectors[0]![0];
-            Log.log('console', '%s set to %j by %s', key, value, 
+            Log.log('console', `%s set to %j by ${typeof value === 'object'? '%j':'%s'}`, key, value, 
                 typeof value === 'object'? affectors.map(([v, _, tree]) => ([v, tree!.name+tree!.num]))
                 : JSON.stringify(affectors.map(([v, _, tree]) => ([v, tree!.name+tree!.num]))));
         }

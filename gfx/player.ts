@@ -2,7 +2,7 @@ import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
 import { gfx, makeImage, Screen, Image, makeText, ModeGroup } from '../gfx';
 import { onChange } from '../state';
-import { tryNum, comma, score } from '../util';
+import { tryNum, comma, score, money } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
 import { Player } from '../modes/player';
@@ -43,7 +43,7 @@ export class PlayerGfx extends ModeGroup {
         player.watch(() => this.score.text(comma(player.score)));
 
         this.pokerOrNo.add(this.bank);
-        player.watch(() => this.bank.text('Bank: '+comma(player.store.Poker?.bank ?? 0)));
+        player.watch(() => this.bank.text(''+money(player.store.Poker?.bank ?? 0)));
 
         this.pokerOrNo.add(this.handsLeft);
         player.watch(() => {
