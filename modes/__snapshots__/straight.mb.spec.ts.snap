@@ -238,13 +238,8 @@ Object {
                   },
                 ],
                 "name": "Ball61",
-                "ownOuts": Object {
-                  "lMiniReady": Array [
-                    "Red",
-                  ],
-                },
+                "ownOuts": Object {},
                 "state": Object {
-                  "miniReady": false,
                   "skillshot": undefined,
                 },
               },
@@ -353,6 +348,9 @@ Object {
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
+              "lMiniReady": Array [
+                "Red",
+              ],
               "lPopperStatus": Array [
                 "Green",
               ],
@@ -379,6 +377,7 @@ Object {
                 true,
               ],
               "mbsQualified": Array [],
+              "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
               "score": 64010,
@@ -817,13 +816,8 @@ Object {
                   },
                 ],
                 "name": "Ball140",
-                "ownOuts": Object {
-                  "lMiniReady": Array [
-                    "Red",
-                  ],
-                },
+                "ownOuts": Object {},
                 "state": Object {
-                  "miniReady": false,
                   "skillshot": "Skillshot154",
                 },
               },
@@ -932,6 +926,9 @@ Object {
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
+              "lMiniReady": Array [
+                "Red",
+              ],
               "lPopperStatus": Array [
                 "Green",
               ],
@@ -958,6 +955,7 @@ Object {
                 true,
               ],
               "mbsQualified": Array [],
+              "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
               "score": 63000,
@@ -1357,13 +1355,8 @@ Object {
                   },
                 ],
                 "name": "Ball25",
-                "ownOuts": Object {
-                  "lMiniReady": Array [
-                    "Red",
-                  ],
-                },
+                "ownOuts": Object {},
                 "state": Object {
-                  "miniReady": false,
                   "skillshot": undefined,
                 },
               },
@@ -1638,6 +1631,9 @@ Object {
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
+              "lMiniReady": Array [
+                "Red",
+              ],
               "lPopperStatus": Array [
                 "Green",
               ],
@@ -1674,6 +1670,7 @@ Object {
                 true,
               ],
               "mbsQualified": Array [],
+              "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
               "score": 58000,
@@ -2053,13 +2050,8 @@ Object {
                   },
                 ],
                 "name": "Ball100",
-                "ownOuts": Object {
-                  "lMiniReady": Array [
-                    "Red",
-                  ],
-                },
+                "ownOuts": Object {},
                 "state": Object {
-                  "miniReady": false,
                   "skillshot": undefined,
                 },
               },
@@ -2363,6 +2355,9 @@ Object {
               "lMagnaSaveStatus": Array [
                 "Red",
               ],
+              "lMiniReady": Array [
+                "Red",
+              ],
               "lPopperStatus": Array [
                 "Red",
               ],
@@ -2387,6 +2382,7 @@ Object {
                 true,
               ],
               "mbsQualified": Array [],
+              "miniReady": false,
               "modesQualified": Array [],
               "rampUp": false,
               "score": 70040,

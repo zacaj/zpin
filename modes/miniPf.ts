@@ -16,7 +16,7 @@ export class MiniPf extends Mode {
             miniDiverter: () => this.waitingForSwitch,
             miniFlipperEnable: true,
         });
-        ball.miniReady = false;
+        ball.player.miniReady = false;
 
         this.listen(onAnyPfSwitchExcept(...machine.miniBank.switches), 'end');
 

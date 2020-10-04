@@ -26,6 +26,7 @@ import { Restart } from './restart';
 export class Player extends Mode {
     chips = 1;
     score = 0;
+    miniReady = false;
 
     laneChips = [true, true, true, true];
     
@@ -93,7 +94,7 @@ export class Player extends Mode {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player>(this, ['miniReady', 'rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
@@ -112,6 +113,7 @@ export class Player extends Mode {
             lLaneUpper2: () => light(this.laneChips[1], Color.Orange),
             lLaneUpper3: () => light(this.laneChips[2], Color.Orange),
             lLaneUpper4: () => light(this.laneChips[3], Color.Orange),
+            lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
         });
         
 
@@ -156,7 +158,7 @@ export class Player extends Mode {
             });
         // award chips on bank complete
         this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
-            this.ball!.miniReady = true;
+            this.miniReady = true;
             for (let i=0; i<e.bank.targets.length; i++)
                 this.addChip();
         });
@@ -271,7 +273,7 @@ class Spinner extends Tree<MachineOutputs> {
     rounds = 0;
     maxRounds = 1;
 
-    display = gfx? makeText('10  ', 70, 'corner').rz(90).x(80).y(160).sy(-1) : undefined;
+    display = gfx? makeText('10  ', 50, 'corner').rz(90).x(80).y(160).sy(-1) : undefined;
 
     constructor(
         public player: Player,
@@ -319,7 +321,7 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     updateDisplay() {
-        this.display?.text(`${this.score} ${this.comboMult>1? `x${this.comboMult}` : '  '}`);
+        this.display?.text(`${this.score}${this.comboMult>1? `*${this.comboMult}` : '  '}`);
     }
 
     calcScore() {

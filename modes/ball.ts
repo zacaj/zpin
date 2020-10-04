@@ -18,8 +18,6 @@ import { Bonus } from './bonus';
 
 export class Ball extends Mode {
 
-    miniReady = false;
-
     resetDrops = new ResetAnyDropOnComplete();
 
     skillshot?: Skillshot;
@@ -49,9 +47,8 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['miniReady', 'skillshot']);
+        State.declare<Ball>(this, ['skillshot']);
         this.out = new Outputs(this, {
-            lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
         });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {

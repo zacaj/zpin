@@ -251,13 +251,8 @@ Object {
                   },
                 ],
                 "name": "Ball34",
-                "ownOuts": Object {
-                  "lMiniReady": Array [
-                    "Red",
-                  ],
-                },
+                "ownOuts": Object {},
                 "state": Object {
-                  "miniReady": false,
                   "skillshot": undefined,
                 },
               },
@@ -532,6 +527,9 @@ Object {
               "lMagnaSaveStatus": Array [
                 "Green",
               ],
+              "lMiniReady": Array [
+                "Red",
+              ],
               "lPopperStatus": Array [
                 "Green",
               ],
@@ -568,6 +566,7 @@ Object {
                 true,
               ],
               "mbsQualified": Array [],
+              "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
               "score": 58000,
