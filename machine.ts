@@ -1,6 +1,6 @@
 import { State, StateEvent } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup, Hole, onSwitch } from './switch-matrix';
+import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup, Hole, onSwitch, SwitchEvent } from './switch-matrix';
 import { Events, Event, EventTypePredicate, EventListener, onAny } from './events';
 import { Mode, Modes } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
@@ -314,8 +314,8 @@ export type SkillshotAward = {
     switch: string;
     award: string;
     display?: string|Node;
-    collect?: () => void; // always called for given switch
-    made: () => void; // if selected skillshot was made
+    collect?: (e: SwitchEvent) => void; // always called for given switch
+    made: (e: SwitchEvent) => void; // if selected skillshot was made
     select?: (selected: boolean, disp: Node, a: SkillshotAward) => void;
 };
 

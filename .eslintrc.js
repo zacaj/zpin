@@ -68,7 +68,7 @@ module.exports = {
     "no-unreachable": off,
     "array-callback-return": on,
     "complexity": on,
-    "consistent-return": on,
+    "consistent-return": off,
     "default-param-last": off,
     "eqeqeq": on,
     "no-invalid-this": off,

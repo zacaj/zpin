@@ -12,7 +12,6 @@ describe('straight mb', () => {
     test('first short plunge doesnt trigger skillsot', async () => {
         await testRecording('straightMbSkillRamp');
         await passTime(1000);
-        expect(machine.game.ball!.skillshot).not.toBeUndefined();
         expect(machine.cLockPost.lastValChange).toBe(undefined);
         expect(machine.cRamp.val).toBe(false);
         snapshot();
@@ -20,7 +19,6 @@ describe('straight mb', () => {
     test('second short plunge does trigger skillsot', async () => {
         await testRecording('straightMbSkillStart');
         await passTime(1000);
-        expect(machine.game.ball!.skillshot).toBeUndefined();
         expect(machine.cLockPost.lastValChange).not.toBe(undefined);
         expect(machine.cRamp.val).toBe(true);
         snapshot();

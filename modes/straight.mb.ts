@@ -7,7 +7,7 @@ import { machine, SkillshotAward } from '../machine';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { AnimParams } from 'aminogfx-gl';
-import { onSwitchClose } from '../switch-matrix';
+import { onAnyPfSwitchExcept, onSwitchClose, SwitchEvent } from '../switch-matrix';
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
@@ -18,7 +18,10 @@ import { Card } from './poker';
 import { Restart } from './restart';
 
 
-const Starting = makeState('starting', { secondBallLocked: false});
+const Starting = makeState('starting', { 
+    secondBallLocked: false,
+    addABallReady: false,
+});
 const BankLit = makeState('bankLit', (curBank: DropBank) => ({ curBank}));
 const JackpotLit = makeState('jackpotLit', { awardingJp: 0});
 
@@ -71,21 +74,24 @@ export class StraightMb extends Multiball {
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => this.state._==='bankLit' || this.state._==='starting' && this.state.secondBallLocked,
+            rampUp: () => this.state._==='bankLit' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => light(this.state._ === 'jackpotLit', Color.Red),
+            lRampArrow: () => this.state._ === 'jackpotLit'? Color.Red :
+                (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             getSkillshot: () => () => this.getSkillshot(),
-            ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
+            // ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
+                this.state.addABallReady = false;
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
-            return this.jackpot();
+            else
+                return this.jackpot();
         });
 
         this.listen<DropBankCompleteEvent>([
@@ -126,7 +132,7 @@ export class StraightMb extends Multiball {
 
     async lastBallDrained() {
         if (this.state._==='starting') {
-            await this.releaseBallsFromLock();
+            fork(this.releaseBallsFromLock());
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
@@ -181,34 +187,46 @@ export class StraightMb extends Multiball {
         const selections: (string|DropBank)[] = [
             'random', 
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [2, machine.centerBank], [2, machine.rightBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank], [2, machine.rightBank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank]),
         ];
         const verb = this.isRestarted? repeat('ADD 50K TO', 6) : [
-            'ADD 50K TO',
-            'DOUBLE',
-            'DOUBLE',
-            '1.5X',
-            'TRIPLE',
-            'ADD 500K TO',
+            this.state._==='starting'&&this.state.secondBallLocked? 'ADD 50K TO' : 'ONE-SHOT ADD-A-BALL',
+            'DOUBLE JACKPOT VALUE',
+            'DOUBLE JACKPOT VALUE',
+            '1.5X JACKPOT VALUE',
+            'TRIPLE JACKPOT VALUE',
+            'ADD 500K TO JACKPOT VALUE',
         ];
 
         return [...switches.map((sw, i) => {
             return {
                 switch: sw,
-                award: verb[i]+' Jackpot',
+                award: verb[i],
                 display: typeof selections[i] === 'string'? selections[i] as string
                     : gfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
                 collect: () => {
+                    if (this.state._==='starting' && this.state.addABallReady) return;
                     this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank));
                     fork(this.releaseBallsFromLock());
                 },
-                made: () => {
+                made: (e: SwitchEvent) => {
                     switch (verb[i]) {
-                        case 'ADD 50K TO': this.value += 50000; break;
+                        case 'ONE-SHOT ADD-A-BALL': 
+                            if (this.state._==='starting') {
+                                this.state.addABallReady = true; 
+                                this.listen(onAnyPfSwitchExcept(machine.sRampMade), (ev) => {
+                                    if (e === ev) return;
+                                    this.selectBank(undefined);
+                                    fork(this.releaseBallsFromLock());
+                                    return 'remove';
+                                });
+                            }
+                            break;
                         case 'ADD 500K TO': this.value += 500000; break;
+                        case 'ADD 50K TO': this.value += 50000; break;
                         case 'DOUBLE': this.value *= 2; break;
                         case 'TRIPLE': this.value *= 3; break;
                         case '1.5X': this.value *= 1.5; break;

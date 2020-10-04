@@ -20,57 +20,20 @@ Object {
     "iRight3": "yellowArrow",
     "iRight4": "yellowArrow",
     "iRight5": "yellowArrow",
-    "iSS1": Object {
-      "fill": [Function],
-    },
-    "iSS2": Object {
-      "fill": [Function],
-    },
-    "iSS3": Object {
-      "fill": [Function],
-    },
-    "iSS4": Object {
-      "fill": [Function],
-    },
-    "iSS5": Object {
-      "fill": [Function],
-    },
-    "iSS6": Object {
-      "fill": [Function],
-    },
-    "iSS7": Object {
-      "fill": [Function],
-    },
+    "iSS1": "",
+    "iSS2": "",
+    "iSS3": "",
+    "iSS4": "",
+    "iSS5": "",
+    "iSS6": "",
+    "iSS7": "",
     "iSpinner": "",
     "iUpper21": "orangeArrow",
     "iUpper22": "orangeArrow",
     "iUpper31": "blueArrow",
     "iUpper32": "blueArrow",
     "iUpper33": "blueArrow",
-    "ignoreSkillsot": Set {
-      Switch {
-        "_state": false,
-        "column": 0,
-        "lastChange": 53612,
-        "lastClosed": 48957,
-        "lastOpened": 53612,
-        "minOffTime": 10,
-        "minOnTime": 1,
-        "name": "ramp made",
-        "row": 7,
-      },
-      Switch {
-        "_state": false,
-        "column": 5,
-        "lastChange": 104642,
-        "lastClosed": 104317,
-        "lastOpened": 104642,
-        "minOffTime": 10,
-        "minOnTime": 1,
-        "name": "right inlane",
-        "row": 0,
-      },
-    },
+    "ignoreSkillsot": Set {},
     "kickerEnable": true,
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
@@ -103,7 +66,12 @@ Object {
     "lPower2": Array [],
     "lPower3": Array [],
     "lPower4": Array [],
-    "lRampArrow": Array [],
+    "lRampArrow": Array [
+      Array [
+        "Green",
+        "fl",
+      ],
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -133,7 +101,7 @@ Object {
     "right4": false,
     "right5": false,
     "rightBank": false,
-    "rightGate": false,
+    "rightGate": true,
     "shooterDiverter": false,
     "troughRelease": false,
     "upper2": false,
@@ -268,44 +236,6 @@ Object {
                     "ownOuts": undefined,
                     "state": Object {},
                   },
-                  Object {
-                    "_name": "Skillshot75",
-                    "children": Array [],
-                    "name": "Skillshot75",
-                    "ownOuts": Object {
-                      "iSS1": Object {
-                        "fill": [Function],
-                      },
-                      "iSS2": Object {
-                        "fill": [Function],
-                      },
-                      "iSS3": Object {
-                        "fill": [Function],
-                      },
-                      "iSS4": Object {
-                        "fill": [Function],
-                      },
-                      "iSS5": Object {
-                        "fill": [Function],
-                      },
-                      "iSS6": Object {
-                        "fill": [Function],
-                      },
-                      "iSS7": Object {
-                        "fill": [Function],
-                      },
-                      "iSS8": Object {
-                        "fill": [Function],
-                      },
-                      "rightGate": false,
-                      "shooterDiverter": false,
-                      "upperMagnet": undefined,
-                    },
-                    "state": Object {
-                      "curAward": 0,
-                      "shooterOpen": false,
-                    },
-                  },
                 ],
                 "name": "Ball61",
                 "ownOuts": Object {
@@ -370,32 +300,13 @@ Object {
                   "iUpper31": "blueArrow",
                   "iUpper32": "blueArrow",
                   "iUpper33": "blueArrow",
-                  "ignoreSkillsot": Set {
-                    Switch {
-                      "_state": false,
-                      "column": 0,
-                      "lastChange": 53612,
-                      "lastClosed": 48957,
-                      "lastOpened": 53612,
-                      "minOffTime": 10,
-                      "minOnTime": 1,
-                      "name": "ramp made",
-                      "row": 7,
-                    },
-                    Switch {
-                      "_state": false,
-                      "column": 5,
-                      "lastChange": 104642,
-                      "lastClosed": 104317,
-                      "lastOpened": 104642,
-                      "minOffTime": 10,
-                      "minOnTime": 1,
-                      "name": "right inlane",
-                      "row": 0,
-                    },
-                  },
                   "lMiniReady": Array [],
-                  "lRampArrow": Array [],
+                  "lRampArrow": Array [
+                    Array [
+                      "Green",
+                      "fl",
+                    ],
+                  ],
                   "lockPost": false,
                   "miniDiverter": false,
                   "rampUp": false,
@@ -405,6 +316,7 @@ Object {
                   "lockPost": false,
                   "state": Object {
                     "_": "starting",
+                    "addABallReady": true,
                     "secondBallLocked": false,
                     "starting": true,
                   },
@@ -661,30 +573,7 @@ Object {
     "iUpper31": "blueArrow",
     "iUpper32": "blueArrow",
     "iUpper33": "blueArrow",
-    "ignoreSkillsot": Set {
-      Switch {
-        "_state": false,
-        "column": 0,
-        "lastChange": 53612,
-        "lastClosed": 48957,
-        "lastOpened": 53612,
-        "minOffTime": 10,
-        "minOnTime": 1,
-        "name": "ramp made",
-        "row": 7,
-      },
-      Switch {
-        "_state": false,
-        "column": 5,
-        "lastChange": 0,
-        "lastClosed": undefined,
-        "lastOpened": undefined,
-        "minOffTime": 10,
-        "minOnTime": 1,
-        "name": "right inlane",
-        "row": 0,
-      },
-    },
+    "ignoreSkillsot": Set {},
     "kickerEnable": true,
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
@@ -717,7 +606,12 @@ Object {
     "lPower2": Array [],
     "lPower3": Array [],
     "lPower4": Array [],
-    "lRampArrow": Array [],
+    "lRampArrow": Array [
+      Array [
+        "Green",
+        "fl",
+      ],
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -756,15 +650,8 @@ Object {
     "upperMagnet": false,
   },
   "state": Object {
-    "_name": "Machine124",
+    "_name": "Machine125",
     "children": Array [
-      Object {
-        "_name": "DropBank125",
-        "children": Array [],
-        "name": "DropBank125",
-        "ownOuts": undefined,
-        "state": Object {},
-      },
       Object {
         "_name": "DropBank126",
         "children": Array [],
@@ -801,15 +688,22 @@ Object {
         "state": Object {},
       },
       Object {
-        "_name": "Game133",
+        "_name": "DropBank131",
+        "children": Array [],
+        "name": "DropBank131",
+        "ownOuts": undefined,
+        "state": Object {},
+      },
+      Object {
+        "_name": "Game134",
         "children": Array [
           Object {
-            "_name": "Player134",
+            "_name": "Player135",
             "children": Array [
               Object {
-                "_name": "ClearHoles135",
+                "_name": "ClearHoles136",
                 "children": Array [],
-                "name": "ClearHoles135",
+                "name": "ClearHoles136",
                 "ownOuts": Object {
                   "miniEject": false,
                   "outhole": false,
@@ -818,26 +712,17 @@ Object {
                 "state": Object {},
               },
               Object {
-                "_name": "Ball139",
+                "_name": "Ball140",
                 "children": Array [
                   Object {
-                    "_name": "ResetAnyDropOnComplete140",
+                    "_name": "ResetAnyDropOnComplete141",
                     "children": Array [
-                      Object {
-                        "_name": "DropBankResetter141",
-                        "children": Array [],
-                        "name": "DropBankResetter141",
-                        "ownOuts": Object {
-                          "upper3": false,
-                        },
-                        "state": Object {},
-                      },
                       Object {
                         "_name": "DropBankResetter142",
                         "children": Array [],
                         "name": "DropBankResetter142",
                         "ownOuts": Object {
-                          "upper2": false,
+                          "upper3": false,
                         },
                         "state": Object {},
                       },
@@ -846,7 +731,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter143",
                         "ownOuts": Object {
-                          "centerBank": false,
+                          "upper2": false,
                         },
                         "state": Object {},
                       },
@@ -855,7 +740,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter144",
                         "ownOuts": Object {
-                          "miniBank": false,
+                          "centerBank": false,
                         },
                         "state": Object {},
                       },
@@ -864,7 +749,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter145",
                         "ownOuts": Object {
-                          "leftBank": false,
+                          "miniBank": false,
                         },
                         "state": Object {},
                       },
@@ -873,19 +758,28 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter146",
                         "ownOuts": Object {
+                          "leftBank": false,
+                        },
+                        "state": Object {},
+                      },
+                      Object {
+                        "_name": "DropBankResetter147",
+                        "children": Array [],
+                        "name": "DropBankResetter147",
+                        "ownOuts": Object {
                           "rightBank": false,
                         },
                         "state": Object {},
                       },
                     ],
-                    "name": "ResetAnyDropOnComplete140",
+                    "name": "ResetAnyDropOnComplete141",
                     "ownOuts": undefined,
                     "state": Object {},
                   },
                   Object {
-                    "_name": "Skillshot153",
+                    "_name": "Skillshot154",
                     "children": Array [],
-                    "name": "Skillshot153",
+                    "name": "Skillshot154",
                     "ownOuts": Object {
                       "iSS1": Object {
                         "fill": [Function],
@@ -921,7 +815,7 @@ Object {
                     },
                   },
                 ],
-                "name": "Ball139",
+                "name": "Ball140",
                 "ownOuts": Object {
                   "lMiniReady": Array [
                     "Red",
@@ -932,9 +826,9 @@ Object {
                 },
               },
               Object {
-                "_name": "Spinner136",
+                "_name": "Spinner137",
                 "children": Array [],
-                "name": "Spinner136",
+                "name": "Spinner137",
                 "ownOuts": Object {
                   "iSpinner": undefined,
                   "leftGate": false,
@@ -946,9 +840,9 @@ Object {
                 },
               },
               Object {
-                "_name": "LeftOrbit137",
+                "_name": "LeftOrbit138",
                 "children": Array [],
-                "name": "LeftOrbit137",
+                "name": "LeftOrbit138",
                 "ownOuts": Object {
                   "rightGate": true,
                 },
@@ -959,9 +853,9 @@ Object {
                 },
               },
               Object {
-                "_name": "StraightMb152",
+                "_name": "StraightMb153",
                 "children": Array [],
-                "name": "StraightMb152",
+                "name": "StraightMb153",
                 "ownOuts": Object {
                   "getSkillshot": [Function],
                   "iCenter1": "redArrow",
@@ -984,50 +878,27 @@ Object {
                   "iUpper31": "blueArrow",
                   "iUpper32": "blueArrow",
                   "iUpper33": "blueArrow",
-                  "ignoreSkillsot": Set {
-                    Switch {
-                      "_state": false,
-                      "column": 0,
-                      "lastChange": 53612,
-                      "lastClosed": 48957,
-                      "lastOpened": 53612,
-                      "minOffTime": 10,
-                      "minOnTime": 1,
-                      "name": "ramp made",
-                      "row": 7,
-                    },
-                    Switch {
-                      "_state": false,
-                      "column": 5,
-                      "lastChange": 0,
-                      "lastClosed": undefined,
-                      "lastOpened": undefined,
-                      "minOffTime": 10,
-                      "minOnTime": 1,
-                      "name": "right inlane",
-                      "row": 0,
-                    },
-                  },
                   "lMiniReady": Array [],
-                  "lRampArrow": Array [],
+                  "lRampArrow": undefined,
                   "lockPost": false,
                   "miniDiverter": false,
-                  "rampUp": false,
+                  "rampUp": true,
                   "shooterDiverter": false,
                 },
                 "state": Object {
                   "lockPost": false,
                   "state": Object {
                     "_": "starting",
+                    "addABallReady": false,
                     "secondBallLocked": false,
                     "starting": true,
                   },
                 },
               },
               Object {
-                "_name": "PlayerOverrides138",
+                "_name": "PlayerOverrides139",
                 "children": Array [],
-                "name": "PlayerOverrides138",
+                "name": "PlayerOverrides139",
                 "ownOuts": Object {
                   "leftGate": undefined,
                   "rightGate": undefined,
@@ -1036,7 +907,7 @@ Object {
                 "state": Object {},
               },
             ],
-            "name": "Player134",
+            "name": "Player135",
             "ownOuts": Object {
               "lEjectStartMode": Array [],
               "lLaneUpper1": Array [
@@ -1072,7 +943,7 @@ Object {
             "state": Object {
               "chips": 1,
               "closeShooter": false,
-              "focus": "StraightMb152",
+              "focus": "StraightMb153",
               "laneChips": Array [
                 true,
                 true,
@@ -1086,7 +957,7 @@ Object {
             },
           },
         ],
-        "name": "Game133",
+        "name": "Game134",
         "ownOuts": Object {
           "kickerEnable": true,
         },
@@ -1094,22 +965,22 @@ Object {
           "ballNum": 1,
           "playerUp": 0,
           "players": Array [
-            "Player134",
+            "Player135",
           ],
         },
       },
       Object {
-        "_name": "MachineOverrides131",
+        "_name": "MachineOverrides132",
         "children": Array [
           Object {
-            "_name": "EosPulse132",
+            "_name": "EosPulse133",
             "children": Array [],
-            "name": "EosPulse132",
+            "name": "EosPulse133",
             "ownOuts": undefined,
             "state": Object {},
           },
         ],
-        "name": "MachineOverrides131",
+        "name": "MachineOverrides132",
         "ownOuts": Object {
           "rampUp": undefined,
           "realRightBank": false,
@@ -1118,7 +989,7 @@ Object {
         "state": Object {},
       },
     ],
-    "name": "Machine124",
+    "name": "Machine125",
     "ownOuts": Object {
       "centerBank": false,
       "getSkillshot": undefined,
@@ -2236,9 +2107,8 @@ Object {
                   "iUpper31": undefined,
                   "iUpper32": undefined,
                   "iUpper33": undefined,
-                  "ignoreSkillsot": undefined,
                   "lMiniReady": Array [],
-                  "lRampArrow": Array [],
+                  "lRampArrow": undefined,
                   "lockPost": false,
                   "miniDiverter": false,
                   "rampUp": true,
@@ -2278,14 +2148,6 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1205,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnd",
                           "num": 1206,
                           "predicates": Array [
                             [Function],
@@ -2293,7 +2155,7 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": "onEnding",
+                          "callback": "onEnd",
                           "num": 1207,
                           "predicates": Array [
                             [Function],
@@ -2301,7 +2163,7 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": "onTargetDown",
+                          "callback": "onEnding",
                           "num": 1208,
                           "predicates": Array [
                             [Function],
@@ -2309,8 +2171,16 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": [Function],
+                          "callback": "onTargetDown",
                           "num": 1209,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": [Function],
+                          "num": 1210,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2319,7 +2189,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1210,
+                          "num": 1211,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2368,12 +2238,12 @@ Object {
                           "bank": [Circular],
                           "image": Image {
                             "actual": "redArrow",
-                            "changeAttempts": 3,
+                            "changeAttempts": 5,
                             "debounce": 5,
                             "id": 490,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "lastActualChange": 211129,
+                            "lastPendingChange": 211124,
+                            "lastValChange": 211129,
                             "name": "iCenter1",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2396,12 +2266,12 @@ Object {
                           "bank": [Circular],
                           "image": Image {
                             "actual": "redArrow",
-                            "changeAttempts": 4,
+                            "changeAttempts": 6,
                             "debounce": 5,
                             "id": 491,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "lastActualChange": 211129,
+                            "lastPendingChange": 211124,
+                            "lastValChange": 211129,
                             "name": "iCenter2",
                             "pending": "redArrow",
                             "val": "redArrow",
@@ -2424,12 +2294,12 @@ Object {
                           "bank": [Circular],
                           "image": Image {
                             "actual": "redArrow",
-                            "changeAttempts": 4,
+                            "changeAttempts": 6,
                             "debounce": 5,
                             "id": 492,
-                            "lastActualChange": 42600,
-                            "lastPendingChange": 42595,
-                            "lastValChange": 42600,
+                            "lastActualChange": 211129,
+                            "lastPendingChange": 211124,
+                            "lastValChange": 211129,
                             "name": "iCenter3",
                             "pending": "redArrow",
                             "val": "redArrow",

@@ -76,9 +76,9 @@ export class Skillshot extends Mode {
             if (index >= this.lastSw)
                 this.lastSw = index;
         });
-        this.listen(onAnySwitchClose(...machine.sUpperLanes), () => this.made(3));
-        this.listen(onAnySwitchClose(machine.sUpperEject), () => this.made(4));
-        this.listen(onAnySwitchClose(machine.sLeftInlane), () => this.made(5));
+        this.listen(onAnySwitchClose(...machine.sUpperLanes), (e) => this.made(3, e));
+        this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
+        this.listen(onAnySwitchClose(machine.sLeftInlane), (e) => this.made(5, e));
 
         this.listen<SwitchEvent>([
             ...onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
@@ -125,21 +125,21 @@ export class Skillshot extends Mode {
         Log.info('game', 'selected skillshot %i', i);
     }
 
-    made(i: number) { 
+    made(i: number, e: SwitchEvent) { 
         Log.log('game', 'skillshot %i', i);
         if (i === this.curAward) {
-            this.awards[i].made();
+            this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
         }
         if (this.awards[i].collect)
-            this.awards[i].collect!();
+            this.awards[i].collect!(e);
         this.wasMade = true;
         Events.fire(new SkillshotEomplete(i, i === this.curAward));
     }
 
-    finish() {
+    finish(e: SwitchEvent) {
         if (!this.wasMade) {
-            this.made(this.lastSw);
+            this.made(this.lastSw, e);
         }
         return this.end();
     }
@@ -161,15 +161,15 @@ export class Skillshot extends Mode {
             awards.push({
                 ...gen ?? {},
                 ...cur ?? {},
-                collect: () => {
+                collect: (e) => {
                     if (cur?.collect)
-                        cur.collect!();
+                        cur.collect!(e);
                 },
-                made: () => {
+                made: (e) => {
                     if (cur?.made)
-                        cur.made();
+                        cur.made(e);
                     if (!cur?.award)
-                        gen.made();
+                        gen.made(e);
                 },
             });
         }

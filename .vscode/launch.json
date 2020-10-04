@@ -63,7 +63,7 @@
 			"args": [
                 "zpin/",
                 "--no-mpu",
-                // "--no-trace",
+                "--no-trace",
                 // "--no-gfx",
                 "--ip",
 				"192.168.2.41",

@@ -48,7 +48,7 @@ export function fork<T>(promise?: Promise<T>|void|any, name?: string): FakePromi
 export async function settleForks() {
     if (Timer.mockTime === undefined) return;
     let times = 0;
-    let settlesLeft = 10;
+    let settlesLeft = 2;
     while (true) {
         const oldForks = [...forks];
         await new Promise(r => r());
