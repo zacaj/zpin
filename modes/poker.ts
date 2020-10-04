@@ -3,7 +3,7 @@ import { Mode, Modes } from '../mode';
 import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
-import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
+import { DropDownEvent, DropBankCompleteEvent, DropBankResetEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { screen, alert, makeText, gfx, addToScreen, gWait } from '../gfx';
 import { Log } from '../log';
@@ -137,7 +137,7 @@ export class Poker extends Mode {
             // done();
         });
 
-        this.listen(e => e instanceof DropBankCompleteEvent, (e: DropBankCompleteEvent) => {
+        this.listen(e => e instanceof DropBankResetEvent, (e: DropBankResetEvent) => {
             for (const target of e.bank.targets) {
                 if (this.deck.length === 0) return;
                 const i = target.num;

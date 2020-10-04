@@ -832,6 +832,8 @@ class MachineOverrides extends Mode {
                 !machine.cShooterDiverter.actual && time()-(machine.cShooterDiverter.lastActualChange??0) > 500,
             shooterDiverter: (on) => machine.out!.treeValues.rightBank? false : on,            
         });
+        
+        this.listen(e => e instanceof SolenoidFireEvent && e.coil === machine.cRealRightBank, () => Events.fire(new SolenoidFireEvent(machine.cRightBank)));
     }
 }
 

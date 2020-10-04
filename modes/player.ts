@@ -6,7 +6,7 @@ import { Game } from '../game';
 import { Outputs } from '../outputs';
 import { Color, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
-import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent } from '../drop-bank';
+import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank } from '../drop-bank';
 import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
@@ -16,7 +16,7 @@ import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
-import { ClearHoles, ResetMechs } from '../util-modes';
+import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
 import { assert } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
@@ -198,6 +198,13 @@ export class Player extends Mode {
         this.listen([...onSwitchClose(machine.sLeftOrbit), () => machine.cRightGate.actual], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower, machine.sLeftOrbit), () => this.closeShooter = false);
 
+        this.listen(onSwitchClose(machine.sSidePopMini), () => {
+            const bank = machine.dropBanks.reduce<DropBank|undefined>((prev, cur) => cur.numDown>(prev?.numDown??0)? cur:prev, undefined);
+            if (bank) {
+                return ResetBank(this, bank);
+            }
+            return;
+        });
 
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {

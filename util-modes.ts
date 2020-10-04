@@ -1,5 +1,5 @@
 import { Mode } from './mode';
-import { MachineOutputs, machine } from './machine';
+import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent } from './machine';
 import { Outputs, toggle } from './outputs';
 import { getTypeIn, assert } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent } from './drop-bank';
@@ -65,6 +65,29 @@ export async function ResetMechs(parent: Tree<MachineOutputs>) {
     parent.addTemp(node);
 
     await parent.await(node.onEnd());
+}
+
+export async function FireCoil(parent: Tree<MachineOutputs>, coil: MomentarySolenoid) {
+    const outs: any  = {};
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+
+            this.out = new Outputs(this, {
+                [coil.name]: true,
+            });
+
+            this.listen(e => e instanceof SolenoidFireEvent && e.coil === coil, () => this.end());
+        }
+    };
+
+    parent.addTemp(node);
+
+    await parent.await(node.onEnd());
+}
+
+export async function ResetBank(parent: Tree<MachineOutputs>, bank: DropBank) {
+    await FireCoil(parent, bank.coil);
 }
 
 export async function KnockTarget(parent: Tree<MachineOutputs>, i?: number) {
