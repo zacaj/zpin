@@ -98,7 +98,7 @@ export class Player extends Mode {
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
             rampUp: () => machine.lRampStartMb.is(Color.White)? false : this.rampUp,
-            lShooterStartHand: () => !this.curMode || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
+            lShooterStartHand: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[Color.Green, 'fl']] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),
@@ -202,7 +202,7 @@ export class Player extends Mode {
             return StraightMb.start(this);
         });
 
-        this.listen(onSwitchClose(machine.sShooterLane), async () => {
+        this.listen([...onSwitchClose(machine.sShooterLane), () => machine.lShooterStartHand.lit()], async () => {
             await Poker.start(this);
         });
 

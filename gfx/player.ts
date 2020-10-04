@@ -78,7 +78,7 @@ export class StatusReportGfx extends Group {
         player.watch(() => this.visible(
             Math.max(machine.sLeftFlipper.lastClosed??0,machine.sRightFlipper.lastClosed??0) > (machine.lastSwitchHit?.lastClosed??0)+500
             && 
-            (machine.sLeftFlipper.onFor(500) || machine.sRightFlipper.onFor(500))
+            (machine.sLeftFlipper.onFor(500) || (machine.sRightFlipper.onFor(500) && !player.ball?.skillshot))
             && !machine.sBothFlippers.state,
         ));
 

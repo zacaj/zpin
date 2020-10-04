@@ -4,7 +4,7 @@ import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent } from '../drop-bank';
-import { onSwitchClose, onAnySwitchClose } from '../switch-matrix';
+import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { screen, alert, makeText, gfx, addToScreen, gWait } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
@@ -47,6 +47,7 @@ export class Poker extends Mode {
     handsWon = 0;
     handsPlayed = 0;
     handsForMb = 2;
+    wasQuit = false;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();
@@ -58,7 +59,7 @@ export class Poker extends Mode {
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed']);
+        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
 
         const outs: any  = {};
@@ -146,7 +147,18 @@ export class Poker extends Mode {
             }
         });
 
-        this.listen(onSwitchClose(machine.sActionButton), 'snail');
+        this.listen(onSwitchClose(machine.sActionButton), () => {
+            if (this.step <= 2 && machine.sShooterLane.state && this.handsPlayed>0) {
+                this.wasQuit = true;
+                player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
+                    this.wasQuit = false;
+                    return 'remove';
+                });
+                this.end();
+            } else {
+                return this.snail();
+            }
+        });
 
 
         addToScreen(() => new PokerGfx(this));
@@ -476,7 +488,7 @@ export class Poker extends Mode {
     snail() {
         if (machine.sShooterLane.state) return;
         if (this.player.chips < 2) return;
-        if (this.step <= 2)
+        if (this.step <= 2 || this.step>=7)
             return;
 
         this.player.chips -= 2;

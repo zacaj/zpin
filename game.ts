@@ -91,7 +91,7 @@ export class Game extends Mode {
     }
 
     addPlayer() {
-        if (!machine.sShooterLane.state || this.ballNum > 1) return;
+        if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer.score>0) return;
         this.players.push(new Player(this, this.players.length+1));
         alert(`PLAYER ${this.players.length} ADDED`);
     }

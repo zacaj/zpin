@@ -14,6 +14,8 @@ export class PokerGfx extends ModeGroup {
     player = makeText('PLAYER 1', 30, 'center', 'bottom').y(-PokerHand.h*1.05-20);
     dealer = makeText('DEALER', 30, 'center', 'top').y(PokerHand.h*1.05+20);
     doneInstr = makeText('SHOOTER LANE, EJECT, OR RAMP TO FINISH HAND', 40, 'center', 'bottom');
+    snailInstr = makeText('ACTION BUTTON: UNDO LAST CARD', 40, 'center', 'bottom');
+    quitInstr = makeText('ACTION BUTTON: QUIT HAND', 40, 'center', 'bottom');
     playerHand!: PokerHand;
     dealerHand!: PokerHand;
     rects = gfx?.createGroup();
@@ -58,6 +60,12 @@ export class PokerGfx extends ModeGroup {
             if (machine.lRampShowCards.lit()) places.push('Ramp');
             this.doneInstr.text('finish hand at '+places.nonOxford('or'));
         });
+
+        this.add(this.snailInstr.y(Screen.h*.49));
+        poker.watch(() => this.snailInstr.visible(poker.step>2 && poker.step<6 && poker.player.chips>=2));
+
+        this.add(this.quitInstr.y(Screen.h*.49));
+        poker.watch(() => this.quitInstr.visible(poker.step<=2 && machine.sShooterLane.state && poker.handsPlayed>0));
 
         poker.watch(() => {
             this.rects.clear();
