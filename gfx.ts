@@ -250,6 +250,8 @@ export class Screen extends Group {
     static readonly pw = 8.26;
     static readonly ph = 4.96;
 
+    circle!: Circle;
+
     constructor() {
         super(gfx);
         // this.sx(this.w()/Screen.sw);
@@ -258,24 +260,24 @@ export class Screen extends Group {
 
         this.add(gfx.createRect().w(Screen.w).h(Screen.h).originX(.5).originY(.5).fill('#000000'));
         
-        const circle = gfx.createCircle().radius(11).x(0).y(Screen.h/2);
-        circle.x.anim({
-            from: -400,
-            to: 400,
-            duration: 1000,
-            loop: -1,
-            timeFunc: 'linear',
-            autoreverse: false,
-        }).start();
-        circle.z.anim({
-            from: 100,
-            to: -100,
-            duration: 1000,
-            loop: -1,
-            timeFunc: 'linear',
-            autoreverse: false,
-        }).start();
-        this.add(circle);
+        this.circle = gfx.createCircle().radius(11).x(0).y(Screen.h/2).z(90);
+        // circle.x.anim({
+        //     from: -400,
+        //     to: 400,
+        //     duration: 1000,
+        //     loop: -1,
+        //     timeFunc: 'linear',
+        //     autoreverse: false,
+        // }).start();
+        // circle.z.anim({
+        //     from: 100,
+        //     to: -100,
+        //     duration: 1000,
+        //     loop: -1,
+        //     timeFunc: 'linear',
+        //     autoreverse: false,
+        // }).start();
+        this.add(this.circle);
 
         this.depth(true);
 

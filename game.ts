@@ -87,6 +87,7 @@ export class Game extends Mode {
         game.players.push(new Player(game, 1));
         game.curPlayer.started();
         await game.curPlayer.startBall();
+        game.watch(() => screen?.circle.x(time()%1000-500));
         return game;
     }
 
