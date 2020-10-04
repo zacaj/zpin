@@ -29,4 +29,9 @@ describe('straight mb', () => {
         expect(machine.cLockPost.lastValChange).toBe(undefined);
         snapshot();
     });
+    test('bug: ramp still flashing after choosing different skill award', async () => {
+        await testRecording('bug_straightAddRampStillFlashing');
+        await passTime(10000);
+        expect(machine.lRampArrow.lit()).toBe(false);
+    });
 });

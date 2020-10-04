@@ -128,7 +128,8 @@ export class Outputs<Outs extends {}> {
 
     updateTreeValue(key: keyof Outs) {
         const oldValue = this.treeValues[key];
-        this.treeValues[key] = Outputs.computeTreeValue(this.tree, key)!;
+        const newValue = (Outputs.computeTreeValue(this.tree, key)!);
+        this.treeValues[key] = newValue;
         if (eq(oldValue, this.treeValues[key])) return;
         const debugValue = 'lEjectStartMode';
         if (key === debugValue) {

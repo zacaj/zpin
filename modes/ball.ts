@@ -49,7 +49,7 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['miniReady']);
+        State.declare<Ball>(this, ['miniReady', 'skillshot']);
         this.out = new Outputs(this, {
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
         });

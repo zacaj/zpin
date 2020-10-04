@@ -242,6 +242,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": false,
+                  "skillshot": undefined,
                 },
               },
               Object {

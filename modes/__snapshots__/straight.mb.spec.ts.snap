@@ -245,6 +245,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": false,
+                  "skillshot": undefined,
                 },
               },
               Object {
@@ -823,6 +824,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": false,
+                  "skillshot": "Skillshot154",
                 },
               },
               Object {
@@ -879,10 +881,15 @@ Object {
                   "iUpper32": "blueArrow",
                   "iUpper33": "blueArrow",
                   "lMiniReady": Array [],
-                  "lRampArrow": undefined,
+                  "lRampArrow": Array [
+                    Array [
+                      "Green",
+                      "fl",
+                    ],
+                  ],
                   "lockPost": false,
                   "miniDiverter": false,
-                  "rampUp": true,
+                  "rampUp": false,
                   "shooterDiverter": false,
                 },
                 "state": Object {
@@ -1357,6 +1364,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": false,
+                  "skillshot": undefined,
                 },
               },
               Object {
@@ -2052,6 +2060,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": false,
+                  "skillshot": undefined,
                 },
               },
               Object {

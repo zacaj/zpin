@@ -300,6 +300,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": true,
+                  "skillshot": "Skillshot93",
                 },
               },
               Object {
@@ -960,6 +961,7 @@ Object {
                 },
                 "state": Object {
                   "miniReady": true,
+                  "skillshot": undefined,
                 },
               },
               Object {
