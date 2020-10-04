@@ -36,7 +36,7 @@ export class Bonus extends Mode {
         await this.addLine('Lanes', 1000, this.ball.lanes);
         await this.addLine('Ramps', 10000, this.ball.ramps);
         // await this.addLine('Targets', 2500, this.ball.targets);
-        if (this.ball.bonusX) {
+        if (this.ball.bonusX>1) {
             await gWait(500, 'bonus x');
             this.lines.push([`BONUS X: ${1}`]);
             const singleBonus = this.total;

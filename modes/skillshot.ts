@@ -155,7 +155,7 @@ export class Skillshot extends Mode {
         const generic = this.getGenericAwards();
         const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot() : [];
         const awards: SkillshotAward[] = [];
-        for (let i=0; i<8; i++) {
+        for (let i=0; i<7; i++) {
             const cur = current[i];
             const gen = generic[i];
             awards.push({

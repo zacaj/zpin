@@ -20,6 +20,7 @@ import { Tree } from '../tree';
 
 
 export class Poker extends Mode {
+    static BankStart = 3000;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -41,13 +42,14 @@ export class Poker extends Mode {
     playerHandDesc?: string;
     dealerHandDesc?: string;
 
-    bank = 3000;
+    bank = Poker.BankStart;
     cardRng!: Rng;
     skillshotRng!: Rng;
     handsWon = 0;
     handsPlayed = 0;
     handsForMb = 2;
     wasQuit = false;
+    cashValue = 200;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();
@@ -59,7 +61,7 @@ export class Poker extends Mode {
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
+        player.storeData<Poker>(this, ['cashValue', 'bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
 
         const outs: any  = {};
@@ -479,7 +481,7 @@ export class Poker extends Mode {
             const value = base * this.skillshotRng.weightedRange(...mults[i] as any);
             return {
                 switch: sw,
-                display: money(value),
+                display: money(value, 0, '+'),
                 collect: () => this.bet += value,
             };
         }), { award: 'plunge to choose bet amount'}];

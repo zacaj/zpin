@@ -279,9 +279,6 @@ Object {
                       "iSS7": Object {
                         "fill": [Function],
                       },
-                      "iSS8": Object {
-                        "fill": [Function],
-                      },
                       "rightGate": false,
                       "shooterDiverter": true,
                       "upperMagnet": undefined,

@@ -15,6 +15,7 @@ import { Color } from '../light';
 import { MiniPf } from './miniPf';
 import { DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Bonus } from './bonus';
+import { EndOfGameBonus, EogGfx } from './eog';
 
 export class Ball extends Mode {
 
@@ -23,6 +24,7 @@ export class Ball extends Mode {
     skillshot?: Skillshot;
     miniPf?: MiniPf;
     bonus?: Bonus;
+    eog?: EndOfGameBonus;
 
     bonusX = 1;
 
@@ -40,6 +42,7 @@ export class Ball extends Mode {
             this.miniPf,
             ...this.tempNodes,
             this.bonus,
+            this.eog,
         ].truthy();
     }
 
@@ -64,6 +67,11 @@ export class Ball extends Mode {
             this.bonus = new Bonus(this);
             this.bonus.started();
             await this.await(this.bonus.onEnding);
+            if (player.game.ballNum >= player.game.ballCount) {
+                this.eog = new EndOfGameBonus(this.player);
+                this.eog.started();
+                await this.await(this.eog.onEnding);
+            }
             return this.end();
         });
 

@@ -349,14 +349,14 @@ export function debugging(): boolean {
 }
 
 export function comma(value: number, minWidth = 0): string {
-    const s = value.toFixed();
-    const commad = Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',')
+    const s = Math.abs(value).toFixed();
+    const commad = (value<0? '-':'')+Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',')
     return commad.padStart(minWidth, ' ');
 }
 
-export function money(value: number, minWidth = 0): string {
+export function money(value: number, minWidth = 0, plus = ''): string {
     const s = comma(value, 0);
-    return ((s.startsWith('-')? '-':'')+'$'+(s.startsWith('-')? s.slice(1):s)).padStart(minWidth, ' ');
+    return ((s.startsWith('-')? '-':plus)+'$'+(s.startsWith('-')? s.slice(1):s)).padStart(minWidth, ' ');
 }
 
 export function score(value: number, minWidth = 0): string {

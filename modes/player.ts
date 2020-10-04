@@ -17,7 +17,7 @@ import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
-import { assert } from '../util';
+import { assert, comma, money } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -206,6 +206,17 @@ export class Player extends Mode {
             return;
         });
 
+        this.listen(onSwitchClose(machine.sRampMiniOuter), () => {
+            this.changeValue(10);
+            const bank = machine.dropBanks.filter(b => b!==machine.leftBank).reduce<DropBank|undefined>((prev, cur) => cur.numDown>(prev?.numDown??0)? cur:prev, undefined);
+            if (bank) {
+                return ResetBank(this, bank);
+            } else if (!machine.leftBank.allAreUp()) {
+                return ResetBank(this, machine.leftBank);
+            }
+            return;
+        });
+
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
             return StraightMb.start(this);
@@ -257,6 +268,10 @@ export class Player extends Mode {
             this.chips++;
         else 
             this.store.Poker.bank += 50;
+    }
+    changeValue(value: number) {
+        this.store.Poker!.cashValue += value;
+        alert(`CASH VALUE ${value>0? '+':'-'} ${comma(value)}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
     }
 }
 

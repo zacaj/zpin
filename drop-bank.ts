@@ -70,6 +70,10 @@ export class DropBank extends Tree<MachineOutputs> {
             });
     }
 
+    get numDown(): number {
+        return this.targets.filter(t => t.state).length;
+    }
+
     allAreUp(): boolean {
         return this.targets.every(t => t.state);
     }

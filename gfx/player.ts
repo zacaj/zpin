@@ -40,7 +40,7 @@ export class PlayerGfx extends ModeGroup {
         ].filter(x => !!x).join('\n')));
 
         this.add(this.score);
-        player.watch(() => this.score.text(comma(player.score)));
+        player.watch(() => this.score.text(score(player.score)));
 
         this.pokerOrNo.add(this.bank);
         player.watch(() => this.bank.text(''+money(player.store.Poker?.bank ?? 0)));
@@ -73,7 +73,7 @@ export class StatusReportGfx extends Group {
         const bottom = this.h()-20;
         const top = 20;
 
-        this.add(makeText('STATUS REPORT', 50, 'center', 'middle').x(this.w()/2).y(top+20));
+        this.add(makeText('STATUS REPORT', 50, 'center', 'middle').x(this.w()/2).y(top+15));
 
         player.watch(() => this.visible(
             Math.max(machine.sLeftFlipper.lastClosed??0,machine.sRightFlipper.lastClosed??0) > (machine.lastSwitchHit?.lastClosed??0)+500
@@ -87,9 +87,10 @@ export class StatusReportGfx extends Group {
         game.watch(() => {
             const info = [
                 [`${player.store.Poker?.handsWon??0} / ${player.store.Poker?.handsPlayed??0} hands won`],
+                [`$1 = ${comma(player.store.Poker?.cashValue??0)} points`],
             ];
             stats.clear();
-            let y = top + 50;
+            let y = top + 55;
             for (const i of info) {
                 stats.add(makeText(i[0], 35, 'left', 'top').x(left).y(y));
                 if (i.length === 2) {

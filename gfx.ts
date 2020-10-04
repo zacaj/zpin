@@ -837,7 +837,7 @@ export async function gWait(ms: number, context: string) {
     ]);
 }
 
-export async function popup(node: Node, ms = 2000) {
+export async function popup(node: Node, ms = 3000) {
     // if (!gfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
