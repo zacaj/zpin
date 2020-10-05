@@ -11,13 +11,13 @@ import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
-import { makeText, gfx, screen, addToScreen, alert } from '../gfx';
+import { makeText, gfx, screen, addToScreen, alert, notify } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
-import { assert, comma, money } from '../util';
+import { assert, comma, money, score } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -402,6 +402,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
     hit() {
         this.player.score += this.score * this.comboMult;
+        notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
     }
 }
 

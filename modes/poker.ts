@@ -481,7 +481,7 @@ export class Poker extends Mode {
             const value = base * this.skillshotRng.weightedRange(...mults[i] as any);
             return {
                 switch: sw,
-                display: money(value, 0, '+'),
+                display: value? money(value, 0, '+') : '',
                 collect: () => this.bet += value,
             };
         }), { award: 'plunge to choose bet amount'}];

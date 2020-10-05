@@ -837,7 +837,7 @@ export async function gWait(ms: number, context: string) {
     ]);
 }
 
-export async function popup(node: Node, ms = 3000) {
+export async function popup(node: Node, ms = 3500) {
     // if (!gfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
@@ -857,7 +857,7 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
         Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
         g = gfx.createGroup().y(-Screen.h * .2);
         const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
-        const t2 = subtext? makeText(subtext, 35, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
+        const t2 = subtext? makeText(subtext, 40, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
         // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
         const r = gfx.createRect().fill('#111111').z(-.1);
@@ -878,6 +878,33 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
         g.add(r, t);
         if (t2)
             g.add(t2);
+    } else {
+        g = new FakeGroup() as any;
+    }
+
+    return [g, popup(g, ms)]; 
+}
+
+export function notify(text: string, ms = 2000): [Group, Promise<void>] {
+    let g: Group;
+    if (gfx) {
+        Log.log(['gfx', 'console'], 'notify message %s / %s', text);
+        g = gfx.createGroup().y(Screen.h/2);
+        const t = makeText(text, 50, 'center', 'bottom').w(Screen.w).x(-Screen.w/2);
+        const r = gfx.createRect().fill('#444444').z(-.1);
+        function setW() {
+            r.w(t.lineW()+50);
+            r.x((t.w()-r.w())/2 + t.x());
+        }
+        t.lineW.watch(setW);
+        setW();
+        function setH() {
+            r.h(t.lineNr()*t.fontSize()*1.25);
+            r.y(-r.h());
+        }
+        t.lineNr.watch(setH);
+        setH();
+        g.add(r, t);
     } else {
         g = new FakeGroup() as any;
     }

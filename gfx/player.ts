@@ -88,7 +88,8 @@ export class StatusReportGfx extends Group {
             const info = [
                 [`${player.store.Poker?.handsWon??0} / ${player.store.Poker?.handsPlayed??0} hands won`],
                 [`$1 = ${comma(player.store.Poker?.cashValue??0)} points`],
-            ];
+                player.mbsQualified.size? ['Multiball Qualified'] : undefined,
+            ].truthy();
             stats.clear();
             let y = top + 55;
             for (const i of info) {
