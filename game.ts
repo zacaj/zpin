@@ -17,6 +17,7 @@ import { Ball } from './modes/ball';
 import { StraightMb } from './modes/straight.mb';
 import { fork } from './promises';
 import { Tree, TreeChangeEvent } from './tree';
+import { MPU } from './mpu';
 
 export class Game extends Mode {
     get children() {
@@ -81,6 +82,23 @@ export class Game extends Mode {
     }
 
     static async start(): Promise<Game> {
+        if (gfx && !MPU.isConnected) {
+            machine.sTroughFull.changeState(true, 'fake');
+        }
+        if (!machine.sTroughFull.state) {
+            const pop = alert('BALL MISSING', 0)[0];
+            const clear = new ClearHoles();
+            machine.addTemp(clear);
+            await new Promise(resolve => Events.listen(() => {
+                resolve();
+                return 'remove';
+            }, onSwitchClose(machine.sTroughFull)));
+            pop.parent?.remove(pop);
+            clear.end();
+        }
+        machine.ballsInTrough = 3;
+        machine.ballsLocked = 0;
+        machine.ballsInPlay = 0;
         const game = new Game();
         machine.game = game;
         game.started();

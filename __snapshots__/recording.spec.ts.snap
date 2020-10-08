@@ -168,15 +168,15 @@ Object {
         "state": Object {},
       },
       Object {
-        "_name": "Game28",
+        "_name": "Game29",
         "children": Array [
           Object {
-            "_name": "Player29",
+            "_name": "Player30",
             "children": Array [
               Object {
-                "_name": "ClearHoles30",
+                "_name": "ClearHoles31",
                 "children": Array [],
-                "name": "ClearHoles30",
+                "name": "ClearHoles31",
                 "ownOuts": Object {
                   "miniEject": false,
                   "outhole": false,
@@ -185,26 +185,17 @@ Object {
                 "state": Object {},
               },
               Object {
-                "_name": "Ball34",
+                "_name": "Ball35",
                 "children": Array [
                   Object {
-                    "_name": "ResetAnyDropOnComplete35",
+                    "_name": "ResetAnyDropOnComplete36",
                     "children": Array [
-                      Object {
-                        "_name": "DropBankResetter36",
-                        "children": Array [],
-                        "name": "DropBankResetter36",
-                        "ownOuts": Object {
-                          "upper3": false,
-                        },
-                        "state": Object {},
-                      },
                       Object {
                         "_name": "DropBankResetter37",
                         "children": Array [],
                         "name": "DropBankResetter37",
                         "ownOuts": Object {
-                          "upper2": false,
+                          "upper3": false,
                         },
                         "state": Object {},
                       },
@@ -213,7 +204,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter38",
                         "ownOuts": Object {
-                          "centerBank": false,
+                          "upper2": false,
                         },
                         "state": Object {},
                       },
@@ -222,7 +213,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter39",
                         "ownOuts": Object {
-                          "miniBank": false,
+                          "centerBank": false,
                         },
                         "state": Object {},
                       },
@@ -231,7 +222,7 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter40",
                         "ownOuts": Object {
-                          "leftBank": false,
+                          "miniBank": false,
                         },
                         "state": Object {},
                       },
@@ -240,26 +231,35 @@ Object {
                         "children": Array [],
                         "name": "DropBankResetter41",
                         "ownOuts": Object {
+                          "leftBank": false,
+                        },
+                        "state": Object {},
+                      },
+                      Object {
+                        "_name": "DropBankResetter42",
+                        "children": Array [],
+                        "name": "DropBankResetter42",
+                        "ownOuts": Object {
                           "rightBank": false,
                         },
                         "state": Object {},
                       },
                     ],
-                    "name": "ResetAnyDropOnComplete35",
+                    "name": "ResetAnyDropOnComplete36",
                     "ownOuts": undefined,
                     "state": Object {},
                   },
                 ],
-                "name": "Ball34",
+                "name": "Ball35",
                 "ownOuts": Object {},
                 "state": Object {
                   "skillshot": undefined,
                 },
               },
               Object {
-                "_name": "Spinner31",
+                "_name": "Spinner32",
                 "children": Array [],
-                "name": "Spinner31",
+                "name": "Spinner32",
                 "ownOuts": Object {
                   "iSpinner": undefined,
                   "leftGate": false,
@@ -271,9 +271,9 @@ Object {
                 },
               },
               Object {
-                "_name": "LeftOrbit32",
+                "_name": "LeftOrbit33",
                 "children": Array [],
-                "name": "LeftOrbit32",
+                "name": "LeftOrbit33",
                 "ownOuts": Object {
                   "rightGate": true,
                 },
@@ -284,9 +284,9 @@ Object {
                 },
               },
               Object {
-                "_name": "Poker42",
+                "_name": "Poker43",
                 "children": Array [],
-                "name": "Poker42",
+                "name": "Poker43",
                 "ownOuts": Object {
                   "getSkillshot": [Function],
                   "iCenter1": undefined,
@@ -498,9 +498,9 @@ Object {
                 },
               },
               Object {
-                "_name": "PlayerOverrides33",
+                "_name": "PlayerOverrides34",
                 "children": Array [],
-                "name": "PlayerOverrides33",
+                "name": "PlayerOverrides34",
                 "ownOuts": Object {
                   "leftGate": undefined,
                   "rightGate": undefined,
@@ -509,7 +509,7 @@ Object {
                 "state": Object {},
               },
             ],
-            "name": "Player29",
+            "name": "Player30",
             "ownOuts": Object {
               "lEjectStartMode": Array [],
               "lLaneUpper1": Array [
@@ -558,7 +558,7 @@ Object {
             "state": Object {
               "chips": 1,
               "closeShooter": false,
-              "focus": "Poker42",
+              "focus": "Poker43",
               "laneChips": Array [
                 true,
                 true,
@@ -573,7 +573,7 @@ Object {
             },
           },
         ],
-        "name": "Game28",
+        "name": "Game29",
         "ownOuts": Object {
           "kickerEnable": true,
         },
@@ -581,7 +581,7 @@ Object {
           "ballNum": 1,
           "playerUp": 0,
           "players": Array [
-            "Player29",
+            "Player30",
           ],
         },
       },

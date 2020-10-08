@@ -1,10 +1,12 @@
 Sat Sep 19 2020 15:19:30 GMT-0400 (Eastern Daylight Time)
+30:56.106.759 switch 'trough full' state -> true (1,0) at 0
 09:14.416.000 create mode MachineOverrides
 09:14.919.900 create mode Game
 09:14.926.500 create mode Player
 09:15.367.00 create mode Poker
 09:15.352.800 create mode PlayerOverrides
 09:15.372.600 create mode Ball
+30:56.106.759 switch 'trough full' state -> false (1,0) at 2500
 09:15.883.200 switch 'shooter lane' state -> true (0,0) at 2615 via recording recordings/straightMbStarting.rec
 09:15.921.100 create mode Skillshot
 09:16.464.00 switch 'shooter lane' state -> false (0,0) at 3615 via recording recordings/straightMbStarting.rec

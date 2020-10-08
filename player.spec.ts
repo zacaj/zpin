@@ -1,9 +1,11 @@
 import { Player } from "./modes/player";
 import { Game } from "./game";
 import { Tree } from "./tree";
+import { machine } from "./machine";
 
 describe('player', () => {
     test('store', async () => {
+        machine.sTroughFull.state = true;
         const game = await Game.start();
         const player = game.curPlayer;
         const child1 = new class extends Tree {

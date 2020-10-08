@@ -1,4 +1,6 @@
 Sat Aug 15 2020 20:31:05 GMT-0400 (Eastern Daylight Time)
+30:56.106.759 switch 'trough full' state -> true (1,0) at 0
+30:56.106.759 switch 'trough full' state -> false (1,0) at 2500
 15:13.493.900 switch 'shooter lane' state -> true (0,0) at 2687
 15:16.803.299 force state of right inlane to on
 15:16.804.699 switch 'right inlane' state -> true (5,0) at 5999

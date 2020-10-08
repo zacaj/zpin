@@ -1,10 +1,12 @@
 Tue Aug 25 2020 20:57:03 GMT-0400 (Eastern Daylight Time)
+30:56.106.759 switch 'trough full' state -> true (1,0) at 0
 41:04.684.700 start mode MachineOverrides
 41:05.356.900 start mode Game
 41:05.357.400 start mode Player
 41:05.454.900 start mode Poker
 41:05.757.200 start mode PlayerOverrides
 41:05.780.500 start mode Ball
+30:56.106.759 switch 'trough full' state -> false (1,0) at 2500
 41:06.883.00 switch 'shooter lane' state -> true (0,0) at 2615 via fake
 41:06.883.00 switch 'shooter lane' state -> false (0,0) at 3615 via fake
 41:06.124.200 start mode Skillshot

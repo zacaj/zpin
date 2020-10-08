@@ -1,4 +1,6 @@
 Sat Aug 15 2020 20:39:31 GMT-0400 (Eastern Daylight Time)
+30:56.106.759 switch 'trough full' state -> true (1,0) at 0
+30:56.106.759 switch 'trough full' state -> false (1,0) at 2500
 23:40.144.200 switch 'shooter lane' state -> true (0,0) at 2765
 23:43.720.499 force state of left 1 to on
 23:43.721.000 switch 'left 1' state -> true (1,3) at 6342

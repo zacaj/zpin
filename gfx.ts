@@ -847,7 +847,7 @@ export async function popup(node: Node, ms = 3500) {
     }
     if (ms)
         await gWait(ms, 'popup');
-    if (gfx) screen.remove(node);
+    if (gfx && ms) screen.remove(node);
     return;
 }
 
