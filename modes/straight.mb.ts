@@ -36,7 +36,7 @@ export class StraightMb extends Multiball {
 
     state: ReturnType<typeof Starting>|ReturnType<typeof BankLit>|ReturnType<typeof JackpotLit> = Starting();
 
-    value = 1000000;
+    value = 500000;
 
     skillshotRng!: Rng;
     bankRng!: Rng;
@@ -176,7 +176,7 @@ export class StraightMb extends Multiball {
         this.state.awardingJp--;
         if (this.state.awardingJp === 0) {
             fork(this.releaseBallFromLock());
-            this.value += 500000;
+            this.value += 250000;
             this.selectBank();
         }
     }
@@ -198,7 +198,7 @@ export class StraightMb extends Multiball {
             'DOUBLE JACKPOT VALUE',
             '1.5X JACKPOT VALUE',
             'TRIPLE JACKPOT VALUE',
-            'ADD 500K TO JACKPOT VALUE',
+            'ADD 250K TO JACKPOT VALUE',
         ];
 
         return [...switches.map((sw, i) => {
@@ -227,7 +227,7 @@ export class StraightMb extends Multiball {
                                 });
                             }
                             break;
-                        case 'ADD 500K TO': this.value += 500000; break;
+                        case 'ADD 250K TO': this.value += 250000; break;
                         case 'ADD 50K TO': this.value += 50000; break;
                         case 'DOUBLE': this.value *= 2; break;
                         case 'TRIPLE': this.value *= 3; break;

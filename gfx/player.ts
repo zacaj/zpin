@@ -65,7 +65,7 @@ export class StatusReportGfx extends Group {
         this.z(50);
         this.w(Screen.w*.38);
         this.h(GameGfx.main);
-        this.x(-Screen.w/2);
+        player.watch(() => this.x(player.ball?.skillshot? -Screen.w/2 : Screen.w/2-this.w()));
         this.y(-Screen.h/2+GameGfx.top);
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
         const left = 20;
