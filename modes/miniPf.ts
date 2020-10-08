@@ -22,4 +22,9 @@ export class MiniPf extends Mode {
 
         this.listen(onAnyPfSwitchExcept(machine.sLeftOutlane), () => this.waitingForSwitch = false);
     }
+
+    end() {
+        this.ball.miniPf = undefined;
+        return super.end();
+    }
 }

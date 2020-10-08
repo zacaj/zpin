@@ -132,11 +132,11 @@ export class StraightMb extends Multiball {
 
     async lastBallDrained() {
         if (this.state._==='starting') {
-            fork(this.releaseBallsFromLock());
+            await this.releaseBallsFromLock();
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(Math.max(20 - this.drops * 4, 6), () => {
+            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(20 - this.drops * 4, 6), () => {
                 return StraightMb.start(this.player, true, this.lastBank);
             }));
         }
@@ -217,10 +217,12 @@ export class StraightMb extends Multiball {
                         case 'ONE-SHOT ADD-A-BALL': 
                             if (this.state._==='starting') {
                                 this.state.addABallReady = true; 
-                                this.listen(onAnyPfSwitchExcept(machine.sRampMade), (ev) => {
-                                    if (e === ev) return;
-                                    this.selectBank(undefined);
-                                    fork(this.releaseBallsFromLock());
+                                this.listen(onAnyPfSwitchExcept(), (ev) => {
+                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000)) return;
+                                    if (ev.sw !== machine.sRampMade) {
+                                        this.selectBank(undefined);
+                                        fork(this.releaseBallsFromLock());
+                                    }
                                     return 'remove';
                                 });
                             }

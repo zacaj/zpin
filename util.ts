@@ -342,9 +342,10 @@ export function isPromise(promise?: any): boolean {
     return !!promise?.then;
 }
 
+const inspector = require('inspector');
 export function debugging(): boolean {
     const argv = process.execArgv.join();
-    const isDebug = argv.includes('inspect') || argv.includes('debug');
+    const isDebug = argv.includes('inspect') || argv.includes('debug') || !!inspector.url();
     return isDebug;
 }
 

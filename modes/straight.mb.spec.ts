@@ -34,4 +34,10 @@ describe('straight mb', () => {
         await passTime(10000);
         expect(machine.lRampArrow.lit()).toBe(false);
     });
+    test('mb add a ball outlane drain', async () => {
+        await testRecording('mbAddADrain');
+        await passTime(10000);
+        expect(machine.cLockPost.lastValChange).not.toBe(undefined);
+        snapshot();
+    });
 });

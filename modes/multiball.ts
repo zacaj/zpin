@@ -12,7 +12,7 @@ import { fork } from '../promises';
 import { Player } from './player';
 
 export abstract class Multiball extends Mode {
-    balls = 1; // balls that need to drain to end mode
+    balls = 1;
 
     lockPost? = false;
 
@@ -47,10 +47,11 @@ export abstract class Multiball extends Mode {
             await ReleaseBall(this);
         }
         this.listen(onAnyPfSwitchExcept(machine.sShooterLower), 'firstSwitchHit');
+        this.balls++;
     }
     async releaseBallFromLock() {
         this.lockPost = true;
-        await wait(50, 'release lock');
+        await wait(75, 'release lock');
         this.lockPost = false;
     }
     async releaseBallsFromLock() {

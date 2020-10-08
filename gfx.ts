@@ -38,7 +38,7 @@ export async function initGfx() {
         path: './media/',
         weights: {
             400: {
-                normal: 'CardCharacters.TTF',
+                normal: 'CardCharacters.ttf',
             },
         },
     });

@@ -552,7 +552,7 @@ Object {
                 ],
               ],
               "leftMagnet": false,
-              "rampUp": true,
+              "rampUp": false,
               "shooterDiverter": true,
             },
             "state": Object {

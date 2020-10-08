@@ -160,7 +160,7 @@ export class Game extends Mode {
 }
 
 if (require.main === module) {
-fork(initMachine(true, true, true)).then(() => {
+fork(initMachine(true, true, true, false)).then(() => {
     // Log.log(['console'], 'starting game...');
     // const game = Game.start();
 

@@ -428,7 +428,7 @@ export class Machine extends Tree<MachineOutputs> {
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
-    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 9, on => this.sRampDown.state = !on);
+    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 10, on => this.sRampDown.state = !on);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
     cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
     cMiniFlipper = new OnOffSolenoid('miniFlipperEnable', 15, this.solenoidBank1);
@@ -795,7 +795,7 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
 
         this.listen(onAny(onSwitch(this.sLeftFlipper), onSwitch(this.sRightFlipper)), () => {
-            this.sBothFlippers.state = this.sLeftFlipper.state && this.sRightFlipper.state;
+            this.sBothFlippers.changeState(this.sLeftFlipper.state && this.sRightFlipper.state, 'sim', Math.max(this.sLeftFlipper.lastChange, this.sRightFlipper.lastChange) as Time);
         });
 
         this.overrides = new MachineOverrides(this);

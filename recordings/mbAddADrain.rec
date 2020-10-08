@@ -1,0 +1,57 @@
+Mon Oct 05 2020 19:03:48 GMT-0400 (Eastern Daylight Time)
+01:30.512.500 create mode MachineOverrides
+01:31.935.00 create mode Game
+01:31.128.300 create mode Player
+01:31.183.200 create mode PlayerOverrides
+01:31.448.800 create mode Ball
+01:32.126.800 switch 'shooter lane' state -> true (0,0) at 2615 via recording recordings/straightMbStarting.rec
+01:32.174.400 create mode Poker
+01:32.537.800 create mode Skillshot
+01:32.677.800 switch 'shooter lane' state -> false (0,0) at 3615 via recording recordings/straightMbStarting.rec
+01:32.856.500 switch 'left 1' state -> true (1,3) at 6150 via recording recordings/straightMbStarting.rec
+01:32.889.500 drop switch left 1 down
+01:33.161.500 switch 'right 1' state -> true (5,2) at 7752 via recording recordings/straightMbStarting.rec
+01:33.188.300 drop switch right 1 down
+01:33.388.300 switch 'left 2' state -> true (2,3) at 9920 via recording recordings/straightMbStarting.rec
+01:33.422.600 drop switch left 2 down
+01:34.739.100 switch 'center right' state -> true (1,4) at 28122 via recording recordings/straightMbStarting.rec
+01:34.767.500 drop switch center right down
+01:34.945.900 switch 'center center' state -> true (2,4) at 29556 via recording recordings/straightMbStarting.rec
+01:35.128.400 drop switch center center down
+01:35.312.000 switch 'right 2' state -> true (4,2) at 29905 via recording recordings/straightMbStarting.rec
+01:35.315.900 drop switch right 2 detected, but was already down
+01:35.351.400 switch 'ramp down' state -> true (4,7) at 29922 via recording recordings/straightMbStarting.rec
+01:35.370.200 switch 'right 3' state -> true (3,2) at 30053 via recording recordings/straightMbStarting.rec
+01:35.374.900 drop switch right 3 detected, but was already down
+01:36.714.800 switch 'ramp made' state -> true (0,7) at 48957 via recording recordings/straightMbStarting.rec
+01:37.125.300 switch 'ramp made' state -> false (0,7) at 53612 via recording recordings/straightMbStarting.rec
+01:37.179.700 create mode NoMode
+01:37.229.200 create mode StraightMb
+01:37.643.900 switch 'ramp down' state -> false (4,7) at 56758 via recording recordings/straightMbStarting.rec
+01:37.975.100 switch 'left 1' state -> false (1,3) at 59876 via recording recordings/straightMbStarting.rec
+01:37.980.600 switch 'left 2' state -> false (2,3) at 59879 via recording recordings/straightMbStarting.rec
+01:37.987.300 drop bank leftBank reset successfully
+01:38.865.0 switch 'center center' state -> false (2,4) at 60028 via recording recordings/straightMbStarting.rec
+01:38.181.00 switch 'center right' state -> false (1,4) at 60030 via recording recordings/straightMbStarting.rec
+01:38.230.00 drop bank centerBank reset successfully
+01:38.570.00 switch 'right 1' state -> false (5,2) at 60349 via recording recordings/straightMbStarting.rec
+01:38.630.00 switch 'right 2' state -> false (4,2) at 60352 via recording recordings/straightMbStarting.rec
+01:38.722.00 switch 'right 3' state -> false (3,2) at 60354 via recording recordings/straightMbStarting.rec
+01:38.849.00 drop bank rightBank reset successfully
+01:38.200.500 switch 'shooter lane' state -> true (0,0) at 60854 via recording recordings/straightMbStarting.rec
+01:38.230.700 create mode Skillshot
+01:38.301.000 recording recordings/straightMbStarting.rec finished at 60857
+01:38.454.200 switch 'ramp down' state -> true (4,7) at 61010 via  OnOffSolenoid.fake (A:\source\zpin\build\machine.js:275:114) <-  A:\source\zpin\build\machine.js:195:52
+02:17.317.600 force state of shooter lane to off
+02:17.318.900 switch 'shooter lane' state -> false (0,0) at 99874 via force
+02:18.619.800 force state of shooter lower to on
+02:18.620.600 switch 'shooter lower' state -> true (0,2) at 101176 via force
+02:18.882.700 switch 'shooter lower' state -> false (0,2) at 101438 via force
+02:20.870.400 force state of right outlane to on
+02:20.871.500 switch 'right outlane' state -> true (4,0) at 103427 via force
+02:21.170.000 switch 'right outlane' state -> false (4,0) at 103726 via force
+02:29.811.100 force state of outhole to on
+02:29.811.700 switch 'outhole' state -> true (2,0) at 112368 via force
+02:29.862.300 create mode NoMode
+02:29.909.900 create mode Restart
+02:30.574.00 switch 'outhole' state -> false (2,0) at 112614 via fake

@@ -6,7 +6,7 @@ import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
 import { Event, Events } from '../events';
 import { Player } from './player';
 import { MPU } from '../mpu';
-import { gfx } from '../gfx';
+import { addToScreen, gfx, ModeGroup } from '../gfx';
 import { fork } from '../promises';
 import { wait } from '../timer';
 import { State } from '../state';
@@ -64,10 +64,12 @@ export class Ball extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
+            Events.fire(new BallEnding(this));
+    
             this.bonus = new Bonus(this);
             this.bonus.started();
             await this.await(this.bonus.onEnding);
-            if (player.game.ballNum >= player.game.ballCount) {
+            if (player.game.ballNum === player.game.ballCount) {
                 this.eog = new EndOfGameBonus(this.player);
                 this.eog.started();
                 await this.await(this.eog.onEnding);
@@ -81,6 +83,8 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sRampMade), () => this.ramps++);
         this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
         this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
+
+        addToScreen(() => new ModeGroup(this));
     }
 
     static async start(player: Player) {
@@ -116,6 +120,14 @@ export class BallStart extends Event {
 }
 
 export class BallEnd extends Event {
+    constructor(
+        public ball: Ball,
+    ) {
+        super();
+    }
+}
+
+export class BallEnding extends Event {
     constructor(
         public ball: Ball,
     ) {

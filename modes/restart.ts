@@ -7,11 +7,13 @@ import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { State } from '../state';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
+import { Ball, BallEnding } from './ball';
 
 export class Restart extends Mode {
     text!: Group;
 
     constructor(
+        public ball: Ball,
         public flips: number,
         public action: (restart: Restart) => any,
         public failed: (restart: Restart) => any = () => {},
@@ -44,14 +46,16 @@ export class Restart extends Mode {
             ['', 45],
         );
         if (screen) {
-            screen.add(this.text);
+            ball.gfx?.add(this.text);
             this.text.z(100);
             this.watch(() => (this.text.children[3] as Text).text(`${this.flips} flip${this.flips>1?'s':''} left`));
         }
+
+        this.listen(e => e instanceof BallEnding, 'end');
     }
 
     end() {
-        screen?.remove(this.text);
+        this.ball.gfx?.remove(this.text);
         return super.end();
     }
 }

@@ -22,7 +22,7 @@ export const MPU = {
         context: string;
     };},
 
-    async init(ip = '192.168.2.8') {
+    async init(ip = '127.0.0.1') {
         Log.log(['mpu', 'console'], 'connecting to %s', ip);
         // const socket = new Socket();
         // socket.connect(2908, '192.168.2.4');

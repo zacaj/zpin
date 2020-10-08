@@ -11,7 +11,7 @@ import { machine } from './machine';
 
 export let curRecording: string|undefined = undefined;
 let lines: string[];
-let curTime = 0;
+let curTime = Number.NEGATIVE_INFINITY;
 let curLine = 0;
 
 export function initRecording(recording: string) {
