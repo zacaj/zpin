@@ -697,6 +697,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 3,
+      "ballsLocked": 0,
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 3,

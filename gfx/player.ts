@@ -76,10 +76,11 @@ export class StatusReportGfx extends Group {
         this.add(makeText('STATUS REPORT', 50, 'center', 'middle').x(this.w()/2).y(top+15));
 
         player.watch(() => this.visible(
-            Math.max(machine.sLeftFlipper.lastClosed??0,machine.sRightFlipper.lastClosed??0) > (machine.lastSwitchHit?.lastClosed??0)+500
-            && 
-            (machine.sLeftFlipper.onFor(500) || (machine.sRightFlipper.onFor(500) && !player.ball?.skillshot))
-            && !machine.sBothFlippers.state,
+            // Math.max(machine.sLeftFlipper.lastClosed??0,machine.sRightFlipper.lastClosed??0) > (machine.lastSwitchHit?.lastClosed??0)+500
+            // && 
+            // (machine.sLeftFlipper.onFor(2500) || (machine.sRightFlipper.onFor(2500) && !player.ball?.skillshot))
+            // && !machine.sBothFlippers.state,
+            machine.sBothFlippers.onFor(500) && machine.sBothFlippers.lastClosed! > (machine.lastSwitchHit?.lastClosed??0)+1000,
         ));
 
         const stats = gfx.createGroup();

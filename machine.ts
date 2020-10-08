@@ -165,6 +165,8 @@ export class MomentarySolenoid extends Solenoid {
         if (on) return this.fire();
         return true;
     }
+
+    onFire = (e: Event) => e instanceof SolenoidFireEvent && e.coil === this;
 }
 export class SolenoidFireEvent extends Event {
     constructor(
@@ -418,7 +420,7 @@ export type ImageOutputs = {
 
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
-    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => this.sOuthole.changeState(false, 'fake'));
+    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
@@ -688,10 +690,17 @@ export class Machine extends Tree<MachineOutputs> {
 
     lockDown = false;
     miniDown = false;
+    ballsInTrough: 3|'unknown' = 'unknown';
+    ballsLocked: 0|1|2|3|'unknown' = 'unknown';
+    get ballsInPlay(): 0|1|2|3|'unknown' {
+        if (this.ballsInTrough === 'unknown' || this.ballsLocked === 'unknown')
+            return 'unknown';
+        return 3 - this.ballsLocked - this.ballsInTrough as any;
+    }
     constructor() {
         super();
         this.makeRoot();
-        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit']);
+        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit', 'ballsInTrough', 'ballsLocked']);
 
         this.out = new Outputs<MachineOutputs>(this, {
             rampUp: false,
@@ -781,6 +790,19 @@ export class Machine extends Tree<MachineOutputs> {
             iSpinner: '',
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
+        });
+
+        this.listen(onSwitchClose(this.sTroughFull), () => {
+            this.ballsInTrough = 3;
+            this.ballsLocked = 0;
+        });
+        this.listen(this.cTroughRelease.onFire, () => {
+            if (this.ballsInTrough !== 'unknown')
+                this.ballsInTrough--;
+        });
+        this.listen(this.cOuthole.onFire, () => {
+            if (this.ballsInTrough !== 'unknown')
+                this.ballsInTrough++;
         });
     
 

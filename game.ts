@@ -96,9 +96,6 @@ export class Game extends Mode {
             pop.parent?.remove(pop);
             clear.end();
         }
-        machine.ballsInTrough = 3;
-        machine.ballsLocked = 0;
-        machine.ballsInPlay = 0;
         const game = new Game();
         machine.game = game;
         game.started();

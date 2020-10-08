@@ -508,6 +508,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 3,
+      "ballsLocked": 1,
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 5,
@@ -1083,6 +1085,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 3,
+      "ballsLocked": 1,
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 0,
@@ -1472,7 +1476,7 @@ Object {
               "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 73010,
+              "score": 63010,
             },
           },
         ],
@@ -1600,6 +1604,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 4,
+      "ballsLocked": 0,
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 2,
@@ -2315,6 +2321,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 3,
+      "ballsLocked": 0,
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 3,
@@ -2651,6 +2659,7 @@ Object {
                         "ms": 50,
                         "name": "centerBank",
                         "num": 8,
+                        "onFire": [Function],
                         "pending": false,
                         "resetPeriod": 2000,
                         "steps": 3,
@@ -2663,7 +2672,7 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1228,
+                          "num": 1243,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2671,7 +2680,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnd",
-                          "num": 1229,
+                          "num": 1244,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2679,7 +2688,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnding",
-                          "num": 1230,
+                          "num": 1245,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2687,7 +2696,7 @@ Object {
                         },
                         Object {
                           "callback": "onTargetDown",
-                          "num": 1231,
+                          "num": 1246,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2695,7 +2704,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1232,
+                          "num": 1247,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2704,7 +2713,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1233,
+                          "num": 1248,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3027,6 +3036,8 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
+      "ballsInTrough": 3,
+      "ballsLocked": 0,
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 5,

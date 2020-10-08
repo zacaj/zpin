@@ -52,6 +52,8 @@ export class StraightMb extends Multiball {
         public restartBank?: DropBank,
     ) {
         super(player, isRestarted);
+        if (machine.ballsLocked !== 'unknown')
+            machine.ballsLocked++;
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
         State.declare<StraightMb>(this, ['state']);
@@ -79,11 +81,12 @@ export class StraightMb extends Multiball {
             lRampArrow: () => this.state._ === 'jackpotLit'? Color.Red :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             getSkillshot: () => () => this.getSkillshot(),
-            // ignoreSkillsot: set => (this.state._!=='starting')? set : new Set([...set ?? [], machine.sRampMade, ...(this.state.secondBallLocked? [] : [machine.sRightInlane])]),
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
+            if (machine.ballsLocked !== 'unknown')
+                machine.ballsLocked++;
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
@@ -114,8 +117,8 @@ export class StraightMb extends Multiball {
                 player.mbsQualified.clear();
             }
             const mb = new StraightMb(player, hand, isRestarted, bank);
-            mb.gfx?.visible(false);
             player.focus = mb;
+            mb.gfx?.visible(false);
             await alert('Multiball!', 3000)[1];
             mb.gfx?.visible(true);
             if (!isRestarted) {

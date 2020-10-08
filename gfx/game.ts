@@ -1,6 +1,7 @@
 import { Group, Text } from 'aminogfx-gl';
 import { Game } from '../game';
 import { gfx, makeText, ModeGroup, Screen } from '../gfx';
+import { machine } from '../machine';
 import { onChange } from '../state';
 import { comma } from '../util';
 
@@ -20,5 +21,9 @@ export class GameGfx extends ModeGroup {
         group.add(this.ball.x(Screen.w/2).y(-Screen.h/2));
         game.watch(() => this.ball.text('BALL '+game.ballNum.toFixed(0)));
         this.add(group);
+
+        const balls = makeText('', 40, 'left', 'middle').wrap('word').x(-Screen.w/2).y(0).w(Screen.w/2);
+        group.add(balls);
+        game.watch(() => balls.text(`T: ${machine.ballsInTrough}\nL: ${machine.ballsLocked}\nP: ${machine.ballsInPlay}`));
     }
 }

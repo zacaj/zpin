@@ -133,6 +133,7 @@ export async function ReleaseBall(parent: Tree<MachineOutputs>) {
             });
             this.listen(onSwitchClose(machine.sShooterLane), 'end');
             this.listen(onSwitchOpen(machine.sTroughFull), 'end');
+            this.listen(machine.cTroughRelease.onFire, 'end');
         }
     };
 

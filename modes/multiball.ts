@@ -10,6 +10,7 @@ import { State } from '../state';
 import { wait } from '../timer';
 import { fork } from '../promises';
 import { Player } from './player';
+import { assert, getCallerLoc } from '../util';
 
 export abstract class Multiball extends Mode {
     balls = 1;
@@ -50,12 +51,19 @@ export abstract class Multiball extends Mode {
         this.balls++;
     }
     async releaseBallFromLock() {
+        Log.info(['game', 'console'], 'release ball from lock via ', getCallerLoc(true));
+        assert(machine.ballsLocked !== 0);
+        if (machine.ballsLocked !== 'unknown')
+            machine.ballsLocked--;
         this.lockPost = true;
         await wait(75, 'release lock');
         this.lockPost = false;
     }
     async releaseBallsFromLock() {
+        Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
+        assert(machine.ballsLocked !== 0);
         this.lockPost = true;
+        machine.ballsLocked = 0;
         await wait(1200, 'release locks');
         this.lockPost = undefined;
     }

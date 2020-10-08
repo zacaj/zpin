@@ -49,9 +49,6 @@ Mon Oct 05 2020 19:03:48 GMT-0400 (Eastern Daylight Time)
 02:18.619.800 force state of shooter lower to on
 02:18.620.600 switch 'shooter lower' state -> true (0,2) at 101176 via force
 02:18.882.700 switch 'shooter lower' state -> false (0,2) at 101438 via force
-02:20.870.400 force state of right outlane to on
-02:20.871.500 switch 'right outlane' state -> true (4,0) at 103427 via force
-02:21.170.000 switch 'right outlane' state -> false (4,0) at 103726 via force
 02:29.811.100 force state of outhole to on
 02:29.811.700 switch 'outhole' state -> true (2,0) at 112368 via force
 02:29.862.300 create mode NoMode
