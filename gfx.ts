@@ -24,9 +24,9 @@ let playfield: Playfield|undefined;
 export let screen: Screen;
 let isRpi = false;
 const showPf = argv.showPf ?? true;
-const split = argv.split ?? true;
+const split = argv.split ?? false;
 const swap = argv.swap ?? false;
-const halfScreen = argv.half ?? true;
+const halfScreen = argv.half ?? false;
 export async function initGfx() {
     gfx = new AminoGfx({display: isRpi? (swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
     await new Promise((resolve, reject) => {
