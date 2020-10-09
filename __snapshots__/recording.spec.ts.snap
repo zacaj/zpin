@@ -26,7 +26,6 @@ Object {
     "iSS4": "",
     "iSS5": "",
     "iSS6": "",
-    "iSS7": "",
     "iSpinner": "",
     "iUpper21": "",
     "iUpper22": "",
@@ -67,7 +66,9 @@ Object {
     "lPower1": Array [
       "Orange",
     ],
-    "lPower2": Array [],
+    "lPower2": Array [
+      "Orange",
+    ],
     "lPower3": Array [],
     "lPower4": Array [],
     "lRampArrow": Array [],
@@ -536,7 +537,9 @@ Object {
               "lPower1": Array [
                 "Orange",
               ],
-              "lPower2": Array [],
+              "lPower2": Array [
+                "Orange",
+              ],
               "lPower3": Array [],
               "lPower4": Array [],
               "lRampStartMb": Array [
@@ -556,7 +559,7 @@ Object {
               "shooterDiverter": true,
             },
             "state": Object {
-              "chips": 1,
+              "chips": 2,
               "closeShooter": false,
               "focus": "Poker43",
               "laneChips": Array [
@@ -630,7 +633,6 @@ Object {
       "iSS4": "",
       "iSS5": "",
       "iSS6": "",
-      "iSS7": "",
       "iSpinner": "",
       "iUpper21": "",
       "iUpper22": "",

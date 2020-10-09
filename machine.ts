@@ -414,7 +414,6 @@ export type ImageOutputs = {
     iSS4: string|Node;
     iSS5: string|Node;
     iSS6: string|Node;
-    iSS7: string|Node;
     iSpinner: string|Node;
 };
 
@@ -636,7 +635,6 @@ export class Machine extends Tree<MachineOutputs> {
     iSS4 = new Image('iSS4');
     iSS5 = new Image('iSS5');
     iSS6 = new Image('iSS6');
-    iSS7 = new Image('iSS7');
     iSpinner = new Image('iSpinner');
 
     dropTargets: DropTarget[] = [];
@@ -786,7 +784,6 @@ export class Machine extends Tree<MachineOutputs> {
             iSS4: '',
             iSS5: '',
             iSS6: '',
-            iSS7: '',
             iSpinner: '',
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),

@@ -24,7 +24,7 @@ import { GameMode } from './game-mode';
 import { Restart } from './restart';
 
 export class Player extends Mode {
-    chips = 1;
+    chips = 2;
     score = 0;
     miniReady = false;
 
@@ -38,21 +38,13 @@ export class Player extends Mode {
         if (this.focus instanceof Poker) return this.focus;
         return undefined;
     }
-    // private _noMode?: NoMode;
     get noMode(): NoMode|undefined {
-        // return this._noMode;
         if (this.focus instanceof NoMode) return this.focus;
         return undefined;
     }
     get curMode() {
         return this.poker ?? this.curMbMode;
     }
-    // get gameMode() {
-    //     return this.curMbMode;
-    // }
-    // get focus() {
-    //     return this.curMode ?? this.noMode!;
-    // }
     focus?: Poker|Multiball|NoMode;
 
     clearHoles = new ClearHoles();

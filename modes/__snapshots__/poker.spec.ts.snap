@@ -38,9 +38,6 @@ Object {
     "iSS6": Object {
       "fill": [Function],
     },
-    "iSS7": Object {
-      "fill": [Function],
-    },
     "iSpinner": "",
     "iUpper21": "JH",
     "iUpper22": "7C",
@@ -613,7 +610,6 @@ Object {
       "iSS4": "",
       "iSS5": "",
       "iSS6": "",
-      "iSS7": "",
       "iSpinner": "",
       "iUpper21": "",
       "iUpper22": "",
@@ -726,7 +722,6 @@ Object {
     "iSS4": "",
     "iSS5": "",
     "iSS6": "",
-    "iSS7": "",
     "iSpinner": "",
     "iUpper21": "",
     "iUpper22": "",
@@ -1351,7 +1346,6 @@ Object {
       "iSS4": "",
       "iSS5": "",
       "iSS6": "",
-      "iSS7": "",
       "iSpinner": "",
       "iUpper21": "",
       "iUpper22": "",
