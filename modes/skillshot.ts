@@ -5,7 +5,7 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { screen, makeText, alert, pfx, addToScreen } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch, onSwitchOpen, SwitchEvent } from '../switch-matrix';
-import { wrap, assert, comma } from '../util';
+import { wrap, assert, comma, range, seq } from '../util';
 import { Text, Node } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
@@ -168,9 +168,44 @@ export class Skillshot extends Mode {
         const generic = this.getGenericAwards();
         const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot() : [];
         const awards: SkillshotAward[] = [];
+        const nRand = this.rng.weightedRand(30, 60, 30, 5);
+        const randInds = seq(nRand).map(() => this.rng.randRange(0, 5));
         for (let i=0; i<7; i++) {
-            const cur = current[i];
             const gen = generic[i];
+            const rand = (!current[i].dontOverride && randInds.includes(i))?
+                this.rng.weightedSelect<SkillshotAward>(
+                    [10, {
+                        switch: gen.switch,
+                        award: '+20 $ value',
+                        made: () => this.player.changeValue(20),
+                    }],
+                    [20, {
+                        switch: gen.switch,
+                        award: '+10 $ value',
+                        made: () => this.player.changeValue(10),
+                    }],
+                    [18-(5-i), {
+                        switch: gen.switch,
+                        award: '$500',
+                        made: () => this.player.store.Poker!.bank+=500,
+                    }],
+                    [7-(5-i), {
+                        switch: gen.switch,
+                        award: '$1000',
+                        made: () => this.player.store.Poker!.bank+=1000,
+                    }],
+                    [32-this.player.chips*8, {
+                        switch: gen.switch,
+                        award: `+${4-this.player.chips} chips`,
+                        made: () => seq(4).forEach(() => this.player.addChip()),
+                    }],
+                    [(this.player.poker?.step??0)>2? 20:0, {
+                        switch: gen.switch,
+                        award: 'UNDO ONE CARD',
+                        made: () => this.player.poker!.snail(),
+                    }],
+                ) : undefined;
+            const cur = rand ?? current[i];
             awards.push({
                 ...gen ?? {},
                 ...cur ?? {},

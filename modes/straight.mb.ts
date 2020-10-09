@@ -208,6 +208,7 @@ export class StraightMb extends Multiball {
             return {
                 switch: sw,
                 award: verb[i],
+                dontOverride: i===0,
                 display: typeof selections[i] === 'string'? selections[i] as string
                     : gfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
                 collect: () => {
@@ -229,7 +230,7 @@ export class StraightMb extends Multiball {
                                     return 'remove';
                                 });
                             }
-                            break;
+                        break;
                         case 'ADD 250K TO JACKPOT VALUE': this.value += 250000; break;
                         case 'ADD 50K TO JACKPOT VALUE': this.value += 50000; break;
                         case 'DOUBLE JACKPOT VALUE': this.value *= 2; break;

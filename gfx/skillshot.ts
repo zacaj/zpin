@@ -22,7 +22,8 @@ export class SkillShotGfx extends ModeGroup {
         this.y(-this.h()/2+GameGfx.top/2);
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
 
-        this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.1));
+        this.add(makeText(`player ${ss.player.number}`, 30, 'center', 'middle').x(this.w()/2).y(this.h()*.05));
+        this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.15));
         this.add(makeText(ss.awards[6]?.award ?? '', 35, 'center', 'middle').x(this.w()/2).y(this.h()*.3));
         this.add(this.instr = makeText('', 30, 'center', 'middle').x(this.w()/2).y(this.h()*.5));
         this.add(this.award = makeText('', 43));

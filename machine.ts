@@ -319,6 +319,7 @@ export type SkillshotAward = {
     collect?: (e: SwitchEvent) => void; // always called for given switch
     made: (e: SwitchEvent) => void; // if selected skillshot was made
     select?: (selected: boolean, disp: Node, a: SkillshotAward) => void;
+    dontOverride?: boolean;
 };
 
 export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
