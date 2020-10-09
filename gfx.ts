@@ -904,19 +904,24 @@ export async function gWait(ms: number, context: string) {
     ]);
 }
 
+const popups: Node[] = [];
 export async function popup(node: Node, ms = 3500) {
     // if (!pfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
-    if (pfx) {
+    popups.forEach(n => n.visible(false));
+    popups.push(node);
+    if (gfx) {
         node.z(100);
         screen.add(node);
     }
     if (ms)
         await gWait(ms, 'popup');
-    if (pfx && ms) screen.remove(node);
+    if (gfx && ms) screen.remove(node);
+    popups.remove(node);
     return;
 }
+
 
 export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
     let g: Group;
