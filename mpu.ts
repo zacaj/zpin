@@ -11,7 +11,7 @@ export const MPU = {
     isConnected: false,
 
     adjust(time: number|string): Time { // convert remote time to local
-        if (typeof time === 'string') time = num(time);
+        if (typeof time === 'string') time = parseFloat(time);
         return (time + (this.timeOffset as number)) as Time;
     },
 
@@ -69,7 +69,8 @@ export const MPU = {
 
                     {
                         const local = time();
-                        const remote = parseInt(await this.sendCommand('time', true), 10);
+                        const remoteStr = await this.sendCommand('time', true);
+                        const remote = parseFloat(remoteStr);
                         this.timeOffset = (local - remote) as Time;
                     }
 

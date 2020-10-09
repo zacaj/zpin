@@ -24,7 +24,7 @@ public class SwitchMatrix extends Thread {
 	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.HIGH); // 11
 	GpioPinDigitalOutput serLatch = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
 	
-	static double startTime = 0;
+	static long startTime = 0;
 	
 	int curCol = 0;
 	final int Width = 16;
@@ -44,7 +44,7 @@ public class SwitchMatrix extends Thread {
 	Queue<Event> events = new ConcurrentLinkedQueue<>();
 	
 	private SwitchMatrix() {	
-		SwitchMatrix.startTime = ms();
+		SwitchMatrix.startTime = System.nanoTime();
 		Pin[] rets = {
 			RaspiPin.GPIO_15,
 			RaspiPin.GPIO_16,
@@ -155,7 +155,7 @@ public class SwitchMatrix extends Thread {
 	}
 	
 	public static double ms() {
-		return ((double)System.nanoTime()) / 1000000.0 - startTime; 
+		return ((double)(System.nanoTime() - startTime)) / 1000000.0; 
 	}
 	
 	public static class Event {
