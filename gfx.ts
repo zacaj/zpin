@@ -14,23 +14,70 @@ import { fork } from './promises';
 import { onChange } from './state';
 import { Mode } from './mode';
 import { TreeChangeEvent } from './tree';
+const argv = require('yargs').argv;
 
 export let gfx: AminoGfx;
+export let pfx: AminoGfx|undefined;
 let screenW: number;
 let screenH: number;
-let root: Group;
-let playfield: Playfield;
+let playfield: Playfield|undefined;
 export let screen: Screen;
 let isRpi = false;
-
+const showPf = argv.showPf ?? true;
+const split = argv.split ?? true;
+const swap = argv.swap ?? false;
+const halfScreen = argv.half ?? true;
 export async function initGfx() {
-    gfx = new AminoGfx();
+    gfx = new AminoGfx({display: isRpi? (swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
     await new Promise((resolve, reject) => {
         gfx.start((err) => {
             if (err) reject(err);
             else resolve();
         });
     });
+    gfx.fill('#FFFF00');
+    gfx.showFPS(false);
+    gfx.title('Screen');
+    if (gfx.screen.fullscreen) isRpi = true;
+
+    if (isRpi) {
+        // gfx.w(1280);
+        // gfx.h(720);
+    } else {
+        if (split) {
+            gfx.w(Screen.w*2/3);
+            gfx.h(Screen.h*2/3);
+        } else {
+            gfx.w(400+Screen.w/2+10);
+            gfx.h(800);
+        }
+    }
+
+    if (showPf) {
+        if (split) {
+            pfx = new AminoGfx({display: isRpi? (!swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
+            pfx.showFPS(false);
+            pfx.title('Playfield');
+            await new Promise((resolve, reject) => {
+                pfx!.start((err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+            pfx.fill('#FFFF00');
+            if (isRpi) {
+                // pfx.w(1280);
+                // pfx.h(720);
+            } else {
+                pfx.w(400);
+                pfx.h(800);
+            }
+        } else {
+            pfx = gfx;
+            gfx.title('Z-Pin');
+        }
+    }
+    
     Log.info('gfx', 'amino initialized');
 
     fonts.registerFont({
@@ -50,151 +97,175 @@ export async function initGfx() {
     }));
     Log.log('gfx', 'precached');
 
-    gfx.fill('#FFFF00');
-    gfx.showFPS(false);
-    root = gfx.createGroup();
-    root.sy(-1);
-    gfx.setRoot(root);
-    if (gfx.screen.fullscreen) isRpi = true;
 
-    if (isRpi) {
-        console.log('size: %i, %i', gfx.w(), gfx.h());
-        screenW = gfx.h();
-        screenH = gfx.w();
-    } else {
-        gfx.w(400+Screen.w/2+10);
-        gfx.h(800);
-        // gfx.h(360);
-        // gfx.w(640);
-        screenW = 400;
-        screenH = 800;
-    }
-    if (isRpi) {
-        root.rz(90);
+    screen = new Screen(gfx);
+    if (split || !showPf) {
+        gfx.setRoot(screen);
+        if (halfScreen) {
+            screen.w(gfx.w()/1.7);
+            screen.h(gfx.h()/1.7);
+            screen.x(screen.w()/2);
+            screen.y(screen.h()*.85);
+            screen.sx(screen.w()/Screen.w);
+            screen.sy(screen.h()/Screen.h);
+        } else {
+            screen.w(gfx.w());
+            screen.h(gfx.h());
+            screen.x(screen.w()/2);
+            screen.y(screen.h()/2);
+            screen.sx(screen.w()/Screen.w);
+            screen.sy(screen.h()/Screen.h);
+        }
     }
 
-    root.add(gfx.createCircle().radius(10).x(screenW).y(screenH/-2));
-    root.acceptsKeyboardEvents = true;
+    
+    if (pfx) {
+        const root = pfx.createGroup();
+        root.sy(-1);
+        pfx.setRoot(root);
+        root.acceptsKeyboardEvents = true;
 
-    playfield = new Playfield();
-    root.add(playfield);
+        if (isRpi) {
+            root.rz(90);
+        }
+    
+        if (isRpi) {
+            console.log('size: %i, %i', pfx.w(), pfx.h());
+            screenW = pfx.h();
+            screenH = pfx.w();
+        } else {
+            if (split) {
+                pfx.w(400);
+                pfx.h(800);
+            }
+            // pfx.h(360);
+            // pfx.w(640);
+            screenW = 400;
+            screenH = 800;
+        }
 
-    screen = new Screen();
-    if (!isRpi) {
-        root.add(screen);
-        screen.w(Screen.w/2);
-        screen.h(Screen.h/2);
-        screen.x(screenW+screen.w()/2);
-        screen.y(-screenH/2);
-    } else {
-        playfield.add(screen);
-        screen.w(Screen.pw+2);
-        screen.h(Screen.ph+2);
-        screen.x(5.5+Screen.pw/2);
-        screen.y(22.7-Screen.ph/2);
-    }
-    screen.sx(screen.w()/Screen.w);
-    screen.sy(-screen.h()/Screen.h);
+        playfield = new Playfield();
+        root.add(playfield);
+        
+        if (!split) {
+            if (!isRpi) {
+                root.add(screen);
+                screen.w(Screen.w/2);
+                screen.h(Screen.h/2);
+                screen.x(screenW+screen.w()/2);
+                screen.y(-screenH/2);
+            } else {
+                playfield.add(screen);
+                screen.w(Screen.pw+2);
+                screen.h(Screen.ph+2);
+                screen.x(5.5+Screen.pw/2);
+                screen.y(22.7-Screen.ph/2);
+            }
+            screen.sx(screen.w()/Screen.w);
+            screen.sy(-screen.h()/Screen.h);
+        }
+        
+        root.add(pfx.createCircle().radius(10).x(screenW).y(screenH/-2));
+        
+        playfield.acceptsMouseEvents = true;
+        playfield.acceptsKeyboardEvents = true;
+        pfx.on('press', playfield, (e) => {
+            console.log('playfield location: ', { x: e.point.x, y: e.point.y });
+        });
 
-    playfield.acceptsMouseEvents = true;
-    playfield.acceptsKeyboardEvents = true;
-    gfx.on('press', playfield, (e) => {
-        console.log('playfield location: ', { x: e.point.x, y: e.point.y });
-    });
-    // eslint-disable-next-line complexity
-    gfx.on('key.press', null, (e) => {
-        console.log('key press', e.char, e.keycode, e.key);
-        if (e.char) {
-            let letter: number|undefined;
-            let number: number|undefined;
-            const qwerty = [81, 87, 69, 82, 84, 89, 85, 73, 79, 80];
-            const numbers = [49, 50, 51, 52, 53, 54, 55, 56, 57, 48];
-            if (qwerty.includes(e.keycode))
-                letter = qwerty.indexOf(e.keycode);
-            if (numbers.includes(e.keycode))
-                number = numbers.indexOf(e.keycode);
-            if (!letter) 
-                letter = qwerty.findIndex(q => gfx.inputHandler.statusObjects.keyboard.state[q]);
-            if (!number)
-                number = numbers.findIndex(q => gfx.inputHandler.statusObjects.keyboard.state[q]);
-            if (letter >= 0 && number >= 0) {
-                const sw = matrix[letter][number];  
-                if (!sw) 
-                    Log.error(['gfx', 'switch'], 'no active switch at %i, %i', letter, number);
-                else {  
-                    Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
-                    sw.changeState(!sw.state, 'force');
+         // eslint-disable-next-line complexity
+        pfx.on('key.press', null, (e) => {
+            if (!playfield) return;
+            console.log('key press', e.char, e.keycode, e.key);
+            if (e.char) {
+                let letter: number|undefined;
+                let number: number|undefined;
+                const qwerty = [81, 87, 69, 82, 84, 89, 85, 73, 79, 80];
+                const numbers = [49, 50, 51, 52, 53, 54, 55, 56, 57, 48];
+                if (qwerty.includes(e.keycode))
+                    letter = qwerty.indexOf(e.keycode);
+                if (numbers.includes(e.keycode))
+                    number = numbers.indexOf(e.keycode);
+                if (!letter) 
+                    letter = qwerty.findIndex(q => pfx!.inputHandler.statusObjects.keyboard.state[q]);
+                if (!number)
+                    number = numbers.findIndex(q => pfx!.inputHandler.statusObjects.keyboard.state[q]);
+                if (letter >= 0 && number >= 0) {
+                    const sw = matrix[letter][number];  
+                    if (!sw) 
+                        Log.error(['gfx', 'switch'], 'no active switch at %i, %i', letter, number);
+                    else {  
+                        Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
+                        sw.changeState(!sw.state, 'force');
+                    }
                 }
             }
-        }
 
-        switch (e.key) {
-            case 'LEFT':
-                playfield.x(playfield.x()-2);
-                break;
-            case 'RIGHT':
-                playfield.x(playfield.x()+2);
-                break;
-            case 'DOWN':
-                playfield.y(playfield.y()-2);
-                break;
-            case 'UP':
-                playfield.y(playfield.y()+2);
-                break;
-        }
-        switch (e.char) {
-            case 'j':
-                playfield.sx(playfield.sx()-.02);
-                break;
-            case 'l':
-                playfield.sx(playfield.sx()+.02);
-                break;
-            case 'k':
-                playfield.sy(playfield.sy()+.01);
-                break;
-            case 'i':
-                playfield.sy(playfield.sy()-.01);
-                break;
-            case 'u':
-                playfield.rz(playfield.rz()-.1);
-                break;
-            case 'o':
-                playfield.rz(playfield.rz()+.1);
-                break;
-
-            
-            case 'a': {
-                const adj = {x: playfield.x(), y: playfield.y(), sx: playfield.sx(), sy: playfield.sy(), rz: playfield.rz()};
-                Log.log('console', 'adjustments', adj);
-                fs.writeFileSync('projector.json', JSON.stringify(adj, null, 2));
-                break;
+            switch (e.key) {
+                case 'LEFT':
+                    playfield.x(playfield.x()-2);
+                    break;
+                case 'RIGHT':
+                    playfield.x(playfield.x()+2);
+                    break;
+                case 'DOWN':
+                    playfield.y(playfield.y()-2);
+                    break;
+                case 'UP':
+                    playfield.y(playfield.y()+2);
+                    break;
             }
-            case 'd':
-                machine.out!.debugPrint();
-                break;
-            case 'm':
-                Log.log(['console', 'switch', 'mpu', 'solenoid', 'machine', 'gfx', 'game'], 'MARKER');
-                break;
-            case 's':
-                fs.copyFileSync('./switch.log', './recordings/'+time());
-                break;
-        }
-    });
-    // playfield.add(gfx.createText().fontName('card').text('test text').y(20).sy(-.05).sx(.05).fontSize(50));
+            switch (e.char) {
+                case 'j':
+                    playfield.sx(playfield.sx()-.02);
+                    break;
+                case 'l':
+                    playfield.sx(playfield.sx()+.02);
+                    break;
+                case 'k':
+                    playfield.sy(playfield.sy()+.01);
+                    break;
+                case 'i':
+                    playfield.sy(playfield.sy()-.01);
+                    break;
+                case 'u':
+                    playfield.rz(playfield.rz()-.1);
+                    break;
+                case 'o':
+                    playfield.rz(playfield.rz()+.1);
+                    break;
+
+                
+                case 'a': {
+                    const adj = {x: playfield.x(), y: playfield.y(), sx: playfield.sx(), sy: playfield.sy(), rz: playfield.rz()};
+                    Log.log('console', 'adjustments', adj);
+                    fs.writeFileSync('projector.json', JSON.stringify(adj, null, 2));
+                    break;
+                }
+                case 'd':
+                    machine.out!.debugPrint();
+                    break;
+                case 'm':
+                    Log.log(['console', 'switch', 'mpu', 'solenoid', 'machine', 'gfx', 'game'], 'MARKER');
+                    break;
+                case 's':
+                    fs.copyFileSync('./switch.log', './recordings/'+time());
+                    break;
+            }
+        });
+    }
 
     Log.log('gfx', 'graphics initialized');
-
-    // alert('test text', undefined, 'more test text');
 }
 
 export class Playfield extends Group {
     static readonly w = 20.25;
     static readonly h = 45;
 
-    bg = makeImage('pf', Playfield.w, Playfield.h);
+    bg = makeImage('pf', Playfield.w, Playfield.h, undefined, this.amino);
 
     constructor() {
-        super(gfx);
+        super(pfx!);
         this.w(Playfield.w);
         this.h(Playfield.h);
         this.originX(0).originY(1);
@@ -202,12 +273,12 @@ export class Playfield extends Group {
         this.sx(screenH/Playfield.h);
         this.sy(screenH/Playfield.h);
         if (isRpi) {
-            this.x(-((Playfield.w*screenH/Playfield.h)+gfx.h())/2);
+            this.x(-((Playfield.w*screenH/Playfield.h)+pfx!.h())/2);
             this.y(0);
 
             try {
                 const json = fs.readFileSync('projector.json', 'utf8');
-                const adj = JSON.parse(json);
+                const adj = JSON.parse(json); // {} as any; // 
                 this.x(adj.x ?? this.x());
                 this.y(adj.y ?? this.y());
                 this.sx(adj.sx ?? this.sx());
@@ -219,7 +290,7 @@ export class Playfield extends Group {
         } else {
             this.x(-((Playfield.w*screenH/Playfield.h)-screenW)/2).y(0);
         }
-        this.add(gfx.createRect().w(Playfield.w).h(Playfield.h).originX(0).originY(0));
+        this.add(pfx!.createRect().w(Playfield.w).h(Playfield.h).originX(0).originY(0));
         this.add(this.bg);
 
         for (const name of Object.keys(gfxLights) as (keyof LightOutputs)[]) {
@@ -252,15 +323,15 @@ export class Screen extends Group {
 
     circle!: Circle;
 
-    constructor() {
-        super(gfx);
+    constructor(g: AminoGfx) {
+        super(g);
         // this.sx(this.w()/Screen.sw);
         // this.sy(-this.h()/Screen.sh);
         // this.originX(0.5).originY(.5);
 
-        this.add(gfx.createRect().w(Screen.w).h(Screen.h).originX(.5).originY(.5).fill('#000000'));
+        this.add(g.createRect().w(Screen.w).h(Screen.h).originX(.5).originY(.5).fill('#000000'));
         
-        this.circle = gfx.createCircle().radius(11).x(0).y(Screen.h/2).z(90);
+        this.circle = g.createCircle().radius(11).x(0).y(Screen.h/2).z(90);
         // circle.x.anim({
         //     from: -400,
         //     to: 400,
@@ -281,7 +352,7 @@ export class Screen extends Group {
 
         this.depth(true);
 
-        // this.add(gfx.createRect().fill('#ffffff').w(100).h(100).z(100));
+        // this.add(pfx.createRect().fill('#ffffff').w(100).h(100).z(100));
     }
 }
 
@@ -291,7 +362,7 @@ abstract class Light extends Group {
     constructor(
         public name: keyof LightOutputs,
     ) {
-        super(gfx);
+        super(pfx!);
         const {x,y} = gfxLights[name];
         this.x(x);
         this.y(y);
@@ -332,7 +403,7 @@ class CircleLight extends Light {
     ) {
         super(name);
         const {d} = gfxLights[name];
-        this.shape = gfx.createCircle().radius(d!/2).opacity(1);
+        this.shape = pfx!.createCircle().radius(d!/2).opacity(1);
         this.add(this.shape);
         this.set([]);
     }
@@ -344,7 +415,7 @@ class ArrowLight extends Light {
     ) {
         super(name);
         const {a, r} = gfxLights[name];
-        this.shape = gfx.createPolygon();
+        this.shape = pfx!.createPolygon();
         const points = new Float32Array(6);
         points[0] = 0;
         points[1] = a!/3*2;
@@ -366,7 +437,7 @@ export class Display extends Group {
     image!: Image;
     node?: Node;
     constructor(public name: keyof ImageOutputs) {
-        super(gfx);
+        super(pfx!);
         const {x,y,r} = gfxImages[name];
         this.x(x);
         this.y(y);
@@ -377,9 +448,9 @@ export class Display extends Group {
         this.originY(0.5);
         this.sx(1/80).sy(1/80);
 
-        this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#000000').z(-1));
+        this.add(pfx!.createRect().w(this.w()).h(this.h()).fill('#000000').z(-1));
 
-        this.image = new Image(gfx);
+        this.image = new Image(pfx!);
         this.image.w(80);
         this.image.h(120);
         this.image.top(1).bottom(0).size('stretch');
@@ -407,54 +478,52 @@ export class Image extends ImageView {
     curVal?: string;
     targetVal?: string;
 
-    static cache: { [name: string]: Texture|Promise<Texture> } = {};
     set(val: string): void {
         this.targetVal = val;
         const image = this;
-        // if (image?.src() === val) {
-        //     Log.trace('gfx', 'image %s set to same image, ignoring', val);
-        //     return;
-        // }
-        // const n = Math.random();
-        // console.time('set image'+n);
         image?.visible(val.length > 0);
 
         if (val.length > 0) {
-            if (Image.cache[val]) {
-                if ('then' in Image.cache[val]) {
+            const cache = Image.getCache(this.amino);
+            if (cache[val]) {
+                if ('then' in cache[val]) {
                     debugger;
-                    // Log.info('gfx', 'wait for image "%s" to be cached', val);
-                    // return (Image.cache[val] as Promise<Texture>).then(tex => {
-                    //     if (this.targetVal !== val) return;
-                    //     image?.image(tex);
-                    //     this.curVal = val;
-                    // });
                 } else {
                     Log.trace('gfx', 'use cached image for "%s"', val);
-                    image?.image(Image.cache[val] as Texture);
+                    image?.image(cache[val]);
                     this.curVal = val;
                 }
             }
             else {
                 debugger;
-                // void Image.cacheTexture(val).then(texture => {     
-                //     if (this.targetVal === val) {
-                //         image?.image(texture);
-                //         this.curVal = val;
-                //     }
-                // });
-                // return Image.cache[val] as Promise<Texture>;
             }
         } else {
             this.curVal = val;
         }
-        // console.timeEnd('set image'+n);
         return undefined;
     }
 
-    static cacheTexture(val: string): Promise<Texture> {
+    static async cacheTexture(val: string): Promise<any> {
         Log.info('gfx', 'new image load for %s', val);
-        return Image.cache[val] = new Promise((resolve, reject) => {
+        const img = await Image.loadImage(val);
+        await Promise.all([gfx, pfx].truthy().map(g => new Promise((resolve, reject) => {
+            const texture = g.createTexture();
+            texture.loadTextureFromImage(img, (err) => {
+                if (err) {
+                    Log.error('gfx', 'error loading image "%s": ', val, err);
+                    // debugger;
+                    reject(err);
+                    return;
+                }
+                Image.getCache(g)[val] = texture;
+                resolve(texture);
+            });
+        })));
+    }
+
+    static loadImage(val: string): Promise<AminoImage> {
+        Log.info('gfx', 'new image load for %s', val);
+        return new Promise((resolve, reject) => {
             const img = new AminoImage();
 
             img.onload = (err) => {
@@ -464,24 +533,19 @@ export class Image extends ImageView {
                     reject(err);
                     return;
                 }
-                
-                const texture = gfx.createTexture();
-                texture.loadTextureFromImage(img, (err) => {
-                    if (err) {
-                        Log.error('gfx', 'error loading image "%s": ', val, err);
-                    // debugger;
-                    reject(err);
-                    return;
-                }
 
-                Image.cache[val] = texture;
-                resolve(texture);
+                resolve(img);
                 Log.info('gfx', 'image %s loaded', val);
-            });
             };
 
             img.src = 'media/'+val+'.png';
         });
+    }
+
+    static getCache(g: any): { [name: string]: Texture } {
+        if (!g.cache)
+            g.cache = {};
+        return g.cache;
     }
 }
 
@@ -489,7 +553,7 @@ class FxSwitch extends Rect {
     constructor(
         public sw: Switch,
     ) {
-        super(gfx);
+        super(pfx!);
         assert(sw);
         this.acceptsMouseEvents = true;
 
@@ -504,7 +568,7 @@ class FxSwitch extends Rect {
             this.fill(sw.state? '#ff0000' : '#fffff');
         }, onSwitch(sw));
 
-        gfx.on('press', this, (e) => {
+        pfx!.on('press', this, (e) => {
             Log.info(['gfx', 'switch', 'console'], 'force state of %s to %s', sw.name, !sw.state? 'on':'off');
             sw.changeState(!sw.state, 'force');
             if (e.button === 1)
@@ -517,7 +581,7 @@ class FxCoil extends Rect {
     constructor(
         public coil: Solenoid,
     ) {
-        super(gfx);
+        super(pfx!);
         assert(coil);
 
         this.originX(0.5).originY(0.5);
@@ -547,8 +611,8 @@ if (require.main === module) {
     });//);
 }
 
-export function makeImage(name: string, w: number, h: number, flip = true): Image {
-    const img = new Image(gfx).opacity(1.0).w(w).h(h);
+export function makeImage(name: string, w: number, h: number, flip = true, g = gfx): Image {
+    const img = new Image(g).opacity(1.0).w(w).h(h);
     if (flip) img.top(1).bottom(0);
     img.size('stretch');
     img.set(name);
@@ -595,8 +659,9 @@ export function addToScreen(cb: () => ModeGroup) {
 export function makeText(text: string, height: number,
     align: 'corner'|'center'|'left'|'right' = 'center',
     vAlign: 'baseline'|'top'|'middle'|'bottom'|undefined = undefined,
+    g = gfx,
 ): Text {
-    return gfx.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
+    return g.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
         .align(align==='corner'? 'left' : align)
         .vAlign(align==='corner'? 'top' : (vAlign!==undefined? vAlign: 'middle'));
 }
@@ -825,7 +890,7 @@ class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
 }
 
 export function createGroup(): Group|undefined {
-    if (gfx) return gfx.createGroup();
+    if (pfx) return pfx.createGroup();
     return undefined;
 }
 
@@ -838,29 +903,29 @@ export async function gWait(ms: number, context: string) {
 }
 
 export async function popup(node: Node, ms = 3500) {
-    // if (!gfx) return;
+    // if (!pfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
-    if (gfx) {
+    if (pfx) {
         node.z(100);
         screen.add(node);
     }
     if (ms)
         await gWait(ms, 'popup');
-    if (gfx && ms) screen.remove(node);
+    if (pfx && ms) screen.remove(node);
     return;
 }
 
 export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
     let g: Group;
-    if (gfx) {
+    if (pfx) {
         Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
-        g = gfx.createGroup().y(-Screen.h * .2);
+        g = pfx.createGroup().y(-Screen.h * .2);
         const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
         const t2 = subtext? makeText(subtext, 40, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
-        // g.add(gfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
-        const r = gfx.createRect().fill('#111111').z(-.1);
+        // g.add(pfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
+        const r = pfx.createRect().fill('#111111').z(-.1);
         function setW() {
             r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
             r.x((t.w()-r.w())/2 + t.x());
@@ -887,11 +952,11 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
 
 export function notify(text: string, ms = 2000): [Group, Promise<void>] {
     let g: Group;
-    if (gfx) {
+    if (pfx) {
         Log.log(['gfx', 'console'], 'notify message %s / %s', text);
-        g = gfx.createGroup().y(Screen.h/2);
+        g = pfx.createGroup().y(Screen.h/2);
         const t = makeText(text, 50, 'center', 'bottom').w(Screen.w).x(-Screen.w/2);
-        const r = gfx.createRect().fill('#444444').z(-.1);
+        const r = pfx.createRect().fill('#444444').z(-.1);
         function setW() {
             r.w(t.lineW()+50);
             r.x((t.w()-r.w())/2 + t.x());
@@ -916,12 +981,12 @@ export function textBox(settings: {maxWidth?: number; padding?: number}, ...line
     let g: Group;
     const maxWidth = settings.maxWidth ?? 0.6;
     const padding = settings.padding ?? 30;
-    if (gfx) {
-        g = gfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
+    if (pfx) {
+        g = pfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
 
         const texts = lines.map(([text, size]) => makeText(text, size, 'center', 'top').wrap('word').w(Screen.w*maxWidth).x(-Screen.w*maxWidth/2));
 
-        const r = gfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
+        const r = pfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
 
         function setW() {
             r.w(texts.map(t => t.lineW()).reduce((a,b) => Math.max(a,b), 0) + padding * 2);

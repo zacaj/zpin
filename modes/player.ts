@@ -11,7 +11,7 @@ import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, wait } from '../timer';
-import { makeText, gfx, screen, addToScreen, alert, notify } from '../gfx';
+import { makeText, gfx, screen, addToScreen, alert, notify, pfx } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
@@ -295,7 +295,7 @@ class Spinner extends Tree<MachineOutputs> {
     rounds = 0;
     maxRounds = 1;
 
-    display = gfx? makeText('10  ', 50, 'corner').rz(90).x(80).y(160).sy(-1) : undefined;
+    display = pfx? makeText('10  ', 50, 'corner', undefined, pfx).rz(90).x(80).y(160).sy(-1) : undefined;
 
     constructor(
         public player: Player,

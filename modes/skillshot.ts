@@ -3,7 +3,7 @@ import { MachineOutputs, machine, SkillshotAward } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
-import { screen, makeText, alert, gfx, addToScreen } from '../gfx';
+import { screen, makeText, alert, pfx, addToScreen } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch, onSwitchOpen, SwitchEvent } from '../switch-matrix';
 import { wrap, assert, comma } from '../util';
 import { Text, Node } from 'aminogfx-gl';
@@ -46,10 +46,10 @@ export class Skillshot extends Mode {
 
         const outs = {} as any;
         for (const a of this.awards) {
-            if (gfx && !a.display)
-                this.displays.push(makeText('', 10));
-            else if (gfx && a.display)
-                this.displays.push((typeof a.display === 'string'?  makeText(a.display, 70, 'corner') : a.display).rz(90).x(80).y(160).sy(-1));
+            if (pfx && !a.display)
+                this.displays.push(makeText('', 10, undefined, undefined, pfx));
+            else if (pfx && a.display)
+                this.displays.push((typeof a.display === 'string'?  makeText(a.display, 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
             else
                 this.displays.push({fill() { }} as any);
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
