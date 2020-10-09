@@ -15,6 +15,11 @@ import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
 
+enum GateMode {
+    Closed = 'Closed',
+    Open = 'Open',
+    Toggle = 'Toggle',
+}
 
 export class Skillshot extends Mode {
     shooterOpen = true;
@@ -29,6 +34,8 @@ export class Skillshot extends Mode {
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
     startTime = time();
 
+    gateMode!: GateMode;
+
     finishDisplay?: () => void;
 
     rng!: Rng;
@@ -39,7 +46,7 @@ export class Skillshot extends Mode {
     ) {
         super(Modes.Skillshot);
         this.rng = player.rng();
-        State.declare<Skillshot>(this, ['shooterOpen', 'curAward']);
+        State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode']);
         player.storeData<Skillshot>(this, ['rng']);
 
         this.awards = this.makeAwards();          
@@ -55,10 +62,15 @@ export class Skillshot extends Mode {
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
         }
 
+        if (player.game.ballNum === 1)
+            this.gateMode = GateMode.Closed;
+        else
+            this.gateMode = this.rng.weightedSelect([2, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Closed]);
+
         this.out = new Outputs(this, {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
-            // leftGate: () => (time()-this.startTime) % 3000 > 1500,
+            leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTime) % 3000 > 1500 : (this.gateMode===GateMode.Open),
             rightGate: false,
             upperMagnet: () => machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 5000 && this.lastSw < 2,
         });
@@ -107,21 +119,22 @@ export class Skillshot extends Mode {
     }
 
     setAward(i: number) {
-        const select = (a: SkillshotAward, selected: boolean) => {
+        const select = (a: SkillshotAward, selected: boolean, i: number) => {
             if (!a.display) return;
             if (a.select)
                 a.select(selected, a.display as any, a);
-            else if (a.display instanceof Text) {
+            const disp = this.displays[i];
+            if (disp instanceof Text) {
                 if (selected)
-                    a.display.fill('#ffff00');
+                    disp.fill('#ffff00');
                 else
-                    a.display.fill('#ffffff');
+                    disp.fill('#ffffff');
             }
         };
         i = wrap(i, this.awards.length-1);
-        select(this.awards[this.curAward], false);        
+        select(this.awards[this.curAward], false, this.curAward);        
         this.curAward = i;
-        select(this.awards[this.curAward], true);
+        select(this.awards[this.curAward], true, this.curAward);
         Log.info('game', 'selected skillshot %i', i);
     }
 
@@ -183,9 +196,12 @@ export class Skillshot extends Mode {
             [[1, 1]],
             [[10, 5, 8], [10, 10, 15], [5, 30]],
             [[1, 3, 6]],
-            [[10, 1, 5], [3, 4, 8]],
-            [[2, 10], [2, 20], [1, 40]],
-            [[1, 1, 5]],
+            this.gateMode===GateMode.Closed? [[10, 1, 5], [3, 4, 8]] : 
+                (this.gateMode===GateMode.Open? [[10, 5, 9], [3, 8, 12]] : [[10, 3, 7], [3, 4, 10]]),
+            this.gateMode===GateMode.Closed? [[1, 10], [2, 20], [5, 40]] : 
+                (this.gateMode===GateMode.Open? [[5, 10], [2, 20], [1, 40]] : [[2, 10], [2, 20], [1, 40]]),
+            this.gateMode===GateMode.Closed? [[1, 10, 15]] : 
+                (this.gateMode===GateMode.Open? [[1, 1, 5]] : [[1, 4, 8]]),
         ];
         return switches.map((sw, i) => {
             const value = base * this.rng.weightedRange(...mults[i] as any);

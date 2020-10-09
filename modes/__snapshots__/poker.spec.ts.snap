@@ -276,12 +276,14 @@ Object {
                       "iSS7": Object {
                         "fill": [Function],
                       },
+                      "leftGate": false,
                       "rightGate": false,
                       "shooterDiverter": true,
                       "upperMagnet": undefined,
                     },
                     "state": Object {
                       "curAward": 0,
+                      "gateMode": "Closed",
                       "shooterOpen": true,
                     },
                   },

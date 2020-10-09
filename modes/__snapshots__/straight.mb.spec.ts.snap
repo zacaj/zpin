@@ -805,12 +805,14 @@ Object {
                       "iSS7": Object {
                         "fill": [Function],
                       },
+                      "leftGate": false,
                       "rightGate": false,
                       "shooterDiverter": true,
                       "upperMagnet": undefined,
                     },
                     "state": Object {
                       "curAward": 0,
+                      "gateMode": "Closed",
                       "shooterOpen": true,
                     },
                   },
@@ -2677,30 +2679,6 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1238,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnd",
-                          "num": 1239,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnding",
-                          "num": 1240,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onTargetDown",
                           "num": 1241,
                           "predicates": Array [
                             [Function],
@@ -2708,8 +2686,32 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": [Function],
+                          "callback": "onEnd",
                           "num": 1242,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": "onEnding",
+                          "num": 1243,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": "onTargetDown",
+                          "num": 1244,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": [Function],
+                          "num": 1245,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2718,7 +2720,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1243,
+                          "num": 1246,
                           "predicates": Array [
                             [Function],
                           ],
