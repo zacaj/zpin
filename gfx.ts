@@ -774,6 +774,7 @@ const gfxCoils: { [name: string]: {
     'miniEject': { x: 6.1875, y: 2.3625000000000043 },
     'upperEject': { x: 5.0625, y: 40.5 },
     'miniFlipperEnable': { x: 3.15, y: 3.65625 },
+    'kickerEnable': { x: 9.112499999999999, y: 6.918750000000003 },
 };
 const gfxSwitches: { [name: string]: {
     x: number;
