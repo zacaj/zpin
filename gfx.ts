@@ -71,6 +71,8 @@ export async function initGfx() {
             } else {
                 pfx.w(400);
                 pfx.h(800);
+                pfx.x.watch(() => gfx.x(pfx!.x()+pfx!.w()+20), true);
+                pfx.y.watch(() => gfx.y(pfx!.y()+pfx!.h()/4), true);
             }
         } else {
             pfx = gfx;
