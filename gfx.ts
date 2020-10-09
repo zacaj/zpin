@@ -593,8 +593,8 @@ class FxCoil extends Rect {
 
         this.fill(coil.actual? '#ff0000' : '#ffffff');
         Events.listen(() => {
-            this.fill(coil.actual? '#ff0000' : '#fffff');
-        }, onChange(coil, 'actual'));
+            this.fill(coil.actual? '#ff0000' : (coil.val? '#ff6600' : '#fffff'));
+        }, onChange(coil, ['actual', 'val']));
     }
 }
 
