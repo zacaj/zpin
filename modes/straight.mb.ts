@@ -195,8 +195,8 @@ export class StraightMb extends Multiball {
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank]),
         ];
-        const verb = this.isRestarted? repeat('ADD 50K TO', 6) : [
-            this.state._==='starting'&&this.state.secondBallLocked? 'ADD 50K TO' : 'ONE-SHOT ADD-A-BALL',
+        const verb = this.isRestarted? repeat('ADD 50K TO JACKPOT VALUE', 6) : [
+            this.state._==='starting'&&this.state.secondBallLocked? 'ADD 50K TO JACKPOT VALUE' : 'ONE-SHOT ADD-A-BALL',
             'DOUBLE JACKPOT VALUE',
             'DOUBLE JACKPOT VALUE',
             '1.5X JACKPOT VALUE',
@@ -230,11 +230,13 @@ export class StraightMb extends Multiball {
                                 });
                             }
                             break;
-                        case 'ADD 250K TO': this.value += 250000; break;
-                        case 'ADD 50K TO': this.value += 50000; break;
-                        case 'DOUBLE': this.value *= 2; break;
-                        case 'TRIPLE': this.value *= 3; break;
-                        case '1.5X': this.value *= 1.5; break;
+                        case 'ADD 250K TO JACKPOT VALUE': this.value += 250000; break;
+                        case 'ADD 50K TO JACKPOT VALUE': this.value += 50000; break;
+                        case 'DOUBLE JACKPOT VALUE': this.value *= 2; break;
+                        case 'TRIPLE JACKPOT VALUE': this.value *= 3; break;
+                        case '1.5X JACKPOT VALUE': this.value *= 1.5; break;
+                        default:
+                            debugger;
                     }
                 },
             };
