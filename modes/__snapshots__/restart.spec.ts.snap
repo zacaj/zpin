@@ -481,6 +481,7 @@ Object {
               "shooterDiverter": undefined,
             },
             "state": Object {
+              "_score": 106020,
               "chips": 2,
               "closeShooter": false,
               "focus": "Poker43",
@@ -494,7 +495,6 @@ Object {
               "miniReady": false,
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 106020,
             },
           },
         ],

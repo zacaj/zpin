@@ -538,6 +538,7 @@ Object {
               "shooterDiverter": undefined,
             },
             "state": Object {
+              "_score": 52000,
               "chips": 4,
               "closeShooter": false,
               "focus": "Poker93",
@@ -551,7 +552,6 @@ Object {
               "miniReady": true,
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 52000,
             },
           },
         ],
@@ -1274,6 +1274,7 @@ Object {
               "shooterDiverter": true,
             },
             "state": Object {
+              "_score": 41000,
               "chips": 4,
               "closeShooter": false,
               "focus": "Poker128",
@@ -1287,7 +1288,6 @@ Object {
               "miniReady": true,
               "modesQualified": Array [],
               "rampUp": true,
-              "score": 41000,
             },
           },
         ],

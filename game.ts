@@ -12,12 +12,13 @@ import { DropBankCompleteEvent } from './drop-bank';
 import { GameGfx } from './gfx/game';
 import { screen, alert, gfx, addToScreen } from './gfx';
 import { Player } from './modes/player';
-import { assert } from './util';
+import { assert, getFormattedTime } from './util';
 import { Ball } from './modes/ball';
 import { StraightMb } from './modes/straight.mb';
 import { fork } from './promises';
 import { Tree, TreeChangeEvent } from './tree';
 import { MPU } from './mpu';
+import fs from 'fs';
 
 export class Game extends Mode {
     get children() {
@@ -35,7 +36,8 @@ export class Game extends Mode {
     get ball() {
         return this.curPlayer.ball;
     }
-    
+
+    totals: {[source: string]: {times: number; total: number}} = {};
     
     private constructor() {
         super(Modes.Game);
@@ -54,7 +56,7 @@ export class Game extends Mode {
         // this.listen(onSwitchClose(machine.sLeftInlane),
         //     () => this.addTemp(new KnockTarget()));
 
-        this.listen(onClose(), (e) => this.curPlayer.score += this.scores.get(e.sw) ?? 0);
+        this.listen(onClose(), (e) => this.curPlayer.addScore(this.scores.get(e.sw) ?? 0, e.sw.name));
 
         addToScreen(() => new GameGfx(this));
     }
@@ -66,8 +68,9 @@ export class Game extends Mode {
         else {
             this.playerUp = 0;
             this.ballNum++;
-            if (this.ballNum > this.ballCount) {
+            if (this.ballNum === this.ballCount) {
                 alert('GAME OVER', 5000);
+                fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify(this.totals, undefined, 2));
             //     if (require.main === module) {
             //         debugger;
             //         process.exit(0);

@@ -17,7 +17,7 @@ import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
-import { assert, comma, money, score } from '../util';
+import { assert, comma, getCallerLine, getCallerLoc, money, score } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -25,7 +25,30 @@ import { Restart } from './restart';
 
 export class Player extends Mode {
     chips = 2;
-    score = 0;
+    _score = 0;
+    get score() {
+        return this._score;
+    }
+    set score(val: number) {
+        const diff = val - this._score;
+        this._score = val;
+
+        if (diff) {
+            const source = getCallerLine();
+            this.recordScore(diff, source);
+        }
+    }
+    addScore(amount: number, source: string|null) {
+        this._score += amount;
+        if (source && amount)
+            this.recordScore(amount, source);
+    }
+    recordScore(amount: number, source: string) {
+        if (!this.game.totals[source])
+            this.game.totals[source] = {times: 0, total: 0};
+        this.game.totals[source].times++;
+        this.game.totals[source].total += amount;
+    }
     miniReady = false;
 
     laneChips = [true, true, true, true];
@@ -86,7 +109,7 @@ export class Player extends Mode {
         public seed = 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['miniReady', 'rampUp', 'score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player>(this, ['miniReady', 'rampUp', '_score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,

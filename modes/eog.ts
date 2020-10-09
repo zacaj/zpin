@@ -40,10 +40,12 @@ export class EndOfGameBonus extends Mode {
         await gWait(500, 'bonus x');
         this.total = (this.player.store.Poker!.bank - Poker.BankStart) * this.player.store.Poker!.cashValue;
         await gWait(2000, 'bonus x');
+        this.player.recordScore(this.total, 'bonus');
         while (this.total !== 0) {
             const change = Math.min(Math.abs(this.total), 1000)*Math.sign(this.total);
             this.total -= change;
-            this.player.score += change;
+            // this.player.score += change;
+            this.player.addScore(change, null);
             await gWait(10, 'bonus count');
         }
         await gWait(2500, 'bonus end');

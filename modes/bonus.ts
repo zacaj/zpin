@@ -50,10 +50,12 @@ export class Bonus extends Mode {
             }
             await gWait(1000, 'bonus x');
         }
+        this.ball.player.recordScore(this.total, 'bonus');
         while (this.total > 0) {
             const change = Math.min(this.total, 1000);
             this.total -= change;
-            this.ball.player.score += change;
+            // this.ball.player.score += change;
+            this.ball.player.addScore(change, null);
             await gWait(10, 'bonus count');
         }
         await gWait(1500, 'bonus end');

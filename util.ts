@@ -287,15 +287,25 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
     ) as ((keyof T)&string)[];
 }
 
-export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp): string {
-    if (!require('./log').Log.files.trace) return '';
+export function getCallerStack(ignoreCurFile = false, ignorePattern?: RegExp, force = false): string[] {
+    if (!require('./log').Log.files.trace && !force) return [];
     const err = new Error();
     const lines = err.stack!.split('\n').slice(2);
     const imm_caller_line = lines[0];
     const file = (imm_caller_line.match(/([^/\\]+\.js)/) ?? [])[0];
-    const caller_line_index = lines.findIndex(l => (!file || (ignoreCurFile && !l.includes(file))) && (!ignorePattern || !l.match(ignorePattern)));
+    const caller_line_index = lines.findIndex(l => (!file || !ignoreCurFile || (ignoreCurFile && !l.includes(file))) && (!ignorePattern || !l.match(ignorePattern)));
     
     const callers = caller_line_index === -1? [imm_caller_line] : lines.slice(caller_line_index, caller_line_index+3);
+    return callers;
+}
+
+export function getCallerLine(): string {
+    const imm = getCallerStack(false, undefined, true)[2];
+    return (imm.match(/([^/\\]+\.js[\d:]*)/) ?? [])[0];
+}
+
+export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp, force = false): string {
+    const callers = getCallerStack(ignoreCurFile, ignorePattern, force);
     return callers.map(l => split(l, 'at')[1] || l).join(' <- ');
 }
 export function then<T, U = undefined>(val: Promise<T>|T, cb: (x: T) => U): Promise<U>|U {
@@ -351,7 +361,7 @@ export function debugging(): boolean {
 
 export function comma(value: number, minWidth = 0): string {
     const s = Math.abs(value).toFixed();
-    const commad = (value<0? '-':'')+Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',')
+    const commad = (value<0? '-':'')+Array.from({length: Math.ceil(s.length/3)}, (_, i) => s.substr(i*3-(i===0?0:3-(s.length%3||3)), i===0? s.length%3||3 : 3)).join(',');
     return commad.padStart(minWidth, ' ');
 }
 
@@ -402,3 +412,15 @@ export function makeState<Name extends string, T extends {}, Args extends any[] 
 // function initState<Name extends string, Args extends (() => {_: Name})>(...states: Args[]): ReturnType<Args>&{[name in Name]: undefined} {
 //     return states[0]() as any;
 // }
+
+export function getFormattedTime() {
+    const today = new Date();
+    const y = today.getFullYear();
+    // JavaScript months are 0-based.
+    const m = today.getMonth() + 1;
+    const d = today.getDate();
+    const h = today.getHours();
+    const mi = today.getMinutes();
+    const s = today.getSeconds();
+    return y + '-' + m + '-' + d + '_' + h + '-' + mi + '-' + s;
+}
