@@ -695,7 +695,6 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lPower3: { x: 9.9, y: 10.125, d: 5/8 },
     lPower4: { x: 11.30625, y: 10.631250000000001, d: 5/8 },
     lPopperStatus:  { x: 16.03125, y: 9.5625, d: 3/4 },
-    lMagnaSaveStatus:  { x: 2.9812499999999997, y: 18.95625, d: 3/4 },
     lLaneUpper1: { x: 11.081249999999999, y: 43.0, d: 1 },
     lLaneUpper2: { x: 12.993749999999999, y: 43, d: 1 },
     lLaneUpper3: { x: 14.5375, y: 43, d: 1 },
@@ -709,6 +708,10 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lLeftArrow:  { x: 2.025, y: 27.225, a: 1, r: 20 },
     lSideTargetArrow:  { x: 8.268749999999999, y: 30.31875, a: 1, r: 90 },
     lMainTargetArrow:  { x: 6.69375, y: 27.675, a: 1, r: 27 },
+    lMagnet4: { x: 3.8812499999999996, y: 20.08125, d: 5/8 },
+    lMagnet3: { x: 4.33125, y: 19.293750000000003, d: 5/8 },
+    lMagnet2: { x: 4.35875, y: 18.39375, d: 5/8 },
+    lMagnet1: { x: 4.05, y: 17.6625, d: 5/8 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {

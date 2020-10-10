@@ -124,7 +124,6 @@ export class Player extends Mode {
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPower4: () => light(this.chips>=4, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
-            lMagnaSaveStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
             lLaneUpper1: () => light(this.laneChips[0], Color.Orange),
             lLaneUpper2: () => light(this.laneChips[1], Color.Orange),
@@ -165,7 +164,7 @@ export class Player extends Mode {
                 const i = machine.sUpperLanes.indexOf(e.sw);
                 if (!this.laneChips[i]) return;
                 this.addChip();
-                this.addChip();             
+                // this.addChip();             
                 this.laneChips[i] = false;
                 if (this.laneChips.every(c => !c)) {
                     this.laneChips.fill(true);

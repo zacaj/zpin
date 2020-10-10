@@ -8,7 +8,7 @@ import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './tim
 import { assert, getTypeIn, then, eq as eq } from './util';
 import { DropBank, DropTarget } from './drop-bank';
 import { Log } from './log';
-import { Color, LightState } from './light';
+import { Color, light, LightState } from './light';
 import { gfxLights, gfxImages, gfx, screen } from './gfx';
 import { Tree } from './tree';
 import { MPU } from './mpu';
@@ -372,8 +372,11 @@ export type LightOutputs = {
     lPower2: LightState[];
     lPower3: LightState[];
     lPower4: LightState[];
+    lMagnet1: LightState[];
+    lMagnet2: LightState[];
+    lMagnet3: LightState[];
+    lMagnet4: LightState[];
     lPopperStatus: LightState[];
-    lMagnaSaveStatus: LightState[];
     lLaneUpper1: LightState[];
     lLaneUpper2: LightState[];
     lLaneUpper3: LightState[];
@@ -614,8 +617,11 @@ export class Machine extends Tree<MachineOutputs> {
     lPower2 = new Light('lPower2', 0);
     lPower3 = new Light('lPower3', 0);
     lPower4 = new Light('lPower4', 0);
+    lMagnet1 = new Light('lMagnet1', 0);
+    lMagnet2 = new Light('lMagnet2', 0);
+    lMagnet3 = new Light('lMagnet3', 0);
+    lMagnet4 = new Light('lMagnet4', 0);
     lPopperStatus = new Light('lPopperStatus', 0);
-    lMagnaSaveStatus = new Light('lMagnaSaveStatus', 0);
     lLaneUpper1 = new Light('lLaneUpper1', 0);
     lLaneUpper2 = new Light('lLaneUpper2', 0);
     lLaneUpper3 = new Light('lLaneUpper3', 0);
@@ -744,8 +750,11 @@ export class Machine extends Tree<MachineOutputs> {
             lPower2: [],
             lPower3: [],
             lPower4: [],
+            lMagnet1: () => light(this.lPower1.lit(), Color.Green),
+            lMagnet2: () => light(this.lPower2.lit(), Color.Green),
+            lMagnet3: () => light(this.lPower3.lit(), Color.Green),
+            lMagnet4: () => light(this.lPower4.lit(), Color.Green),
             lPopperStatus: [],
-            lMagnaSaveStatus: [],
             lLaneUpper1: [],
             lLaneUpper2: [],
             lLaneUpper3: [],
@@ -788,6 +797,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSpinner: '',
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
+
         });
 
         this.listen(onSwitchClose(this.sTroughFull), () => {
