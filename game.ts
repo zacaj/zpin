@@ -37,7 +37,7 @@ export class Game extends Mode {
         return this.curPlayer.ball;
     }
 
-    totals: {[source: string]: {times: number; total: number}} = {};
+    totals: {[source: string]: {times: number; total: number; average: number}} = {};
     
     private constructor() {
         super(Modes.Game);
@@ -68,7 +68,7 @@ export class Game extends Mode {
         else {
             this.playerUp = 0;
             this.ballNum++;
-            if (this.ballNum === this.ballCount) {
+            if (this.ballNum > this.ballCount) {
                 alert('GAME OVER', 5000);
                 fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify(this.totals, undefined, 2));
             //     if (require.main === module) {

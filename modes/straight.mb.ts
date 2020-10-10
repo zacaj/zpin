@@ -186,7 +186,7 @@ export class StraightMb extends Multiball {
 
     
     getSkillshot(): Partial<SkillshotAward>[] {
-        const switches = ['right inlane','lower magnet switch','upper magnet switch','upper lanes','upper eject hole','left inlane'];
+        const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const selections: (string|DropBank)[] = [
             'random', 
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),

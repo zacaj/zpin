@@ -468,7 +468,7 @@ export class Poker extends Mode {
 
     getSkillshot(): Partial<SkillshotAward>[] {
         const base = 10;
-        const switches = ['right inlane','lower magnet switch','upper magnet switch', 'upper lanes','upper eject hole','left inlane'];
+        const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
             this.step<=2? [[1, 0]] : [[1, -3, -1], [4, 1, 5]],
             [[1, -6, -3], [4, 1, 10]],

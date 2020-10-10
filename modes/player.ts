@@ -45,9 +45,10 @@ export class Player extends Mode {
     }
     recordScore(amount: number, source: string) {
         if (!this.game.totals[source])
-            this.game.totals[source] = {times: 0, total: 0};
+            this.game.totals[source] = {times: 0, total: 0, average: 0};
         this.game.totals[source].times++;
         this.game.totals[source].total += amount;
+        this.game.totals[source].average = this.game.totals[source].total / this.game.totals[source].times;
     }
     miniReady = false;
 

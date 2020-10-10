@@ -204,6 +204,11 @@ export class Skillshot extends Mode {
                         award: 'UNDO ONE CARD',
                         made: () => this.player.poker!.snail(),
                     }],
+                    [(this.player.poker?.step??0)>3? 15:0, {
+                        switch: gen.switch,
+                        award: 'UNDO TWO CARDS',
+                        made: () => seq(2).forEach(() => this.player.poker!.snail()),
+                    }],
                 ) : undefined;
             const cur = rand ?? current[i];
             awards.push({
@@ -226,10 +231,10 @@ export class Skillshot extends Mode {
 
     getGenericAwards(): SkillshotAward[] {
         const base = 10000;
-        const switches = ['right inlane','lower magnet switch','upper magnet switch','upper lanes','upper eject hole','left inlane'];
+        const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const mults = [
             [[1, 1]],
-            [[10, 5, 8], [10, 10, 15], [5, 30]],
+            [[10, 3, 5], [10, 5, 10], [5, 15]],
             [[1, 3, 6]],
             this.gateMode===GateMode.Closed? [[10, 1, 5], [3, 4, 8]] : 
                 (this.gateMode===GateMode.Open? [[10, 5, 9], [3, 8, 12]] : [[10, 3, 7], [3, 4, 10]]),
@@ -243,7 +248,7 @@ export class Skillshot extends Mode {
             return {
                 award: comma(value)+' points',
                 switch: sw,
-                made: () => this.player.score += base,
+                made: () => this.player.score += value,
             };
         });
     }

@@ -909,12 +909,12 @@ export async function popup(node: Node, ms = 3500) {
     // if (!pfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
-    popups.forEach(n => n.visible(false));
-    popups.push(node);
     if (gfx) {
         node.z(100);
         screen.add(node);
+        popups.forEach(n => n.visible(false));
     }
+    popups.push(node);
     if (ms)
         await gWait(ms, 'popup');
     if (gfx && ms) screen.remove(node);
