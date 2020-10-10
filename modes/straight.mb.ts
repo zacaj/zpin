@@ -101,7 +101,7 @@ export class StraightMb extends Multiball {
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => this.state = JackpotLit());
 
-        this.listen<DropDownEvent>(e => e instanceof DropDownEvent, () => this.drops++);
+        this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, () => this.drops++);
 
         addToScreen(() => new StraightMbGfx(this));
     }
