@@ -31,6 +31,7 @@ export class Player extends Mode {
         return this._score;
     }
     set score(val: number) {
+        if (this.ball?.tilted) return;
         const diff = val - this._score;
         this._score = val;
 
@@ -40,6 +41,7 @@ export class Player extends Mode {
         }
     }
     addScore(amount: number, source: string|null) {
+        if (this.ball?.tilted) return;
         this._score += amount;
         if (source && amount)
             this.recordScore(amount, source);
@@ -426,9 +428,12 @@ class PlayerOverrides extends Mode {
     constructor(public player: Player) {
         super(Modes.PlayerOverrides);
         this.out = new Outputs(this, {
-            shooterDiverter: () => player.closeShooter? false : undefined,
+            shooterDiverter: () => player.closeShooter||player.ball?.tilted? false : undefined,
             leftGate: () => machine.lastSwitchHit === machine.sLeftOrbit? false : undefined,
             rightGate: () => machine.lastSwitchHit === machine.sSpinner? false : undefined,
+            kickerEnable: () => player.ball?.tilted? false : undefined,
+            miniFlipperEnable: () => player.ball?.tilted? false : undefined,
+            rampUp: () => player.ball?.tilted? true : undefined,
         });
     }
 }

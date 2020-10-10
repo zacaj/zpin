@@ -6,7 +6,7 @@ import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
 import { Event, Events } from '../events';
 import { Player } from './player';
 import { MPU } from '../mpu';
-import { addToScreen, gfx, ModeGroup } from '../gfx';
+import { addToScreen, gfx, ModeGroup, textBox } from '../gfx';
 import { fork } from '../promises';
 import { wait } from '../timer';
 import { State } from '../state';
@@ -35,6 +35,8 @@ export class Ball extends Mode {
     spins = 0;
     lanes = 0;
 
+    tilted = false;
+
     get children() {
         return [
             this.resetDrops,
@@ -50,7 +52,7 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['skillshot']);
+        State.declare<Ball>(this, ['skillshot', 'tilted']);
         this.out = new Outputs(this, {
         });
         
@@ -65,6 +67,7 @@ export class Ball extends Mode {
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
             Events.fire(new BallEnding(this));
+            this.gfx?.clear();
     
             this.bonus = new Bonus(this);
             this.bonus.started();
@@ -84,6 +87,10 @@ export class Ball extends Mode {
         this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
         this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
 
+        this.listen(onSwitchClose(machine.sTilt), () => {
+            this.tilted = true;
+            this.gfx?.add(textBox({}, ['TILT', 150]).z(100));
+        });
         addToScreen(() => new ModeGroup(this));
     }
 

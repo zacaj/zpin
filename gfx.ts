@@ -880,6 +880,7 @@ const gfxSwitches: { [name: string]: {
     'left flipper': { x: 0.39375, y: 1.3187500000000014 },
     'right flipper': { x: 18.95625, y: 1.387500000000003 },
     'both flippers': { x: 9.674999999999999, y: 0.3374999999999986 },
+    'tilt': { x: 18, y: 3.0375000000000014 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {

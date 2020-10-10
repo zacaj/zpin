@@ -520,6 +520,7 @@ export class Machine extends Tree<MachineOutputs> {
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
     sActionButton = this.sStartButton; //new Switch(0, 8, 'action button', 1, 50, true);
     sBothFlippers = new Switch(0, 15, 'both flippers', 1, 50);
+    sTilt = new Switch(2, 8, 'tilt');
 
     pfSwitches = [
         this.sMiniOut,
