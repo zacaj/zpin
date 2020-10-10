@@ -1,5 +1,5 @@
 import { Multiball } from './multiball';
-import { addToScreen, alert, gfx, screen } from '../gfx';
+import { addToScreen, alert, gfx, pfx, screen } from '../gfx';
 import { fork } from '../promises';
 import { DropBank, DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Player } from './player';
@@ -210,7 +210,7 @@ export class StraightMb extends Multiball {
                 award: verb[i],
                 dontOverride: i===0,
                 display: typeof selections[i] === 'string'? selections[i] as string
-                    : gfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
+                    : pfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;
                     this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank));

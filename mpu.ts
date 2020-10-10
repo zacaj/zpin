@@ -38,6 +38,7 @@ export const MPU = {
                 });
                 socket.on('close', err => {
                     this.isConnected = false;
+                    Log.error(['mpu', 'console'], 'lost connection to MPU', err);
                     process.exit(err? 1:0);
                 });
                 socket.on('data', data => {

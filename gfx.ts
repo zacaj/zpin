@@ -891,10 +891,6 @@ class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
     }
 }
 
-export function createGroup(): Group|undefined {
-    if (pfx) return pfx.createGroup();
-    return undefined;
-}
 
 export async function gWait(ms: number, context: string) {
     if (machine.sBothFlippers.state) return;
@@ -925,14 +921,14 @@ export async function popup(node: Node, ms = 3500) {
 
 export function alert(text: string, ms?: number, subtext?: string): [Group, Promise<void>] {
     let g: Group;
-    if (pfx) {
+    if (gfx) {
         Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
-        g = pfx.createGroup().y(-Screen.h * .2);
+        g = gfx.createGroup().y(-Screen.h * .2);
         const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
         const t2 = subtext? makeText(subtext, 40, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
         // g.add(pfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
-        const r = pfx.createRect().fill('#111111').z(-.1);
+        const r = gfx.createRect().fill('#111111').z(-.1);
         function setW() {
             r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
             r.x((t.w()-r.w())/2 + t.x());
@@ -959,11 +955,11 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
 
 export function notify(text: string, ms = 2000): [Group, Promise<void>] {
     let g: Group;
-    if (pfx) {
+    if (gfx) {
         Log.log(['gfx', 'console'], 'notify message %s / %s', text);
-        g = pfx.createGroup().y(Screen.h/2);
+        g = gfx.createGroup().y(Screen.h/2);
         const t = makeText(text, 50, 'center', 'bottom').w(Screen.w).x(-Screen.w/2);
-        const r = pfx.createRect().fill('#444444').z(-.1);
+        const r = gfx.createRect().fill('#444444').z(-.1);
         function setW() {
             r.w(t.lineW()+50);
             r.x((t.w()-r.w())/2 + t.x());
@@ -988,12 +984,12 @@ export function textBox(settings: {maxWidth?: number; padding?: number}, ...line
     let g: Group;
     const maxWidth = settings.maxWidth ?? 0.6;
     const padding = settings.padding ?? 30;
-    if (pfx) {
-        g = pfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
+    if (gfx) {
+        g = gfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
 
         const texts = lines.map(([text, size]) => makeText(text, size, 'center', 'top').wrap('word').w(Screen.w*maxWidth).x(-Screen.w*maxWidth/2));
 
-        const r = pfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
+        const r = gfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
 
         function setW() {
             r.w(texts.map(t => t.lineW()).reduce((a,b) => Math.max(a,b), 0) + padding * 2);

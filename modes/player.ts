@@ -22,6 +22,7 @@ import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
 import { Restart } from './restart';
+const argv = require('yargs').argv;
 
 export class Player extends Mode {
     chips = 2;
@@ -107,10 +108,10 @@ export class Player extends Mode {
     constructor(
         public game: Game,
         public number: number,
-        public seed = 'pinball',
+        public seed = argv.seed ?? 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['miniReady', 'rampUp', '_score', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player>(this, ['miniReady', 'rampUp', '_score', 'ball', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,

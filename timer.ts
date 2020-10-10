@@ -87,10 +87,15 @@ export class Timer {
 }
 setInterval(() => {
     if (Timer.mockTime) return;
-    const tim = time();
-    Events.fire(new StateEvent(Timer, 'time', tim, Timer.curTime));
-    Timer.curTime = tim;
-    fork(Timer.fireTimers(tim), 'timer tick');
+    try {
+        const tim = time();
+        Events.fire(new StateEvent(Timer, 'time', tim, Timer.curTime));
+        Timer.curTime = tim;
+        fork(Timer.fireTimers(tim), 'timer tick');
+    } catch (err) {
+        Log.error('console', 'error on timer interval', err);
+        debugger;
+    }
 }, 5);
 
 export function onTick(): EventTypePredicate<StateEvent<Timer, never>> {

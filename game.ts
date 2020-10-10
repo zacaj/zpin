@@ -178,23 +178,5 @@ export class Game extends Mode {
 }
 
 if (require.main === module) {
-fork(initMachine(true, true, true, false)).then(() => {
-    // Log.log(['console'], 'starting game...');
-    // const game = Game.start();
-
-    // safeSetTimeout(() => {
-    //     for (let i=0; i<100; i++) {
-    //     Log.log('console', 'start');
-    //     console.time('start');
-    //     machine.sCenterCenter.state = !machine.sCenterCenter.state;
-    //     console.timeEnd('start');
-    //     Log.log('console', 'end');
-    //     Events.resetAll();
-    //     Timer.reset();
-    //     resetSwitchMatrix();
-    //     resetMachine();
-    //     }
-    //     setTimeout(() => process.exit(0), 500);
-    // }, 200, '');
-});
+    void initMachine(true, true, true, false);
 }

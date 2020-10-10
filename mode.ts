@@ -3,7 +3,6 @@ import { Events, Event } from './events';
 import { MachineOutputs } from './machine';
 import { Log } from './log';
 import { Group } from 'aminogfx-gl';
-import { createGroup } from './gfx';
 import { AttractMode } from './attract';
 import { assert } from './util';
 
