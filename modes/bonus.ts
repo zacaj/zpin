@@ -1,5 +1,5 @@
 import { Node, Text } from 'aminogfx-gl';
-import { addToScreen, gfx, gWait, makeText, ModeGroup, Screen } from '../gfx';
+import { addToScreen, alert, gfx, gWait, makeText, ModeGroup, Screen } from '../gfx';
 import { GameGfx } from '../gfx/game';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
@@ -51,13 +51,15 @@ export class Bonus extends Mode {
             await gWait(1000, 'bonus x');
         }
         this.ball.player.recordScore(this.total, 'bonus');
+        // const start = new Date().getTime();
         while (this.total > 0) {
             const change = Math.min(this.total, 1000);
             this.total -= change;
-            // this.ball.player.score += change;
             this.ball.player.addScore(change, null);
             await gWait(10, 'bonus count');
         }
+        // console.log('time', new Date().getTime()-start);
+        // alert(`bonus took ${new Date().getTime()-start}`);
         await gWait(1500, 'bonus end');
         this.end();
     }

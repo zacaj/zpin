@@ -85,35 +85,42 @@ export class StatusReportGfx extends Group {
 
         const stats = gfx.createGroup();
         this.add(stats);
-        game.watch(() => {
-            const info = [
-                [`${player.store.Poker?.handsWon??0} / ${player.store.Poker?.handsPlayed??0} hands won`],
-                [`$1 = ${comma(player.store.Poker?.cashValue??0)} points`],
-                player.mbsQualified.size? ['Multiball Qualified'] : undefined,
-            ].truthy();
-            stats.clear();
-            let y = top + 55;
-            for (const i of info) {
-                stats.add(makeText(i[0], 35, 'left', 'top').x(left).y(y));
-                if (i.length === 2) {
-                    // stats.add(makeText(score(game.players[i].score), 35, 'right', 'bottom').x(right).y(y));
-                }
-                y += 35*1.25;
-            }
-        });
-
         const scores = gfx.createGroup();
         this.add(scores);
-        game.watch(() => {
-            scores.clear();
-            if (game.players.length === 1) return;
-            let y = bottom;
-            for (let i=game.players.length-1; i>=0; i--) {
-                scores.add(makeText(`PLAYER ${i+1}:`, 35, 'left', 'bottom').x(left).y(y));
-                scores.add(makeText(score(game.players[i].score), 35, 'right', 'bottom').x(right).y(y));
-                y -= 35*1.25;
+
+        this.visible.watch(visible => {
+            if (!visible) return;
+
+            {
+                const info = [
+                    [`${player.store.Poker?.handsWon??0} / ${player.store.Poker?.handsPlayed??0} hands won`],
+                    [`$1 = ${comma(player.store.Poker?.cashValue??0)} points`],
+                    player.mbsQualified.size? ['Multiball Qualified'] : undefined,
+                ].truthy();
+            
+                stats.clear();
+                let y = top + 55;
+                for (const i of info) {
+                    stats.add(makeText(i[0], 35, 'left', 'top').x(left).y(y));
+                    if (i.length === 2) {
+                        // stats.add(makeText(score(game.players[i].score), 35, 'right', 'bottom').x(right).y(y));
+                    }
+                    y += 35*1.25;
+                }
             }
-            scores.add(makeText('SCORES:', 40, 'center', 'bottom').x(left).w(this.w()).y(y));
-        });
+
+            {
+                const h = game.players.length<4? 35 : 20;
+                scores.clear();
+                if (game.players.length === 1) return;
+                let y = bottom;
+                for (let i=game.players.length-1; i>=0; i--) {
+                    scores.add(makeText(`PLAYER ${i+1}:`, h, 'left', 'bottom').x(left).y(y));
+                    scores.add(makeText(score(game.players[i].score), h, 'right', 'bottom').x(right).y(y));
+                    y -= h*1.25;
+                }
+                scores.add(makeText('SCORES:', h+5, 'center', 'bottom').x(left).w(this.w()).y(y));
+            }
+        }, true);
     }
 }
