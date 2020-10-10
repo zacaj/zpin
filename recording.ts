@@ -20,8 +20,8 @@ export function initRecording(recording: string) {
     Timer.mockTime = 0;
     const file = fs.readFileSync(curRecording!, 'utf8');
     lines = file.split('\n');
-    curTime = 0;
-    curLine = 1;
+    curTime = Number.NEGATIVE_INFINITY;
+    curLine = 2;
 }
 
 export async function playRecording(toPoint?: string) {
@@ -29,13 +29,13 @@ export async function playRecording(toPoint?: string) {
     const events = Events;
     const timer = Timer;
     const _machine = machine;
-    for (; curLine < lines.length; curLine++) {
-        const line = lines[curLine];
+    for (; curLine <= lines.length; curLine++) {
+        const line = lines[curLine-1];
         if (line.startsWith('#')) continue;
         if (line && !line.includes(' ')) {
             const bp = line;
             if (bp === 'debug' && debugging()) {
-                const nextLine = lines[curLine+1];
+                const nextLine = lines[curLine+1-1];
                 debugger;
             } else if (process.env.NODE_ENV === 'test') {
                 assert(bp === toPoint, `expected breakpoint ${toPoint} but got '${bp}'`);
@@ -49,8 +49,12 @@ export async function playRecording(toPoint?: string) {
         if (timeS === undefined) continue;
 
         const time = parseInt(timeS, 10);
+        if (curTime === Number.NEGATIVE_INFINITY) {
+            curTime = time-1;
+            await setTime(curTime);
+        }
         const diff = time - curTime;
-        assert(diff>=0, 'time travel not implemented');
+        assert(diff>=0, `time travel not implemented (line ${curLine})`);
         if (diff)
             await passTime(diff);
         curTime = time;

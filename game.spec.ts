@@ -12,4 +12,8 @@ describe('game', () => {
         expect(machine.cShooterDiverter.val).toBe(true);
         snapshot();
     });
+    // test('5 player', async () => {
+    //     await testRecording('long5player');
+    //     snapshot();
+    // });
 });
