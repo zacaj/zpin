@@ -10,13 +10,18 @@ export class Timer {
     static startTime = new Date().getTime();
 
     static mockTime?: number;
-    static get time(): Time {
-        recordStateAccess(Timer, 'time');
-
+    
+    static _getTime(): Time {
         if (Timer.mockTime !== undefined) return Timer.mockTime as Time;
         
         return new Date().getTime() - Timer.startTime as Time;
     }
+
+    static get time(): Time {
+        recordStateAccess(Timer, 'time');
+        return Timer._getTime();
+    }
+
 
     static queue: TimerQueueEntry[] = [];
 

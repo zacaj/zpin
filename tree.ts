@@ -195,10 +195,14 @@ export abstract class Tree<Outs extends {} = {}> {
         }
     }
 
+    private static watchNum = 0;
     watch<T extends (...args: any[]) => any>(func: T, onChange?: () => any, initialArgs: any[] = []): [T, Map<{}, Set<string>>, ReturnType<T>] {
+        let num = ++Tree.watchNum;
         const stack = new Error();
         const affectors = new Map<{}, Set<string>>();
         const record = (...args: any[]) => {
+            // eslint-disable-next-line no-self-assign
+            num = num;
             { // begin recording
                 pushStateAccessRecorder((state, k) => {
                     if (!affectors.has(state))
@@ -208,6 +212,7 @@ export abstract class Tree<Outs extends {} = {}> {
                 });
             }
             try {
+                Events.hold();
                 const ret = func(...args);
                 return ret;
             } catch (err) {
@@ -217,6 +222,7 @@ export abstract class Tree<Outs extends {} = {}> {
             }
             finally { // end recording
                 popStateAccessRecorder();
+                Events.release();
             }
         };
 
@@ -232,7 +238,7 @@ export abstract class Tree<Outs extends {} = {}> {
             if (onChange)
                 onChange();
             else
-                record();
+                record(ev);
         });
 
         return [record as any, affectors, initialValue];

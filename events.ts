@@ -1,5 +1,5 @@
 import { OrArray, assert, arrayify, getCallerLoc, isPromise } from './util';
-import { time } from './timer';
+import { time, Timer } from './timer';
 import { Log } from './log';
 import * as util from 'util';
 import { fork } from './promises';
@@ -9,7 +9,7 @@ export abstract class Event {
     num = ++Event.eventCount;
 
     constructor(
-        public when = time(),
+        public when = Timer._getTime(),
     ) {
         
     }
@@ -35,7 +35,28 @@ export const Events = {
     listeners: [] as EventListener<any>[],
     baseEvent: undefined as Event|undefined,
 
+    holdLevel: 0,
+    heldEvents: [] as [Event, string, Error][],
+    hold() {
+        this.holdLevel++;
+    },
+    release() {
+        assert(this.holdLevel>0);
+        this.holdLevel--;
+        if (this.holdLevel === 0) {
+            const held = this.heldEvents.slice();
+            this.heldEvents.clear();
+            for (const [e, c] of held) {
+                Events.fire(e, c);
+            }
+        }
+    },
+
     fire(event: Event, context = '') {
+        if (this.holdLevel) {
+            this.heldEvents.push([event, context, new Error()]);
+            return;
+        }
         if (!this.baseEvent) this.baseEvent = event;
 
         const listeners = this.listeners.filter(l => !l.predicates.some(p => !p(event)) && !l.cancelled);
