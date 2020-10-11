@@ -844,7 +844,7 @@ Object {
                     },
                     "state": Object {
                       "curAward": 0,
-                      "gateMode": "Closed",
+                      "gateMode": "Toggle",
                       "shooterOpen": true,
                     },
                   },

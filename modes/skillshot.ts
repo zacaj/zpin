@@ -62,10 +62,10 @@ export class Skillshot extends Mode {
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
         }
 
-        if (player.game.ballNum === 1)
-            this.gateMode = GateMode.Closed;
-        else
-            this.gateMode = this.rng.weightedSelect([2, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Closed]);
+        // if (player.game.ballNum === 1)
+        //     this.gateMode = GateMode.Closed;
+        // else
+        this.gateMode = this.rng.weightedSelect([2, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);
 
         this.out = new Outputs(this, {
             ...outs,
