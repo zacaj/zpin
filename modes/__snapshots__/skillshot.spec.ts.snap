@@ -313,7 +313,6 @@ Object {
                   "upperEject": undefined,
                 },
                 "state": Object {
-                  "bet": 100,
                   "closeShooter": false,
                   "dealerCardsUsed": Array [],
                   "dealerHand": Array [

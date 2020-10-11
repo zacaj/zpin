@@ -2034,7 +2034,6 @@ Object {
                   "upperEject": false,
                 },
                 "state": Object {
-                  "bet": 100,
                   "closeShooter": false,
                   "dealerCardsUsed": Array [],
                   "dealerHand": Array [
