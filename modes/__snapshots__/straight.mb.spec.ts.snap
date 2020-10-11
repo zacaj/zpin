@@ -78,6 +78,9 @@ Object {
         "fl",
       ],
     ],
+    "lRampMini": Array [
+      "Orange",
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -109,6 +112,7 @@ Object {
     "rightBank": false,
     "rightGate": true,
     "shooterDiverter": false,
+    "spinnerValue": undefined,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -369,6 +373,9 @@ Object {
               ],
               "lPower3": Array [],
               "lPower4": Array [],
+              "lRampMini": Array [
+                "Orange",
+              ],
               "lRampStartMb": Array [],
               "lShooterStartHand": Array [],
               "leftMagnet": false,
@@ -486,6 +493,7 @@ Object {
       "lPower3": Array [],
       "lPower4": Array [],
       "lRampArrow": Array [],
+      "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
       "lShooterLaneArrow": Array [],
@@ -517,6 +525,7 @@ Object {
       "rightBank": false,
       "rightGate": false,
       "shooterDiverter": false,
+      "spinnerValue": undefined,
       "troughRelease": false,
       "upper2": false,
       "upper3": false,
@@ -634,6 +643,9 @@ Object {
         "fl",
       ],
     ],
+    "lRampMini": Array [
+      "Orange",
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -665,6 +677,7 @@ Object {
     "rightBank": false,
     "rightGate": false,
     "shooterDiverter": true,
+    "spinnerValue": undefined,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -962,6 +975,9 @@ Object {
               ],
               "lPower3": Array [],
               "lPower4": Array [],
+              "lRampMini": Array [
+                "Orange",
+              ],
               "lRampStartMb": Array [],
               "lShooterStartHand": Array [],
               "leftMagnet": false,
@@ -1079,6 +1095,7 @@ Object {
       "lPower3": Array [],
       "lPower4": Array [],
       "lRampArrow": Array [],
+      "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
       "lShooterLaneArrow": Array [],
@@ -1110,6 +1127,7 @@ Object {
       "rightBank": false,
       "rightGate": false,
       "shooterDiverter": false,
+      "spinnerValue": undefined,
       "troughRelease": false,
       "upper2": false,
       "upper3": false,
@@ -1218,6 +1236,9 @@ Object {
         "freq": 5,
       },
     ],
+    "lRampMini": Array [
+      "Orange",
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -1254,6 +1275,7 @@ Object {
     "rightBank": false,
     "rightGate": true,
     "shooterDiverter": true,
+    "spinnerValue": undefined,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -1492,6 +1514,9 @@ Object {
               ],
               "lPower3": Array [],
               "lPower4": Array [],
+              "lRampMini": Array [
+                "Orange",
+              ],
               "lRampStartMb": Array [],
               "lShooterStartHand": Array [
                 Array [
@@ -1614,6 +1639,7 @@ Object {
       "lPower3": Array [],
       "lPower4": Array [],
       "lRampArrow": Array [],
+      "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
       "lShooterLaneArrow": Array [],
@@ -1645,6 +1671,7 @@ Object {
       "rightBank": false,
       "rightGate": false,
       "shooterDiverter": false,
+      "spinnerValue": undefined,
       "troughRelease": false,
       "upper2": false,
       "upper3": false,
@@ -1749,6 +1776,9 @@ Object {
     "lPower3": Array [],
     "lPower4": Array [],
     "lRampArrow": Array [],
+    "lRampMini": Array [
+      "Orange",
+    ],
     "lRampShowCards": Array [
       "White",
     ],
@@ -1794,6 +1824,7 @@ Object {
     "rightBank": false,
     "rightGate": true,
     "shooterDiverter": true,
+    "spinnerValue": undefined,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -2220,6 +2251,9 @@ Object {
               ],
               "lPower3": Array [],
               "lPower4": Array [],
+              "lRampMini": Array [
+                "Orange",
+              ],
               "lRampStartMb": Array [
                 Array [
                   "Green",
@@ -2347,6 +2381,7 @@ Object {
       "lPower3": Array [],
       "lPower4": Array [],
       "lRampArrow": Array [],
+      "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
       "lShooterLaneArrow": Array [],
@@ -2378,6 +2413,7 @@ Object {
       "rightBank": false,
       "rightGate": false,
       "shooterDiverter": false,
+      "spinnerValue": undefined,
       "troughRelease": false,
       "upper2": false,
       "upper3": false,
@@ -2470,6 +2506,9 @@ Object {
     "lPower3": Array [],
     "lPower4": Array [],
     "lRampArrow": Array [],
+    "lRampMini": Array [
+      "Orange",
+    ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
     "lShooterLaneArrow": Array [],
@@ -2501,6 +2540,7 @@ Object {
     "rightBank": false,
     "rightGate": true,
     "shooterDiverter": false,
+    "spinnerValue": undefined,
     "troughRelease": false,
     "upper2": false,
     "upper3": false,
@@ -2717,7 +2757,7 @@ Object {
                         "debounce": 5,
                         "fake": [Function],
                         "i": 0,
-                        "id": 438,
+                        "id": 443,
                         "initial": 50,
                         "lastActualChange": undefined,
                         "max": 100,
@@ -2737,7 +2777,7 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1253,
+                          "num": 1270,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2745,7 +2785,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnd",
-                          "num": 1254,
+                          "num": 1271,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2753,7 +2793,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnding",
-                          "num": 1255,
+                          "num": 1272,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2761,7 +2801,7 @@ Object {
                         },
                         Object {
                           "callback": "onTargetDown",
-                          "num": 1256,
+                          "num": 1273,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2769,7 +2809,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1257,
+                          "num": 1274,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -2778,7 +2818,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1258,
+                          "num": 1275,
                           "predicates": Array [
                             [Function],
                           ],
@@ -2829,7 +2869,7 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 3,
                             "debounce": 5,
-                            "id": 502,
+                            "id": 508,
                             "lastActualChange": 42600,
                             "lastPendingChange": 42595,
                             "lastValChange": 42600,
@@ -2857,7 +2897,7 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 503,
+                            "id": 509,
                             "lastActualChange": 42600,
                             "lastPendingChange": 42595,
                             "lastValChange": 42600,
@@ -2885,7 +2925,7 @@ Object {
                             "actual": "redArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 504,
+                            "id": 510,
                             "lastActualChange": 42600,
                             "lastPendingChange": 42595,
                             "lastValChange": 42600,
@@ -2953,6 +2993,9 @@ Object {
               "lPower2": Array [],
               "lPower3": Array [],
               "lPower4": Array [],
+              "lRampMini": Array [
+                "Orange",
+              ],
               "lRampStartMb": Array [],
               "lShooterStartHand": Array [],
               "leftMagnet": false,
@@ -3066,6 +3109,7 @@ Object {
       "lPower3": Array [],
       "lPower4": Array [],
       "lRampArrow": Array [],
+      "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
       "lShooterLaneArrow": Array [],
@@ -3097,6 +3141,7 @@ Object {
       "rightBank": false,
       "rightGate": false,
       "shooterDiverter": false,
+      "spinnerValue": undefined,
       "troughRelease": false,
       "upper2": false,
       "upper3": false,

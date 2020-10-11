@@ -1,7 +1,7 @@
 import { Group, Text } from 'aminogfx-gl';
 import { Skillshot } from '../modes/skillshot';
 import { gfx, makeText, Screen, alert, ModeGroup } from '../gfx';
-import { wrap, comma } from '../util';
+import { wrap, comma, score } from '../util';
 import { onChange } from '../state';
 import { TreeEndEvent } from '../tree';
 import { GameGfx } from './game';
@@ -43,6 +43,6 @@ export class StraightMbGfx extends ModeGroup {
         });
 
         this.add(this.value);
-        mb.watch(() => this.value.text(`JACKPOT VALUE: ${comma(mb.value)}`));
+        mb.watch(() => this.value.text(`JACKPOT VALUE: ${score(mb.value)}`));
     }
 }

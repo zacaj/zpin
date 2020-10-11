@@ -15,7 +15,7 @@ import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
 
-enum GateMode {
+export enum GateMode {
     Closed = 'Closed',
     Open = 'Open',
     Toggle = 'Toggle',
@@ -166,13 +166,13 @@ export class Skillshot extends Mode {
 
     makeAwards(): SkillshotAward[] {
         const generic = this.getGenericAwards();
-        const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot() : [];
+        const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot(this) : [];
         const awards: SkillshotAward[] = [];
         const nRand = this.rng.weightedRand(30, 60, 30, 5);
         const randInds = seq(nRand).map(() => this.rng.randRange(0, 5));
         for (let i=0; i<7; i++) {
             const gen = generic[i];
-            const rand = (!current[i].dontOverride && randInds.includes(i))?
+            const rand = (!current[i]?.dontOverride && randInds.includes(i))?
                 this.rng.weightedSelect<SkillshotAward>(
                     [10, {
                         switch: gen.switch,

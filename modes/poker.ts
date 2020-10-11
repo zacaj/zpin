@@ -297,9 +297,9 @@ export class Poker extends Mode {
             if (!this.player.mbsQualified.size) {
             // if (!this.player.mbsQualified.has('HandsMb')) {
                 Log.info('game', 'qualified hands multiball');
-                void gWait(200, 'hand mb qual').then(() => alert('multiball qualified', undefined, `${this.handsPlayed} hands played`));
+                void gWait(200, 'hand mb qual').then(() => alert('hand multiball qualified', undefined, `${this.handsPlayed} hands played`));
             }
-            this.player.mbsQualified.set('HandsMb', result.aCards);
+            this.player.mbsQualified.set('HandMb', result.aCards);
         }
         
         await gWait(5000, 'showing cards');

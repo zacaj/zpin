@@ -16,6 +16,7 @@ import { Node } from 'aminogfx-gl';
 import { curRecording } from './recording';
 import { fork } from './promises';
 import { Game } from './game';
+import { Skillshot } from './modes/skillshot';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -323,8 +324,9 @@ export type SkillshotAward = {
 };
 
 export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
-    getSkillshot?: () => Partial<SkillshotAward>[];
+    getSkillshot?: (skillshot: Skillshot) => Partial<SkillshotAward>[];
     ignoreSkillsot: Set<Switch>;
+    spinnerValue?: number;
 };
 
 export type CoilOutputs = {
@@ -808,7 +810,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSpinner: '',
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
-
+            spinnerValue: undefined,
         });
 
         this.listen(onSwitchClose(this.sTroughFull), () => {

@@ -22,6 +22,7 @@ import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
 import { Restart } from './restart';
+import { HandMb } from './hand.mb';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -96,7 +97,9 @@ export class Player extends Mode {
     rampUp = true;
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandsMb', Card[]>();
+    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb', Card[]>([
+        // ['HandMb', []]
+    ]);
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
@@ -238,7 +241,8 @@ export class Player extends Mode {
 
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
-            return StraightMb.start(this);
+            if (!this.mbsQualified.has('HandMb')) return StraightMb.start(this);
+            else return HandMb.start(this);
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => machine.lShooterStartHand.lit()], async () => {
@@ -260,6 +264,7 @@ export class Player extends Mode {
         Poker: {},
         StraightMb: {},
         Skillshot: {},
+        HandMb: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
@@ -308,6 +313,8 @@ class NoMode extends Mode {
 
 class Spinner extends Tree<MachineOutputs> {
     lastSpinAt?: Time;
+    lastHitAt?: Time;
+    ripCount = 0;
     score = 10;
     comboMult = 1;
 
@@ -331,6 +338,7 @@ class Spinner extends Tree<MachineOutputs> {
         this.listen(onSwitchClose(machine.sSpinner), 'hit');
 
         this.listen([
+            () => !machine.out!.treeValues.spinnerValue,
             ...onSwitchClose(machine.sLeftInlane),
             () => (!!this.lastSpinAt && time()-this.lastSpinAt < 2000) || machine.lastSwitchHit === machine.sSpinner],
         () => {
@@ -339,7 +347,7 @@ class Spinner extends Tree<MachineOutputs> {
             this.comboMult+=2;
         });
 
-        this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
+        this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0, () => !machine.out!.treeValues.spinnerValue], () => {
             this.rounds = this.maxRounds;
             this.maxRounds++;
             if (this.maxRounds > 3)
@@ -357,12 +365,18 @@ class Spinner extends Tree<MachineOutputs> {
     hit() {
         if (!this.lastSpinAt || time()-this.lastSpinAt > 100) {
             Events.fire(new SpinnerHit());
+            this.lastHitAt = time();
+            this.ripCount = 0;
         }
-        this.player.score += this.score * this.comboMult;
+        this.player.score += (machine.out!.treeValues.spinnerValue ?? this.score) * this.comboMult;
+        this.ripCount++;
+        if (this.ripCount > 5) {
+            Events.fire(new SpinnerRip());
+        }
     }
 
     updateDisplay() {
-        this.display?.text(`${this.score}${this.comboMult>1? `*${this.comboMult}` : '  '}`);
+        this.display?.text(`${machine.out!.treeValues.spinnerValue ?? this.score}${this.comboMult>1? `*${this.comboMult}` : '  '}`);
     }
 
     calcScore() {
@@ -376,6 +390,9 @@ class Spinner extends Tree<MachineOutputs> {
     }
 }
 export class SpinnerHit extends Event {
+    
+}
+export class SpinnerRip extends Event {
     
 }
 

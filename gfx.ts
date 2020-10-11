@@ -707,6 +707,7 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lShooterLaneArrow:  { x: 19.068749999999998, y: 25.25625, a: 1, r: -180 },
     lLeftArrow:  { x: 2.025, y: 27.225, a: 1, r: 20 },
     lSideTargetArrow:  { x: 8.268749999999999, y: 30.31875, a: 1, r: 90 },
+    lRampMini: { x: 2.9812499999999997, y: 27.337500000000002, d: 5/8 },
     lMainTargetArrow:  { x: 6.69375, y: 27.675, a: 1, r: 27 },
     lMagnet4: { x: 3.8812499999999996, y: 20.08125, d: 5/8 },
     lMagnet3: { x: 4.33125, y: 19.293750000000003, d: 5/8 },
