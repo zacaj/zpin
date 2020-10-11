@@ -373,7 +373,7 @@ Object {
                   ],
                   "playerHandDesc": undefined,
                   "playerWins": undefined,
-                  "pot": 400,
+                  "pot": 600,
                   "slots": Array [
                     Object {
                       "num": 1,

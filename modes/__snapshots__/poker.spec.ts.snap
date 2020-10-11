@@ -410,7 +410,7 @@ Object {
                   ],
                   "playerHandDesc": undefined,
                   "playerWins": undefined,
-                  "pot": 400,
+                  "pot": 600,
                   "slots": Array [
                     Object {
                       "num": 8,
@@ -1171,7 +1171,7 @@ Object {
                   ],
                   "playerHandDesc": "Pair",
                   "playerWins": false,
-                  "pot": 1400,
+                  "pot": 2100,
                   "slots": Array [
                     Object {
                       "num": 1,

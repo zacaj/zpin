@@ -251,7 +251,7 @@ export class Player extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sRampMiniOuter), () => {
-            this.changeValue(10);
+            this.changeValue(20);
             const bank = machine.dropBanks.filter(b => b!==machine.leftBank).reduce<DropBank|undefined>((prev, cur) => cur.numDown>(prev?.numDown??0)? cur:prev, undefined);
             if (bank) {
                 return ResetBank(this, bank);
@@ -525,8 +525,8 @@ export class RampCombo extends Tree<MachineOutputs> {
         this.listen(e => e instanceof DropDownEvent, 'end');
 
         this.listen(onSwitchClose(machine.sRampMade), () => {
-            player.score += 50000;
-            notify(score(50000));
+            player.score += 35000;
+            notify(score(35000));
             return this.end();
         });
     }

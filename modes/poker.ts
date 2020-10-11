@@ -20,8 +20,8 @@ import { Tree } from '../tree';
 
 
 export class Poker extends Mode {
-    static BankStart = 3000;
-    static BetStart = 100;
+    static BankStart = 5000;
+    static BetStart = 150;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -50,7 +50,7 @@ export class Poker extends Mode {
     handsPlayed = 0;
     handsForMb = 2;
     wasQuit = false;
-    cashValue = 200;
+    cashValue = 250;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();

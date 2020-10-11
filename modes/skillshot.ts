@@ -178,12 +178,12 @@ export class Skillshot extends Mode {
                 this.rng.weightedSelect<SkillshotAward>(
                     [10, {
                         switch: gen.switch,
-                        award: '+20 $ value',
+                        award: '+30 $ value',
                         made: () => this.player.changeValue(20),
                     }],
                     [20, {
                         switch: gen.switch,
-                        award: '+10 $ value',
+                        award: '+20 $ value',
                         made: () => this.player.changeValue(10),
                     }],
                     [18-(5-i), {
