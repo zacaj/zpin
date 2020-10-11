@@ -564,7 +564,7 @@ export class Machine extends Tree<MachineOutputs> {
         this.sRampMiniOuter,
         this.sUnderRamp,
         this.sLeftOrbit,
-        this.sSpinner,
+        // this.sSpinner,
         this.sSpinnerMini,
         this.sUpperPopMini,
         this.sSidePopMini,
@@ -835,7 +835,7 @@ export class Machine extends Tree<MachineOutputs> {
         });
         this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
-        this.listen(onAnyPfSwitchExcept(), e => this.lastSwitchHit = e.sw);
+        this.listen(onAny(onAnyPfSwitchExcept(), onSwitchClose(this.sSpinner)), e => this.lastSwitchHit = e.sw);
 
         this.listen(onAny(onSwitch(this.sLeftFlipper), onSwitch(this.sRightFlipper)), () => {
             this.sBothFlippers.changeState(this.sLeftFlipper.state && this.sRightFlipper.state, 'sim', Math.max(this.sLeftFlipper.lastChange, this.sRightFlipper.lastChange) as Time);

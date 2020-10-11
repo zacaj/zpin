@@ -10,7 +10,7 @@ import { Text, Node } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
 import { time } from '../timer';
-import { Events, Priorities, Event } from '../events';
+import { Events, Priorities, Event, onAny } from '../events';
 import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
@@ -92,8 +92,10 @@ export class Skillshot extends Mode {
         this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
         this.listen(onAnySwitchClose(machine.sLeftInlane), (e) => this.made(5, e));
 
-        this.listen<SwitchEvent>([
-            ...onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
+        this.listen<SwitchEvent>([onAny(
+            onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
+            onSwitchClose(machine.sSpinner),
+        ),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
         ], 'finish');
 
