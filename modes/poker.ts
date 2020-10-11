@@ -294,21 +294,29 @@ export class Poker extends Mode {
         this.dealerCardsUsed.set(result.bCards);
         this.handsPlayed++;
         if (this.playerWins) {
-            this.bank += this.pot;
             this.handsWon++;
         }
+        await gWait(2000, 'showing cards');
         if (this.handsPlayed >= this.handsForMb) {
             this.handsForMb += 3;
                 
             if (!this.player.mbsQualified.size) {
             // if (!this.player.mbsQualified.has('HandsMb')) {
                 Log.info('game', 'qualified hands multiball');
-                void gWait(200, 'hand mb qual').then(() => alert('hand multiball qualified', undefined, `${this.handsPlayed} hands played`));
+                alert('hand multiball qualified', undefined, `${this.handsPlayed} hands played`);
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
+
+        while (this.pot !== 0) {
+            const change = Math.min(this.pot, 10) * (this.playerWins? 1:-1);
+            this.bank += change;
+            this.pot -= Math.abs(change);
+            await gWait(10, 'win count');
+        }
+
+        await gWait(1500, 'showing cards');
         
-        await gWait(5000, 'showing cards');
         this.end();
     }
 
