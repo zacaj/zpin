@@ -336,7 +336,7 @@ export class Player extends Mode {
     }
     changeValue(value: number) {
         this.store.Poker!.cashValue += value;
-        alert(`CASH VALUE ${value>0? '+':'-'} ${comma(value)}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
+        alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
     }
 }
 

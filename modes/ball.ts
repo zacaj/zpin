@@ -16,6 +16,7 @@ import { MiniPf } from './miniPf';
 import { DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Bonus } from './bonus';
 import { EndOfGameBonus, EogGfx } from './eog';
+import { Poker } from './poker';
 
 export class Ball extends Mode {
 
@@ -107,6 +108,11 @@ export class Ball extends Mode {
         player.ball = ball;
 
         ball.started();
+
+        if (player.focus === player.noMode) {
+            await Poker.start(player);
+        }
+
         if (MPU.isConnected || gfx) {
             await ResetMechs(ball);
             await ReleaseBall(ball);

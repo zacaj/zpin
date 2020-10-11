@@ -2,10 +2,12 @@ import { Player } from "./modes/player";
 import { Game } from "./game";
 import { Tree } from "./tree";
 import { machine } from "./machine";
+import { Poker } from "./modes/poker";
 
 describe('player', () => {
     test('store', async () => {
         machine.sTroughFull.state = true;
+        jest.spyOn(Poker, 'start').mockResolvedValue({} as any);
         const game = await Game.start();
         const player = game.curPlayer;
         const child1 = new class extends Tree {
