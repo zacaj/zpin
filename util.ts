@@ -424,3 +424,7 @@ export function getFormattedTime() {
     const s = today.getSeconds();
     return y + '-' + m + '-' + d + '_' + h + '-' + mi + '-' + s;
 }
+
+export function round(num: number, nearest: number) {
+    return Math.ceil(num/nearest)*nearest;
+}

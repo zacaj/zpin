@@ -32,11 +32,11 @@ export class PokerGfx extends ModeGroup {
         this.add(new PokerHand(poker, poker.playerCardsUsed).x(0).y(-PokerHand.h*1.05/2-20));
         this.add(new PokerHand(poker, poker.dealerCardsUsed).x(0).y(PokerHand.h*1.05/2+20));
 
-        this.add(this.pot.x(-Screen.w/4).y(0));
+        this.add(this.pot.x(Screen.w/4).y(0));
         poker.watch(() => this.pot.text('POT: '+money(poker.pot)));
         poker.watch(() => this.pot.visible(poker.playerWins === undefined));
 
-        this.add(this.bet.x(Screen.w/4).y(0));
+        this.add(this.bet.x(-Screen.w/4).y(0));
         poker.watch(() => this.bet.text('BET: '+money(poker.bet)));
         poker.watch(() => this.bet.visible(poker.playerWins === undefined));
 

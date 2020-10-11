@@ -13,7 +13,7 @@ import { Color } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
-import { comma, seq, range, repeat, money } from '../util';
+import { comma, seq, range, repeat, money, round } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
@@ -21,6 +21,7 @@ import { Tree } from '../tree';
 
 export class Poker extends Mode {
     static BankStart = 3000;
+    static BetStart = 100;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -32,7 +33,7 @@ export class Poker extends Mode {
     readonly slots: (Card|null)[] = [];
 
     pot = 0;
-    bet = 100;
+    bet = Poker.BetStart;
     playerWins?: boolean;
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
@@ -60,9 +61,11 @@ export class Poker extends Mode {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'bet', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['cashValue', 'bank', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
+
+        this.bet = (this.bet+Poker.BetStart)/2;
 
         const outs: any  = {};
         for (const target of machine.dropTargets) {
@@ -470,21 +473,23 @@ export class Poker extends Mode {
         const base = 10;
         const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
-            this.step<=2? [[1, 0]] : [[1, -3, -1], [4, 1, 5]],
-            [[1, -6, -3], [4, 1, 10]],
-            [[1, -6, -3], [4, 1, 10]],
-            [[1, 10, 20], [4, 1, 10]],
-            [[1, 10, 20], [4, 1, 10]],
-            [[1, -3, -1], [4, 1, 5]],
+            this.step<=2? [[1, 0]] : [[3, -8, -2], [4, 1, 5], [1, -10, -5]],
+            [[3, -10, -4], [1, -10, -6], [4, 3, 10], [2, 15, 30]],
+            [[3, -10, -3], [4, 3, 10], [1, 20, 40]],
+            [[1, 10, 20], [4, 3, 10], [1, -10, -5]],
+            [[1, 10, 30], [4, 3, 10]],
+            [[3, -10, -2], [5, 3, 9], [1, 10, 30]],
         ];
         return [...switches.map((sw, i) => {
-            const value = base * this.skillshotRng.weightedRange(...mults[i] as any);
+            const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
+            let change = round(percent, 10);
+            if (this.bet + change < 0) change = -this.bet;
             return {
                 switch: sw,
-                display: value? money(value, 0, '+') : '',
-                collect: () => this.bet += value,
+                display: change? money(change, 0, '+') : '',
+                collect: () => this.bet += change,
             };
-        }), { award: 'plunge to choose bet amount'}];
+        }), { award: 'plunge to adjust bet amount'}];
     }
 
     snail() {
