@@ -63,7 +63,16 @@ Object {
     ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
-    "lMagnaSaveStatus": Array [
+    "lMagnet1": Array [
+      "Green",
+    ],
+    "lMagnet2": Array [
+      "Green",
+    ],
+    "lMagnet3": Array [
+      "Green",
+    ],
+    "lMagnet4": Array [
       "Green",
     ],
     "lMainTargetArrow": Array [],
@@ -292,6 +301,7 @@ Object {
                 "ownOuts": Object {},
                 "state": Object {
                   "skillshot": "Skillshot94",
+                  "tilted": false,
                 },
               },
               Object {
@@ -488,7 +498,10 @@ Object {
                 "children": Array [],
                 "name": "PlayerOverrides79",
                 "ownOuts": Object {
+                  "kickerEnable": undefined,
                   "leftGate": undefined,
+                  "miniFlipperEnable": undefined,
+                  "rampUp": undefined,
                   "rightGate": undefined,
                   "shooterDiverter": undefined,
                 },
@@ -509,9 +522,6 @@ Object {
               ],
               "lLaneUpper4": Array [
                 "Orange",
-              ],
-              "lMagnaSaveStatus": Array [
-                "Green",
               ],
               "lMiniReady": Array [
                 "Green",
@@ -539,6 +549,7 @@ Object {
             },
             "state": Object {
               "_score": 52000,
+              "ball": "Ball80",
               "chips": 4,
               "closeShooter": false,
               "focus": "Poker93",
@@ -629,7 +640,18 @@ Object {
       "lLaneUpper4": Array [],
       "lLeftArrow": Array [],
       "lLowerRamp": Array [],
-      "lMagnaSaveStatus": Array [],
+      "lMagnet1": Array [
+        "Green",
+      ],
+      "lMagnet2": Array [
+        "Green",
+      ],
+      "lMagnet3": Array [
+        "Green",
+      ],
+      "lMagnet4": Array [
+        "Green",
+      ],
       "lMainTargetArrow": Array [],
       "lMiniReady": Array [
         "Red",
@@ -751,7 +773,16 @@ Object {
     ],
     "lLeftArrow": Array [],
     "lLowerRamp": Array [],
-    "lMagnaSaveStatus": Array [
+    "lMagnet1": Array [
+      "Green",
+    ],
+    "lMagnet2": Array [
+      "Green",
+    ],
+    "lMagnet3": Array [
+      "Green",
+    ],
+    "lMagnet4": Array [
       "Green",
     ],
     "lMainTargetArrow": Array [],
@@ -952,6 +983,7 @@ Object {
                 "ownOuts": Object {},
                 "state": Object {
                   "skillshot": undefined,
+                  "tilted": false,
                 },
               },
               Object {
@@ -1219,7 +1251,10 @@ Object {
                 "children": Array [],
                 "name": "PlayerOverrides119",
                 "ownOuts": Object {
+                  "kickerEnable": undefined,
                   "leftGate": undefined,
+                  "miniFlipperEnable": undefined,
+                  "rampUp": undefined,
                   "rightGate": undefined,
                   "shooterDiverter": undefined,
                 },
@@ -1240,9 +1275,6 @@ Object {
               ],
               "lLaneUpper4": Array [
                 "Orange",
-              ],
-              "lMagnaSaveStatus": Array [
-                "Green",
               ],
               "lMiniReady": Array [
                 "Green",
@@ -1275,6 +1307,7 @@ Object {
             },
             "state": Object {
               "_score": 41000,
+              "ball": "Ball120",
               "chips": 4,
               "closeShooter": false,
               "focus": "Poker128",
@@ -1365,7 +1398,18 @@ Object {
       "lLaneUpper4": Array [],
       "lLeftArrow": Array [],
       "lLowerRamp": Array [],
-      "lMagnaSaveStatus": Array [],
+      "lMagnet1": Array [
+        "Green",
+      ],
+      "lMagnet2": Array [
+        "Green",
+      ],
+      "lMagnet3": Array [
+        "Green",
+      ],
+      "lMagnet4": Array [
+        "Green",
+      ],
       "lMainTargetArrow": Array [],
       "lMiniReady": Array [
         "Red",
