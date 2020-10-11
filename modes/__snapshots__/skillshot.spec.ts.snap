@@ -85,6 +85,7 @@ Object {
     ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
+    "lShootAgain": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [],
     "lShooterStartHand": Array [],
@@ -252,10 +253,12 @@ Object {
                 "name": "Ball26",
                 "ownOuts": Object {
                   "kickerEnable": true,
+                  "lShootAgain": Array [],
                   "miniFlipperEnable": true,
                 },
                 "state": Object {
                   "drained": false,
+                  "shootAgain": false,
                   "skillshot": undefined,
                   "tilted": false,
                 },
@@ -339,13 +342,13 @@ Object {
                   "dealerHand": Array [
                     Object {
                       "flipped": true,
-                      "num": 3,
+                      "num": 1,
                       "suit": "h",
                     },
                     Object {
                       "flipped": true,
-                      "num": 4,
-                      "suit": "c",
+                      "num": 9,
+                      "suit": "s",
                     },
                     null,
                     null,
@@ -443,18 +446,6 @@ Object {
                     Object {
                       "num": 12,
                       "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 9,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "c",
                     },
                   ],
                   "step": 2,
@@ -627,6 +618,7 @@ Object {
       "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
+      "lShootAgain": Array [],
       "lShooterLaneArrow": Array [],
       "lShooterShowCards": Array [],
       "lShooterStartHand": Array [],

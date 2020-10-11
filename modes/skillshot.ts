@@ -153,7 +153,9 @@ export class Skillshot extends Mode {
     }
 
     finish(e: SwitchEvent) {
-        if (!this.wasMade) {
+        if (e.sw === machine.sRightOutlane) {
+            this.ball.shootAgain = true;
+        } else if (!this.wasMade) {
             this.made(this.lastSw, e);
         }
         return this.end();

@@ -77,7 +77,13 @@ export abstract class Multiball extends Mode {
         return this.end();
     }
 
-    ballDrained() {
+    async ballDrained() {
+        if (this.player.ball?.shootAgain) {
+            await ReleaseBall(this);
+            this.player.ball.shootAgain = false;
+            return;
+        }
+
         this.balls--;
         Log.log('game', 'lost ball from multiball, now at %i balls', this.balls);
         if (this.balls <= 1) {

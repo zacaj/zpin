@@ -4,6 +4,9 @@ import { Ball } from './ball';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
+import { DropBankCompleteEvent } from '../drop-bank';
+import { alert, notify } from '../gfx';
+import { score } from '../util';
 
 export class MiniPf extends Mode {
     waitingForSwitch = true;
@@ -20,6 +23,11 @@ export class MiniPf extends Mode {
         this.listen(onAnyPfSwitchExcept(...machine.miniBank.switches), 'end');
 
         this.listen(onAnyPfSwitchExcept(machine.sLeftOutlane), () => this.waitingForSwitch = false);
+        this.listen(e => e instanceof DropBankCompleteEvent && e.bank===machine.miniBank, () => {
+            ball.shootAgain = true;
+            ball.player.score += 500000;
+            notify(score(500000), 5000);
+        });
     }
 
     end() {

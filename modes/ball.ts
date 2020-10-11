@@ -6,17 +6,19 @@ import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
 import { Event, Events, Priorities } from '../events';
 import { Player } from './player';
 import { MPU } from '../mpu';
-import { addToScreen, gfx, ModeGroup, textBox } from '../gfx';
+import { addToScreen, gfx, ModeGroup, Screen, textBox } from '../gfx';
 import { fork } from '../promises';
 import { wait } from '../timer';
-import { State } from '../state';
+import { onChange, State } from '../state';
 import { Outputs } from '../outputs';
-import { Color } from '../light';
+import { Color, flash } from '../light';
 import { MiniPf } from './miniPf';
 import { DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
 import { Bonus } from './bonus';
 import { EndOfGameBonus, EogGfx } from './eog';
 import { Poker } from './poker';
+import { Group } from 'aminogfx-gl';
+import { TreeEndEvent } from '../tree';
 
 export class Ball extends Mode {
 
@@ -38,6 +40,7 @@ export class Ball extends Mode {
 
     tilted = false;
     drained = false;
+    shootAgain = false;
 
     get children() {
         return [
@@ -54,10 +57,11 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['skillshot', 'tilted', 'drained']);
+        State.declare<Ball>(this, ['skillshot', 'tilted', 'drained', 'shootAgain']);
         this.out = new Outputs(this, {
-            miniFlipperEnable: () => !this.drained,
-            kickerEnable: () => !this.drained,
+            miniFlipperEnable: () => !this.drained && !this.shootAgain,
+            kickerEnable: () => !this.drained && !this.shootAgain,
+            lShootAgain: () => flash(this.shootAgain, Color.Orange),
         });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
@@ -70,6 +74,12 @@ export class Ball extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
+            if (this.shootAgain) {
+                await ReleaseBall(this);
+                this.shootAgain = false;
+                return;
+            }
+
             Events.fire(new BallEnding(this));
             this.gfx?.clear();
             const finish = await Events.waitPriority(Priorities.EndBall);
@@ -95,11 +105,19 @@ export class Ball extends Mode {
 
         this.listen(onSwitchClose(machine.sMiniOut), () => this.drained = true);
 
+        addToScreen(() => new ModeGroup(this));
+
         this.listen(onSwitchClose(machine.sTilt), () => {
             this.tilted = true;
             this.gfx?.add(textBox({}, ['TILT', 150]).z(100));
         });
-        addToScreen(() => new ModeGroup(this));
+
+        if (this.gfx) {
+            const tb = textBox({maxWidth: Screen.w}, ['BALL SAVED', 150, 80], ['PLEASE WAIT', 70]).z(100);
+            this.gfx.add(tb);
+            this.watch(() => tb.visible(this.shootAgain));
+        }
+
     }
 
     static async start(player: Player) {

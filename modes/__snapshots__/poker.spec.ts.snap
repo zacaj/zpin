@@ -100,6 +100,7 @@ Object {
     ],
     "lRampShowCards": Array [],
     "lRampStartMb": Array [],
+    "lShootAgain": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [],
     "lShooterStartHand": Array [],
@@ -304,10 +305,12 @@ Object {
                 "name": "Ball80",
                 "ownOuts": Object {
                   "kickerEnable": true,
+                  "lShootAgain": Array [],
                   "miniFlipperEnable": true,
                 },
                 "state": Object {
                   "drained": false,
+                  "shootAgain": false,
                   "skillshot": "Skillshot94",
                   "tilted": false,
                 },
@@ -376,13 +379,13 @@ Object {
                   "dealerHand": Array [
                     Object {
                       "flipped": true,
-                      "num": 3,
-                      "suit": "d",
+                      "num": 5,
+                      "suit": "c",
                     },
                     Object {
                       "flipped": true,
-                      "num": 6,
-                      "suit": "h",
+                      "num": 7,
+                      "suit": "d",
                     },
                     null,
                     null,
@@ -479,18 +482,6 @@ Object {
                     },
                     Object {
                       "num": 9,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 5,
-                      "suit": "c",
-                    },
-                    Object {
-                      "num": 7,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 10,
                       "suit": "h",
                     },
                   ],
@@ -672,6 +663,7 @@ Object {
       "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
+      "lShootAgain": Array [],
       "lShooterLaneArrow": Array [],
       "lShooterShowCards": Array [],
       "lShooterStartHand": Array [],
@@ -821,6 +813,7 @@ Object {
       "White",
     ],
     "lRampStartMb": Array [],
+    "lShootAgain": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [
       "White",
@@ -995,10 +988,12 @@ Object {
                 "name": "Ball120",
                 "ownOuts": Object {
                   "kickerEnable": true,
+                  "lShootAgain": Array [],
                   "miniFlipperEnable": true,
                 },
                 "state": Object {
                   "drained": false,
+                  "shootAgain": false,
                   "skillshot": undefined,
                   "tilted": false,
                 },
@@ -1071,61 +1066,61 @@ Object {
                   "closeShooter": false,
                   "dealerCardsUsed": Array [
                     Object {
-                      "flipped": false,
-                      "num": 9,
+                      "flipped": undefined,
+                      "num": 1,
                       "suit": "h",
                     },
                     Object {
                       "flipped": false,
-                      "num": 9,
-                      "suit": "d",
-                    },
-                    Object {
-                      "flipped": undefined,
-                      "num": 4,
+                      "num": 1,
                       "suit": "c",
                     },
                     Object {
+                      "flipped": undefined,
+                      "num": 9,
+                      "suit": "s",
+                    },
+                    Object {
                       "flipped": false,
-                      "num": 4,
+                      "num": 9,
                       "suit": "h",
                     },
                   ],
                   "dealerHand": Array [
                     Object {
                       "flipped": undefined,
-                      "num": 3,
+                      "num": 1,
                       "suit": "h",
                     },
                     Object {
                       "flipped": undefined,
-                      "num": 4,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
                       "num": 9,
-                      "suit": "h",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 5,
                       "suit": "s",
                     },
                     Object {
                       "flipped": false,
-                      "num": 9,
-                      "suit": "d",
+                      "num": 1,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 3,
+                      "suit": "h",
                     },
                     Object {
                       "flipped": false,
                       "num": 4,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 9,
                       "suit": "h",
                     },
                     Object {
                       "flipped": undefined,
-                      "num": 2,
-                      "suit": "c",
+                      "num": 5,
+                      "suit": "s",
                     },
                   ],
                   "dealerHandDesc": "Two Pair",
@@ -1188,24 +1183,24 @@ Object {
                       "suit": "s",
                     },
                     Object {
+                      "num": 9,
+                      "suit": "d",
+                    },
+                    Object {
+                      "num": 4,
+                      "suit": "h",
+                    },
+                    Object {
+                      "num": 2,
+                      "suit": "c",
+                    },
+                    Object {
                       "num": 8,
                       "suit": "h",
                     },
                     Object {
                       "num": 5,
                       "suit": "h",
-                    },
-                    Object {
-                      "num": 4,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 5,
-                      "suit": "d",
-                    },
-                    Object {
-                      "num": 3,
-                      "suit": "s",
                     },
                     Object {
                       "num": 8,
@@ -1242,18 +1237,6 @@ Object {
                     Object {
                       "num": 12,
                       "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 9,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "c",
                     },
                   ],
                   "step": 8,
@@ -1439,6 +1422,7 @@ Object {
       "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
+      "lShootAgain": Array [],
       "lShooterLaneArrow": Array [],
       "lShooterShowCards": Array [],
       "lShooterStartHand": Array [],

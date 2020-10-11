@@ -89,6 +89,7 @@ Object {
         "fl",
       ],
     ],
+    "lShootAgain": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [
       "White",
@@ -263,10 +264,12 @@ Object {
                 "name": "Ball35",
                 "ownOuts": Object {
                   "kickerEnable": true,
+                  "lShootAgain": Array [],
                   "miniFlipperEnable": true,
                 },
                 "state": Object {
                   "drained": false,
+                  "shootAgain": false,
                   "skillshot": undefined,
                   "tilted": false,
                 },
@@ -341,41 +344,41 @@ Object {
                   "dealerHand": Array [
                     Object {
                       "flipped": true,
-                      "num": 3,
+                      "num": 1,
                       "suit": "h",
                     },
                     Object {
                       "flipped": true,
-                      "num": 4,
-                      "suit": "c",
-                    },
-                    Object {
-                      "flipped": false,
                       "num": 9,
-                      "suit": "h",
-                    },
-                    Object {
-                      "flipped": false,
-                      "num": 5,
                       "suit": "s",
                     },
                     Object {
                       "flipped": false,
-                      "num": 9,
-                      "suit": "d",
+                      "num": 1,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 3,
+                      "suit": "h",
                     },
                     Object {
                       "flipped": false,
                       "num": 4,
+                      "suit": "c",
+                    },
+                    Object {
+                      "flipped": false,
+                      "num": 9,
                       "suit": "h",
                     },
                     Object {
                       "flipped": true,
-                      "num": 2,
-                      "suit": "c",
+                      "num": 5,
+                      "suit": "s",
                     },
                   ],
-                  "dealerHandDesc": "Pair",
+                  "dealerHandDesc": undefined,
                   "newMbs": Array [
                     Array [
                       "StraightMb",
@@ -491,18 +494,6 @@ Object {
                     Object {
                       "num": 12,
                       "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "h",
-                    },
-                    Object {
-                      "num": 9,
-                      "suit": "s",
-                    },
-                    Object {
-                      "num": 1,
-                      "suit": "c",
                     },
                   ],
                   "step": 7,
@@ -685,6 +676,7 @@ Object {
       "lRampMini": Array [],
       "lRampShowCards": Array [],
       "lRampStartMb": Array [],
+      "lShootAgain": Array [],
       "lShooterLaneArrow": Array [],
       "lShooterShowCards": Array [],
       "lShooterStartHand": Array [],

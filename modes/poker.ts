@@ -217,7 +217,7 @@ export class Poker extends Mode {
         for (let i=0; i<this.step; i++) {
             this.playerHand.push(this.deck.shift()!);
         }
-        for (let i=0; i<20; i++) {
+        for (let i=0; i<machine.dropTargets.length; i++) {
             const card = this.deck.shift()!;
             this.slots.push(card);
             totals[card.suit]++;
