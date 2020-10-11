@@ -62,6 +62,7 @@ export abstract class Multiball extends Mode {
     async releaseBallsFromLock() {
         Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
         assert(machine.ballsLocked !== 0);
+        await wait(100, 'release locks');
         this.lockPost = true;
         machine.ballsLocked = 0;
         await wait(1200, 'release locks');
