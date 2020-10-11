@@ -80,12 +80,14 @@ export class Player extends Mode {
     spinner = new Spinner(this);
     leftOrbit = new LeftOrbit(this);
     overrides = new PlayerOverrides(this);
+    rampCombo?: RampCombo;
     ball?: Ball;
 
     get children() {
         return [
             this.clearHoles,
             this.ball,
+            this.rampCombo,
             this.spinner,
             this.leftOrbit,
             this.focus,
@@ -93,9 +95,6 @@ export class Player extends Mode {
             this.overrides,
         ].filter(x => !!x) as Tree<MachineOutputs>[];
     }
-
-
-    rampUp = true;
 
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb', Card[]>([
@@ -117,11 +116,11 @@ export class Player extends Mode {
         public seed = argv.seed ?? 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['miniReady', 'rampUp', '_score', 'ball', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
-            rampUp: () => machine.lRampStartMb.is(Color.Green)? false : this.rampUp,
+            rampUp: () => machine.lRampStartMb.is(Color.Red || !machine.lRampStartMb.lit()),
             lShooterStartHand: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[Color.Green, 'fl']] : [Color.Red]) : [],
@@ -144,13 +143,12 @@ export class Player extends Mode {
         this.listen(
             [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000)],
             e => {
-                this.rampUp = false;
+                if (!this.rampCombo) {
+                    this.rampCombo = new RampCombo(this);
+                    this.rampCombo.started();
+                }
             });
-        this.listen(onAnySwitchClose(machine.sPop, machine.sLeftSling, machine.sRightSling),
-            e => {
-                this.rampUp = true;
-                this.laneChips.rotate(1);
-            });
+
         // lane change
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
             e => {
@@ -468,6 +466,33 @@ class LeftOrbit extends Tree<MachineOutputs> {
     hit() {
         this.player.score += this.score * this.comboMult;
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
+    }
+}
+
+export class RampCombo extends Tree<MachineOutputs> {
+    constructor(
+        public player: Player,
+    ) {
+        super();
+
+        this.out = new Outputs(this, {
+            rampUp: false,
+            lRampArrow: [[Color.Yellow, 'fl']],
+        });
+
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), 'end');
+        this.listen(e => e instanceof DropDownEvent, 'end');
+
+        this.listen(onSwitchClose(machine.sRampMade), () => {
+            player.score += 50000;
+            notify(score(50000));
+            return this.end();
+        });
+    }
+
+    end() {
+        this.player.rampCombo = undefined;
+        return super.end();
     }
 }
 

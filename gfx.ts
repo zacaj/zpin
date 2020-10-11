@@ -882,6 +882,8 @@ const gfxSwitches: { [name: string]: {
     'right flipper': { x: 18.95625, y: 1.387500000000003 },
     'both flippers': { x: 9.674999999999999, y: 0.3374999999999986 },
     'tilt': { x: 18, y: 3.0375000000000014 },
+    'right sling': { x: 13.725, y: 13.668750000000003 },
+    'left sling': { x: 4.44375, y: 13.5 },
 };
 
 class FakeGroup implements Pick<Group, 'add'|'remove'|'clear'> {
@@ -963,7 +965,7 @@ export function notify(text: string, ms = 2000): [Group, Promise<void>] {
     if (gfx) {
         Log.log(['gfx', 'console'], 'notify message %s / %s', text);
         g = gfx.createGroup().y(Screen.h/2);
-        const t = makeText(text, 50, 'center', 'bottom').w(Screen.w).x(-Screen.w/2);
+        const t = makeText(text, 50, 'center', 'bottom').w(Screen.w).x(-Screen.w/2).y(-10);
         const r = gfx.createRect().fill('#444444').z(-.1);
         function setW() {
             r.w(t.lineW()+50);
@@ -973,7 +975,7 @@ export function notify(text: string, ms = 2000): [Group, Promise<void>] {
         setW();
         function setH() {
             r.h(t.lineNr()*t.fontSize()*1.25);
-            r.y(-r.h()*.6);
+            r.y(-r.h());
         }
         t.lineNr.watch(setH);
         setH();
