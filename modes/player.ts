@@ -10,8 +10,8 @@ import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank } fr
 import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
-import { Time, time, wait } from '../timer';
-import { makeText, gfx, screen, addToScreen, alert, notify, pfx } from '../gfx';
+import { Time, time, Timer, TimerQueueEntry, wait } from '../timer';
+import { makeText, gfx, screen, addToScreen, alert, notify, pfx, textBox } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
@@ -23,6 +23,7 @@ import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
 import { Restart } from './restart';
 import { HandMb } from './hand.mb';
+import { Group, Text } from 'aminogfx-gl';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -317,11 +318,16 @@ class Spinner extends Tree<MachineOutputs> {
     ripCount = 0;
     score = 10;
     comboMult = 1;
+    ripTotal = 0;
 
     rounds = 0;
     maxRounds = 1;
 
     display = pfx? makeText('10  ', 50, 'corner', undefined, pfx).rz(90).x(80).y(160).sy(-1) : undefined;
+
+    tb?: Group;
+    ripTimer?: TimerQueueEntry;
+
 
     constructor(
         public player: Player,
@@ -360,18 +366,41 @@ class Spinner extends Tree<MachineOutputs> {
 
         this.listen(e => e instanceof DropDownEvent, () => this.calcScore());
         this.listen(e => e instanceof DropBankResetEvent, () => this.calcScore());
+
+        if (gfx) {
+            this.tb = textBox({padding: 15}, 
+                ['1000', 70, 20],
+                ['6 SPINS', 40],
+            ).z(90);
+        }
     }
 
     hit() {
-        if (!this.lastSpinAt || time()-this.lastSpinAt > 100) {
+        if (!this.lastSpinAt || time()-this.lastSpinAt > 750) {
             Events.fire(new SpinnerHit());
             this.lastHitAt = time();
             this.ripCount = 0;
+            this.ripTotal = 0;
         }
-        this.player.score += (machine.out!.treeValues.spinnerValue ?? this.score) * this.comboMult;
+        this.lastSpinAt = time();
+        const value = (machine.out!.treeValues.spinnerValue ?? this.score) * this.comboMult;
+        this.player.score += value;
         this.ripCount++;
+        this.ripTotal += value;
         if (this.ripCount > 5) {
             Events.fire(new SpinnerRip());
+            if (this.tb) {
+                if (!this.ripTimer) {
+                    this.ripTimer = Timer.callIn(() => {
+                        this.player.gfx?.remove(this.tb!);
+                        this.ripTimer = undefined;
+                    }, 750);
+                    this.player.gfx?.add(this.tb);
+                }
+                (this.tb.children[1] as Text).text(score(this.ripTotal));
+                (this.tb.children[2] as Text).text(`${this.ripCount} SPINS`);
+                this.ripTimer.time = time() + 750 as Time;
+            }
         }
     }
 
