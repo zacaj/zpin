@@ -3,10 +3,10 @@ import { Mode, Modes } from '../mode';
 import { Poker, Card } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
-import { Outputs } from '../outputs';
-import { Color, light } from '../light';
+import { OutputFuncsOrValues, Outputs } from '../outputs';
+import { Color, colorToArrow, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
-import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank } from '../drop-bank';
+import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank, DropTarget } from '../drop-bank';
 import { Ball } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
@@ -17,7 +17,7 @@ import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
-import { assert, comma, getCallerLine, getCallerLoc, money, score } from '../util';
+import { assert, comma, getCallerLine, getCallerLoc, money, score, seq } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -305,6 +305,7 @@ export class Player extends Mode {
         StraightMb: {},
         Skillshot: {},
         HandMb: {},
+        NoMode: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
@@ -340,10 +341,55 @@ export class Player extends Mode {
 }
 
 class NoMode extends Mode {
+    rng!: Rng;
+    targets = new Map<DropTarget, Color>();
+    spinnerValue?: number;
+
     constructor(
         public player: Player,
     ) {
         super(Modes.NoMode);
+        this.rng = player.rng();
+        State.declare<NoMode>(this, ['targets', 'spinnerValue']);
+        player.storeData<NoMode>(this, ['rng']);
+
+        this.addTargets();
+
+        const outs: any = {};
+        for (const target of machine.dropTargets) {
+            outs[target.image.name] = () => this.targets.has(target)? colorToArrow(this.targets.get(target)) : undefined;
+        }
+        this.out = new Outputs(this, {
+            ...outs,
+            spinnerValue: () => this.spinnerValue,
+        });
+
+        this.listen<DropDownEvent>([DropDownEvent.on(), e => this.targets.has(e.target)], (e) => {
+            this.spinnerValue = undefined;
+            switch (this.targets.get(e.target)) {
+                case Color.Orange:
+                    player.addChip();
+                    break;
+                case Color.Green:
+                    player.changeValue(20);
+                    break;
+                case Color.Yellow:
+                    this.spinnerValue = 2000;
+                    break;
+            }
+            this.targets.delete(e.target);
+            if (this.targets.size === 0)
+                this.addTargets();
+        });
+    }
+
+    addTargets() {
+        for (const target of this.rng.randSelectRange(3, 5, ...machine.dropTargets))
+            this.targets.set(target, Color.Orange);
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
+            this.targets.set(target, Color.Yellow);
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
+            this.targets.set(target, Color.Green);
     }
 
     end() {

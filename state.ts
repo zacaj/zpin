@@ -176,7 +176,7 @@ export class State {
                             case 'clear':
                             case 'set': {
                                 return (...args: any[]) => {
-                                    const old = new Map<T, U>(map.values());
+                                    const old = new Map<T, U>(map.entries());
                                     const ret = (map[key] as any)(...args);
                                     Events.fire(new StateEvent(obj, prop, map as any, old as any));
                                     Events.fire(new StateEvent(newMap, 'values', map as any, old as any));

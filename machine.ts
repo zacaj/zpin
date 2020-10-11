@@ -650,6 +650,7 @@ export class Machine extends Tree<MachineOutputs> {
     iSpinner = new Image('iSpinner');
 
     dropTargets: DropTarget[] = [];
+    allDropTargets: DropTarget[] = [];
     dropBanks: DropBank[] = [];
 
     standups: Standup[] = [

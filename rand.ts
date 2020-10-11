@@ -41,6 +41,18 @@ export class Rng {
     }
 
     randSelect<T>(...values: T[]): T {
-        return values[this.randRange(0, values.length-1)];
+        return this.randSelectMany(1, ...values)[0];
+    }
+    randSelectRange<T>(start: number, end: number, ...values: T[]): T[] {
+        return this.randSelectMany(this.randRange(start, end), ...values);
+    }
+    randSelectMany<T>(count: number, ...values: T[]): T[] {
+        const ret: T[] = [];
+        while (ret.length < count) {
+            const v = values[this.randRange(0, values.length-1)];
+            if (!ret.includes(v))
+                ret.push(v);
+        }
+        return ret;
     }
 }

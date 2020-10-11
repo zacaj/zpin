@@ -57,7 +57,7 @@ export async function ResetMechs(parent: Tree<MachineOutputs>) {
 
             this.out = new Outputs(this, outs);
 
-            this.listen([onType(DropBankResetEvent), () => machine.dropTargets.every(t => !t.switch.state)], 'end');
+            this.listen([onType(DropBankResetEvent), () => machine.allDropTargets.every(t => !t.switch.state)], 'end');
             // fork(wait(1000).then(() => this.end()));
         }
     };

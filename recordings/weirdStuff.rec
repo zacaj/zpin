@@ -1,0 +1,191 @@
+Mon Oct 05 2020 23:53:22 GMT+0100 (British Summer Time)
+13:27.970.959 create mode MachineOverrides
+13:28.853.83 switch 'outhole' state -> true (2,0) at 0 via event
+13:28.106.444 switch 'upper 2 right' state -> true (3,6) at 2580 via sweep
+13:28.114.482 drop switch upper 2 right down
+13:28.117.743 switch 'ramp down' state -> true (4,7) at 2592 via sweep
+13:28.131.467 ignore switch event {"row":7,"col":4,"state":true,"when":2559}, 41 late
+13:28.445.281 set left inlane settle to 1/10
+13:28.455.392 set left outlane settle to 1/10
+13:28.465.192 set right inlane settle to 1/10
+13:28.475.340 set right outlane settle to 1/10
+13:28.486.534 set mini out settle to 500/250
+13:28.492.097 set outhole settle to 500/250
+13:28.502.103 set trough full settle to 500/250
+13:28.512.678 set left sling settle to 0/25
+13:28.524.810 set right sling settle to 0/25
+13:28.535.591 set mini left settle to 10/150
+13:28.547.874 set mini center settle to 10/150
+13:28.557.636 set mini right settle to 10/150
+13:28.566.314 set center left settle to 10/150
+13:28.572.726 set center center settle to 10/150
+13:28.583.865 set center right settle to 10/150
+13:28.595.613 set left 1 settle to 10/150
+13:28.606.874 set left 2 settle to 10/150
+13:28.623.433 set left 3 settle to 10/150
+13:28.633.494 set left 4 settle to 10/150
+13:28.644.335 set right 1 settle to 10/150
+13:28.650.383 set right 2 settle to 10/150
+13:28.656.599 set right 3 settle to 10/150
+13:28.666.782 set right 4 settle to 10/150
+13:28.672.682 set right 5 settle to 10/150
+13:28.682.588 set left back 1 settle to 0/50
+13:28.688.137 set left back 2 settle to 0/50
+13:28.694.982 set center back left settle to 0/50
+13:28.704.258 set center back center settle to 0/50
+13:28.710.195 set center back right settle to 0/50
+13:28.716.425 set upper 3 left settle to 10/150
+13:28.726.833 set upper 3 center settle to 10/150
+13:28.737.733 set upper 3 right settle to 10/150
+13:28.748.279 set upper 2 left settle to 10/150
+13:28.759.326 set upper 2 right settle to 10/150
+13:28.770.242 set single standup settle to 0/50
+13:28.781.955 set ramp mini settle to 0/50
+13:28.792.318 set ramp mini outer settle to 0/50
+13:28.803.514 set left orbit settle to 0/100
+13:28.814.986 set spinner settle to 0/1
+13:28.825.719 set spinner mini settle to 0/50
+13:28.836.638 set upper pop mini settle to 0/50
+13:28.847.778 set side pop mini settle to 0/50
+13:28.858.362 set shooter upper settle to 1/10
+13:28.869.465 set shooter magnet settle to 1/10
+13:28.880.900 set shooter lane settle to 100/50
+13:28.891.113 set shooter lower settle to 1/10
+13:28.902.437 set back lane settle to 1/10
+13:28.913.226 set pop settle to 0/25
+13:28.927.409 set upper inlane settle to 1/10
+13:28.936.771 set under upper flipper settle to 0/50
+13:28.947.042 set upper side target settle to 0/50
+13:28.958.997 set upper eject settle to 25/25
+13:28.969.713 set upper lane 2 settle to 1/10
+13:28.980.634 set upper lane 3 settle to 1/10
+13:28.985.599 set upper lane 4 settle to 1/10
+13:28.995.539 set ramp made settle to 1/10
+13:29.630.1 set popper button settle to 1/50
+13:29.123.69 set magnet button settle to 1/50
+13:29.182.97 set left flipper settle to 1/50
+13:29.259.52 set right flipper settle to 1/50
+13:29.351.78 set start button settle to 1/50
+13:29.456.34 set start button settle to 1/50
+13:29.567.35 set upper 2 right settle to 10/150
+13:30.963.161 create mode Game
+13:31.521.39 create mode Player
+13:31.117.770 create mode PlayerOverrides
+13:31.550.765 create mode Ball
+13:32.539.484 switch 'ramp down' state -> false (4,7) at 6955 via event
+13:32.777.199 switch 'outhole' state -> false (2,0) at 7242 via event
+13:32.799.203 switch 'upper 2 right' state -> false (3,6) at 7262 via event
+13:32.806.833 drop bank upper2 reset successfully
+13:34.275.453 switch 'shooter lane' state -> true (0,0) at 8734 via event
+13:34.394.553 create mode Poker
+13:35.418.694 create mode Skillshot
+13:52.414.473 switch 'shooter lane' state -> false (0,0) at 26885 via event
+13:54.906.643 switch 'shooter lane' state -> true (0,0) at 29366 via event
+13:55.315.402 switch 'shooter lane' state -> false (0,0) at 29787 via event
+13:55.753.436 switch 'shooter lower' state -> true (0,2) at 30222 via event
+13:55.789.538 switch 'shooter lower' state -> false (0,2) at 30251 via event
+13:57.424.6 switch 'shooter lower' state -> true (0,2) at 31466 via event
+13:57.255.43 switch 'shooter lower' state -> false (0,2) at 31494 via event
+13:57.385.371 switch 'right inlane' state -> true (5,0) at 31855 via event
+13:57.598.658 switch 'right inlane' state -> false (5,0) at 31906 via event
+13:57.601.211 switch 'right inlane' state -> true (5,0) at 31911 via event
+13:57.606.940 switch 'right flipper' state -> true (8,1) at 31922 via event
+13:57.628.442 switch 'right inlane' state -> false (5,0) at 31935 via event
+13:58.101.128 switch 'right flipper' state -> false (8,1) at 32567 via event
+13:58.114.328 switch 'right flipper' state -> true (8,1) at 32577 via event
+14:02.483.891 switch 'left flipper' state -> true (8,4) at 36951 via event
+14:02.502.706 switch 'both flippers' state -> true (15,0) at 36951 via sim
+14:03.265.656 switch 'both flippers' state -> false (15,0) at 37739 via sweep
+14:05.172.964 switch 'left flipper' state -> false (8,4) at 39643 via event
+14:05.854.694 switch 'left flipper' state -> true (8,4) at 40324 via event
+14:05.863.916 switch 'both flippers' state -> true (15,0) at 40324 via sim
+14:06.281.313 switch 'both flippers' state -> false (15,0) at 40755 via sweep
+14:08.226.478 switch 'left flipper' state -> false (8,4) at 42694 via event
+14:08.600.934 switch 'left flipper' state -> true (8,4) at 43069 via event
+14:08.617.895 switch 'both flippers' state -> true (15,0) at 43069 via sim
+14:09.304.855 switch 'both flippers' state -> false (15,0) at 43778 via sweep
+14:10.529.945 switch 'left flipper' state -> false (8,4) at 44999 via event
+14:10.955.258 switch 'left flipper' state -> true (8,4) at 45425 via event
+14:10.963.078 switch 'both flippers' state -> true (15,0) at 45425 via sim
+14:11.324.320 switch 'both flippers' state -> false (15,0) at 45799 via sweep
+14:12.351.478 switch 'left flipper' state -> false (8,4) at 46822 via event
+14:12.730.900 switch 'left flipper' state -> true (8,4) at 47199 via event
+14:12.748.693 switch 'both flippers' state -> true (15,0) at 47199 via sim
+14:13.341.441 switch 'both flippers' state -> false (15,0) at 47815 via sweep
+14:15.607.11 switch 'left flipper' state -> false (8,4) at 49522 via event
+14:15.987.103 switch 'left flipper' state -> true (8,4) at 50449 via event
+14:16.176.98 switch 'both flippers' state -> true (15,0) at 50449 via sim
+14:16.368.464 switch 'both flippers' state -> false (15,0) at 50842 via sweep
+14:21.653.368 switch 'left flipper' state -> false (8,4) at 56121 via event
+14:30.118.676 switch 'left flipper' state -> true (8,4) at 64585 via event
+14:30.136.962 switch 'both flippers' state -> true (15,0) at 64585 via sim
+14:30.463.382 switch 'both flippers' state -> false (15,0) at 64937 via sweep
+14:37.621.201 switch 'left flipper' state -> false (8,4) at 72090 via event
+14:38.706.33 switch 'left flipper' state -> true (8,4) at 72542 via event
+14:38.788.93 switch 'both flippers' state -> true (15,0) at 72542 via sim
+14:38.548.047 switch 'both flippers' state -> false (15,0) at 73022 via sweep
+14:39.938.45 switch 'left flipper' state -> false (8,4) at 73562 via event
+14:40.187.814 switch 'right flipper' state -> false (8,1) at 74655 via event
+14:40.240.670 switch 'right flipper' state -> true (8,1) at 74710 via event
+14:46.426.105 switch 'right flipper' state -> false (8,1) at 80887 via event
+14:47.576.7 switch 'right flipper' state -> true (8,1) at 81476 via event
+14:47.176.167 switch 'right flipper' state -> false (8,1) at 81646 via event
+14:48.149.23 switch 'left flipper' state -> true (8,4) at 82484 via event
+14:48.449.960 switch 'left flipper' state -> false (8,4) at 82919 via event
+14:48.541.840 switch 'right flipper' state -> true (8,1) at 83009 via event
+14:50.189.529 switch 'right flipper' state -> false (8,1) at 84657 via event
+14:50.773.461 switch 'right flipper' state -> true (8,1) at 85243 via event
+14:50.925.030 switch 'right flipper' state -> false (8,1) at 85397 via event
+14:52.812.453 switch 'left flipper' state -> true (8,4) at 87283 via event
+14:54.659.72 switch 'right flipper' state -> true (8,1) at 88533 via event
+14:54.834.06 switch 'both flippers' state -> true (15,0) at 88533 via sim
+14:54.131.553 switch 'left flipper' state -> false (8,4) at 88595 via event
+14:54.134.520 switch 'both flippers' state -> false (15,0) at 88595 via sim
+14:54.231.349 switch 'right flipper' state -> false (8,1) at 88703 via event
+14:54.587.961 switch 'left 3' state -> true (3,3) at 89054 via event
+14:54.624.759 drop switch left 3 down
+14:56.136.046 switch 'right flipper' state -> true (8,1) at 90600 via event
+14:56.250.336 switch 'left flipper' state -> true (8,4) at 90717 via event
+14:56.267.853 switch 'both flippers' state -> true (15,0) at 90717 via sim
+14:56.298.912 switch 'right flipper' state -> false (8,1) at 90767 via event
+14:56.301.895 switch 'both flippers' state -> false (15,0) at 90767 via sim
+14:56.419.329 switch 'left flipper' state -> false (8,4) at 90888 via event
+14:56.835.838 switch 'outhole' state -> true (2,0) at 91304 via event
+14:57.163.959 switch 'outhole' state -> false (2,0) at 91632 via event
+14:59.488.734 switch 'right flipper' state -> true (8,1) at 93947 via event
+15:00.685.333 switch 'right flipper' state -> false (8,1) at 95153 via event
+15:01.259.565 switch 'right flipper' state -> true (8,1) at 95730 via event
+15:01.410.261 switch 'right flipper' state -> false (8,1) at 95880 via event
+15:02.367.389 switch 'left flipper' state -> true (8,4) at 96829 via event
+15:02.770.962 switch 'left sling' state -> true (0,1) at 97240 via event
+15:02.849.338 switch 'left sling' state -> false (0,1) at 97314 via event
+15:03.845.61 switch 'left flipper' state -> false (8,4) at 97555 via event
+15:03.208.368 switch 'right 4' state -> true (2,2) at 97674 via event
+15:03.238.528 drop switch right 4 down
+15:04.977.970 switch 'right flipper' state -> true (8,1) at 99446 via event
+15:06.592.516 switch 'right flipper' state -> false (8,1) at 101061 via event
+15:07.354.655 switch 'right flipper' state -> true (8,1) at 101824 via event
+15:07.481.175 switch 'right flipper' state -> false (8,1) at 101949 via event
+15:09.401.648 switch 'left flipper' state -> true (8,4) at 103871 via event
+15:10.339.250 switch 'left flipper' state -> false (8,4) at 104808 via event
+15:10.692.832 switch 'right flipper' state -> true (8,1) at 105158 via event
+15:10.926.485 switch 'right flipper' state -> false (8,1) at 105397 via event
+15:10.980.750 switch 'left 4' state -> true (5,3) at 105451 via event
+15:11.124.47 drop switch left 4 down
+15:11.171.628 switch 'center center' state -> true (2,4) at 105642 via event
+15:11.203.095 drop switch center center down
+15:11.438.554 switch 'right 5' state -> true (1,2) at 105905 via event
+15:11.688.331 drop switch right 5 down
+15:11.857.752 switch 'ramp down' state -> true (4,7) at 106325 via event
+15:11.903.301 switch 'right 1' state -> true (5,2) at 106365 via event
+15:11.906.022 drop switch right 1 detected, but was already down
+15:12.682.20 switch 'right 2' state -> true (4,2) at 106538 via event
+15:12.715.02 drop switch right 2 detected, but was already down
+15:12.208.673 switch 'right outlane' state -> true (4,0) at 106673 via event
+15:12.269.341 switch 'right outlane' state -> false (4,0) at 106733 via event
+15:12.631.156 switch 'popper button' state -> true (8,5) at 107102 via event
+15:12.781.358 switch 'popper button' state -> false (8,5) at 107242 via event
+15:14.288.333 switch 'outhole' state -> true (2,0) at 108758 via event
+15:14.631.873 switch 'outhole' state -> false (2,0) at 109093 via event
+15:15.141.90 switch 'trough full' state -> true (1,0) at 109481 via event
+15:15.200.34 create mode Bonus

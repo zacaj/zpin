@@ -1,0 +1,37 @@
+Sun Oct 11 2020 09:10:22 GMT-0400 (Eastern Daylight Time)
+07:59.525.000 create mode MachineOverrides
+08:00.123.200 switch 'trough full' state -> true (1,0) at 2303 via fake
+08:00.127.800 create mode Game
+08:00.152.700 create mode Player
+08:00.192.100 create mode PlayerOverrides
+08:00.356.600 create mode Ball
+08:00.693.700 switch 'trough full' state -> false (1,0) at 2874 via fake
+08:00.697.900 switch 'shooter lane' state -> true (0,0) at 2877 via fake
+08:00.706.000 create mode Poker
+08:04.439.900 create mode Skillshot
+08:07.515.800 force state of right 1 to on
+08:07.516.000 switch 'right 1' state -> true (5,2) at 9696 via force
+08:07.521.300 drop switch right 1 down
+08:08.395.200 force state of right 2 to on
+08:08.396.100 switch 'right 2' state -> true (4,2) at 10576 via force
+08:08.401.900 drop switch right 2 down
+08:08.980.600 force state of right 3 to on
+08:08.980.200 switch 'right 3' state -> true (3,2) at 11161 via force
+08:08.986.900 drop switch right 3 down
+08:09.580.800 force state of right 4 to on
+08:09.580.400 switch 'right 4' state -> true (2,2) at 11761 via force
+08:09.585.500 drop switch right 4 down
+08:10.247.500 force state of right 5 to on
+08:10.248.500 switch 'right 5' state -> true (1,2) at 12428 via force
+08:10.263.300 drop switch right 5 down
+08:10.266.100 drop bank rightBank complete
+08:10.474.700 switch 'ramp down' state -> true (4,7) at 12655 via 
+08:11.134.600 switch 'right 1' state -> false (5,2) at 13315 via fake
+08:11.138.000 switch 'right 2' state -> false (4,2) at 13318 via fake
+08:11.145.600 switch 'right 3' state -> false (3,2) at 13325 via fake
+08:11.148.800 switch 'right 4' state -> false (2,2) at 13329 via fake
+08:11.151.200 switch 'right 5' state -> false (1,2) at 13332 via fake
+08:11.154.000 drop bank rightBank reset successfully
+08:13.184.00 force state of upper eject to on
+08:13.191.00 switch 'upper eject' state -> true (6,7) at 15199 via force
+08:18.627.00 create mode NoMode

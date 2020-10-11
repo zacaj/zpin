@@ -17,6 +17,10 @@ export abstract class Event {
     get name(): string {
         return (this as any).constructor.name;
     }
+
+    static on(): EventTypePredicate<Event> {
+        return (e: Event) => e.name === this.name;
+    }
 }
 
 export type EventPredicate<E extends Event = Event> = (e: E) => boolean;

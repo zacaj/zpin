@@ -1,6 +1,6 @@
 import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
-import { gfx, makeImage, Screen, Image, makeText, ModeGroup } from '../gfx';
+import { gfx, makeImage, Screen, Image, makeText, ModeGroup, leftAlign } from '../gfx';
 import { onChange } from '../state';
 import { tryNum, comma, score, money } from '../util';
 import { machine } from '../machine';
@@ -8,6 +8,7 @@ import { onAny } from '../events';
 import { Player } from '../modes/player';
 import { GameGfx } from './game';
 import { Game } from '../game';
+import { Color } from '../light';
 
 export class PlayerGfx extends ModeGroup {
     instr = makeText('START HAND IN SHOOTER LANE', 40, 'center', 'bottom');
@@ -38,6 +39,12 @@ export class PlayerGfx extends ModeGroup {
             machine.lEjectStartMode.lit()? 'START MODE aT EJECT HOLE' : undefined,
             machine.lRampStartMb.lit()? 'START MULTIBALL aT RAMP' : undefined,
         ].filter(x => !!x).join('\n')));
+
+        this.noMode.add(leftAlign(
+            makeText(': SPINNER VALUE => 2000', 40, 'left', 'bottom', gfx, Color.Yellow).y(-Screen.h*.25),
+            makeText(': $ VALUE +20', 40, 'left', 'bottom', gfx, Color.Green).y(-Screen.h*.15),
+            makeText(': Add Chip', 40, 'left', 'bottom', gfx, Color.Orange).y(-Screen.h*.05),
+        ).y(Screen.h*.15));
 
         this.add(this.score);
         player.watch(() => this.score.text(score(player.score)));

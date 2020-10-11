@@ -658,14 +658,34 @@ export function addToScreen(cb: () => ModeGroup) {
     screen.add(node);
 }
 
-export function makeText(text: string, height: number,
+export function makeText<T extends Color|undefined = undefined>(text: string, height: number,
     align: 'corner'|'center'|'left'|'right' = 'center',
     vAlign: 'baseline'|'top'|'middle'|'bottom'|undefined = undefined,
     g = gfx,
-): Text {
-    return g.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
-        .align(align==='corner'? 'left' : align)
-        .vAlign(align==='corner'? 'top' : (vAlign!==undefined? vAlign: 'middle'));
+    colorSwatch?: T,
+): T extends Color? Group : Text {
+    const t = g.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
+        .align(align === 'corner' ? 'left' : align)
+        .vAlign(align === 'corner' ? 'top' : (vAlign !== undefined ? vAlign : 'middle'));
+    if (colorSwatch) {
+        const group = g.createGroup();
+        group.add(t);
+        const r = g.createRect().fill(colorToHex(colorSwatch!)!);
+        r.h(height*.8);
+        r.y(-height*.05);
+        r.w(height*.5);
+        const padding = text.startsWith(':')? 0 : height*.15;
+        r.originX(0).originY(vAlign==='middle'? 0.5 : (vAlign==='bottom'? .97 : 0));
+        t.lineW.watch(w => {
+            r.x((align==='center'? -w/2 : (align === 'right'? -w : 0))-padding);
+            group.w(r.w() + w + padding);
+        }, true);
+        t.x(r.w() + padding);
+        group.add(r);
+        return group as any;
+    } else {
+        return t as any;
+    }
 }
 
 export const gfxLights: { [name in keyof LightOutputs]: {
@@ -903,7 +923,7 @@ export async function gWait(ms: number, context: string) {
     if (machine.sBothFlippers.state) return;
     await Promise.race([
         wait(ms, context),
-        machine.await(onSwitchClose(machine.sBothFlippers)),
+        // machine.await(onSwitchClose(machine.sBothFlippers)),
     ]);
 }
 
@@ -987,16 +1007,27 @@ export function notify(text: string, ms = 2000): [Group, Promise<void>] {
     return [g, popup(g, ms)]; 
 }
 
-export function textBox(settings: {maxWidth?: number; padding?: number}, ...lines: [text: string, size: number, spacing?: number][]): Group {
+export function textBox(settings: {maxWidth?: number; padding?: number; bgColor?: Color}, 
+    ...lines: [text: string, size: number, spacing?: number, swatch?: Color][]
+): Group {
     let g: Group;
     const maxWidth = settings.maxWidth ?? 0.6;
     const padding = settings.padding ?? 30;
+    const bgColor = settings.bgColor? colorToHex(settings.bgColor)! : '#555555'; 
     if (gfx) {
         g = gfx.createGroup().y(-Screen.h * .2).originX(0).originY(0);
 
-        const texts = lines.map(([text, size]) => makeText(text, size, 'center', 'top').wrap('word').w(Screen.w*maxWidth).x(-Screen.w*maxWidth/2));
+        const r = gfx.createRect().fill(bgColor).z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
+        g.add(r);
 
-        const r = gfx.createRect().fill('#555555').z(-.1).w(Screen.w/2).h(Screen.h/2).originX(0.5);
+        const texts = lines.map(([text, size, _, swatch]) => {
+            const group = makeText(text, size, 'center', 'top', gfx, swatch);
+            const t = (swatch? group.children[0] : group) as Text;
+            t.wrap('word').w(Screen.w*maxWidth).x(-Screen.w*maxWidth/2);
+            g.add(group);
+            return t;
+        });
+
 
         function setW() {
             r.w(texts.map(t => t.lineW()).reduce((a,b) => Math.max(a,b), 0) + padding * 2);
@@ -1018,11 +1049,27 @@ export function textBox(settings: {maxWidth?: number; padding?: number}, ...line
         }
         texts.forEach(t => t.lineNr.watch(setH));
         setH();
-        g.add(r);
-        texts.forEach(t => g.add(t));
     } else {
         g = new FakeGroup() as any;
     }
 
     return g;
+}
+
+export function leftAlign(...lines: (Text|Group)[]): Group {
+    const group = gfx.createGroup().originX(0.5).originY(0);
+    function wChanged() {
+        const maxW = Math.max(...lines.map(l => l instanceof Text? l.lineW() : l.w()));
+        group.w(maxW);
+    }
+    for (const line of lines) {
+        group.add(line);
+        if (line instanceof Text)
+            line.lineW.watch(wChanged);
+        else
+            line.w.watch(wChanged);
+    }
+    wChanged();
+    // group.add(gfx.createCircle().fill('#00FF00').radius(4));
+    return group;
 }
