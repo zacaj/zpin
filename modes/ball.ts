@@ -36,6 +36,7 @@ export class Ball extends Mode {
     lanes = 0;
 
     tilted = false;
+    drained = false;
 
     get children() {
         return [
@@ -52,8 +53,10 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['skillshot', 'tilted']);
+        State.declare<Ball>(this, ['skillshot', 'tilted', 'drained']);
         this.out = new Outputs(this, {
+            miniFlipperEnable: () => !this.drained,
+            kickerEnable: () => !this.drained,
         });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
@@ -88,6 +91,8 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sRampMade), () => this.ramps++);
         this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
         this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
+
+        this.listen(onSwitchClose(machine.sMiniOut), () => this.drained = true);
 
         this.listen(onSwitchClose(machine.sTilt), () => {
             this.tilted = true;

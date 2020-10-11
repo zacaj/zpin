@@ -27,8 +27,8 @@ const JackpotLit = makeState('jackpotLit', { awardingJp: 0});
 
 export class StraightMb extends Multiball {
     readonly bankColors = new Map<DropBank, Color>([
-        [machine.centerBank, Color.Red],
-        [machine.upper2Bank, Color.Orange],
+        [machine.centerBank, Color.Orange],
+        [machine.upper2Bank, Color.Purple],
         [machine.rightBank, Color.Yellow],
         [machine.leftBank, Color.Green],
         [machine.upper3Bank, Color.Blue],
@@ -101,7 +101,10 @@ export class StraightMb extends Multiball {
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => this.state = JackpotLit());
 
-        this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, () => this.drops++);
+        this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, () => {
+            this.drops++;
+            player.addChip();
+        });
 
         addToScreen(() => new StraightMbGfx(this));
     }

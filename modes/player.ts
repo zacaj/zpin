@@ -373,6 +373,9 @@ class NoMode extends Mode {
                 case Color.Green:
                     player.changeValue(20);
                     break;
+                case Color.Red:
+                    player.changeValue(-20);
+                    break;
                 case Color.Yellow:
                     this.spinnerValue = 2000;
                     break;
@@ -388,6 +391,8 @@ class NoMode extends Mode {
             this.targets.set(target, Color.Orange);
         for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Yellow);
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([10, 1], [5, 0]), ...machine.dropTargets))
+            this.targets.set(target, Color.Red);
         for (const target of this.rng.randSelectMany(this.rng.weightedSelect([14, 1], [1, 2], [3, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Green);
     }

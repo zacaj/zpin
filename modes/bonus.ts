@@ -29,15 +29,17 @@ export class Bonus extends Mode {
     }
 
     async run() {
-        if (!this.ball.tilted) await gWait(500, 'bonus start');
-        await this.addLine('Drops', 2500, this.ball.drops);
+        if (!this.ball.tilted) 
+        // await gWait(500, 'bonus start');
+        await this.addLine('Drops', 5000, this.ball.drops);
         await this.addLine('Banks', 10000, this.ball.banks);
         await this.addLine('Spins', 100, this.ball.spins);
-        await this.addLine('Lanes', 1000, this.ball.lanes);
-        await this.addLine('Ramps', 10000, this.ball.ramps);
+        await this.addLine('Lanes', 2500, this.ball.lanes);
+        await this.addLine('Ramps', 15000, this.ball.ramps);
         // await this.addLine('Targets', 2500, this.ball.targets);
         if (this.ball.bonusX>1) {
-            if (!this.ball.tilted) await gWait(500, 'bonus x');
+            // if (!this.ball.tilted) 
+                await gWait(500, 'bonus x');
             this.lines.push([`BONUS X: ${1}`]);
             const singleBonus = this.total;
             let x = 1;
@@ -48,7 +50,8 @@ export class Bonus extends Mode {
                 this.lines.pop();
                 this.lines.push([`BONUS X: ${x}`]);
             }
-            if (!this.ball.tilted) await gWait(1000, 'bonus x');
+            // if (!this.ball.tilted) 
+                await gWait(1000, 'bonus x');
         }
         if (!this.ball.tilted) {
             this.ball.player.recordScore(this.total, 'bonus');
@@ -63,7 +66,8 @@ export class Bonus extends Mode {
         // console.log('time', new Date().getTime()-start);
         // alert(`bonus took ${new Date().getTime()-start}`);
         await gWait(1500, 'bonus end');
-        if (this.ball.tilted) await gWait(1500, 'bonus end');
+        // if (this.ball.tilted) 
+            await gWait(1500, 'bonus end');
         this.end();
     }
 
@@ -72,7 +76,7 @@ export class Bonus extends Mode {
         const total = value * count;
         this.lines.push([left+`: ${comma(count, 3)}`, `* ${short(value)} = ${short(total, 4)}`]);
         this.total += total;
-        if (!this.ball.tilted)
+        // if (!this.ball.tilted)
             await gWait(wait, 'bonus');
     }
 

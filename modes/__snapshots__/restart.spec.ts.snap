@@ -96,7 +96,7 @@ Object {
     "miniBank": false,
     "miniDiverter": false,
     "miniEject": false,
-    "miniFlipperEnable": false,
+    "miniFlipperEnable": true,
     "outhole": false,
     "popper": false,
     "rampUp": true,
@@ -245,8 +245,12 @@ Object {
                   },
                 ],
                 "name": "Ball26",
-                "ownOuts": Object {},
+                "ownOuts": Object {
+                  "kickerEnable": true,
+                  "miniFlipperEnable": true,
+                },
                 "state": Object {
+                  "drained": false,
                   "skillshot": undefined,
                   "tilted": false,
                 },

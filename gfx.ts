@@ -767,7 +767,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iSS4: { x: 13.837499999999999, y: 43.70625, r: 90 },
     iSS5: { x: 6.4125, y: 42.525, r: 90 },
     iSS6: { x: 0.8999999999999999, y: 25.875, r: 90 },
-    iSpinner: { x: 16.837499999999999, y: 35.70625, r: 90 },
+    iSpinner: { x: 15.35625, y: 30.0375, r: 90-20 },
 };
 
 const gfxCoils: { [name: string]: {

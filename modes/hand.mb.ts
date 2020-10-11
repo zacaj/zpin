@@ -181,6 +181,7 @@ export class HandMb extends Multiball {
                 this.value += 25000 + 10000*this.banks + 1500*this.drops;
                 this.drops++;
                 this.player.score += 5000;
+                this.player.addChip();
             }
             if (bank) {
                 this.banks++;
