@@ -37,6 +37,7 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -473,6 +474,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
@@ -607,6 +609,7 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -1080,6 +1083,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
@@ -1202,6 +1206,7 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -1519,7 +1524,7 @@ Object {
                             "debounce": 5,
                             "fake": [Function],
                             "i": 0,
-                            "id": 976,
+                            "id": 987,
                             "initial": 50,
                             "lastActualChange": undefined,
                             "max": 100,
@@ -1539,7 +1544,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2856,
+                              "num": 2879,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1547,7 +1552,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2857,
+                              "num": 2880,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1555,7 +1560,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2858,
+                              "num": 2881,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1563,7 +1568,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2859,
+                              "num": 2882,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1571,7 +1576,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2860,
+                              "num": 2883,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1580,7 +1585,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2861,
+                              "num": 2884,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1631,7 +1636,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1042,
+                                "id": 1054,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -1660,7 +1665,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 5,
                                 "debounce": 5,
-                                "id": 1044,
+                                "id": 1056,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -1689,7 +1694,7 @@ Object {
                           "actual": "orangeArrow",
                           "changeAttempts": 6,
                           "debounce": 5,
-                          "id": 1043,
+                          "id": 1055,
                           "lastActualChange": 54562,
                           "lastPendingChange": 113668,
                           "lastValChange": 54562,
@@ -1725,7 +1730,7 @@ Object {
                             "debounce": 5,
                             "fake": [Function],
                             "i": 0,
-                            "id": 984,
+                            "id": 995,
                             "initial": 40,
                             "lastActualChange": undefined,
                             "max": 100,
@@ -1745,7 +1750,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2844,
+                              "num": 2867,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1753,7 +1758,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2845,
+                              "num": 2868,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1761,7 +1766,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2846,
+                              "num": 2869,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1769,7 +1774,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2847,
+                              "num": 2870,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1777,7 +1782,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2848,
+                              "num": 2871,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1786,7 +1791,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2849,
+                              "num": 2872,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1837,7 +1842,7 @@ Object {
                                 "actual": "blueArrow",
                                 "changeAttempts": 5,
                                 "debounce": 5,
-                                "id": 1037,
+                                "id": 1049,
                                 "lastActualChange": 54562,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 54562,
@@ -1865,7 +1870,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1038,
+                                "id": 1050,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -1895,7 +1900,7 @@ Object {
                           "actual": "redArrow",
                           "changeAttempts": 5,
                           "debounce": 5,
-                          "id": 1039,
+                          "id": 1051,
                           "lastActualChange": 113673,
                           "lastPendingChange": 113668,
                           "lastValChange": 113673,
@@ -1930,7 +1935,7 @@ Object {
                             "changeAttempts": 0,
                             "debounce": 5,
                             "fake": undefined,
-                            "id": 989,
+                            "id": 1000,
                             "lastActualChange": undefined,
                             "ms": 25,
                             "name": "rightBank",
@@ -1946,7 +1951,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2874,
+                              "num": 2897,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1954,7 +1959,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2875,
+                              "num": 2898,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1962,7 +1967,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2876,
+                              "num": 2899,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1970,7 +1975,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2877,
+                              "num": 2900,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1978,7 +1983,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2878,
+                              "num": 2901,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1987,7 +1992,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2879,
+                              "num": 2902,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2060,7 +2065,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 6,
                                 "debounce": 5,
-                                "id": 1052,
+                                "id": 1064,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2088,7 +2093,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1053,
+                                "id": 1065,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2116,7 +2121,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1054,
+                                "id": 1066,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2145,7 +2150,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1056,
+                                "id": 1068,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2174,7 +2179,7 @@ Object {
                           "actual": "blueArrow",
                           "changeAttempts": 5,
                           "debounce": 5,
-                          "id": 1055,
+                          "id": 1067,
                           "lastActualChange": 113673,
                           "lastPendingChange": 113668,
                           "lastValChange": 113673,
@@ -2210,7 +2215,7 @@ Object {
                             "debounce": 5,
                             "fake": [Function],
                             "i": 0,
-                            "id": 984,
+                            "id": 995,
                             "initial": 40,
                             "lastActualChange": undefined,
                             "max": 100,
@@ -2230,7 +2235,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2844,
+                              "num": 2867,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2238,7 +2243,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2845,
+                              "num": 2868,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2246,7 +2251,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2846,
+                              "num": 2869,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2254,7 +2259,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2847,
+                              "num": 2870,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2262,7 +2267,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2848,
+                              "num": 2871,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2271,7 +2276,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2849,
+                              "num": 2872,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2323,7 +2328,7 @@ Object {
                                 "actual": "",
                                 "changeAttempts": 4,
                                 "debounce": 5,
-                                "id": 1038,
+                                "id": 1050,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2351,7 +2356,7 @@ Object {
                                 "actual": "redArrow",
                                 "changeAttempts": 5,
                                 "debounce": 5,
-                                "id": 1039,
+                                "id": 1051,
                                 "lastActualChange": 113673,
                                 "lastPendingChange": 113668,
                                 "lastValChange": 113673,
@@ -2380,7 +2385,7 @@ Object {
                           "actual": "blueArrow",
                           "changeAttempts": 5,
                           "debounce": 5,
-                          "id": 1037,
+                          "id": 1049,
                           "lastActualChange": 54562,
                           "lastPendingChange": 113668,
                           "lastValChange": 54562,
@@ -2552,6 +2557,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
@@ -2676,6 +2682,7 @@ Object {
       "White",
     ],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -2964,6 +2971,7 @@ Object {
                   "lEjectShowCards": Array [
                     "White",
                   ],
+                  "lFold": Array [],
                   "lRampShowCards": Array [
                     "White",
                   ],
@@ -3016,6 +3024,7 @@ Object {
                     },
                   ],
                   "dealerHandDesc": undefined,
+                  "foldLit": false,
                   "newMbs": Array [
                     Array [
                       "StraightMb",
@@ -3286,6 +3295,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
@@ -3408,6 +3418,7 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -3711,7 +3722,7 @@ Object {
                         "debounce": 5,
                         "fake": [Function],
                         "i": 0,
-                        "id": 448,
+                        "id": 453,
                         "initial": 50,
                         "lastActualChange": undefined,
                         "max": 100,
@@ -3731,7 +3742,7 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1297,
+                          "num": 1308,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3739,7 +3750,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnd",
-                          "num": 1298,
+                          "num": 1309,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3747,7 +3758,7 @@ Object {
                         },
                         Object {
                           "callback": "onEnding",
-                          "num": 1299,
+                          "num": 1310,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3755,7 +3766,7 @@ Object {
                         },
                         Object {
                           "callback": "onTargetDown",
-                          "num": 1300,
+                          "num": 1311,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3763,7 +3774,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1301,
+                          "num": 1312,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -3772,7 +3783,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1302,
+                          "num": 1313,
                           "predicates": Array [
                             [Function],
                           ],
@@ -3823,7 +3834,7 @@ Object {
                             "actual": "orangeArrow",
                             "changeAttempts": 3,
                             "debounce": 5,
-                            "id": 514,
+                            "id": 520,
                             "lastActualChange": 43200,
                             "lastPendingChange": 43195,
                             "lastValChange": 43200,
@@ -3851,7 +3862,7 @@ Object {
                             "actual": "orangeArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 515,
+                            "id": 521,
                             "lastActualChange": 43200,
                             "lastPendingChange": 43195,
                             "lastValChange": 43200,
@@ -3879,7 +3890,7 @@ Object {
                             "actual": "orangeArrow",
                             "changeAttempts": 4,
                             "debounce": 5,
-                            "id": 516,
+                            "id": 522,
                             "lastActualChange": 43200,
                             "lastPendingChange": 43195,
                             "lastValChange": 43200,
@@ -4043,6 +4054,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],

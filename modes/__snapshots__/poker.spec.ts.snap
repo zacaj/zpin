@@ -49,6 +49,7 @@ Object {
     "lEjectArrow": Array [],
     "lEjectShowCards": Array [],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -366,6 +367,7 @@ Object {
                   "iUpper32": "5H",
                   "iUpper33": "9H",
                   "lEjectShowCards": Array [],
+                  "lFold": Array [],
                   "lRampShowCards": Array [],
                   "lShooterShowCards": Array [],
                   "lockPost": undefined,
@@ -394,6 +396,7 @@ Object {
                     null,
                   ],
                   "dealerHandDesc": undefined,
+                  "foldLit": false,
                   "newMbs": Array [],
                   "newModes": Array [],
                   "playerCardsUsed": Array [],
@@ -632,6 +635,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
@@ -760,6 +764,9 @@ Object {
       "White",
     ],
     "lEjectStartMode": Array [],
+    "lFold": Array [
+      "Red",
+    ],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -1051,6 +1058,9 @@ Object {
                   "lEjectShowCards": Array [
                     "White",
                   ],
+                  "lFold": Array [
+                    "Red",
+                  ],
                   "lRampShowCards": Array [
                     "White",
                   ],
@@ -1124,6 +1134,7 @@ Object {
                     },
                   ],
                   "dealerHandDesc": "Two Pair",
+                  "foldLit": true,
                   "newMbs": Array [],
                   "newModes": Array [],
                   "playerCardsUsed": Array [
@@ -1391,6 +1402,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],

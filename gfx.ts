@@ -734,6 +734,7 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lMagnet2: { x: 4.35875, y: 18.39375, d: 5/8 },
     lMagnet1: { x: 4.05, y: 17.6625, d: 5/8 },
     lShootAgain: { x: 9.05625, y: 5.399999999999999, d: 1 },
+    lFold: { x: 8.49375, y: 33.975, d: 3/4 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {

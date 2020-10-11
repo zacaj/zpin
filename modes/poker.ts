@@ -9,7 +9,7 @@ import { screen, alert, makeText, gfx, addToScreen, gWait } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
 import { KnockTarget, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
-import { Color } from '../light';
+import { Color, light } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
@@ -38,6 +38,7 @@ export class Poker extends Mode {
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
     closeShooter = false;
+    foldLit = false;
     finishShow?: any;
 
     playerHandDesc?: string;
@@ -61,7 +62,7 @@ export class Poker extends Mode {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'foldLit', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
 
@@ -81,6 +82,7 @@ export class Poker extends Mode {
             lRampShowCards: () => this.step >= 7? [Color.White] : [],
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => () => this.getSkillshot(),
+            lFold: () => light(this.foldLit, Color.Red),
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -168,6 +170,16 @@ export class Poker extends Mode {
             }
         });
 
+        this.listen(onSwitchClose(machine.sUpperEject), () => {
+            if (!this.foldLit)
+                this.foldLit = true;
+            else {
+                alert('FOLDED');
+                return this.end();
+            }
+        });
+
+        this.listen([() => this.foldLit, ...onAnyPfSwitchExcept(machine.sUpperEject)], () => this.foldLit = false);
 
         addToScreen(() => new PokerGfx(this));
     }

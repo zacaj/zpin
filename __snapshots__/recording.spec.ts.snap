@@ -39,6 +39,7 @@ Object {
       "White",
     ],
     "lEjectStartMode": Array [],
+    "lFold": Array [],
     "lLaneUpper1": Array [
       "Orange",
     ],
@@ -327,6 +328,7 @@ Object {
                   "lEjectShowCards": Array [
                     "White",
                   ],
+                  "lFold": Array [],
                   "lRampShowCards": Array [
                     "White",
                   ],
@@ -379,6 +381,7 @@ Object {
                     },
                   ],
                   "dealerHandDesc": undefined,
+                  "foldLit": false,
                   "newMbs": Array [
                     Array [
                       "StraightMb",
@@ -649,6 +652,7 @@ Object {
       "lEjectArrow": Array [],
       "lEjectShowCards": Array [],
       "lEjectStartMode": Array [],
+      "lFold": Array [],
       "lLaneUpper1": Array [],
       "lLaneUpper2": Array [],
       "lLaneUpper3": Array [],
