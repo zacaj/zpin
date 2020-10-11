@@ -1,22 +1,23 @@
-import { State, StateEvent } from './state';
-import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup as StandupSet, Hole, onSwitch, SwitchEvent } from './switch-matrix';
-import { Events, Event, EventTypePredicate, EventListener, onAny } from './events';
-import { Mode, Modes } from './mode';
-import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
-import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
-import { assert, getTypeIn, then, eq as eq } from './util';
-import { DropBank, DropTarget, Standup } from './drop-bank';
-import { Log } from './log';
-import { Color, light, LightState } from './light';
-import { gfxLights, gfxImages, gfx, screen } from './gfx';
-import { Tree } from './tree';
-import { MPU } from './mpu';
 import { Node } from 'aminogfx-gl';
-import { curRecording } from './recording';
-import { fork } from './promises';
+import { AttractMode } from './attract';
+import { Solenoid16 } from './boards';
+import { DropBank, DropTarget, Standup } from './drop-bank';
+import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
+import { gfx, gfxImages, gfxLights, screen } from './gfx';
+import { Color, light, LightState } from './light';
+import { Log } from './log';
+import { Mode, Modes } from './mode';
 import { Skillshot } from './modes/skillshot';
+import { MPU } from './mpu';
+import { Outputs, TreeOutputEvent } from './outputs';
+import { fork } from './promises';
+import { curRecording } from './recording';
+import { State } from './state';
+import { Bumper, Drain, Drop, Hole, Lane, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
+import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
+import { Tree } from './tree';
+import { assert, eq as eq, getTypeIn, then } from './util';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -698,12 +699,14 @@ export class Machine extends Tree<MachineOutputs> {
         }
     }
 
-    game!: Game;
+    game?: Game;
+    attract?: AttractMode;
     overrides!: MachineOverrides;
 
-    get children() {
+    get nodes() {
         return [
             ...this.dropBanks,
+            this.attract,
             this.game,
             ...this.tempNodes,
             this.overrides,
@@ -722,7 +725,7 @@ export class Machine extends Tree<MachineOutputs> {
     constructor() {
         super();
         this.makeRoot();
-        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit', 'ballsInTrough', 'ballsLocked']);
+        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit', 'ballsInTrough', 'ballsLocked', 'game']);
 
         this.out = new Outputs<MachineOutputs>(this, {
             rampUp: false,
@@ -851,6 +854,8 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen(onAnySwitchClose(...this.standups.map(([sw]) => sw)), (e) => Events.fire(new StandupEvent(this.standups.find(([sw]) => e.sw === sw)!)));
 
         this.overrides = new MachineOverrides(this);
+        
+        this.watch(() => screen?.circle.x(time()%1000-500));
     }
 }
 
@@ -877,7 +882,7 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
 class MachineOverrides extends Mode {
     eosPulse = new EosPulse(this.machine.cRamp, this.machine.sRampDown);
 
-    get children() {
+    get nodes() {
         return [this.eosPulse];
     }
 

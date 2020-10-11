@@ -1,27 +1,24 @@
-import { SwitchEvent, onSwitchClose, onAnySwitchClose, resetSwitchMatrix, onAnyPfSwitchExcept, Switch, onClose } from './switch-matrix';
-import { Events, onType, Event } from './events';
-import { State, StateEvent, onChange } from './state';
-import { machine, MachineOutputs, resetMachine } from './machine';
-import { Mode, Modes } from './mode';
-import { Outputs, toggle } from './outputs';
-import { time, safeSetTimeout, Timer } from './timer';
-import { ClearHoles, ResetAnyDropOnComplete, KnockTarget } from './util-modes';
+import fs from 'fs';
+import { AttractMode } from './attract';
+import { Events } from './events';
+import { addToScreen, alert, gfx, screen } from './gfx';
+import { GameGfx } from './gfx/game';
 import { initMachine } from './init';
 import { Log } from './log';
-import { DropBankCompleteEvent } from './drop-bank';
-import { GameGfx } from './gfx/game';
-import { screen, alert, gfx, addToScreen } from './gfx';
+import { machine } from './machine';
+import { Mode, Modes } from './mode';
 import { Player } from './modes/player';
-import { assert, getFormattedTime } from './util';
-import { Ball } from './modes/ball';
-import { StraightMb } from './modes/straight.mb';
-import { fork } from './promises';
-import { Tree, TreeChangeEvent } from './tree';
 import { MPU } from './mpu';
-import fs from 'fs';
+import { Outputs } from './outputs';
+import { State } from './state';
+import { onClose, onSwitchClose, Switch } from './switch-matrix';
+import { time } from './timer';
+import { TreeChangeEvent } from './tree';
+import { assert, getFormattedTime } from './util';
+import { ClearHoles } from './util-modes';
 
 export class Game extends Mode {
-    get children() {
+    get nodes() {
         return [this.curPlayer, ...this.tempNodes].truthy();
     }
 
@@ -31,7 +28,7 @@ export class Game extends Mode {
         return this.players[this.playerUp];
     }
     ballNum = 1;
-    ballCount = 3;
+    ballCount = 1;
 
     get ball() {
         return this.curPlayer.ball;
@@ -69,14 +66,14 @@ export class Game extends Mode {
             this.playerUp = 0;
             this.ballNum++;
             if (this.ballNum > this.ballCount) {
-                alert('GAME OVER', 5000);
+                // alert('GAME OVER', 5000);
                 fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify(this.totals, undefined, 2));
-            //     if (require.main === module) {
-            //         debugger;
-            //         process.exit(0);
-            //     }
-            //     else
-            //         this.end();
+                if (require.main === module) {
+                    debugger;
+                    process.exit(0);
+                }
+                else 
+                    this.end();
             }
         }
         Log.log('console', 'player %i starting ball %i', this.curPlayer.number, this.ballNum);
@@ -84,7 +81,15 @@ export class Game extends Mode {
         await this.curPlayer.startBall();
     }
 
+    end() {
+        machine.attract = new AttractMode(this.players.map(p => [p.score, p.store.Poker!.bank]));
+        machine.attract.started();
+        machine.game = undefined;
+        return super.end();
+    }
+
     static async start(): Promise<Game> {
+        assert(!machine.game);
         if (gfx && !MPU.isConnected) {
             machine.sTroughFull.changeState(true, 'fake');
         }
@@ -99,13 +104,13 @@ export class Game extends Mode {
             pop.parent?.remove(pop);
             clear.end();
         }
+        machine.attract?.end();
         const game = new Game();
         machine.game = game;
         game.started();
         game.players.push(new Player(game, 1));
         game.curPlayer.started();
         await game.curPlayer.startBall();
-        game.watch(() => screen?.circle.x(time()%1000-500));
         return game;
     }
 

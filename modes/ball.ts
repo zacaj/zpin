@@ -42,7 +42,7 @@ export class Ball extends Mode {
     drained = false;
     shootAgain = false;
 
-    get children() {
+    get nodes() {
         return [
             this.resetDrops,
             this.skillshot,

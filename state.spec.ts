@@ -1,5 +1,5 @@
-import { Events } from './events';
-import { State, StateEvent } from './state';
+import { Events, StateEvent } from './events';
+import { State } from './state';
 import { SwitchEvent } from './switch-matrix';
 import { Tree } from './tree';
 import { Outputs } from './outputs';

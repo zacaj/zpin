@@ -1,12 +1,10 @@
 import { Tree } from './tree';
-import { Events, Event } from './events';
 import { MachineOutputs } from './machine';
 import { Log } from './log';
 import { Group } from 'aminogfx-gl';
-import { AttractMode } from './attract';
-import { assert } from './util';
 
 export enum Modes {
+    None,
     AttractMode,
 
     Game,
@@ -54,8 +52,8 @@ export abstract class Mode extends Tree<MachineOutputs> {
 
     end() {
         Log.log('game', 'end mode %s', this.constructor.name);
-        if (this.gfx) 
-            this.gfx.parent?.remove(this.gfx);
+        // if (this.gfx) 
+        //     this.gfx.parent?.remove(this.gfx);
         return super.end();
     }
 }

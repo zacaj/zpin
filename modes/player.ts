@@ -83,7 +83,7 @@ export class Player extends Mode {
     rampCombo?: RampCombo;
     ball?: Ball;
 
-    get children() {
+    get nodes() {
         return [
             this.clearHoles,
             this.ball,

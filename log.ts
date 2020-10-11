@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as util from 'util';
 import { OrArray, arrayify, getCallerLoc, clone } from './util';
-import { time, Time } from './timer';
 const truncate = require('truncate-logs');
 
 enum Levels {
@@ -73,14 +72,14 @@ export class Log {
         }
     }
 
-    private static lastTrace: Time;
+    private static lastTrace: number;
     static trace(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
         if (!Log.files.trace) return;
         params = Log.cleanParams(params);
         // Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
         Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
-        if (time() - Log.lastTrace > 5*60*60*1000)
+        if (new Date().getTime() - Log.lastTrace > 5*60*60*1000)
             truncate(['trace.log'], {lines: 50000});
     }
 
@@ -107,7 +106,7 @@ export class Log {
     }
 
     static init(trace = true) {
-        Log.lastTrace = time();
+        Log.lastTrace = new Date().getTime();
         for (const f of files) {
             Log.files[f] = fs.openSync(f+'.log', 'w');
             Log.write(Log.files[f], `${new Date()}`);

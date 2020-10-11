@@ -1,8 +1,7 @@
-import { OrArray, assert, arrayify, getCallerLoc, isPromise } from './util';
-import { time, Timer } from './timer';
 import { Log } from './log';
-import * as util from 'util';
 import { fork } from './promises';
+import { Timer } from './timer';
+import { arrayify, assert, getCallerLoc, isPromise, OrArray } from './util';
 
 export abstract class Event {
     static eventCount = 0;
@@ -20,6 +19,21 @@ export abstract class Event {
 
     static on(): EventTypePredicate<Event> {
         return (e: Event) => e.name === this.name;
+    }
+}
+
+
+export class StateEvent<T, Prop extends keyof T> extends Event {//<T> extends Event {//
+    constructor(
+        // public on: any, 
+        // public prop: string,
+        // public value: T,
+        public on: T, 
+        public prop: Prop,
+        public value: T[Prop],
+        public oldValue: T[Prop],
+    ) {
+        super();
     }
 }
 

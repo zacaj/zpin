@@ -707,6 +707,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 0,
+      "game": "Game74",
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 4,
@@ -1474,6 +1475,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 0,
+      "game": "Game114",
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 6,

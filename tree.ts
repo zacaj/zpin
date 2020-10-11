@@ -1,8 +1,8 @@
 import { Outputs } from './outputs';
-import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny } from './events';
+import { EventListener, Events, Event, EventTypePredicate, EventPredicate, onAny, StateEvent } from './events';
 import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionPropertyNames, objectMap, isPromise, pushStateAccessRecorder, popStateAccessRecorder, eq } from './util';
 import { Log } from './log';
-import { State, StateEvent } from './state';
+import { State } from './state';
 import { fork } from './promises';
 import { machine } from './machine';
 import { Timer } from './timer';
@@ -13,10 +13,10 @@ export abstract class Tree<Outs extends {} = {}> {
         return this.tempNodes;
     }
 
-    private lastChildren: Tree<Outs>[] = [];
+    private lastChildren?: Tree<Outs>[];
     get children(): Tree<Outs>[] {
         const nodes = this.nodes;
-        assert(eq(nodes, this.lastChildren)) ;
+        // assert(!this.lastChildren || eq(nodes, this.lastChildren)) ;
         // {
         //     Events.fire(new TreeChangeEvent(this));
         // }
@@ -65,7 +65,7 @@ export abstract class Tree<Outs extends {} = {}> {
 
     end(): 'remove' {
         Events.fire(new TreeWillEndEvent(this));
-        for (const child of this.getChildren())
+        for (const child of this.children)
             child.end();
         this.ended = true;
         this.parent?.tempNodes.remove(this);

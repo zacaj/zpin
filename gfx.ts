@@ -1,19 +1,17 @@
-import { AminoGfx, Property, Group, Circle, ImageView, Rect, AminoImage, fonts, Texture, Text, Node, Polygon } from 'aminogfx-gl';
-import { Log } from './log';
-import { initMachine } from './init';
-import { LightOutputs, ImageOutputs, resetMachine, Solenoid, machine } from './machine';
-import { Color, colorToHex, LightState, normalizeLight } from './light';
-import { Switch, onSwitchClose, onSwitch, matrix, getSwitchByName, resetSwitchMatrix } from './switch-matrix';
-import { Event, EventListener, Events, Priorities } from './events';
-import { assert, num, tryNum, getCallerLoc } from './util';
+import { AminoGfx, AminoImage, Circle, fonts, Group, ImageView, Node, Polygon, Rect, Text, Texture } from 'aminogfx-gl';
 // import { Game } from './game';
 // import { MPU } from './mpu';
 import * as fs from 'fs';
-import { wait, Timer, time } from './timer';
-import { fork } from './promises';
-import { onChange } from './state';
+import { EventListener, Events } from './events';
+import { Color, colorToHex, LightState, normalizeLight } from './light';
+import { Log } from './log';
+import { ImageOutputs, LightOutputs, machine, resetMachine, Solenoid } from './machine';
 import { Mode } from './mode';
+import { onChange } from './state';
+import { getSwitchByName, matrix, onSwitch, resetSwitchMatrix, Switch } from './switch-matrix';
+import { time, wait } from './timer';
 import { TreeChangeEvent } from './tree';
+import { assert } from './util';
 const argv = require('yargs').argv;
 
 export let gfx: AminoGfx;

@@ -1,6 +1,5 @@
 import { Opaque, assert, recordStateAccess } from './util';
-import { Events, EventTypePredicate } from './events';
-import { StateEvent } from './state';
+import { Events, EventTypePredicate, StateEvent } from './events';
 import { Log } from './log';
 import { fork, settleForks } from './promises';
 

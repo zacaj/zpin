@@ -720,6 +720,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 0,
+      "game": "Game29",
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 3,

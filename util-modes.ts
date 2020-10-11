@@ -28,7 +28,7 @@ export class ClearHoles extends Tree<MachineOutputs> {
 }
 
 export class ResetAnyDropOnComplete extends Tree<MachineOutputs> {
-    get children() {
+    get nodes() {
         return this.resetters;
     }
 

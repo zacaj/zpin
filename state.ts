@@ -1,21 +1,7 @@
-import { Event, EventPredicate, EventTypePredicate, Events, EventListener } from './events';
-import { JSONObject, NonFunctionPropertyNames, clone, FunctionPropertyNames, OrArray, arrayify, getFuncNames, isNum, tryNum, assert, getCallerLoc, recordStateAccess, getPropertyDescriptor } from './util';
-
+import { Event, Events, EventTypePredicate, StateEvent } from './events';
 import { Tree } from './tree';
+import { arrayify, assert, getPropertyDescriptor, JSONObject, OrArray, recordStateAccess } from './util';
 
-export class StateEvent<T, Prop extends keyof T> extends Event {//<T> extends Event {//
-    constructor(
-        // public on: any, 
-        // public prop: string,
-        // public value: T,
-        public on: T, 
-        public prop: Prop,
-        public value: T[Prop],
-        public oldValue: T[Prop],
-    ) {
-        super();
-    }
-}
 export function onChange<T, Prop extends keyof T>(on: T, prop?: OrArray<Prop>, to?: any): EventTypePredicate<StateEvent<T, Prop>> {
     const props= arrayify(prop);
     if (props.length) props.forEach(prop => assert(State.isPropWatched(on, prop as any)));

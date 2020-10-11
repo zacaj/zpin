@@ -542,6 +542,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 1,
+      "game": "Game57",
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 5,
@@ -1151,6 +1152,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 1,
+      "game": "Game139",
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 0,
@@ -1544,7 +1546,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2879,
+                              "num": 2886,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1552,7 +1554,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2880,
+                              "num": 2887,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1560,7 +1562,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2881,
+                              "num": 2888,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1568,7 +1570,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2882,
+                              "num": 2889,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1576,7 +1578,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2883,
+                              "num": 2890,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1585,7 +1587,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2884,
+                              "num": 2891,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1750,7 +1752,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2867,
+                              "num": 2874,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1758,7 +1760,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2868,
+                              "num": 2875,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1766,7 +1768,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2869,
+                              "num": 2876,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1774,7 +1776,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2870,
+                              "num": 2877,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1782,7 +1784,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2871,
+                              "num": 2878,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1791,7 +1793,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2872,
+                              "num": 2879,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1951,7 +1953,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2897,
+                              "num": 2904,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1959,7 +1961,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2898,
+                              "num": 2905,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1967,7 +1969,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2899,
+                              "num": 2906,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1975,7 +1977,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2900,
+                              "num": 2907,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1983,7 +1985,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2901,
+                              "num": 2908,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1992,7 +1994,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2902,
+                              "num": 2909,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2235,7 +2237,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2867,
+                              "num": 2874,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2243,7 +2245,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2868,
+                              "num": 2875,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2251,7 +2253,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2869,
+                              "num": 2876,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2259,7 +2261,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2870,
+                              "num": 2877,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2267,7 +2269,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2871,
+                              "num": 2878,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2276,7 +2278,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2872,
+                              "num": 2879,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2625,6 +2627,7 @@ Object {
     "state": Object {
       "ballsInTrough": 4,
       "ballsLocked": 0,
+      "game": "Game198",
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 2,
@@ -3363,6 +3366,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 0,
+      "game": "Game20",
       "lastSwitchHit": Switch {
         "_state": true,
         "column": 3,
@@ -3742,30 +3746,6 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1308,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnd",
-                          "num": 1309,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnding",
-                          "num": 1310,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onTargetDown",
                           "num": 1311,
                           "predicates": Array [
                             [Function],
@@ -3773,8 +3753,32 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": [Function],
+                          "callback": "onEnd",
                           "num": 1312,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": "onEnding",
+                          "num": 1313,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": "onTargetDown",
+                          "num": 1314,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": [Function],
+                          "num": 1315,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -3783,7 +3787,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1313,
+                          "num": 1316,
                           "predicates": Array [
                             [Function],
                           ],
@@ -4118,6 +4122,7 @@ Object {
     "state": Object {
       "ballsInTrough": 3,
       "ballsLocked": 0,
+      "game": "Game97",
       "lastSwitchHit": Switch {
         "_state": false,
         "column": 5,
