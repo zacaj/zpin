@@ -1,4 +1,4 @@
-import { MachineOutputs, MomentarySolenoid, SolenoidFireEvent, Machine, ImageOutputs, Image } from './machine';
+import { MachineOutputs, MomentarySolenoid, SolenoidFireEvent, Machine, ImageOutputs, Image, Light, machine } from './machine';
 import { Mode } from './mode';
 import { Switch, SwitchEvent, onSwitchClose, onAnySwitchClose } from './switch-matrix';
 import { Outputs, toggle, OwnOutputEvent, TreeOutputEvent } from './outputs';
@@ -9,6 +9,11 @@ import { KnockTarget } from './util-modes';
 import { State } from './state';
 import { Log } from './log';
 import { Tree } from './tree';
+
+export type Standup = [
+    sw: Switch,
+    light: Light,
+];
 
 export interface DropTarget {
     state: boolean;

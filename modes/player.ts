@@ -132,6 +132,7 @@ export class Player extends Mode {
             lLaneUpper3: () => light(this.laneChips[2], Color.Orange),
             lLaneUpper4: () => light(this.laneChips[3], Color.Orange),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
+            lRampMini: [Color.Orange],
         });
         
 

@@ -1,12 +1,12 @@
 import { State, StateEvent } from './state';
 import { Solenoid16 } from './boards';
-import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup, Hole, onSwitch, SwitchEvent } from './switch-matrix';
+import { matrix, Switch, onSwitchClose, onClose, onAnyPfSwitchExcept, onAnySwitchClose, Lane, Drain, Bumper, Drop, Standup as StandupSet, Hole, onSwitch, SwitchEvent } from './switch-matrix';
 import { Events, Event, EventTypePredicate, EventListener, onAny } from './events';
 import { Mode, Modes } from './mode';
 import { Outputs, TreeOutputEvent, OwnOutputEvent, toggle } from './outputs';
 import { safeSetInterval, Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { assert, getTypeIn, then, eq as eq } from './util';
-import { DropBank, DropTarget } from './drop-bank';
+import { DropBank, DropTarget, Standup } from './drop-bank';
 import { Log } from './log';
 import { Color, light, LightState } from './light';
 import { gfxLights, gfxImages, gfx, screen } from './gfx';
@@ -390,6 +390,7 @@ export type LightOutputs = {
     lLeftArrow: LightState[];
     lSideTargetArrow: LightState[];
     lMainTargetArrow: LightState[];
+    lRampMini: LightState[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node;
@@ -479,26 +480,26 @@ export class Machine extends Tree<MachineOutputs> {
     sRight3 = new Switch(2, 3, 'right 3', Drop);
     sRight4 = new Switch(2, 2, 'right 4', Drop);
     sRight5 = new Switch(2, 1, 'right 5', Drop);
-    sLeftBack1 = new Switch(3, 4, 'left back 1', Standup);
-    sLeftBack2 = new Switch(3, 6, 'left back 2', Standup);
-    sCenterBackLeft = new Switch(4, 6, 'center back left', Standup);
-    sCenterBackCenter = new Switch(4, 5, 'center back center', Standup);
-    sCenterBackRight = new Switch(4, 4, 'center back right', Standup);
+    sLeftBack1 = new Switch(3, 4, 'left back 1', StandupSet);
+    sLeftBack2 = new Switch(3, 6, 'left back 2', StandupSet);
+    sCenterBackLeft = new Switch(4, 6, 'center back left', StandupSet);
+    sCenterBackCenter = new Switch(4, 5, 'center back center', StandupSet);
+    sCenterBackRight = new Switch(4, 4, 'center back right', StandupSet);
     sUpper3Left = new Switch(5, 2, 'upper 3 left', Drop);
     sUpper3Center = new Switch(5, 1, 'upper 3 center', Drop);
     sUpper3Right = new Switch(5, 0, 'upper 3 right', Drop);
     sUpper2Left = new Switch(6, 4, 'upper 2 left', Drop);
     sUpper2Right = new Switch(6, 3, 'upper 2 right', Drop);
-    sSingleStandup = new Switch(7, 3, 'single standup', Standup);
-    sRampMini = new Switch(3, 7, 'ramp mini', Standup);
-    sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', Standup);
+    sSingleStandup = new Switch(7, 3, 'single standup', StandupSet);
+    sRampMini = new Switch(3, 7, 'ramp mini', StandupSet);
+    sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', StandupSet);
     sRampDown = new Switch(7, 4, 'ramp down');
     sUnderRamp = new Switch(7, 7, 'under ramp');
     sLeftOrbit = new Switch(7, 2, 'left orbit', 0, 100);
     sSpinner = new Switch(6, 6, 'spinner', 0, 1);
-    sSpinnerMini = new Switch(6, 2, 'spinner mini', Standup);
-    sUpperPopMini = new Switch(6, 7, 'upper pop mini', Standup);
-    sSidePopMini = new Switch(6, 0, 'side pop mini', Standup);
+    sSpinnerMini = new Switch(6, 2, 'spinner mini', StandupSet);
+    sUpperPopMini = new Switch(6, 7, 'upper pop mini', StandupSet);
+    sSidePopMini = new Switch(6, 0, 'side pop mini', StandupSet);
     sShooterUpper = new Switch(2, 6, 'shooter upper', Lane);
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', Lane);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 50);
@@ -506,8 +507,8 @@ export class Machine extends Tree<MachineOutputs> {
     sBackLane = new Switch(5, 5, 'back lane', Lane);
     sPop = new Switch(4, 7, 'pop', Bumper);
     sUpperInlane = new Switch(7, 1, 'upper inlane', Lane);
-    sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', Standup);
-    sUpperSideTarget = new Switch(6, 1, 'upper side target', Standup);
+    sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
+    sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
     sUpperLane2 = new Switch(6, 5, 'upper lane 2', Lane);
     sUpperLane3 = new Switch(5, 7, 'upper lane 3', Lane);
@@ -635,6 +636,7 @@ export class Machine extends Tree<MachineOutputs> {
     lShooterLaneArrow = new Light('lShooterLaneArrow', 0);
     lLeftArrow = new Light('lLeftArrow', 0);
     lSideTargetArrow = new Light('lSideTargetArrow', 0);
+    lRampMini = new Light('lRampMini', 0);
     lMainTargetArrow = new Light('lMainTargetArrow', 0);
 
     iSS1 = new Image('iSS1');
@@ -647,6 +649,13 @@ export class Machine extends Tree<MachineOutputs> {
 
     dropTargets: DropTarget[] = [];
     dropBanks: DropBank[] = [];
+
+    standups: Standup[] = [
+        [this.sRampMiniOuter, this.lLeftArrow],
+        [this.sRampMini, this.lRampMini],
+        [this.sSingleStandup, this.lMainTargetArrow],
+        [this.sSidePopMini, this.lUpperTargetArrow],
+    ];
 
     upper3Bank = new DropBank(this, this.cUpper3, 
         [ this.sUpper3Left, this.sUpper3Center, this.sUpper3Right ],
@@ -769,6 +778,7 @@ export class Machine extends Tree<MachineOutputs> {
             lLeftArrow: [],
             lSideTargetArrow: [],
             lMainTargetArrow: [],
+            lRampMini: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',
@@ -829,10 +839,19 @@ export class Machine extends Tree<MachineOutputs> {
             this.sBothFlippers.changeState(this.sLeftFlipper.state && this.sRightFlipper.state, 'sim', Math.max(this.sLeftFlipper.lastChange, this.sRightFlipper.lastChange) as Time);
         });
 
+        this.listen(onAnySwitchClose(...this.standups.map(([sw]) => sw)), (e) => Events.fire(new StandupEvent(this.standups.find(([sw]) => e.sw === sw)!)));
+
         this.overrides = new MachineOverrides(this);
     }
 }
 
+export class StandupEvent extends Event {
+    constructor(
+        public standup: Standup,
+    ) {
+        super();
+    }
+}
 
 
 export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.SpyInstance[] {
