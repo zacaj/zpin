@@ -928,21 +928,21 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
     let g: Group;
     if (gfx) {
         Log.log(['gfx', 'console'], 'alert message %s / %s', text, subtext);
-        g = gfx.createGroup().y(-Screen.h * .2);
+        g = gfx.createGroup().y(-Screen.h * .32);
         const t = makeText(text, 70, 'center', 'top').wrap('word').w(Screen.w *.6).x(-Screen.w*0.6/2);
         const t2 = subtext? makeText(subtext, 40, 'center', 'top').wrap('word').w(t.w()).x(t.x()) : undefined;
 
         // g.add(pfx.createRect().x(t.x()).w(t.w()).h(50).fill('#ff0000').z(-2));
-        const r = gfx.createRect().fill('#111111').z(-.1);
+        const r = gfx.createRect().fill('#555555').z(-.1).y(-20);
         function setW() {
-            r.w(Math.max(t.lineW(), t2?.lineW() ?? 0));
+            r.w(Math.max(t.lineW(), t2?.lineW() ?? 0)+40);
             r.x((t.w()-r.w())/2 + t.x());
         }
         t.lineW.watch(setW);
         t2?.lineW.watch(setW);
         setW();
         function setH() {
-            r.h(t.lineNr()*t.fontSize()+(t2?.lineNr()??0)*(t2?.fontSize()??0));
+            r.h(t.lineNr()*t.fontSize()+(t2?.lineNr()??0)*(t2?.fontSize()??0)+40);
             t2?.y(t.lineNr()*t.fontSize());
         }
         t.lineNr.watch(setH);
@@ -973,7 +973,7 @@ export function notify(text: string, ms = 2000): [Group, Promise<void>] {
         setW();
         function setH() {
             r.h(t.lineNr()*t.fontSize()*1.25);
-            r.y(-r.h());
+            r.y(-r.h()*.6);
         }
         t.lineNr.watch(setH);
         setH();
