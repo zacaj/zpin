@@ -74,7 +74,12 @@ Object {
     ],
     "lPower3": Array [],
     "lPower4": Array [],
-    "lRampArrow": Array [],
+    "lRampArrow": Array [
+      Array [
+        "Yellow",
+        "fl",
+      ],
+    ],
     "lRampMini": Array [
       "Orange",
     ],
@@ -250,6 +255,21 @@ Object {
                   "skillshot": undefined,
                   "tilted": false,
                 },
+              },
+              Object {
+                "_name": "RampCombo36",
+                "children": Array [],
+                "name": "RampCombo36",
+                "ownOuts": Object {
+                  "lRampArrow": Array [
+                    Array [
+                      "Yellow",
+                      "fl",
+                    ],
+                  ],
+                  "rampUp": false,
+                },
+                "state": Object {},
               },
               Object {
                 "_name": "Spinner23",
@@ -489,7 +509,7 @@ Object {
               "lRampStartMb": Array [],
               "lShooterStartHand": Array [],
               "leftMagnet": false,
-              "rampUp": false,
+              "rampUp": true,
               "shooterDiverter": undefined,
             },
             "state": Object {
@@ -507,7 +527,7 @@ Object {
               "mbsQualified": Array [],
               "miniReady": false,
               "modesQualified": Array [],
-              "rampUp": false,
+              "selectedMb": undefined,
             },
           },
         ],

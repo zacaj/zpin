@@ -5,7 +5,7 @@ import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
 import { Color, light } from '../light';
-import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
+import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank } from '../drop-bank';
 import { Ball } from './ball';
 import { Tree } from '../tree';
@@ -98,17 +98,27 @@ export class Player extends Mode {
 
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb', Card[]>([
-        // ['HandMb', []]
+        // ['HandMb', []],
+        // ['StraightMb', []],
     ]);
+
+    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb';
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
     }
     get mbsReady() {
-        return new Set([...this.mbsQualified, ...(this.poker?.newMbs ?? [])]);
+        return new Map([...this.mbsQualified, ...(this.poker?.newMbs ?? [])]);
     }
+    rand!: Rng;
 
     closeShooter = false;
+
+    mbColor(): Color {
+        if (this.selectedMb === 'HandMb')
+            return Color.Green;
+        else return Color.Blue;
+    }
 
     constructor(
         public game: Game,
@@ -116,14 +126,15 @@ export class Player extends Mode {
         public seed = argv.seed ?? 'pinball',
     ) {
         super(Modes.Player);
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        this.rand = this.rng();
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state,
-            rampUp: () => machine.lRampStartMb.is(Color.Red || !machine.lRampStartMb.lit()),
+            rampUp: () => machine.lRampStartMb.is(Color.Red) || !machine.lRampStartMb.lit(),
             lShooterStartHand: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
-            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[Color.Green, 'fl']] : [Color.Red]) : [],
+            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[this.mbColor(), 'fl']] : [Color.Red]) : [],
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -158,6 +169,18 @@ export class Player extends Mode {
             e => {
                 this.laneChips.rotate(1);
             });
+
+
+        // swap mb
+        this.listen(onSwitchClose(machine.sSingleStandup), () => {
+            if (this.mbsReady.size < 2) return;
+            const mbs = [...this.mbsReady.keys()];
+            const cur = mbs.indexOf(this.selectedMb!);
+            if (cur >= mbs.length - 1)
+                this.selectedMb = mbs[0];
+            else
+                this.selectedMb = mbs[cur+1];
+        });
 
         // add chips
         this.listen(
@@ -240,12 +263,30 @@ export class Player extends Mode {
 
 
         this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
-            if (!this.mbsQualified.has('HandMb')) return StraightMb.start(this);
-            else return HandMb.start(this);
+            switch (this.selectedMb) {
+                case 'HandMb':
+                    return HandMb.start(this);
+                case 'FlushMb':
+                case 'StraightMb':
+                    return StraightMb.start(this);
+                default:
+                    debugger;
+                    return;
+            }
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => machine.lShooterStartHand.lit()], async () => {
             await Poker.start(this);
+        });
+
+        this.watch((e) => {
+            if (!this.selectedMb) {
+                if (this.mbsReady.size)
+                    this.selectedMb = this.rand.randSelect(...this.mbsReady.keys());
+            } else {
+                if (!this.mbsReady.has(this.selectedMb))
+                    this.selectedMb = undefined;
+            }
         });
 
         addToScreen(() => new PlayerGfx(this));

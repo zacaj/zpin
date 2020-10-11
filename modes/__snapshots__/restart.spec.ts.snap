@@ -507,7 +507,7 @@ Object {
               "mbsQualified": Array [],
               "miniReady": false,
               "modesQualified": Array [],
-              "rampUp": true,
+              "selectedMb": undefined,
             },
           },
         ],

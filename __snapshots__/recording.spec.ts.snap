@@ -85,7 +85,7 @@ Object {
     ],
     "lRampStartMb": Array [
       Array [
-        "Green",
+        "Blue",
         "fl",
       ],
     ],
@@ -556,7 +556,7 @@ Object {
               ],
               "lRampStartMb": Array [
                 Array [
-                  "Green",
+                  "Blue",
                   "fl",
                 ],
               ],
@@ -585,7 +585,7 @@ Object {
               "mbsQualified": Array [],
               "miniReady": false,
               "modesQualified": Array [],
-              "rampUp": true,
+              "selectedMb": "StraightMb",
             },
           },
         ],

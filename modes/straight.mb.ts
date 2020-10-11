@@ -133,7 +133,12 @@ export class StraightMb extends Multiball {
         }
     }
 
-    async lastBallDrained() {
+    async lastBallDrained() {       
+        const finish = await Events.tryPriority(Priorities.EndMb);
+        if (!finish) {
+            debugger;
+            throw new Error();
+        }
         if (this.state._==='starting') {
             await this.releaseBallsFromLock();
         }
@@ -143,6 +148,7 @@ export class StraightMb extends Multiball {
                 return StraightMb.start(this.player, true, this.lastBank);
             }));
         }
+        finish();
         return ret;
     }
     

@@ -154,7 +154,8 @@ export const Events = {
 };
 
 export enum Priorities {
-    ShowCards = 1,
+    EndMb = 1,
+    ShowCards,
     EndBall,
     StartPoker,
     StartMb,
