@@ -50,7 +50,7 @@ export class Poker extends Mode {
     handsPlayed = 0;
     handsForMb = 2;
     wasQuit = false;
-    cashValue = 250;
+    cashValue = 200;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();

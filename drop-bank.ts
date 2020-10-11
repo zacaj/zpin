@@ -44,10 +44,10 @@ export class DropBank extends Tree<MachineOutputs> {
                 switch: sw,
             };
             State.declare<DropTarget>(target, ['state']);
-            i++;
             this.targets.push(target);
             machine.allDropTargets.push(target);
             if (nums[i]<17) machine.dropTargets.push(target);
+            i++;
         }
         machine.dropBanks.push(this);
 

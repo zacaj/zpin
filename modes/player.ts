@@ -3,7 +3,7 @@ import { Mode, Modes } from '../mode';
 import { Poker, Card } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
-import { OutputFuncsOrValues, Outputs } from '../outputs';
+import { Outputs } from '../outputs';
 import { Color, colorToArrow, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank, DropTarget } from '../drop-bank';
@@ -384,11 +384,11 @@ class NoMode extends Mode {
     }
 
     addTargets() {
-        for (const target of this.rng.randSelectRange(3, 5, ...machine.dropTargets))
+        for (const target of this.rng.randSelectRange(2, 4, ...machine.dropTargets))
             this.targets.set(target, Color.Orange);
         for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Yellow);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([14, 1], [1, 2], [3, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Green);
     }
 
@@ -472,7 +472,7 @@ class Spinner extends Tree<MachineOutputs> {
         this.player.score += value;
         this.ripCount++;
         this.ripTotal += value;
-        if (this.ripCount > 5) {
+        if (this.ripCount > 3) {
             Events.fire(new SpinnerRip());
             if (this.tb) {
                 if (!this.ripTimer) {
@@ -531,12 +531,12 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.listen(onSwitchClose(machine.sLeftOrbit), 'hit');
 
         this.listen([
-            onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper, machine.sShooterLower),
-            () => (!!machine.sLeftOrbit.lastClosed && time()-machine.sLeftOrbit.lastClosed < 2000) || machine.lastSwitchHit === machine.sLeftOrbit],
+            onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper),
+            () => (machine.sLeftOrbit.wasClosedWithin(2000) && machine.lastSwitchHit!==machine.sShooterUpper) || machine.lastSwitchHit === machine.sLeftOrbit],
         () => {
             if (this.rounds > 0)
                 this.rounds--;
-            this.comboMult+=2;
+            this.comboMult+=3;
         });
 
         this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
