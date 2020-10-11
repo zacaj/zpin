@@ -3,7 +3,7 @@ import { MachineOutputs, machine } from '../machine';
 import { Skillshot } from './skillshot';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
-import { Event, Events } from '../events';
+import { Event, Events, Priorities } from '../events';
 import { Player } from './player';
 import { MPU } from '../mpu';
 import { addToScreen, gfx, ModeGroup, textBox } from '../gfx';
@@ -68,6 +68,7 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
             Events.fire(new BallEnding(this));
             this.gfx?.clear();
+            const finish = await Events.waitPriority(Priorities.EndBall);
     
             this.bonus = new Bonus(this);
             this.bonus.started();
@@ -77,6 +78,7 @@ export class Ball extends Mode {
                 this.eog.started();
                 await this.await(this.eog.onEnding);
             }
+            finish();
             return this.end();
         });
 

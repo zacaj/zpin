@@ -130,7 +130,10 @@ export class Poker extends Mode {
             }
         });
 
-        this.listen([onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane), () => this.step === 7], async (e) => {
+        this.listen([
+            onAnySwitchClose(machine.sRampMade, machine.sUpperEject, machine.sShooterLane, machine.sOuthole), 
+            () => this.step === 7], 
+        async (e) => {
             // const done = await Events.waitPriority(1);
             this.closeShooter = e.sw === machine.sShooterLane;
             await this.showCards();
