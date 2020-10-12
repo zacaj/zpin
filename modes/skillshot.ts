@@ -214,7 +214,7 @@ export class Skillshot extends Mode {
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
                 ) : undefined;
-            const cur = rand ?? current[i];
+            const cur = {...current[i], ...rand} ?? current[i];
             awards.push({
                 ...gen ?? {},
                 ...cur ?? {},

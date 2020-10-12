@@ -24,6 +24,7 @@ import { GameMode } from './game-mode';
 import { Restart } from './restart';
 import { HandMb } from './hand.mb';
 import { Group, Text } from 'aminogfx-gl';
+import { FullHouseMb } from './full-house.mb';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -97,12 +98,13 @@ export class Player extends Mode {
     }
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb', Card[]>([
+    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
         // ['StraightMb', []],
+        // ['FullHouseMb', []],
     ]);
 
-    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb';
+    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
@@ -117,6 +119,8 @@ export class Player extends Mode {
     mbColor(): Color {
         if (this.selectedMb === 'HandMb')
             return Color.Green;
+        if (this.selectedMb === 'FullHouseMb')
+            return Color.Yellow;
         else return Color.Blue;
     }
 
@@ -266,6 +270,8 @@ export class Player extends Mode {
             switch (this.selectedMb) {
                 case 'HandMb':
                     return HandMb.start(this);
+                case 'FullHouseMb':
+                    return FullHouseMb.start(this);
                 case 'FlushMb':
                 case 'StraightMb':
                     return StraightMb.start(this);
@@ -306,6 +312,7 @@ export class Player extends Mode {
         Skillshot: {},
         HandMb: {},
         NoMode: {},
+        FullHouseMb: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);

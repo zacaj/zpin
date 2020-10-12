@@ -54,7 +54,7 @@ export class Poker extends Mode {
     cashValue = 200;
 
     newModes = new Set<number>();
-    newMbs = new Map<'StraightMb'|'FlushMb', Card[]>();
+    newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
 
     constructor(
         public player: Player,
@@ -264,8 +264,8 @@ export class Poker extends Mode {
             }
         }
         for (const straight of straights) {
-            if (!this.newMbs.size) {
-            // if (!this.newMbs.has('StraightMb')) {
+            // if (!this.newMbs.size) {
+            if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
                 alert('multiball qualified');
             }
@@ -273,21 +273,21 @@ export class Poker extends Mode {
             break;
         }
         if (flushes.length > 0) {
-            if (!this.newMbs.size) {
-            // if (!this.newMbs.has('FlushMb')) {
+            // if (!this.newMbs.size) {
+            if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified flush multiball');
                 alert('multiball qualified');
             }
-            this.newMbs.set('FlushMb', flushes[0]);
+            this.newMbs.set('StraightMb', flushes[0]);
         }
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house
-            if (!this.newMbs.size) {
-            // if (!this.newMbs.has('FlushMb')) {
+            // if (!this.newMbs.size) {
+            if (!this.newMbs.has('FullHouseMb')) {
                 Log.info('game', 'qualified full house multiball');
-                alert('multiball qualified');
+                alert('full house multiball qualified');
             }
-            this.newMbs.set('StraightMb', [...pairs[0], ...pairs[1]]);
+            this.newMbs.set('FullHouseMb', [...pairs[0], ...pairs[1]]);
         }
     }
 
