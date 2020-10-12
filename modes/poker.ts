@@ -17,6 +17,7 @@ import { comma, seq, range, repeat, money, round } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
+import { playSound } from '../sound';
 
 
 export class Poker extends Mode {
@@ -88,6 +89,7 @@ export class Poker extends Mode {
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
             const target = e.target;
             if (this.slots[target.num] && this.step < 7) {
+                playSound('flip card.wav');
                 this.playerHand[this.step] = this.slots[target.num];
                 this.slots[target.num] = null;
                 this.dealerHand[this.step] = {
