@@ -44,10 +44,12 @@
 			"program": "${workspaceFolder}/attract.ts",
 			"console": "integratedTerminal",
 			"outFiles": [
-				"${workspaceFolder}/build/*.js"
+				"${workspaceFolder}/build/**/*.js"
 			],
+			"sourceMaps": true,
 			"args": [
-				"zpin/"
+				"zpin/",
+                "--no-mpu",
 			]
         },
 		{
@@ -63,16 +65,37 @@
 			"args": [
                 "zpin/",
                 "--no-mpu",
-                "--no-trace",
+                // "--no-trace",
                 // "--no-gfx",
-                "--ip",
+				"--ip",
+				// "--split",
 				"192.168.2.41",
 				// "--recording","recordings/straightMbStarting.rec",
 				// "--recording","recordings/lightStraight.rec",
 				// "--recording","recordings/2ndWinReady.rec",
 				// "--recording","recordings/ballStarted.rec",
+				// "--recording","recordings/weirdStuff.rec",
+				// "--recording","recordings/mbAddADrain.rec",
+				// "--recording","recordings/straightJpLit.rec",
+				// "--recording","recordings/upperEjectBlock.rec",
             ],
             // "runtimeArgs": [ "--prof"]
+        },
+        {
+            "type": "cppvsdbg",
+            "request": "launch",
+            "name": "C++ Debug Game",
+            "program": "c:\\root\\nodejs\\node.exe",
+            "args": [
+				// "--inspect-brk=7000",
+               	"build/game",
+			   "--no-mpu",
+			   "--ip",
+			   "--split",
+			   "192.168.2.41",
+			   "--recording","recordings/straightJpLit.rec",
+            ],
+            "cwd": "${workspaceRoot}"
         },
 		{
 			"type": "node",
