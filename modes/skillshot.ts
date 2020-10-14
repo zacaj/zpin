@@ -14,6 +14,7 @@ import { Events, Priorities, Event, onAny } from '../events';
 import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
+import { playSound } from '../sound';
 
 export enum GateMode {
     Closed = 'Closed',
@@ -39,6 +40,8 @@ export class Skillshot extends Mode {
     finishDisplay?: () => void;
 
     rng!: Rng;
+
+    static isShootAgain?: Ball;
 
     private constructor(
         public player: Player,
@@ -115,6 +118,10 @@ export class Skillshot extends Mode {
         const skillshot = new Skillshot(ball.player, ball);
         skillshot.finishDisplay = finish;
         assert(!ball.skillshot);
+        if (Skillshot.isShootAgain === ball) {
+            void playSound('shoot the ball carefully');
+        }
+        Skillshot.isShootAgain = undefined;
         ball.skillshot = skillshot;
         skillshot.started();
         return skillshot;
@@ -153,8 +160,9 @@ export class Skillshot extends Mode {
     }
 
     finish(e: SwitchEvent) {
-        if (e.sw === machine.sRightOutlane) {
+        if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole].includes(e.sw)) {
             this.ball.shootAgain = true;
+            Skillshot.isShootAgain = this.ball;
         } else if (!this.wasMade) {
             this.made(this.lastSw, e);
         }

@@ -28,7 +28,7 @@ export class Game extends Mode {
         return this.players[this.playerUp];
     }
     ballNum = 1;
-    ballCount = 1;
+    ballCount = 3;
 
     get ball() {
         return this.curPlayer.ball;
