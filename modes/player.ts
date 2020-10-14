@@ -25,6 +25,7 @@ import { Restart } from './restart';
 import { HandMb } from './hand.mb';
 import { Group, Text } from 'aminogfx-gl';
 import { FullHouseMb } from './full-house.mb';
+import { playSound } from '../sound';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -473,6 +474,7 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     hit() {
+        void playSound('deal');
         if (!this.lastSpinAt || time()-this.lastSpinAt > 750) {
             Events.fire(new SpinnerHit());
             this.lastHitAt = time();

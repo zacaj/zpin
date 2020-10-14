@@ -16,7 +16,8 @@ export type LogCategory =
     'solenoid' |
     'machine' |
     'gfx' |
-    'game';
+    'game' |
+    'sound';
 const files = [
     'console',
     'switch',
@@ -25,6 +26,7 @@ const files = [
     'machine',
     'gfx',
     'game',
+    'sound',
 ];
 
 export class Log {

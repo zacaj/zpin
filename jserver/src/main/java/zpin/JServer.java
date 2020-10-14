@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 
@@ -26,6 +28,7 @@ public class JServer extends Thread
     public PrintWriter logCmd = new PrintWriter("cmds.log");
     
     static SwitchMatrix matrix = SwitchMatrix.get();
+    static Sounds sound = Sounds.get();
     
     public boolean isLive;
 
@@ -196,6 +199,13 @@ public class JServer extends Thread
 							matrix.switches[row*matrix.Width+col].minOffTime = minOffTime;
 							System.out.println("Configure switch "+row+","+col);
 							ack();
+							return true;
+						case "sound":
+							if (parts.length < 3)
+								error("usage: sound volume name ");
+							int volume = num(1);
+							Sounds.Play play = sound.playSound(String.join(" ", Arrays.asList(parts).subList(2, parts.length)), ((float)volume)/100);
+							resp(play.num);
 							return true;
 						case "s":
 						case "select":
