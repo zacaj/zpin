@@ -131,7 +131,7 @@ export class Ball extends Mode {
             await Poker.start(player);
         }
 
-        if (MPU.isConnected || gfx) {
+        if (MPU.isLive || gfx) {
             await ResetMechs(ball);
             await ReleaseBall(ball);
         }

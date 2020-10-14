@@ -38,13 +38,13 @@ export abstract class Multiball extends Mode {
     }
 
     async start() {
-        if (MPU.isConnected || gfx) {
+        if (MPU.isLive || gfx) {
             await ResetMechs(this);
         }
     }
 
     async releaseBallFromTrough() {
-        if (MPU.isConnected || gfx) {
+        if (MPU.isLive || gfx) {
             await ReleaseBall(this);
         }
         this.listen(onAnyPfSwitchExcept(machine.sShooterLower), 'firstSwitchHit');

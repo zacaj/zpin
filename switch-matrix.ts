@@ -163,7 +163,7 @@ let lastEventCheck = Number.NEGATIVE_INFINITY;
 let lastSwitchEvent = Number.NEGATIVE_INFINITY;
 let lastRawCheck = Number.NEGATIVE_INFINITY;
 safeSetInterval(async () => {
-    if (!MPU.isConnected) return;
+    if (!MPU.isLive) return;
 
     const events = await getSwitchEvents();
     const start = time();

@@ -90,7 +90,7 @@ export class Game extends Mode {
 
     static async start(): Promise<Game> {
         assert(!machine.game);
-        if (gfx && !MPU.isConnected) {
+        if (gfx && !MPU.isLive) {
             machine.sTroughFull.changeState(true, 'fake');
         }
         if (!machine.sTroughFull.state) {

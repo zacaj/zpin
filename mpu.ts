@@ -9,6 +9,7 @@ export const MPU = {
     timeOffset: 0 as Time, // add to remote time to get local
 
     isConnected: false,
+    isLive: false,
 
     adjust(time: number|string): Time { // convert remote time to local
         if (typeof time === 'string') time = parseFloat(time);
@@ -66,7 +67,7 @@ export const MPU = {
                     const greeting = await this.lines[0].promise;
 
                     Log.info(['mpu'],'MPU: ', greeting);
-                    await this.sendCommand(apiVersion, true);
+                    const type = await this.sendCommand(apiVersion, true);
 
                     {
                         const local = time();
@@ -76,6 +77,8 @@ export const MPU = {
                     }
 
                     this.isConnected = true;
+                    if (type === 'live')
+                        this.isLive = true;
                     resolve();
                 });
             });

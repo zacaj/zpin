@@ -194,7 +194,7 @@ export class Poker extends Mode {
         if (!player.curMode) {
             const poker = new Poker(player);
             player.focus = poker;
-            if (MPU.isConnected || gfx) {
+            if (MPU.isLive || gfx) {
                 await ResetMechs(poker);
             }
             await gWait(500, 'poker settle');

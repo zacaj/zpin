@@ -26,9 +26,12 @@ public class JServer extends Thread
     public PrintWriter logCmd = new PrintWriter("cmds.log");
     
     static SwitchMatrix matrix = SwitchMatrix.get();
+    
+    public boolean isLive;
 
-    public JServer(Socket socket) throws IOException {
+    public JServer(Socket socket, boolean isLive) throws IOException {
         this.socket = socket;
+        this.isLive = isLive;
         this.start();
     }
     
@@ -80,7 +83,7 @@ public class JServer extends Thread
 	    		}
 	        	if (!first.equals(version))
 	        		error("Incorrect version "+first);
-	        	out.println((seq!=0? "#"+seq+" ":"")+"200");
+	        	out.println((seq!=0? "#"+seq+" ":"")+"200 "+(this.isLive?"live":"sim"));
 	        	while (this.handleCommand());
 	        }
 	        
@@ -366,7 +369,7 @@ public class JServer extends Thread
             while(true) {
                 Socket connection = socket.accept();
                 System.out.println("New connection from " + connection.getInetAddress());
-                new JServer(connection); 
+                new JServer(connection, !args[0].equals("sim")); 
             }
         } finally {
             socket.close();

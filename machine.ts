@@ -154,7 +154,7 @@ export class MomentarySolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
-        if (!MPU.isConnected && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!());
+        if (!MPU.isLive && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!());
         if (ms)
             await this.board.fireSolenoidFor(this.num, ms);
         else
@@ -235,7 +235,7 @@ export class OnOffSolenoid extends Solenoid {
         Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         
 
-        if (!MPU.isConnected && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!(on));
+        if (!MPU.isLive && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!(on));
         if (on)
             await this.board.turnOnSolenoid(this.num);
         else
