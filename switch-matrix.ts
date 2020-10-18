@@ -90,6 +90,13 @@ export class Switch {
         return this.state || (!!this.lastClosed && time() - this.lastClosed <= ms);
     }
 
+    activityWithin(ms: number): boolean {
+        return time()-this.lastChange <= ms;
+    }
+    noActivityFor(ms: number): boolean {
+        return time()-this.lastChange > ms;
+    }
+
     openForAtLeast(ms: number): boolean {
         return !this.state && (!this.lastOn || time() - this.lastOn > ms);
     }
@@ -174,7 +181,7 @@ safeSetInterval(async () => {
         assert(resp.when >= lastSwitchEvent);
         lastSwitchEvent = resp.when;
         // const ago = time() - resp.when;
-        if (resp.when < lastRawCheck) {
+        if (resp.when < lastRawCheck-1) {
             Log.info(['switch'], 'ignore switch event %j, %i late', resp, lastRawCheck - resp.when);
         }
         else {
@@ -189,6 +196,7 @@ safeSetInterval(async () => {
     if (time() - lastRawCheck > 1000) {
         const newState = await getSwitchState();
         forRC((r,c,sw) => {
+            if (c>=15) return;
             // assert(sw.state === newState[r][c]);
             sw.changeState(newState[r][c], 'sweep');
         });

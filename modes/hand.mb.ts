@@ -37,7 +37,7 @@ export class HandMb extends Multiball {
     state: ReturnType<typeof Starting>|ReturnType<typeof Started> = Starting();
 
     baseValue = 30000;
-    value = this.baseValue;
+    value = 100000;
     spinsPerJp = 50;
 
     get spinner() {
