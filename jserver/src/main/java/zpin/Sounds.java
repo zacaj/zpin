@@ -2,9 +2,11 @@ package zpin;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
@@ -27,7 +29,6 @@ public class Sounds extends Thread {
 		static int channelCount = 0;
 		int num = ++Channel.channelCount;
 		
-		static Channel[] channels = new Channel[4];
 		public static Channel getFreeChannel() {
 			for (int i=0; i<channels.length; i++) {
 				if (channels[i].curPlay==null)
@@ -45,6 +46,7 @@ public class Sounds extends Thread {
 		}
 		
 	}
+	static Channel[] channels = new Channel[16];
 	
 	
 	static class Play {
@@ -54,12 +56,14 @@ public class Sounds extends Thread {
 		Channel channel;
 		boolean playing = true;
 		boolean finished = false;
+		float volume; // 0-1
 		
 		int position = 0;
 		
-		public Play(Wav wav, Channel channel) {
+		public Play(Wav wav, Channel channel, float volume) {
 			this.wav = wav;
 			this.channel = channel;
+			this.volume = volume;
 			this.channel.curPlay = this;
 			System.out.println(""+this.num+"|"+this.channel.num+"| started");
 		}
@@ -95,10 +99,6 @@ public class Sounds extends Thread {
 			AudioInputStream oStream = AudioSystem.getAudioInputStream(file);
 			AudioInputStream stream = AudioSystem.getAudioInputStream(targetFormat, oStream);
 		    format = stream.getFormat();
-//		    long audioFileLength = file.length();
-//		    int frameSize = format.getFrameSize();
-//		    float frameRate = format.getFrameRate();
-//		    this.length = (audioFileLength / (frameSize * frameRate));
 		    
 		    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		    int nRead;
@@ -111,121 +111,18 @@ public class Sounds extends Thread {
 		    byte[] bytes = buffer.toByteArray();
 		    this.data = new short[bytes.length/2];
 		    for (int i=0; i<bytes.length; i+=2)
-		    	this.data[i/2] =  (short) ((((short)bytes[i+0])<<8)|((short)bytes[i+1]));
+		    	this.data[i/2] = (short)(((bytes[i+0] & 0xFF) << 8) | (bytes[i+1] & 0xFF));
 		    this.length = this.data.length / format.getSampleRate();
 		}
 		
-		public Play play() throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+		public Play play(float volume) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 			if (this.curPlay != null && !this.curPlay.finished) {
 				this.curPlay.stop();
 			}
-			return this.curPlay = new Play(this, Channel.getFreeChannel());
+			return this.curPlay = new Play(this, Channel.getFreeChannel(), volume);
 		}
 	}
-//	
-//	static class Channel {
-//		static int channelCount = 0;
-//		int num = ++Channel.channelCount;
-//		
-//		static Channel[] channels = new Channel[4];
-//		public static Channel getFreeChannel() {
-//			for (int i=0; i<channels.length; i++) {
-//				if (channels[i].curPlay==null)
-//					return channels[i];
-//			}
-//			throw new RuntimeException("no free channels");
-//		}
-//		
-//		public Clip clip;
-//		
-//		public Play curPlay = null;
-//		
-//		public Channel() throws LineUnavailableException {
-//			this.clip = AudioSystem.getClip();
-//			
-//			this.clip.addLineListener(e -> {
-////				if (e.getType() == LineEvent.Type.START) {
-////					this.curPlay = false;
-////				}
-//				if (e.getType() == LineEvent.Type.STOP) {
-//					if (this.curPlay != null) {
-//						System.out.println(""+this.curPlay.num+"|"+this.num+"| "+System.nanoTime()/1000000+": stop heard");
-//						if (this.curPlay.playing) {
-//							this.curPlay.finished = true;
-//							this.curPlay.playing = false;
-//						}
-//						this.clip.close();
-//						System.out.println(""+this.curPlay.num+"|"+this.num+"| "+System.nanoTime()/1000000+": clip closed");
-//						this.curPlay.wav.curPlay = null;
-//						this.curPlay = null;
-//					}
-//				}
-//			});
-//		}
-//	}
-//	
-//	static class Play {
-//		static int playNum = 0;
-//		int num = ++Play.playNum;
-//		Wav wav;
-//		Channel channel;
-//		boolean playing = true;
-//		boolean finished = false;
-//		
-//		public Play(Wav wav, Channel channel) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
-//			this.wav = wav;
-//			this.channel = channel;
-//			this.channel.curPlay = this;
-//			System.out.println(""+this.num+"|"+this.channel.num+"| "+System.nanoTime()/1000000+": make stream ");
-//			wav.stream = AudioSystem.getAudioInputStream(wav.file);
-//			System.out.println(""+this.num+"|"+this.channel.num+"| "+System.nanoTime()/1000000+": loaded ");
-//			channel.clip.open(wav.stream);
-//			System.out.println(""+this.num+"|"+this.channel.num+"| "+System.nanoTime()/1000000+": opened ");
-//			channel.clip.setFramePosition(0);
-//			channel.clip.start();
-//			System.out.println(""+this.num+"|"+this.channel.num+"| "+System.nanoTime()/1000000+": started ");
-//		}
-//		
-//		public void stop() {
-//			this.playing = false;
-//			this.channel.clip.stop();
-//			System.out.println(""+this.num+"|"+this.channel.num+"| "+System.nanoTime()/1000000+": clip stopped");
-////			this.wav.curPlay = null;
-////			this.channel.clip.close();
-////			System.out.println("clip closed at "+System.nanoTime()/1000000);
-////			this.channel.curPlay = null;
-//		}
-//	}
-//	
-//	static class Wav {
-//		public String name;
-//		public double length; // seconds
-//		public AudioInputStream stream;
-//		public Play curPlay = null;
-//		public File file;
-//		
-//		public Wav(File file) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-//			this.name = file.getName().split("\\.")[0];
-//			this.file = file;
-////			BufferedInputStream myStream = new BufferedInputStream(new FileInputStream(file)); 
-////			myStream.mark(0);
-//			this.stream = AudioSystem.getAudioInputStream(file);
-//		    AudioFormat format = this.stream.getFormat();
-//		    long audioFileLength = file.length();
-//		    int frameSize = format.getFrameSize();
-//		    float frameRate = format.getFrameRate();
-//		    this.length = (audioFileLength / (frameSize * frameRate));
-//		}
-//		
-//		public Play play() throws LineUnavailableException, IOException, UnsupportedAudioFileException {
-//			if (this.curPlay != null && !this.curPlay.finished) {
-//				this.curPlay.stop();
-//				System.out.println("stopped at "+System.nanoTime()/1000000);
-//			}
-//			return this.curPlay = new Play(this, Channel.getFreeChannel());
-//		}
-//	}
-//	
+	
 	static class Sound {
 		public String name;
 		public List<Wav> files = new ArrayList<Wav>();
@@ -240,7 +137,7 @@ public class Sounds extends Thread {
 
 	private SourceDataLine line;
 
-	static AudioFormat targetFormat = new AudioFormat(44100, 16, 1, true, false);
+	static AudioFormat targetFormat = new AudioFormat(44100, 16, 1, true, true);
 	public static Sounds get() {
 		if (instance == null) {
 			instance = new Sounds();
@@ -257,16 +154,16 @@ public class Sounds extends Thread {
 		         throw new Exception("could not init sound");
 			}
 			line = (SourceDataLine)AudioSystem.getLine(info);
-			line.open(targetFormat, 2*24000/50);
+			line.open(targetFormat, (int) (2*targetFormat.getSampleRate()*(50/1000.f)));
 			line.start();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			System.exit(1);
 		}
 		
-		for (int i=0; i<Channel.channels.length; i++)
+		for (int i=0; i<channels.length; i++)
 //			try {
-				Channel.channels[i] = new Channel();
+				channels[i] = new Channel();
 //			} catch (LineUnavailableException e) {
 //				System.out.println("ERROR: Failed to open channel "+i);
 //				e.printStackTrace();
@@ -298,29 +195,42 @@ public class Sounds extends Thread {
 		int bytesPerSample = line.getFormat().getSampleSizeInBits()/8;
 		ByteBuffer buf = ByteBuffer.allocate(line.getBufferSize());
 		while (true) {
-			buf.clear();
 			int needed = line.available()/bytesPerSample;
-			for (int i=0; i<needed; i++) {
-				double sample = 0;
-				for (int c=0; c<Channel.channels.length; c++) {
-					Channel channel = Channel.channels[c];
-					if (channel.curPlay==null || !channel.curPlay.playing) continue;
-					Wav wav = channel.curPlay.wav;
-					short s = wav.data[channel.curPlay.position++];
-					if (channel.curPlay.position >= wav.data.length) {
-						channel.curPlay.completed();
+			if (needed > line.getBufferSize()/bytesPerSample / 2)
+			{
+//				System.out.println("generate "+needed+" samples");
+				buf.clear();
+//				double t = 0;
+				for (int i=0; i<needed; i++) {
+					double sample = 0;
+					for (int c=0; c<channels.length; c++) {
+						Channel channel = channels[c];
+						Play curPlay = channel.curPlay;
+						if (curPlay==null || !curPlay.playing) continue;
+						Wav wav = curPlay.wav;
+						short s = wav.data[curPlay.position++];
+						if (curPlay.position >= wav.data.length) {
+							curPlay.completed();
+						}
+//						System.out.println(s+","+((double)s)*curPlay.volume);//+","+(short)(((double)s)*curPlay.volume));
+						sample += ((double)s)*curPlay.volume;
 					}
-					sample += ((double)s);
+					short total;
+					if (sample < Short.MIN_VALUE)
+						total = Short.MIN_VALUE;
+					else if (sample > Short.MAX_VALUE)
+						total = Short.MAX_VALUE;
+					else total = (short) sample;
+					buf.putShort(total);
+//					t+=sample;
 				}
-				short total;
-				if (sample < Short.MIN_VALUE)
-					total = Short.MIN_VALUE;
-				else if (sample > Short.MAX_VALUE)
-					total = Short.MAX_VALUE;
-				else total = (short) sample;
-				buf.putShort(total);
+//				System.out.println("avg "+(t/needed));
+				this.line.write(buf.array(), 0, buf.position());
 			}
-			this.line.write(buf.array(), 0, buf.position());
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+			}   
 		}
 	}
 
@@ -331,7 +241,7 @@ public class Sounds extends Thread {
 		if (sound == null)
 			throw new Exception("sound '"+name+"' not found");
 		
-		Play play = sound.files.get(0).play();
+		Play play = sound.files.get(0).play(volume);
 		System.out.println(""+play.num+"|"+play.channel.num+"| "+System.nanoTime()/1000000+": play sound '"+play.wav.name+"' in "+(System.nanoTime()-start)/1000000);
 		return play;
 	}
