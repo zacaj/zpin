@@ -161,6 +161,7 @@ export class Skillshot extends Mode {
 
     finish(e: SwitchEvent) {
         if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole].includes(e.sw)) {
+            void playSound(`wait you'll get that back`);
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
         } else if (!this.wasMade) {
@@ -231,6 +232,12 @@ export class Skillshot extends Mode {
                         cur.collect!(e);
                 },
                 made: (e) => {
+                    let excite = false;
+                    if (rand) excite = true;
+                    if (i===2 || i===4) excite = true;
+                    if (i>=3 && this.gateMode!==GateMode.Closed) excite = true;
+                    void playSound(`skillshot${excite? '!':''}`);
+
                     if (cur?.made)
                         cur.made(e);
                     if (!cur?.award)

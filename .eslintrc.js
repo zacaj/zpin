@@ -122,7 +122,7 @@ module.exports = {
     }],
     "no-whitespace-before-property": on,
     "one-var": [on, 'never'],
-    "quotes": [on, 'single'],
+    "quotes": [off, 'single'],
     "semi": off, // overridden by typescript rule
     "space-before-function-paren": off, // overridden by typescript rule
     "space-before-blocks": [on, 'always'],
