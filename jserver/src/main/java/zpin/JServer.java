@@ -379,7 +379,7 @@ public class JServer extends Thread
             while(true) {
                 Socket connection = socket.accept();
                 System.out.println("New connection from " + connection.getInetAddress());
-                new JServer(connection, !args[0].equals("sim")); 
+                new JServer(connection, args.length==0 || !args[0].equals("sim")); 
             }
         } finally {
             socket.close();
