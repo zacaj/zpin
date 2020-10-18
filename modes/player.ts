@@ -395,13 +395,13 @@ class NoMode extends Mode {
     }
 
     addTargets() {
-        for (const target of this.rng.randSelectRange(2, 4, ...machine.dropTargets))
+        for (const target of this.rng.randSelectRange(2, 4-this.player.chips+1, ...machine.dropTargets))
             this.targets.set(target, Color.Orange);
         for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Blue);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([10, 1], [5, 0]), ...machine.dropTargets))
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [3, 2], [3, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Red);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([14, 1], [1, 2], [3, 0]), ...machine.dropTargets))
+        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([14, 1], [3, 2], [3, 0]), ...machine.dropTargets))
             this.targets.set(target, Color.Green);
     }
 
