@@ -857,6 +857,11 @@ export class Machine extends Tree<MachineOutputs> {
         
         this.watch(() => screen?.circle.x(time()%1000-500));
     }
+
+    pfIsInactive(): boolean {
+        return [this.lastSwitchHit, this.sLeftFlipper, this.sRightFlipper, this.sPopperButton, this.sMagnetButton, this.sActionButton].truthy()
+            .every(sw => sw.openForAtLeast(30000));
+    }
 }
 
 export class StandupEvent extends Event {
@@ -889,12 +894,25 @@ class MachineOverrides extends Mode {
     constructor(public machine: Machine) {
         super(Modes.MachineOverrides);
         this.out = new Outputs(this, {
-            rampUp: (up) => (machine.sRampDown.state && machine.sUnderRamp.state)
-                || (machine.cRamp.actual && time() - machine.cRamp.lastActualChange! < 1000 && machine.sUnderRamp.wasClosedWithin(1000))?
-                true : up,
+            rampUp: (up) => {
+                // ball under ramp?
+                if (machine.sRampDown.state && machine.sUnderRamp.state)
+                    return true;
+                // ball was under ramp?
+                if (machine.cRamp.actual && time() - machine.cRamp.lastActualChange! < 1000 && machine.sUnderRamp.wasClosedWithin(1000))
+                    return true;
+                // ramp inactivity
+                if (machine.pfIsInactive())
+                    return false;
+                return up;
+            },
             realRightBank: () => machine.out!.treeValues.rightBank &&
                 !machine.cShooterDiverter.actual && time()-(machine.cShooterDiverter.lastActualChange??0) > 500,
-            shooterDiverter: (on) => machine.out!.treeValues.rightBank? false : on,            
+            shooterDiverter: (on) => machine.out!.treeValues.rightBank || machine.pfIsInactive()? false : on,        
+            leftGate: (on) => machine.pfIsInactive()? false : on,
+            rightGate: (on) => machine.pfIsInactive()? false : on,
+            lockPost: (on) => machine.pfIsInactive()? false : on,
+            miniDiverter: (on) => machine.pfIsInactive()? false : on,
         });
         
         this.listen(e => e instanceof SolenoidFireEvent && e.coil === machine.cRealRightBank, () => Events.fire(new SolenoidFireEvent(machine.cRightBank)));

@@ -531,8 +531,12 @@ Object {
         ],
         "name": "MachineOverrides17",
         "ownOuts": Object {
+          "leftGate": undefined,
+          "lockPost": undefined,
+          "miniDiverter": undefined,
           "rampUp": undefined,
           "realRightBank": false,
+          "rightGate": undefined,
           "shooterDiverter": undefined,
         },
         "state": Object {},
