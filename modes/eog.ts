@@ -5,7 +5,7 @@ import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { State } from '../state';
-import { comma, money, score } from '../util';
+import { comma, money, round, score } from '../util';
 import { Player } from './player';
 import { Poker } from './poker';
 
@@ -41,12 +41,15 @@ export class EndOfGameBonus extends Mode {
         this.total = (this.player.store.Poker!.bank - Poker.BankStart) * this.player.store.Poker!.cashValue;
         await gWait(2000, 'bonus x');
         this.player.recordScore(this.total, 'bonus');
+        const speed = 10;
+        const maxTime = 9000;
+        const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
         while (this.total !== 0) {
-            const change = Math.min(Math.abs(this.total), 1000)*Math.sign(this.total);
+            const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);
             this.total -= change;
             // this.player.score += change;
             this.player.addScore(change, null);
-            await gWait(10, 'bonus count');
+            await gWait(speed, 'bonus count');
         }
         await gWait(2500, 'bonus end');
         this.end();

@@ -317,18 +317,20 @@ export class Poker extends Mode {
             this.handsForMb += 3;
                 
             if (!this.player.mbsQualified.size) {
-            // if (!this.player.mbsQualified.has('HandsMb')) {
                 Log.info('game', 'qualified hands multiball');
                 alert('hand multiball qualified', undefined, `${this.handsPlayed} hands played`);
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
 
+        const speed = 15;
+        const maxTime = 5000;
+        const rate = Math.max(10, round(Math.abs(this.pot)/(maxTime/speed), 10));
         while (this.pot !== 0) {
             const change = Math.min(this.pot, 20) * (this.playerWins? 1:-1);
             this.bank += change;
             this.pot -= Math.abs(change);
-            await gWait(10, 'win count');
+            await gWait(speed, 'win count');
         }
 
         await gWait(1500, 'showing cards');

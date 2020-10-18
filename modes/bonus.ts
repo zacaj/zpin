@@ -5,7 +5,7 @@ import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { State } from '../state';
-import { comma, short } from '../util';
+import { comma, round, score, short } from '../util';
 import { Ball } from './ball';
 
 export class Bonus extends Mode {
@@ -54,20 +54,24 @@ export class Bonus extends Mode {
                 await gWait(1000, 'bonus x');
         }
         if (!this.ball.tilted) {
+            this.lines.push([`Total: ${score(this.total)}`]);
+
             this.ball.player.recordScore(this.total, 'bonus');
             // const start = new Date().getTime();
+            const speed = 10;
+            const maxTime = 6000;
+            const rate = Math.max(250, round(Math.abs(this.total)/(maxTime/speed), 1000));
             while (this.total > 0) {
-                const change = Math.min(this.total, 1000);
+                const change = Math.min(this.total, rate);
                 this.total -= change;
                 this.ball.player.addScore(change, null);
-                await gWait(10, 'bonus count');
+                await gWait(speed, 'bonus count');
             }
         }
         // console.log('time', new Date().getTime()-start);
         // alert(`bonus took ${new Date().getTime()-start}`);
-        await gWait(1500, 'bonus end');
+        await gWait(2500, 'bonus end');
         // if (this.ball.tilted) 
-            await gWait(1500, 'bonus end');
         this.end();
     }
 
