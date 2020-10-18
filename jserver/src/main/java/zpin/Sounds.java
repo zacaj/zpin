@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class Sounds extends Thread {
 		boolean playing = true;
 		boolean finished = false;
 		float volume; // 0-1
+		long startTime = new Date().getTime();
 		
 		int position = 0;
 		
@@ -253,12 +255,25 @@ public class Sounds extends Thread {
 
 	public Play playSound(String name, float volume) throws Exception {
 		long start = System.nanoTime();
-		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound requested ");
+		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound '"+name+"' requested ");
 		Sound sound = this.sounds.get(name);
 		if (sound == null)
 			throw new Exception("sound '"+name+"' not found");
 		
-		Play play = sound.files.get(0).play(volume);
+		Wav wav = sound.files.get(0);
+		for (Channel c : channels) {
+			if (c.curPlay!=null && c.curPlay.playing)
+				if (new Date().getTime()-c.curPlay.startTime<50)
+					if (c.curPlay.wav.length > wav.length) {
+						System.out.println(""+(Play.playNum+1)+"|?| "+System.nanoTime()/1000000+": skipping for "+c.curPlay.wav.name);
+						return null;
+					} else {
+						System.out.println(""+(Play.playNum+1)+"|?| "+System.nanoTime()/1000000+": canceling "+c.curPlay.wav.name);
+						c.curPlay.stop();
+					}
+				
+		}
+		Play play = wav.play(volume);
 		System.out.println(""+play.num+"|"+play.channel.num+"| "+System.nanoTime()/1000000+": play sound '"+play.wav.name+"' in "+(System.nanoTime()-start)/1000000);
 		return play;
 	}

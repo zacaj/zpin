@@ -205,7 +205,10 @@ public class JServer extends Thread
 								error("usage: sound volume name ");
 							int volume = num(1);
 							Sounds.Play play = sound.playSound(String.join(" ", Arrays.asList(parts).subList(2, parts.length)), ((float)volume)/100);
-							resp(play.num);
+							if (play != null)
+								resp(play.num);
+							else
+								resp(201);
 							return true;
 						case "s":
 						case "select":
@@ -372,6 +375,13 @@ public class JServer extends Thread
     public static void main( String[] args) throws IOException
     {
     	matrix.start();
+    	sound.start();
+//    	try {
+//			sound.playSound("shoot the ball carefully", 1);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);
