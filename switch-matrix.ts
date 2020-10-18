@@ -101,6 +101,8 @@ export class Switch {
 
 
 export class SwitchEvent extends Event {
+    static last?: SwitchEvent;
+
     _desc!: string;
     then: Switch; //Pick<Switch, Extract<keyof Switch, JSONValue>>;//{ [P in keyof Switch]: Switch[P] };
     constructor(
@@ -111,6 +113,7 @@ export class SwitchEvent extends Event {
 
         this.then = clone(sw);
         this._desc = `sw ${sw.name} ${sw.state? 'closed' : 'opened'}`;
+        SwitchEvent.last = this;
     }
 }
 

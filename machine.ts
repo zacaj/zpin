@@ -69,15 +69,15 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         return then(this.set(this.val), success => {
             try {
                 if (success === true) {
-                    Log.log('machine', '%s set to ', this.name, this.val);
+                    Log.info('machine', '%s successfully set to ', this.name, this.val);
                     this.lastActualChange = time();
                     this.actual = this.val;
                 } else {
                     if (!success) {
-                        Log.log('machine', 'failed  %s set to ', this.name, this.val);
+                        Log.log('machine', 'failed to %s set to ', this.name, this.val);
                         success = 5;
                     } else 
-                        Log.log('machine', 'tried  %s set to ', this.name, this.val);
+                        Log.info('machine', 'will retry %s set to ', this.name, this.val);
                     if (!this.timer)
                         this.timer = Timer.callIn(() => this.trySet(), success, `delayed retry set ${this.name} to ${this.val}`);
                 }
@@ -143,7 +143,7 @@ export class MomentarySolenoid extends Solenoid {
         }
         if (Solenoid.firingUntil) {
             if (time() <= Solenoid.firingUntil) {
-                Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, global too soon', this.name);
+                Log.info(['machine', 'solenoid', 'console'], 'skip firing solenoid %s, global too soon', this.name);
                 return Solenoid.firingUntil - time();
             }
             Solenoid.firingUntil = undefined;
@@ -232,24 +232,26 @@ export class OnOffSolenoid extends Solenoid {
     }
 
     async set(on: boolean) {
-        Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
         
 
         if (!MPU.isLive && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!(on));
         if (on) {
             if (Solenoid.firingUntil) {
                 if (time() <= Solenoid.firingUntil) {
-                    Log.trace(['machine', 'solenoid'], 'skip turning on solenoid %s, global too soon', this.name);
+                    Log.info(['machine', 'solenoid', 'console'], 'skip turning on solenoid %s, global too soon', this.name);
                     return Solenoid.firingUntil - time() + 1;
                 }
                 Solenoid.firingUntil = undefined;
             }
     
             Solenoid.firingUntil = time() + (this.pulseOffTime? this.maxOnTime! : 100)+0 as Time;
+            Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
             await this.board.turnOnSolenoid(this.num);
         }
-        else
+        else {
+            Log.log(['machine', 'solenoid'], `turn ${this.name} ` + (on? 'on':'off'));
             await this.board.turnOffSolenoid(this.num);
+        }
         return true;
     }
 
@@ -869,8 +871,10 @@ export class Machine extends Tree<MachineOutputs> {
     }
 
     pfIsInactive(): boolean {
-        return [this.lastSwitchHit, this.sLeftFlipper, this.sRightFlipper, this.sPopperButton, this.sMagnetButton, this.sActionButton].truthy()
-            .every(sw => sw.openForAtLeast(30000));
+        return [this.lastSwitchHit, this.sLeftFlipper, this.sShooterLane, this.sTroughFull, this.sRightFlipper, this.sPopperButton, this.sMagnetButton, this.sActionButton]
+            .truthy().every(sw => sw.noActivityFor(30000))
+            ;
+            // && (!SwitchEvent.last || SwitchEvent.last.sw===this.sRampDown || time() - SwitchEvent.last.when > 30000);
     }
 }
 
