@@ -128,7 +128,7 @@ export class Player extends Mode {
     constructor(
         public game: Game,
         public number: number,
-        public seed = argv.seed ?? 'pinball',
+        public seed: string,
     ) {
         super(Modes.Player);
         this.rand = this.rng();

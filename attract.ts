@@ -1,3 +1,4 @@
+import { argv } from 'yargs';
 import { Game } from './game';
 import { addToScreen, makeText, ModeGroup, Screen } from './gfx';
 import { initMachine } from './init';
@@ -25,7 +26,7 @@ export class AttractMode extends Mode {
         addToScreen(() => new AttractGfx(this));
 
         this.listen(onSwitchClose(machine.sStartButton), async () => {
-            const game = await Game.start();
+            const game = await Game.start(argv.seed as string ?? Math.random().toFixed());
         });
     }
 

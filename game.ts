@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { argv } from 'yargs';
 import { AttractMode } from './attract';
 import { Events } from './events';
 import { addToScreen, alert, gfx, screen } from './gfx';
@@ -36,7 +37,9 @@ export class Game extends Mode {
 
     totals: {[source: string]: {times: number; total: number; average: number}} = {};
     
-    private constructor() {
+    private constructor(
+        public seed: string,
+    ) {
         super(Modes.Game);
         // assert(machine.sTroughFull.state);
         State.declare<Game>(this, ['ballNum', 'playerUp', 'players']);
@@ -88,7 +91,7 @@ export class Game extends Mode {
         return super.end();
     }
 
-    static async start(): Promise<Game> {
+    static async start(seed: string = argv.seed as string ?? 'pinball'): Promise<Game> {
         assert(!machine.game);
         if (gfx && !MPU.isLive) {
             machine.sTroughFull.changeState(true, 'fake');
@@ -105,10 +108,10 @@ export class Game extends Mode {
             clear.end();
         }
         machine.attract?.end();
-        const game = new Game();
+        const game = new Game(seed);
         machine.game = game;
         game.started();
-        game.players.push(new Player(game, 1));
+        game.players.push(new Player(game, 1, game.seed));
         game.curPlayer.started();
         await game.curPlayer.startBall();
         return game;
@@ -116,7 +119,7 @@ export class Game extends Mode {
 
     addPlayer() {
         if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer.score>0) return;
-        this.players.push(new Player(this, this.players.length+1));
+        this.players.push(new Player(this, this.players.length+1, this.seed));
         alert(`PLAYER ${this.players.length} ADDED`);
     }
 
