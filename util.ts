@@ -290,7 +290,7 @@ export function getFuncNames<T extends {}>(toCheck: T): ((keyof T)&string)[] {
 export function getCallerStack(ignoreCurFile = false, ignorePattern?: RegExp, force = false): string[] {
     if (!require('./log').Log.files.trace && !force) return [];
     const err = new Error();
-    const lines = err.stack!.split('\n').slice(2);
+    const lines = err.stack!.split('\n').slice(3);
     const imm_caller_line = lines[0];
     const file = (imm_caller_line.match(/([^/\\]+\.js)/) ?? [])[0];
     const caller_line_index = lines.findIndex(l => (!file || !ignoreCurFile || (ignoreCurFile && !l.includes(file))) && (!ignorePattern || !l.match(ignorePattern)));
@@ -300,7 +300,7 @@ export function getCallerStack(ignoreCurFile = false, ignorePattern?: RegExp, fo
 }
 
 export function getCallerLine(): string {
-    const imm = getCallerStack(false, undefined, true)[2];
+    const imm = getCallerStack(false, undefined, true)[1];
     return (imm.match(/([^/\\]+\.js[\d:]*)/) ?? [])[0];
 }
 

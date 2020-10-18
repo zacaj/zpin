@@ -48,7 +48,7 @@ describe('machine', () => {
             expect(fireB).toHaveBeenCalledTimes(0);
             a.val = false;
             await a.trySet();
-            await passTime(102);
+            await passTime(106);
             expect(fireA).toHaveBeenCalledTimes(1);
             expect(fireB).toHaveBeenCalledTimes(1);
         });

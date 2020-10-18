@@ -91,6 +91,7 @@ export class Poker extends Mode {
             if (this.slots[target.num] && this.step < 7) {
                 const card = this.slots[target.num];
                 void playSound(`card ${getRank(card!)}`);
+                // return;
                 this.playerHand[this.step] = card;
                 this.slots[target.num] = null;
                 this.dealerHand[this.step] = {
@@ -324,7 +325,7 @@ export class Poker extends Mode {
         }
 
         while (this.pot !== 0) {
-            const change = Math.min(this.pot, 10) * (this.playerWins? 1:-1);
+            const change = Math.min(this.pot, 20) * (this.playerWins? 1:-1);
             this.bank += change;
             this.pot -= Math.abs(change);
             await gWait(10, 'win count');

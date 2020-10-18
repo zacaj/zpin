@@ -20,6 +20,7 @@ beforeEach(async () => {
     Events.resetAll();
     resetSwitchMatrix();
     resetMachine();
+    jest.spyOn(machine, 'pfIsInactive').mockReturnValue(false);
     await setTime(1);
     jest.spyOn(MPU, 'sendCommandCode').mockImplementation(async (cmd) => {
         debugger;
