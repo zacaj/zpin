@@ -500,11 +500,11 @@ export class Poker extends Mode {
         const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
             this.step<=2? [[1, 0]] : [[3, -8, -2], [4, 1, 5], [1, -10, -5]],
-            [[3, -10, -4], [1, -10, -6], [4, 3, 10], [2, 15, 30]],
-            [[3, -10, -3], [4, 3, 10], [1, 20, 40]],
-            [[1, 10, 20], [4, 3, 10], [1, -10, -5]],
-            [[1, 10, 30], [4, 3, 10]],
-            [[3, -10, -2], [5, 3, 9], [1, 10, 30]],
+            [[3, -10, -4], [1, -10, -6], [4, 3, 10], [2, 10, 20]],
+            [[3, -10, -3], [4, 3, 10], [1, 10, 20]],
+            [[1, 10, 15], [4, 3, 10], [1, -10, -5]],
+            [[1, 10, 20], [4, 3, 10]],
+            [[3, -10, -2], [5, 3, 9], [1, 10, 20]],
         ];
         return [...switches.map((sw, i) => {
             const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
