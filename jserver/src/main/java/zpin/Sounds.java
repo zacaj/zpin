@@ -21,6 +21,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -146,14 +147,30 @@ public class Sounds extends Thread {
 	}
 	
 	private Sounds() {
-		DataLine.Info info = new DataLine.Info(SourceDataLine.class, targetFormat);
+		DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, targetFormat);
+		
+		Mixer.Info[] infos = AudioSystem.getMixerInfo();
+		Mixer.Info bestInfo = null;
+		for (Mixer.Info info : infos) {
+			System.out.println(info);
+			if (info.getName().toLowerCase().contains("headphone")) {
+				if (!AudioSystem.getMixer(info).isLineSupported(lineInfo))
+					System.out.println("skipping, line doesn't support requested format");
+				else
+					bestInfo = info;
+			}
+		}
 		
 		try {
-			if (!AudioSystem.isLineSupported(info)){
-		         System.out.println("Line matching " + info + " is not supported.");
+			if (bestInfo != null) {
+				System.out.println("using output "+bestInfo);
+			}
+			else if (!AudioSystem.isLineSupported(lineInfo)){
+		         System.out.println("Line matching " + lineInfo + " is not supported.");
 		         throw new Exception("could not init sound");
 			}
-			line = (SourceDataLine)AudioSystem.getLine(info);
+			line = (SourceDataLine)(bestInfo!=null? 
+					AudioSystem.getMixer(bestInfo).getLine(lineInfo) : AudioSystem.getLine(lineInfo));
 			line.open(targetFormat, (int) (2*targetFormat.getSampleRate()*(50/1000.f)));
 			line.start();
 		} catch (Exception e1) {
