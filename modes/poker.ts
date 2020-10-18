@@ -89,8 +89,9 @@ export class Poker extends Mode {
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
             const target = e.target;
             if (this.slots[target.num] && this.step < 7) {
-                void playSound('flip card');
-                this.playerHand[this.step] = this.slots[target.num];
+                const card = this.slots[target.num];
+                void playSound(`card ${getRank(card!)}`);
+                this.playerHand[this.step] = card;
                 this.slots[target.num] = null;
                 this.dealerHand[this.step] = {
                     ...this.deck.shift()!,
