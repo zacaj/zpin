@@ -1554,7 +1554,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2950,
+                              "num": 2954,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1562,7 +1562,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2951,
+                              "num": 2955,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1570,7 +1570,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2952,
+                              "num": 2956,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1578,7 +1578,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2953,
+                              "num": 2957,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1586,7 +1586,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2954,
+                              "num": 2958,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1595,7 +1595,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2955,
+                              "num": 2959,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1799,7 +1799,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2950,
+                              "num": 2954,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1807,7 +1807,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2951,
+                              "num": 2955,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1815,7 +1815,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2952,
+                              "num": 2956,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1823,7 +1823,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2953,
+                              "num": 2957,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -1831,7 +1831,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2954,
+                              "num": 2958,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -1840,7 +1840,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2955,
+                              "num": 2959,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2044,7 +2044,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2938,
+                              "num": 2942,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2052,7 +2052,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2939,
+                              "num": 2943,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2060,7 +2060,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2940,
+                              "num": 2944,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2068,7 +2068,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2941,
+                              "num": 2945,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2076,7 +2076,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2942,
+                              "num": 2946,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2085,7 +2085,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2943,
+                              "num": 2947,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2195,9 +2195,9 @@ Object {
                           "changeAttempts": 6,
                           "debounce": 5,
                           "id": 1055,
-                          "lastActualChange": 54562,
+                          "lastActualChange": 53512,
                           "lastPendingChange": 113668,
-                          "lastValChange": 54562,
+                          "lastValChange": 53512,
                           "name": "iCenter2",
                           "pending": "orangeArrow",
                           "val": "orangeArrow",
@@ -2245,7 +2245,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2956,
+                              "num": 2960,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2253,7 +2253,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2957,
+                              "num": 2961,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2261,7 +2261,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2958,
+                              "num": 2962,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2269,7 +2269,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2959,
+                              "num": 2963,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2277,7 +2277,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2960,
+                              "num": 2964,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2286,7 +2286,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2961,
+                              "num": 2965,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2529,7 +2529,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2932,
+                              "num": 2936,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2537,7 +2537,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2933,
+                              "num": 2937,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2545,7 +2545,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2934,
+                              "num": 2938,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2553,7 +2553,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2935,
+                              "num": 2939,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2561,7 +2561,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2936,
+                              "num": 2940,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2570,7 +2570,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2937,
+                              "num": 2941,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2691,7 +2691,7 @@ Object {
                           "listeners": Array [
                             Object {
                               "callback": "onAllDown",
-                              "num": 2956,
+                              "num": 2960,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2699,7 +2699,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnd",
-                              "num": 2957,
+                              "num": 2961,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2707,7 +2707,7 @@ Object {
                             },
                             Object {
                               "callback": "onEnding",
-                              "num": 2958,
+                              "num": 2962,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2715,7 +2715,7 @@ Object {
                             },
                             Object {
                               "callback": "onTargetDown",
-                              "num": 2959,
+                              "num": 2963,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -2723,7 +2723,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2960,
+                              "num": 2964,
                               "predicates": Array [
                                 [Function],
                                 [Function],
@@ -2732,7 +2732,7 @@ Object {
                             },
                             Object {
                               "callback": [Function],
-                              "num": 2961,
+                              "num": 2965,
                               "predicates": Array [
                                 [Function],
                               ],
@@ -3161,7 +3161,7 @@ Object {
       "upperMagnet": false,
     },
     "state": Object {
-      "ballsInTrough": 4,
+      "ballsInTrough": 3,
       "ballsLocked": 0,
       "game": "Game198",
       "lastSwitchHit": Switch {
@@ -4286,22 +4286,6 @@ Object {
                       "listeners": Array [
                         Object {
                           "callback": "onAllDown",
-                          "num": 1335,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnd",
-                          "num": 1336,
-                          "predicates": Array [
-                            [Function],
-                          ],
-                          "source": "",
-                        },
-                        Object {
-                          "callback": "onEnding",
                           "num": 1337,
                           "predicates": Array [
                             [Function],
@@ -4309,7 +4293,7 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": "onTargetDown",
+                          "callback": "onEnd",
                           "num": 1338,
                           "predicates": Array [
                             [Function],
@@ -4317,8 +4301,24 @@ Object {
                           "source": "",
                         },
                         Object {
-                          "callback": [Function],
+                          "callback": "onEnding",
                           "num": 1339,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": "onTargetDown",
+                          "num": 1340,
+                          "predicates": Array [
+                            [Function],
+                          ],
+                          "source": "",
+                        },
+                        Object {
+                          "callback": [Function],
+                          "num": 1341,
                           "predicates": Array [
                             [Function],
                             [Function],
@@ -4327,7 +4327,7 @@ Object {
                         },
                         Object {
                           "callback": [Function],
-                          "num": 1340,
+                          "num": 1342,
                           "predicates": Array [
                             [Function],
                           ],
@@ -4379,9 +4379,9 @@ Object {
                             "changeAttempts": 3,
                             "debounce": 5,
                             "id": 520,
-                            "lastActualChange": 43200,
-                            "lastPendingChange": 43195,
-                            "lastValChange": 43200,
+                            "lastActualChange": 42150,
+                            "lastPendingChange": 42145,
+                            "lastValChange": 42150,
                             "name": "iCenter1",
                             "pending": "orangeArrow",
                             "val": "orangeArrow",
@@ -4407,9 +4407,9 @@ Object {
                             "changeAttempts": 4,
                             "debounce": 5,
                             "id": 521,
-                            "lastActualChange": 43200,
-                            "lastPendingChange": 43195,
-                            "lastValChange": 43200,
+                            "lastActualChange": 42150,
+                            "lastPendingChange": 42145,
+                            "lastValChange": 42150,
                             "name": "iCenter2",
                             "pending": "orangeArrow",
                             "val": "orangeArrow",
@@ -4435,9 +4435,9 @@ Object {
                             "changeAttempts": 4,
                             "debounce": 5,
                             "id": 522,
-                            "lastActualChange": 43200,
-                            "lastPendingChange": 43195,
-                            "lastValChange": 43200,
+                            "lastActualChange": 42150,
+                            "lastPendingChange": 42145,
+                            "lastValChange": 42150,
                             "name": "iCenter3",
                             "pending": "orangeArrow",
                             "val": "orangeArrow",

@@ -104,6 +104,8 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 
 export abstract class Solenoid extends MachineOutput<boolean> {
 
+    static firingUntil?: Time;
+
     constructor(
         name: keyof MachineOutputs,
         public num: number,
@@ -115,8 +117,6 @@ export abstract class Solenoid extends MachineOutput<boolean> {
 
 export class MomentarySolenoid extends Solenoid {
     lastFired?: Time;
-
-    static firingUntil?: Time;
 
     constructor(
         name: keyof MachineOutputs,
@@ -141,16 +141,16 @@ export class MomentarySolenoid extends Solenoid {
             Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, too soon', this.name);
             return this.lastFired + this.wait - time() + 3;
         }
-        if (MomentarySolenoid.firingUntil) {
-            if (time() <= MomentarySolenoid.firingUntil) {
+        if (Solenoid.firingUntil) {
+            if (time() <= Solenoid.firingUntil) {
                 Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, global too soon', this.name);
-                return MomentarySolenoid.firingUntil - time() + 1;
+                return Solenoid.firingUntil - time();
             }
-            MomentarySolenoid.firingUntil = undefined;
+            Solenoid.firingUntil = undefined;
         }
 
         this.lastFired = time();
-        MomentarySolenoid.firingUntil = time() + (ms ?? this.ms)+100 as Time;
+        Solenoid.firingUntil = time() + (ms ?? this.ms)+100 as Time;
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
@@ -236,8 +236,18 @@ export class OnOffSolenoid extends Solenoid {
         
 
         if (!MPU.isLive && gfx && !curRecording && this.fake) void wait(100).then(() => this.fake!(on));
-        if (on)
+        if (on) {
+            if (Solenoid.firingUntil) {
+                if (time() <= Solenoid.firingUntil) {
+                    Log.trace(['machine', 'solenoid'], 'skip turning on solenoid %s, global too soon', this.name);
+                    return Solenoid.firingUntil - time() + 1;
+                }
+                Solenoid.firingUntil = undefined;
+            }
+    
+            Solenoid.firingUntil = time() + (this.pulseOffTime? this.maxOnTime! : 100)+0 as Time;
             await this.board.turnOnSolenoid(this.num);
+        }
         else
             await this.board.turnOffSolenoid(this.num);
         return true;
@@ -934,7 +944,7 @@ class EosPulse extends Tree<MachineOutputs> {
 export function resetMachine(): Machine {
     machine = new Machine();
     (global as any).machine = machine;
-    MomentarySolenoid.firingUntil = undefined;
+    Solenoid.firingUntil = undefined;
 
     return machine;
 }
