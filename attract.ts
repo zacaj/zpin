@@ -34,13 +34,17 @@ export class AttractMode extends Mode {
         machine.attract = undefined;
         return super.end();
     }
+
+    static start() {
+        Log.log(['console'], 'starting attract mode...');
+        machine.attract = new AttractMode();
+        machine.attract.started();
+    }
 }
 
 if (require.main === module) {
 fork(initMachine(true, true, false, false)).then(() => {
-    Log.log(['console'], 'starting attract mode...');
-    machine.attract = new AttractMode();
-    machine.attract.started();
+    
 });
 }
 

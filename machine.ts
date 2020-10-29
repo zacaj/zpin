@@ -441,14 +441,14 @@ export type ImageOutputs = {
 
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
-    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 45, 70, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
+    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 55, 75, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1, 100, 40, 10);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
-    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
+    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 10, on => this.sRampDown.state = !on);

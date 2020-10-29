@@ -1,0 +1,81 @@
+Sun Oct 18 2020 20:09:49 GMT+0100 (British Summer Time)
+52:21.972.842 create mode MachineOverrides
+52:22.101.553 switch 'ramp down' state -> true (4,7) at -335490 via event
+52:22.122.960 switch 'trough full' state -> true (1,0) at 6038 via sweep
+52:22.132.864 switch 'spinner mini' state -> true (2,6) at 6048 via sweep
+52:22.460.145 set left inlane settle to 1/10
+52:22.470.944 set left outlane settle to 1/10
+52:22.475.526 set right inlane settle to 1/10
+52:22.486.070 set right outlane settle to 1/10
+52:22.492.752 set mini out settle to 500/250
+52:22.505.279 set outhole settle to 500/250
+52:22.514.229 set trough full settle to 500/250
+52:22.526.209 set left sling settle to 0/25
+52:22.538.745 set right sling settle to 0/25
+52:22.549.143 set mini left settle to 10/150
+52:22.561.585 set mini center settle to 10/150
+52:22.571.787 set mini right settle to 10/150
+52:22.588.224 set center left settle to 10/150
+52:22.599.490 set center center settle to 10/150
+52:22.604.831 set center right settle to 10/150
+52:22.615.154 set left 1 settle to 10/150
+52:22.620.901 set left 2 settle to 10/150
+52:22.630.398 set left 3 settle to 10/150
+52:22.643.352 set left 4 settle to 10/150
+52:22.652.933 set right 1 settle to 10/150
+52:22.662.839 set right 2 settle to 10/150
+52:22.672.096 set right 3 settle to 10/150
+52:22.682.390 set right 4 settle to 10/150
+52:22.693.844 set right 5 settle to 10/150
+52:22.703.491 set left back 1 settle to 0/50
+52:22.713.852 set left back 2 settle to 0/50
+52:22.724.010 set center back left settle to 0/50
+52:22.735.482 set center back center settle to 0/50
+52:22.746.268 set center back right settle to 0/50
+52:22.757.722 set upper 3 left settle to 10/150
+52:22.768.879 set upper 3 center settle to 10/150
+52:22.778.202 set upper 3 right settle to 10/150
+52:22.784.247 set upper 2 left settle to 10/150
+52:22.789.867 set upper 2 right settle to 10/150
+52:22.794.745 set single standup settle to 0/50
+52:22.804.550 set ramp mini settle to 0/50
+52:22.815.966 set ramp mini outer settle to 0/50
+52:22.826.901 set left orbit settle to 0/100
+52:22.837.131 set spinner settle to 0/1
+52:22.848.010 set spinner mini settle to 0/50
+52:22.859.278 set upper pop mini settle to 0/50
+52:22.870.323 set side pop mini settle to 0/50
+52:22.881.812 set shooter upper settle to 1/10
+52:22.887.699 set shooter magnet settle to 1/10
+52:22.898.467 set shooter lane settle to 100/50
+52:22.909.605 set shooter lower settle to 1/10
+52:22.920.687 set back lane settle to 1/10
+52:22.931.288 set pop settle to 0/25
+52:22.941.093 set upper inlane settle to 1/10
+52:22.952.009 set under upper flipper settle to 0/50
+52:22.963.407 set upper side target settle to 0/50
+52:22.974.546 set upper eject settle to 25/25
+52:22.985.962 set upper lane 2 settle to 1/10
+52:22.995.774 set upper lane 3 settle to 1/10
+52:23.636.4 set upper lane 4 settle to 1/10
+52:23.170.59 set ramp made settle to 1/10
+52:23.221.14 set popper button settle to 1/50
+52:23.329.79 set magnet button settle to 1/50
+52:23.438.70 set left flipper settle to 1/50
+52:23.546.45 set right flipper settle to 1/50
+52:23.654.14 set start button settle to 1/50
+52:23.762.56 set start button settle to 1/50
+52:23.830.18 set spinner mini settle to 0/50
+37:32.516.289 create mode Game
+37:32.594.446 create mode Player
+37:32.647.840 create mode PlayerOverrides
+37:33.243.52 create mode Ball
+37:34.830.5 create mode Poker
+37:34.572.688 switch 'start button' state -> false (8,0) at 2718488 via sweep
+37:34.860.980 ignore switch event {"row":0,"col":8,"state":false,"when":2716635.963106001}, 1882 late
+37:35.343.964 switch 'ramp down' state -> false (4,7) at 2719014 via event
+37:36.496.395 switch 'shooter lane' state -> true (0,0) at 2720391 via event
+37:36.506.546 create mode Skillshot
+37:36.765.026 switch 'trough full' state -> false (1,0) at 2720502 via event
+38:06.685.677 switch 'ramp down' state -> true (4,7) at 2750575 via event
+38:06.804.114 switch 'ramp down' state -> false (4,7) at 2750675 via event

@@ -9,6 +9,7 @@ import { Game } from './game';
 import { initRecording, playRecording } from './recording';
 import { wait } from './timer';
 import { initAudio } from './sound';
+import { AttractMode } from './attract';
 
 const argv = require('yargs').argv;
 
@@ -40,6 +41,8 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
             await initGfx();
         if (game)
             Game.start();
+        else
+            AttractMode.start();
         if (recording) {
             await new Promise(r => setTimeout(r, 100));
             await playRecording(toPoint);

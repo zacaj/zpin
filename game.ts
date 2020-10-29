@@ -41,6 +41,7 @@ export class Game extends Mode {
         public seed: string,
     ) {
         super(Modes.Game);
+        Log.log(['console', 'game'], "start game with seed ", seed);
         // assert(machine.sTroughFull.state);
         State.declare<Game>(this, ['ballNum', 'playerUp', 'players']);
 
@@ -79,9 +80,11 @@ export class Game extends Mode {
                     this.end();
             }
         }
-        Log.log('console', 'player %i starting ball %i', this.curPlayer.number, this.ballNum);
-        Events.fire(new TreeChangeEvent(this));
-        await this.curPlayer.startBall();
+        if (!this.ended) {
+            Log.log('console', 'player %i starting ball %i', this.curPlayer.number, this.ballNum);
+            Events.fire(new TreeChangeEvent(this));
+            await this.curPlayer.startBall();
+        }
     }
 
     end() {

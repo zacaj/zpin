@@ -1,0 +1,17 @@
+{
+  "skillshot.js:212:47": {
+    "times": 1,
+    "total": 10000,
+    "average": 10000
+  },
+  "player.js:424:27": {
+    "times": 17,
+    "total": 170,
+    "average": 10
+  },
+  "bonus": {
+    "times": 2,
+    "total": 1700,
+    "average": 850
+  }
+}

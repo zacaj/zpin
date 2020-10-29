@@ -1,0 +1,167 @@
+{
+  "shooter magnet": {
+    "times": 5,
+    "total": 50,
+    "average": 10
+  },
+  "shooter upper": {
+    "times": 3,
+    "total": 30,
+    "average": 10
+  },
+  "shooter lower": {
+    "times": 3,
+    "total": 30,
+    "average": 10
+  },
+  "right inlane": {
+    "times": 7,
+    "total": 7000,
+    "average": 1000
+  },
+  "center left": {
+    "times": 2,
+    "total": 18000,
+    "average": 9000
+  },
+  "left 3": {
+    "times": 1,
+    "total": 6000,
+    "average": 6000
+  },
+  "left 2": {
+    "times": 1,
+    "total": 6000,
+    "average": 6000
+  },
+  "center center": {
+    "times": 2,
+    "total": 18000,
+    "average": 9000
+  },
+  "left inlane": {
+    "times": 5,
+    "total": 5000,
+    "average": 1000
+  },
+  "upper 2 right": {
+    "times": 2,
+    "total": 24000,
+    "average": 12000
+  },
+  "right 1": {
+    "times": 2,
+    "total": 12000,
+    "average": 6000
+  },
+  "right 2": {
+    "times": 2,
+    "total": 12000,
+    "average": 6000
+  },
+  "upper inlane": {
+    "times": 5,
+    "total": 5000,
+    "average": 1000
+  },
+  "right 3": {
+    "times": 2,
+    "total": 12000,
+    "average": 6000
+  },
+  "upper 3 right": {
+    "times": 2,
+    "total": 24000,
+    "average": 12000
+  },
+  "upper 3 left": {
+    "times": 3,
+    "total": 36000,
+    "average": 12000
+  },
+  "upper eject": {
+    "times": 2,
+    "total": 2000,
+    "average": 1000
+  },
+  "upper 3 center": {
+    "times": 4,
+    "total": 48000,
+    "average": 12000
+  },
+  "right outlane": {
+    "times": 3,
+    "total": 30000,
+    "average": 10000
+  },
+  "left back 2": {
+    "times": 1,
+    "total": 25000,
+    "average": 25000
+  },
+  "left back 1": {
+    "times": 1,
+    "total": 25000,
+    "average": 25000
+  },
+  "left outlane": {
+    "times": 3,
+    "total": 30000,
+    "average": 10000
+  },
+  "left sling": {
+    "times": 5,
+    "total": 50,
+    "average": 10
+  },
+  "right sling": {
+    "times": 2,
+    "total": 200,
+    "average": 100
+  },
+  "ramp made": {
+    "times": 1,
+    "total": 5000,
+    "average": 5000
+  },
+  "player.js:429:27": {
+    "times": 49,
+    "total": 52230,
+    "average": 1065.9183673469388
+  },
+  "upper lane 3": {
+    "times": 2,
+    "total": 2000,
+    "average": 1000
+  },
+  "ramp mini": {
+    "times": 2,
+    "total": 6000,
+    "average": 3000
+  },
+  "single standup": {
+    "times": 1,
+    "total": 13000,
+    "average": 13000
+  },
+  "bonus": {
+    "times": 4,
+    "total": 911400,
+    "average": 227850
+  },
+  "upper lane 4": {
+    "times": 1,
+    "total": 1000,
+    "average": 1000
+  },
+  "left 4": {
+    "times": 1,
+    "total": 6000,
+    "average": 6000
+  },
+  "right 4": {
+    "times": 1,
+    "total": 6000,
+    "average": 6000
+  }
+}

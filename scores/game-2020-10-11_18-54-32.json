@@ -1,0 +1,17 @@
+{
+  "skillshot.js:210:47": {
+    "times": 2,
+    "total": 20000,
+    "average": 10000
+  },
+  "right inlane": {
+    "times": 5,
+    "total": 5000,
+    "average": 1000
+  },
+  "bonus": {
+    "times": 4,
+    "total": 12500,
+    "average": 3125
+  }
+}

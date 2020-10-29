@@ -9,6 +9,7 @@ import { KnockTarget } from './util-modes';
 import { State } from './state';
 import { Log } from './log';
 import { Tree } from './tree';
+import { playSound } from './sound';
 
 export type Standup = [
     sw: Switch,
@@ -58,6 +59,7 @@ export class DropBank extends Tree<MachineOutputs> {
                     Log.info('switch', 'drop switch %s detected, but was already down', e.sw.name);
                     return;
                 }
+                void playSound('flip card');
 
                 this.targets[i].state = true;
                 Events.fire(new DropDownEvent(this.targets[i]));

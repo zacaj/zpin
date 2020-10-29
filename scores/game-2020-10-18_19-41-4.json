@@ -1,0 +1,12 @@
+{
+  "right inlane": {
+    "times": 1,
+    "total": 1000,
+    "average": 1000
+  },
+  "bonus": {
+    "times": 2,
+    "total": 22500,
+    "average": 11250
+  }
+}

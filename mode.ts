@@ -1,7 +1,8 @@
 import { Tree } from './tree';
-import { MachineOutputs } from './machine';
+import { machine, MachineOutputs } from './machine';
 import { Log } from './log';
 import { Group } from 'aminogfx-gl';
+import { assert } from './util';
 
 export enum Modes {
     None,
@@ -44,6 +45,7 @@ export abstract class Mode extends Tree<MachineOutputs> {
     }
 
     started() {
+        assert(machine.getChildren().includes(this));
         Log.log('game', 'start mode %s', this.constructor.name);
         super.started();
         // if (this instanceof Mode)
