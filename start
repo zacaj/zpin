@@ -1,2 +1,5 @@
 #!/bin/sh
-java -cp jserver/target/classes/:jserver/jars/* zpin.JServer
+
+./sjstart
+sleep 1
+./sastart
