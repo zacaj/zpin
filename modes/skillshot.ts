@@ -112,6 +112,7 @@ export class Skillshot extends Mode {
     }
 
     static async start(ball: Ball) {
+        // return;
         const finish = await Events.tryPriority(Priorities.Skillshot);
         if (!finish) return false;
 

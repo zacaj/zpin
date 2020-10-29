@@ -64,7 +64,8 @@
 			"sourceMaps": true,
 			"args": [
                 "zpin/",
-                // "--no-mpu",
+				// "--no-mpu",
+				"--sound",
                 // "--no-trace",
                 // "--no-gfx",
 				// "--ip",
