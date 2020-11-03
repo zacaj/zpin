@@ -1,8 +1,8 @@
 #include "ST7735.h"
-#include "HW/DEV_Config.h"
+#include "../HW/DEV_Config.h"
 
-ST7735::ST7735(int number, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
-    Display(number, 128, 128, mirror, rotate) {
+ST7735::ST7735(int number, int width, int height, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
+    Display(number, width, height, mirror, rotate) {
 
 }
 

@@ -38,5 +38,7 @@ public:
 
     void setPixel(u16 Xpoint, u16 Ypoint, Color Color);
 
+    void drawRect(u16 x1, u16 y1, u16 x2, u16 y2, Color color);
+
     void drawImage(Image* image, u16 xStart = 0, u16 yStart = 0);
 };

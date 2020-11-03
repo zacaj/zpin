@@ -7,4 +7,6 @@ public:
     u16* pixels;
 
     Image(const char* path);
+
+    Color getColor(u16 x, u16 y);
 };

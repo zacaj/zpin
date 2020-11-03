@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "Manager.h"
-#include "ST7735.h"
-#include "Image.h"
+#include "lib/Manager.h"
+#include "lib/ST7735.h"
+#include "lib/Image.h"
 #include "HW/DEV_Config.h"
 
 int main() {

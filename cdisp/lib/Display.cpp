@@ -1,6 +1,6 @@
 #include "Display.h"
 #include "Image.h"
-#include "HW/Debug.h"
+#include "../HW/Debug.h"
 
 Display::Display(int number, int width, int height, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate)
 : number(number), width(width), height(height), mirror(mirror), rotate(rotate) {
@@ -76,13 +76,20 @@ void Display::setPixel(u16 Xpoint, u16 Ypoint, Color Color)
     pixels[Addr] = Color;
 }
 
+void Display::drawRect(u16 x1, u16 y1, u16 x2, u16 y2, Color color) {
+    for (int i=x1; i<=x2; i++)
+        for (int j=y1; j<y2; j++)
+            setPixel(i, j, color);
+}
+
 void Display::drawImage(Image* image, u16 xStart, u16 yStart) 
 {
     int i,j; 
 		for(j = 0; j < image->height; j++){
 			for(i = 0; i < image->width; i++){
 				if(xStart+i < width  &&  yStart+j < height)//Exceeded part does not display
-					setPixel(xStart + i, yStart + j, (*(image->pixels + j*image->width*2 + i*2+1))<<8 | (*(image->pixels + j*image->height*2 + i*2)));
+                    setPixel(xStart+i, yStart+j, image->getColor(i, j));
+					// setPixel(xStart + i, yStart + j, (*(image->pixels + j*image->width + i+1))<<8 | (*(image->pixels + j*image->height + i)));
 				//Using arrays is a property of sequential storage, accessing the original array by algorithm
 				//j*W_Image*2 			   Y offset
 				//i*2              	   X offset

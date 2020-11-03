@@ -26,3 +26,7 @@ Image::Image(const char* path) {
     height = h;
     this->pixels = (u16*) image;
 }
+
+Color Image::getColor(u16 x, u16 y) {
+    return pixels[x+y*width];
+}

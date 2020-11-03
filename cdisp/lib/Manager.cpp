@@ -1,5 +1,5 @@
 #include "Manager.h"
-#include "HW/DEV_Config.h"
+#include "../HW/DEV_Config.h"
 #include "Display.h"
 
 Manager::Manager(int displayCount) {
