@@ -22,6 +22,10 @@ export class EndOfGameBonus extends Mode {
             kickerEnable: false,
             outhole: false,
             troughRelease: false,
+            rampUp: false,
+            shooterDiverter: false,
+            leftGate: false,
+            rightGate: false,
         });
 
         fork(this.run());
@@ -40,9 +44,9 @@ export class EndOfGameBonus extends Mode {
         await gWait(500, 'bonus x');
         this.total = (this.player.store.Poker!.bank - Poker.BankStart) * this.player.store.Poker!.cashValue;
         await gWait(2000, 'bonus x');
-        this.player.recordScore(this.total, 'bonus');
-        const speed = 10;
-        const maxTime = 9000;
+        this.player.recordScore(this.total, 'eog');
+        const speed = 30;
+        const maxTime = 6000;
         const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
         while (this.total !== 0) {
             const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);

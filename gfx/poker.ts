@@ -62,7 +62,7 @@ export class PokerGfx extends ModeGroup {
         });
 
         this.add(this.snailInstr.y(Screen.h*.49));
-        poker.watch(() => this.snailInstr.visible(poker.step>2 && poker.step<6 && poker.player.chips>=2));
+        poker.watch(() => this.snailInstr.visible(poker.step>2 && poker.step<=6 && poker.player.chips>=2));
 
         this.add(this.quitInstr.y(Screen.h*.49));
         poker.watch(() => this.quitInstr.visible(poker.step<=2 && machine.sShooterLane.state && poker.handsPlayed>0));

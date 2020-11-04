@@ -15,6 +15,7 @@ import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
 import { playSound } from '../sound';
+import { Combo } from '../util-modes';
 
 export enum GateMode {
     Closed = 'Closed',
@@ -75,7 +76,7 @@ export class Skillshot extends Mode {
             shooterDiverter: () => this.shooterOpen,
             leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTime) % 3000 > 1500 : (this.gateMode===GateMode.Open),
             rightGate: false,
-            upperMagnet: () => machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 5000 && this.lastSw < 2,
+            upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
         });
         
         this.setAward(0);//(Math.random()*this.awards.length)|0);
@@ -158,6 +159,13 @@ export class Skillshot extends Mode {
             this.awards[i].collect!(e);
         this.wasMade = true;
         Events.fire(new SkillshotEomplete(i, i === this.curAward));
+
+        if (this.curAward===1 && e.sw===machine.sSpinner) {
+            fork(Combo(this.player, machine.sUpperEject, machine.lLeftArrow, 100000));
+        }
+        if (this.curAward===4) {
+            fork(Combo(this.player, machine.sBackLane, machine.lUpperLaneArrow, 100000));
+        }
     }
 
     finish(e: SwitchEvent) {

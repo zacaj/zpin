@@ -22,7 +22,7 @@ import { playSound } from '../sound';
 
 export class Poker extends Mode {
     static BankStart = 5000;
-    static BetStart = 150;
+    static BetStart = 120;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -191,6 +191,7 @@ export class Poker extends Mode {
     
     static async start(player: Player): Promise<Poker|false> {
         const finish = await Events.tryPriority(Priorities.StartPoker);
+
         if (!finish) return false;
 
         if (!player.curMode) {
@@ -323,9 +324,9 @@ export class Poker extends Mode {
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
 
-        const speed = 15;
-        const maxTime = 5000;
-        const rate = Math.max(10, round(Math.abs(this.pot)/(maxTime/speed), 10));
+        const speed = 30;
+        const maxTime = 3000;
+        const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
         while (this.pot !== 0) {
             const change = Math.min(this.pot, 20) * (this.playerWins? 1:-1);
             this.bank += change;

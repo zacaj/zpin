@@ -100,6 +100,7 @@ export class StatusReportGfx extends Group {
                     [`${player.store.Poker?.handsWon??0} / ${player.store.Poker?.handsPlayed??0} hands won`],
                     [`$1 = ${comma(player.store.Poker?.cashValue??0)} points`],
                     player.mbsQualified.has('StraightMb')||player.mbsQualified.has('FlushMb')? [`Multiball ${player.selectedMb!=='HandMb'? 'Ready':'Qualified'}`] : undefined,
+                    player.mbsQualified.has('FullHouseMb')? [`Full House MB ${player.selectedMb==='FullHouseMb'? 'Ready':'Qualified'}`] : undefined,
                     player.mbsQualified.has('HandMb')? [`Hand MB ${player.selectedMb==='HandMb'? 'Ready':'Qualified'}`] : undefined,
                 ].truthy();
             

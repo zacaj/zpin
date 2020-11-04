@@ -446,7 +446,7 @@ export class Machine extends Tree<MachineOutputs> {
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
-    cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1, 100, 40, 10);
+    cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
@@ -499,9 +499,6 @@ export class Machine extends Tree<MachineOutputs> {
     sRight5 = new Switch(2, 1, 'right 5', Drop);
     sLeftBack1 = new Switch(3, 4, 'left back 1', StandupSet);
     sLeftBack2 = new Switch(3, 6, 'left back 2', StandupSet);
-    sCenterBackLeft = new Switch(4, 6, 'center back left', StandupSet);
-    sCenterBackCenter = new Switch(4, 5, 'center back center', StandupSet);
-    sCenterBackRight = new Switch(4, 4, 'center back right', StandupSet);
     sUpper3Left = new Switch(5, 2, 'upper 3 left', Drop);
     sUpper3Center = new Switch(5, 1, 'upper 3 center', Drop);
     sUpper3Right = new Switch(5, 0, 'upper 3 right', Drop);
@@ -566,9 +563,6 @@ export class Machine extends Tree<MachineOutputs> {
         this.sRight5,
         this.sLeftBack1,
         this.sLeftBack2,
-        this.sCenterBackLeft,
-        this.sCenterBackCenter,
-        this.sCenterBackRight,
         this.sUpper3Left,
         this.sUpper3Center,
         this.sUpper3Right,

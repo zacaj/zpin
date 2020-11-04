@@ -21,6 +21,10 @@ export class Bonus extends Mode {
             kickerEnable: false,
             outhole: false,
             troughRelease: false,
+            rampUp: false,
+            shooterDiverter: false,
+            leftGate: false,
+            rightGate: false,
         });
 
         fork(this.run());
@@ -57,20 +61,22 @@ export class Bonus extends Mode {
             this.lines.push([`Total: ${score(this.total)}`]);
 
             this.ball.player.recordScore(this.total, 'bonus');
-            // const start = new Date().getTime();
-            const speed = 10;
-            const maxTime = 6000;
-            const rate = Math.max(250, round(Math.abs(this.total)/(maxTime/speed), 1000));
+            const start = new Date().getTime();
+            const speed = 25;
+            const maxTime = 4000;
+            const initialTotal = this.total;
+            const rate = Math.max(500, round(Math.abs(this.total)/(maxTime/speed), 1000));
+            console.log('bonus raw rate', Math.abs(this.total)/(maxTime/speed));
             while (this.total > 0) {
                 const change = Math.min(this.total, rate);
                 this.total -= change;
                 this.ball.player.addScore(change, null);
                 await gWait(speed, 'bonus count');
             }
+            console.log('bonus time %i for %i', new Date().getTime()-start, initialTotal);
         }
-        // console.log('time', new Date().getTime()-start);
         // alert(`bonus took ${new Date().getTime()-start}`);
-        await gWait(2500, 'bonus end');
+        await gWait(2000, 'bonus end');
         // if (this.ball.tilted) 
         this.end();
     }

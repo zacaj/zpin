@@ -55,4 +55,14 @@ export class Rng {
         }
         return ret;
     }
+
+    shuffle<T>(arr: T[], times = 3): T[] {
+        for (let k=0; k<times; k++) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(this.rand() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+        return arr;
+    }
 }

@@ -1,9 +1,11 @@
+import { Log } from "./log";
 import { MPU } from "./mpu";
 
 let soundEnabled = false;
 
 export async function initAudio() {
     soundEnabled = true;
+    Log.log('console', 'Sound enabled');
 }
 
 export class Sound {

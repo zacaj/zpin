@@ -109,7 +109,7 @@ export class Ball extends Mode {
         this.listen(onAnySwitchClose(...machine.sLanes), () => 
         void playSound('bop'));
 
-        this.listen(onSwitchClose(machine.sMiniOut), () => this.drained = true);
+        this.listen([...onSwitchClose(machine.sMiniOut), () => !this.player.curMbMode], () => this.drained = true);
 
         addToScreen(() => new ModeGroup(this));
 

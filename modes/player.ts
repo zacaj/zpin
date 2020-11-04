@@ -157,7 +157,7 @@ export class Player extends Mode {
 
         // natural inlane -> lower ramp
         this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000)],
+            [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000) && !machine.sRightInlane.wasClosedWithin(2000)],
             e => {
                 if (!this.rampCombo) {
                     this.rampCombo = new RampCombo(this);

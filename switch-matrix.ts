@@ -10,7 +10,7 @@ export const Standup = [0,50];
 export const Drop = [10, 150];
 export const Bumper = [0, 25];
 export const Lane = [1, 10];
-export const Hole = [25, 25];
+export const Hole = [100, 100];
 export const Drain = [500, 250];
 
 export class Switch {
@@ -229,11 +229,11 @@ export async function getSwitchEvents(): Promise<{
     if (resp.resp === 'empty') return [];
     const events = resp.resp.split(';');
     return events.map(line => {
-        const [rows, cols, state, when] = split(line, ',', '->', ' @');
+        const [rows, cols, state, when] = split(line, ',', '->', ' @', ' ');
         const [row, col] = nums([rows, cols]);
         return {
             row, col,
-            state: state === 'true',
+            state: state.startsWith('true'),
             when: MPU.adjust(when),
         };
     });

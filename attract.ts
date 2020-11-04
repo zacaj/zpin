@@ -26,7 +26,7 @@ export class AttractMode extends Mode {
         addToScreen(() => new AttractGfx(this));
 
         this.listen(onSwitchClose(machine.sStartButton), async () => {
-            const game = await Game.start(argv.seed as string ?? Math.random().toFixed());
+            const game = await Game.start(argv.seed as string ?? Math.random().toString());
         });
     }
 

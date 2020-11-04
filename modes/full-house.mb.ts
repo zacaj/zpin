@@ -19,6 +19,8 @@ import { Restart } from './restart';
 export enum Jackpot {
     RightLane = 'RightLane',
     RightTarget = 'RightTarget',
+    LeftLane = 'LeftLane',
+    LeftTarget = 'LeftTarget',
 }
 
 const Starting = makeState('starting', { 
@@ -47,6 +49,10 @@ export class FullHouseMb extends Multiball {
                     return 1250000+this.base;
             case Jackpot.RightTarget:
                 return 1500000+this.base;
+            case Jackpot.LeftLane:
+                return 1000000+this.base;
+            case Jackpot.LeftTarget:
+                return 1500000+this.base;
             default:
                 throw new Error();
         }
@@ -61,6 +67,10 @@ export class FullHouseMb extends Multiball {
                 return Color.Yellow;
             case Jackpot.RightTarget:
                 return Color.Orange;
+            case Jackpot.LeftLane:
+                return Color.Purple;
+            case Jackpot.LeftTarget:
+                return Color.Blue;
             default: return Color.Red;
         }
     }
@@ -79,16 +89,23 @@ export class FullHouseMb extends Multiball {
         State.declare<FullHouseMb>(this, ['state']);
         player.storeData<FullHouseMb>(this, ['jpRng', 'skillshotRng', 'base']);
         this.out = new Outputs(this, {
-            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
+            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0))
+                         || (this.state._==='jackpotLit' && [Jackpot.LeftLane, Jackpot.LeftTarget].includes(this.state.jp)),
             lockPost: () => this.lockPost ?? false,
             lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : []),
             getSkillshot: () => () => this.getSkillshot(),
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget)),
+            lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget)),
+            lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane)),
             iUpper33: () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state? colorToArrow(Color.Red) : undefined,
             rightGate: true,
             leftGate: true,
+            magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
+                    (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
+                    && !machine.sShooterLower.wasClosedWithin(750),
+            upperMagnet: () => machine.sShooterUpper.wasClosedWithin(3000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
@@ -103,7 +120,7 @@ export class FullHouseMb extends Multiball {
             }
             else {
                 if (this.state._ === 'started') {
-                    this.state = JackpotLit(this.jpRng.weightedSelect([4, Jackpot.RightLane], [3, Jackpot.RightTarget]));
+                    this.state = JackpotLit(this.jpRng.weightedSelect([4, Jackpot.RightLane], [3, Jackpot.RightTarget], [4, Jackpot.LeftLane], [3, Jackpot.LeftTarget]));
                     if (this.state.jp === Jackpot.RightLane)
                         fork(ResetBank(this, machine.upper3Bank));
                 }
@@ -113,6 +130,9 @@ export class FullHouseMb extends Multiball {
 
         this.listen([...onSwitchClose(machine.sBackLane), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane], 'jackpot');
         this.listen([...onSwitchClose(machine.sSidePopMini), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget], 'jackpot');
+        this.listen([...onSwitchClose(machine.sUnderUpperFlipper), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget], 'jackpot');
+        this.listen([...onSwitchClose(machine.sUpperEject), () => machine.sUpperInlane.wasClosedWithin(1500), 
+            () => this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane], 'jackpot');
 
         addToScreen(() => new FullHouseMbGfx(this));
     }
@@ -187,13 +207,18 @@ export class FullHouseMb extends Multiball {
     
     getSkillshot(): Partial<SkillshotAward>[] {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
+        const magJp = this.skillshotRng.weightedSelect([5, Jackpot.LeftTarget], [2, Jackpot.LeftLane], [2, undefined]);
+        const ejectJp = this.skillshotRng.weightedSelect([2, undefined],  [3, Jackpot.RightTarget], [5, Jackpot.RightLane]);
+        const jps = this.skillshotRng.shuffle([...Object.values(Jackpot), undefined]);
+        jps.remove(magJp);
+        jps.remove(ejectJp);
         const selections: (string|Jackpot|undefined)[] = [
             'random', 
-            this.restartJp ?? this.skillshotRng.weightedSelect([5, Jackpot.RightLane], [3, Jackpot.RightTarget], [8, undefined]),
-            this.restartJp ?? this.skillshotRng.weightedSelect([2, Jackpot.RightLane], [7, undefined], [5, Jackpot.RightTarget]),
-            this.restartJp ?? this.skillshotRng.weightedSelect([4, Jackpot.RightLane], [3, Jackpot.RightTarget], [7, undefined]),
-            this.restartJp ?? this.skillshotRng.weightedSelect([5, Jackpot.RightLane], [5, Jackpot.RightTarget], [8, undefined]),
-            this.restartJp ?? this.skillshotRng.weightedSelect([5, Jackpot.RightLane], [7, undefined]),
+            this.restartJp ?? magJp,
+            this.restartJp ?? jps[0],
+            this.restartJp ?? jps[1],
+            this.restartJp ?? ejectJp,
+            this.restartJp ?? jps[3],
         ];
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',

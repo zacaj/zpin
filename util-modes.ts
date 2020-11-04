@@ -1,15 +1,18 @@
 import { Mode } from './mode';
-import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent } from './machine';
+import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light } from './machine';
 import { Outputs, toggle } from './outputs';
-import { getTypeIn, assert } from './util';
+import { getTypeIn, assert, score } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent } from './drop-bank';
 import { Log } from './log';
 import { Events, onType } from './events';
 import { Tree } from './tree';
-import { onSwitchClose, onSwitchOpen } from './switch-matrix';
+import { onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { MPU } from './mpu';
 import { wait } from './timer';
 import { fork } from './promises';
+import { notify } from './gfx';
+import { Color } from './light';
+import { Player } from './modes/player';
 
 
 
@@ -140,4 +143,30 @@ export async function ReleaseBall(parent: Tree<MachineOutputs>) {
     parent.addTemp(node);
 
     await parent.await(node.onEnd());
+}
+
+export async function Combo(player: Player, sw: Switch, light: Light, amount = 35000, length = 5000) {
+    const node = new class extends Tree<MachineOutputs> {
+        constructor(
+        ) {
+            super();
+    
+            this.out = new Outputs(this, {
+                [light.name]: [[Color.Yellow, 'fl']],
+            });
+    
+            this.listen(onSwitchClose(sw), () => {
+                player.score += amount;
+                notify(score(amount));
+                return this.end();
+            });
+        }
+    };
+
+    player.addTemp(node);
+
+    await Promise.race([
+        player.await(node.onEnd()),
+        wait(length).then(() => node.end()),
+    ]);
 }
