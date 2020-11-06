@@ -2,6 +2,6 @@
 
 
 Disp160::Disp160(int number, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
-    ST7735(number, 128, 160, mirror, rotate) {
+    ST7735(number, 128, 160, L2R_U2D, mirror, rotate) {
 
 }

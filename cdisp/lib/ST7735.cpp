@@ -1,8 +1,8 @@
 #include "ST7735.h"
 #include "../HW/DEV_Config.h"
 
-ST7735::ST7735(int number, int width, int height, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
-    Display(number, width, height, mirror, rotate) {
+ST7735::ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
+    Display(number, width, height, scanDir, mirror, rotate) {
 
 }
 
@@ -148,10 +148,69 @@ void ST7735::init() {
 	LCD_Write_Command(COLMOD); // pixel format
 	LCD_WriteData_Byte(0x05);
 
-	LCD_Write_Command(MADCTL); // data access control
-	LCD_WriteData_Byte(0xA8);
+	// LCD_Write_Command(MADCTL); // data access control
+	// LCD_WriteData_Byte(0xA8);
+	setScanDir(scanDir);
 
 	LCD_Write_Command(DISPON); // turn on display
+}
+
+void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
+{
+    //Get the screen scan direction
+    scanDir = Scan_dir;
+
+	//Get GRAM and LCD width and height
+	if(Scan_dir == L2R_U2D || Scan_dir == L2R_D2U || Scan_dir == R2L_U2D || Scan_dir == R2L_D2U){
+		pixWidth	= width;
+		pixHeight = height ;	
+		// sLCD_DIS.LCD_X_Adjust = LCD_X;
+		// sLCD_DIS.LCD_Y_Adjust = LCD_Y;
+	}else{	
+		pixWidth	= height;
+		pixHeight = width ;		
+		// sLCD_DIS.LCD_X_Adjust = LCD_Y;
+		// sLCD_DIS.LCD_Y_Adjust = LCD_X;
+	}
+
+    // Gets the scan direction of GRAM
+    uint16_t MemoryAccessReg_Data=0;  //0x36
+    switch (Scan_dir) {
+    case L2R_U2D:
+        MemoryAccessReg_Data = 0X00 | 0x00;//x Scan direction | y Scan direction
+        break;
+    case L2R_D2U:
+        MemoryAccessReg_Data = 0x00 | 0x80;//0xC8 | 0X10
+        break;
+    case R2L_U2D://	0X4
+        MemoryAccessReg_Data = 0x40 | 0x00;
+        break;
+    case R2L_D2U://	0XC
+        MemoryAccessReg_Data = 0x40 | 0x80;
+        break;
+    case U2D_L2R://0X2
+        MemoryAccessReg_Data = 0X00 | 0X00 | 0x20;
+        break;
+    case U2D_R2L://0X6
+        MemoryAccessReg_Data = 0x00 | 0X40 | 0x20;
+        break;
+    case D2U_L2R://0XA
+        MemoryAccessReg_Data = 0x80 | 0x00 | 0x20;
+        break;
+    case D2U_R2L://0XE
+        MemoryAccessReg_Data = 0x40 | 0x80 | 0x20;
+        break;
+    }
+
+    // Set the read / write scan direction of the frame memory
+    LCD_Write_Command(0x36); //MX, MY, RGB mode
+#if defined(LCD_1IN44)
+    LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//0x08 set RGB
+#elif defined(LCD_1IN8)
+    LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
+#endif
+    LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
+
 }
 
 void ST7735::update()
@@ -164,16 +223,12 @@ void ST7735::update()
     }
 }
 
-#define XOFFSET 3
-#define YOFFSET 2
-
-
 void ST7735::setWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD  Yend)
 { 
-	Xstart = Xstart + XOFFSET;
-	Xend = Xend + XOFFSET;
-	Ystart = Ystart + YOFFSET;
-	Yend = Yend+YOFFSET;
+	Xstart = Xstart + xOffset;
+	Xend = Xend + xOffset;
+	Ystart = Ystart + yOffset;
+	Yend = Yend+yOffset;
 	
 	LCD_Write_Command(CASET);
 	LCD_WriteData_Byte(Xstart >> 8);
