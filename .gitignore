@@ -9,3 +9,6 @@ tsconfig.tsbuildinfo
 RemoteSystemsTempFiles/.project
 .clinic/
 coverage/
+cdisp/.vs/
+cdisp/Debug/
+cdisp/bin/
