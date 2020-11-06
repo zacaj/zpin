@@ -17,11 +17,14 @@ int main() {
     Disp160* disp = new Disp160(0, MIRROR_NONE, ROTATE_0);
     disp->init();
     
-    disp->clear(BLACK);
+    disp->clear(YELLOW);
 
-    disp->drawImage(&king); 
+    disp->drawImage(&queen); 
+    disp->drawImage(&king, 0, 160-128); 
 
-    disp->drawRect(20, 40, 40, 140, RED);
+    // disp->drawRect(20, 40, 140, 60, RED);
 
     disp->update();
+
+    disp->savePng("test_160.png");
 }
