@@ -1,6 +1,7 @@
 #pragma once
 
 typedef unsigned short u16;
+typedef unsigned char u8;
 
 
 #define WHITE          0xFFFF

@@ -16,9 +16,21 @@ typedef enum {
     ROTATE_270 = 270,
 } ROTATE_IMAGE;
 
+typedef enum {
+    L2R_U2D  = 0,	//The display interface is displayed , left to right, up to down
+    L2R_D2U  ,
+    R2L_U2D  ,
+    R2L_D2U  ,
+
+    U2D_L2R  ,
+    U2D_R2L  ,
+    D2U_L2R  ,
+    D2U_R2L  ,
+} LCD_SCAN_DIR;
+
 class Display {
 protected:
-    Display(int number, int width, int height, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
+    Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
 
 public:
     int number;
@@ -28,6 +40,7 @@ public:
     u16* pixels;
     MIRROR_IMAGE mirror = MIRROR_NONE;
     ROTATE_IMAGE rotate = ROTATE_0;
+    LCD_SCAN_DIR scanDir;
 
     
     virtual void init() = 0;
@@ -41,4 +54,6 @@ public:
     void drawRect(u16 x1, u16 y1, u16 x2, u16 y2, Color color);
 
     void drawImage(Image* image, u16 xStart = 0, u16 yStart = 0);
+
+    void savePng(const char* path);
 };

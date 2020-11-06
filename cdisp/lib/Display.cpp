@@ -1,9 +1,11 @@
 #include "Display.h"
 #include "Image.h"
 #include "../HW/Debug.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
-Display::Display(int number, int width, int height, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate)
-: number(number), width(width), height(height), mirror(mirror), rotate(rotate) {
+Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate)
+: number(number), width(width), height(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
     pixels = new u16[width*height];
     clear(MAGENTA);
 
@@ -96,4 +98,20 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
 			}
 		}
       
+}
+
+void Display::savePng(const char* path) {
+    u8* image = new u8[width*height*3];
+    u8* img = image;
+    u16* disp = pixels;
+    for (int i=0; i<width*height; i++) {
+        img[0] = (*disp>>11)<<3;
+        img[1] = ((*disp>>5)&0x3f)<<2;
+        img[2] = ((*disp)&0x1f)<<3;
+        img+=3;
+        disp++;
+    }
+
+    stbi_write_png(path, width, height, 3, image, 0);
+    delete image;
 }
