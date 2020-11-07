@@ -118,6 +118,54 @@ describe('outputs', () => {
         parent.addTemp(c1);
         expect(parent.out!.treeValues['rampUp']).toBe(true);
     });
+    test('inherits outputs 3', () => {
+        const fire = jest.spyOn(Events, 'fire');
+        const parent = new class extends Tree<{rampUp: boolean}> {
+            constructor() {
+                super();
+                this.makeRoot();
+
+                this.out = new Outputs(this, {
+                    rampUp: false,
+                });
+            }
+        };
+        const c1 = new class extends Tree<{rampUp: boolean}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    rampUp: true,
+                });
+            }
+        };
+        parent.addTemp(c1, -1);
+        expect(parent.out!.treeValues['rampUp']).toBe(false);
+    });
+    test('inherits outputs 4', () => {
+        const fire = jest.spyOn(Events, 'fire');
+        const parent = new class extends Tree<{rampUp: boolean}> {
+            constructor() {
+                super();
+                this.makeRoot();
+
+                this.out = new Outputs(this, {
+                    rampUp: undefined,
+                });
+            }
+        };
+        const c1 = new class extends Tree<{rampUp: boolean}> {
+            constructor() {
+                super();
+
+                this.out = new Outputs(this, {
+                    rampUp: true,
+                });
+            }
+        };
+        parent.addTemp(c1, -1);
+        expect(parent.out!.treeValues['rampUp']).toBe(true);
+    });
     test('resets output if child is removed', () => {
         const fire = jest.spyOn(Events, 'fire');
         const parent = new class extends Tree<{rampUp: boolean}> {

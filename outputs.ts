@@ -97,8 +97,9 @@ export class Outputs<Outs extends {}> {
     static getLocalTreeAffectors<Outs extends {}, Prop extends keyof Outs>(tree: Tree<Outs>, key: Prop, gPriority: number): [Tree<Outs>, number][] {
         const children = tree.children.flatMap(c => Outputs.getLocalTreeAffectors(c, key, tree.gPriority ?? gPriority));
         return [
+            ...children.filter(c => c[0].lPriority!==undefined && c[0].lPriority < 0),
             ...(tree.out?.origFuncs[key] !== undefined? [[tree, tree.gPriority ?? gPriority]] : []) as [Tree<Outs>, number][], 
-            ...children,
+            ...children.filter(c => c[0].lPriority===undefined || c[0].lPriority >= 0),
         ];
     }
 
