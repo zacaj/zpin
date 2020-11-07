@@ -7,7 +7,7 @@
 
 # uncomment this if your display has a black border of unused pixels visible
 # and your display can output without overscan
-#disable_overscan=1
+disable_overscan=1
 
 # uncomment the following to adjust overscan. Use positive numbers if console
 # goes off screen, and negative if there is too much border
@@ -23,10 +23,11 @@
 
 # uncomment if hdmi display is not detected and composite is being output
 #hdmi_force_hotplug=1
+#hdmi_cvt=1024 576 60 3 0 0 0
 
 # uncomment to force a specific HDMI mode (this will force VGA)
-#hdmi_group=1
-#hdmi_mode=1
+#hdmi_group=2
+#hdmi_mode=82
 
 # uncomment to force a HDMI mode rather than DVI. This can make audio work in
 # DMT (computer monitor) modes
@@ -45,11 +46,10 @@
 # Uncomment some or all of these to enable the optional hardware interfaces
 #dtparam=i2c_arm=on
 #dtparam=i2s=on
-#dtparam=spi=on
+dtparam=spi=on
 
-# Uncomment this to enable infrared communication.
-#dtoverlay=gpio-ir,gpio_pin=17
-#dtoverlay=gpio-ir-tx,gpio_pin=18
+# Uncomment this to enable the lirc-rpi module
+#dtoverlay=lirc-rpi
 
 # Additional overlays and parameters are documented /boot/overlays/README
 
@@ -60,6 +60,11 @@ dtparam=audio=on
 # Enable DRM VC4 V3D driver on top of the dispmanx display stack
 dtoverlay=vc4-fkms-v3d
 max_framebuffers=2
-
+#dtoverlay=vc4-kms-v3d-pi4
 [all]
 #dtoverlay=vc4-fkms-v3d
+[all]
+#dtoverlay=vc4-kms-v3d
+gpu_mem=256
+#hdmi_enable_4kp60=1
+avoid_warnings=2

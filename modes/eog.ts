@@ -46,7 +46,7 @@ export class EndOfGameBonus extends Mode {
         await gWait(2000, 'bonus x');
         this.player.recordScore(this.total, 'eog');
         const speed = 30;
-        const maxTime = 6000;
+        const maxTime = 4500;
         const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
         while (this.total !== 0) {
             const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);

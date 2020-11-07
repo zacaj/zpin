@@ -26,6 +26,7 @@ import { HandMb } from './hand.mb';
 import { Group, Text } from 'aminogfx-gl';
 import { FullHouseMb } from './full-house.mb';
 import { playSound } from '../sound';
+import { Log } from '../log';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -95,7 +96,7 @@ export class Player extends Mode {
             this.focus,
             ...this.tempNodes,
             this.overrides,
-        ].filter(x => !!x) as Tree<MachineOutputs>[];
+        ].truthy();
     }
 
     modesQualified = new Set<(number)>();
@@ -342,9 +343,11 @@ export class Player extends Mode {
         else 
             this.store.Poker.bank += 50;
     }
-    changeValue(value: number) {
+    changeValue(value: number, showAlert = true) {
         this.store.Poker!.cashValue += value;
-        alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
+        Log.log('game', 'change cash value by %i to %i', value, this.store.Poker!.cashValue);
+        if (showAlert)
+            alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
     }
 }
 

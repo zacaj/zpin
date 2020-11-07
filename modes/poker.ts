@@ -499,8 +499,8 @@ export class Poker extends Mode {
         // return [...used, ...rest];
     }
 
-    getSkillshot(): Partial<SkillshotAward>[] {
-        const base = 10;
+    getSkillshot(ss: Skillshot): Partial<SkillshotAward>[] {
+        const base = ss.isFirstOfBall? 10 : 25;
         const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
             this.step<=2? [[1, 0]] : [[3, -8, -2], [4, 1, 5], [1, -10, -5]],
@@ -517,7 +517,10 @@ export class Poker extends Mode {
             return {
                 switch: sw,
                 display: change? money(change, 0, '+') : '',
-                collect: () => this.bet += change,
+                collect: () => {
+                    this.bet += change;
+                    Log.log('game', 'skillshot increase bet by %i to %i', change, this.bet);
+                },
             };
         }), { award: 'plunge to adjust bet amount'}];
     }

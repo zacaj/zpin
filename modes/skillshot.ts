@@ -43,6 +43,9 @@ export class Skillshot extends Mode {
     rng!: Rng;
 
     static isShootAgain?: Ball;
+    static ballInPlay?: Ball;
+
+    isFirstOfBall = false;
 
     private constructor(
         public player: Player,
@@ -53,6 +56,9 @@ export class Skillshot extends Mode {
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode']);
         player.storeData<Skillshot>(this, ['rng']);
 
+        if (Skillshot.ballInPlay !== ball) 
+            this.isFirstOfBall = true;
+
         this.awards = this.makeAwards();          
 
         const outs = {} as any;
@@ -60,7 +66,7 @@ export class Skillshot extends Mode {
             if (pfx && !a.display)
                 this.displays.push(makeText('', 10, undefined, undefined, pfx));
             else if (pfx && a.display)
-                this.displays.push((typeof a.display === 'string'?  makeText(a.display, 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
+                this.displays.push((typeof a.display === 'string'?  makeText(a.display, a.display.length>=5? 60 : 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
             else
                 this.displays.push({fill() { }} as any);
             outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
@@ -124,6 +130,7 @@ export class Skillshot extends Mode {
             void playSound('shoot the ball carefully');
         }
         Skillshot.isShootAgain = undefined;
+        Skillshot.ballInPlay = ball;
         ball.skillshot = skillshot;
         skillshot.started();
         return skillshot;
