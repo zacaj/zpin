@@ -5,10 +5,10 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent, DropBankResetEvent } from '../drop-bank';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
-import { screen, alert, makeText, gfx, addToScreen, gWait } from '../gfx';
+import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
 import { Player } from './player';
-import { KnockTarget, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
+import { KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
 import { Color, light } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
@@ -18,11 +18,19 @@ import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
 import { playSound } from '../sound';
+import { Skillshot } from './skillshot';
 
 
 export class Poker extends Mode {
+    get nodes() {
+        return [
+            this.misc,
+            ...this.tempNodes,
+        ];
+    }
+
     static BankStart = 5000;
-    static BetStart = 120;
+    static BetStart = 100;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -45,14 +53,16 @@ export class Poker extends Mode {
     playerHandDesc?: string;
     dealerHandDesc?: string;
 
+    misc!: MiscAwards;
+
     bank = Poker.BankStart;
     cardRng!: Rng;
     skillshotRng!: Rng;
     handsWon = 0;
     handsPlayed = 0;
-    handsForMb = 2;
+    handsForMb = 1;
     wasQuit = false;
-    cashValue = 200;
+    cashValue = 100;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
@@ -69,9 +79,11 @@ export class Poker extends Mode {
 
         this.bet = (this.bet+Poker.BetStart)/2;
 
+        this.misc = new MiscAwards(player);
+
         const outs: any  = {};
         for (const target of machine.dropTargets) {
-            outs[target.image.name] = () => this.step<7? getFile(this.slots[target.num]) : undefined;
+            outs[target.image.name] = () => this.step<7 && this.slots[target.num]? getFile(this.slots[target.num]) : undefined;
         }
         this.out = new Outputs(this, {
             ...outs,
@@ -82,7 +94,7 @@ export class Poker extends Mode {
             lEjectShowCards: () => this.step >= 7? [Color.White] : [],
             lRampShowCards: () => this.step >= 7? [Color.White] : [],
             shooterDiverter: () => !this.closeShooter,
-            getSkillshot: () => () => this.getSkillshot(),
+            getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             lFold: () => light(this.foldLit, Color.Red),
         });
 
@@ -102,16 +114,21 @@ export class Poker extends Mode {
                 this.bank -= this.bet;
                 this.step++;
 
+                this.misc.setTarget(undefined, e.target);
+
                 // this.qualifyModes();
 
                 if (this.step === 7) {
-                    for (let i=0; i<3; i++) {
-                        if (machine.rightBank.targets.slice(i+1).every(t => t.state))
-                            break;
-                        if (!machine.rightBank.targets[i].state) {
-                            fork(KnockTarget(this, i));
+                    this.misc.addTargets(7 - this.misc.targets.size);
+                    fork(ResetDropBanks(this, machine.rightBank).then(() => {
+                        for (let i=0; i<3; i++) {
+                            if (machine.rightBank.targets.slice(i+1).every(t => t.state))
+                                break;
+                            if (!machine.rightBank.targets[i].state) {
+                                fork(KnockTarget(this, i));
+                            }
                         }
-                    }
+                    }));
                 }
             }
         });
@@ -151,15 +168,15 @@ export class Poker extends Mode {
             // done();
         });
 
-        this.listen(e => e instanceof DropBankResetEvent, (e: DropBankResetEvent) => {
-            for (const target of e.bank.targets) {
-                if (this.deck.length === 0) return;
-                const i = target.num;
-                if (!this.slots[i]) {
-                    this.slots[i] = this.deck.shift()!;
-                }
-            }
-        });
+        // this.listen(e => e instanceof DropBankResetEvent, (e: DropBankResetEvent) => {
+        //     for (const target of e.bank.targets) {
+        //         if (this.deck.length === 0) return;
+        //         const i = target.num;
+        //         if (!this.slots[i]) {
+        //             this.slots[i] = this.deck.shift()!;
+        //         }
+        //     }
+        // });
 
         this.listen(onSwitchClose(machine.sActionButton), () => {
             if (this.step <= 2 && machine.sShooterLane.state && this.handsPlayed>0) {
@@ -313,22 +330,43 @@ export class Poker extends Mode {
         if (this.playerWins) {
             this.handsWon++;
         }
-        await gWait(2000, 'showing cards');
+        await gWait(1500, 'showing cards');
         if (this.handsPlayed >= this.handsForMb) {
-            this.handsForMb += 3;
+            this.handsForMb += this.handsPlayed<=1? 2 : 3;
                 
             if (!this.player.mbsQualified.size) {
                 Log.info('game', 'qualified hands multiball');
-                alert('hand multiball qualified', undefined, `${this.handsPlayed} hands played`);
+                alert('hand multiball qualified', 2000, `${this.handsPlayed} hands played`);
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
+        await gWait(2000, 'showing cards');
+
+        let change: number|undefined = undefined;
+        switch (result.aHand) {
+            case Hand.FourOfAKind:
+                change = 50;
+                break;
+            case Hand.ThreeOfAKind:
+                change = 25;
+                break;
+            case Hand.TwoPair:
+                change = 20;
+                break;
+            case Hand.Pair:
+                change = 10;
+                break;
+        }
+        if (change) {
+            this.player.changeValue(change, false);
+            notify(`${HandNames[result.aHand]}: $ VALUE +${comma(change)} -> ${this.player.store.Poker!.cashValue}`, 3000);
+        }
 
         const speed = 30;
-        const maxTime = 3000;
+        const maxTime = 2000;
         const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
         while (this.pot !== 0) {
-            const change = Math.min(this.pot, 20) * (this.playerWins? 1:-1);
+            const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1);
             this.bank += change;
             this.pot -= Math.abs(change);
             await gWait(speed, 'win count');

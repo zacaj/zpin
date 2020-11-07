@@ -80,7 +80,9 @@ Object {
       "Orange",
     ],
     "lRampShowCards": Array [],
-    "lRampStartMb": Array [],
+    "lRampStartMb": Array [
+      "Red",
+    ],
     "lShootAgain": Array [],
     "lShooterLaneArrow": Array [],
     "lShooterShowCards": Array [],
@@ -270,7 +272,7 @@ Object {
                 "state": Object {
                   "comboMult": 1,
                   "rounds": 0,
-                  "score": 800,
+                  "score": 300,
                 },
               },
               Object {
@@ -287,9 +289,39 @@ Object {
                 },
               },
               Object {
-                "_name": "Poker43",
-                "children": Array [],
-                "name": "Poker43",
+                "_name": "Poker44",
+                "children": Array [
+                  Object {
+                    "_name": "MiscAwards45",
+                    "children": Array [],
+                    "name": "MiscAwards45",
+                    "ownOuts": Object {
+                      "iCenter1": undefined,
+                      "iCenter2": undefined,
+                      "iCenter3": undefined,
+                      "iLeft1": undefined,
+                      "iLeft2": undefined,
+                      "iLeft3": undefined,
+                      "iLeft4": undefined,
+                      "iRight1": undefined,
+                      "iRight2": undefined,
+                      "iRight3": undefined,
+                      "iRight4": undefined,
+                      "iRight5": undefined,
+                      "iUpper21": undefined,
+                      "iUpper22": undefined,
+                      "iUpper31": undefined,
+                      "iUpper32": undefined,
+                      "iUpper33": undefined,
+                      "spinnerValue": undefined,
+                    },
+                    "state": Object {
+                      "spinnerValue": undefined,
+                      "targets": Array [],
+                    },
+                  },
+                ],
+                "name": "Poker44",
                 "ownOuts": Object {
                   "getSkillshot": [Function],
                   "iCenter1": "8H",
@@ -360,7 +392,7 @@ Object {
                   ],
                   "playerHandDesc": undefined,
                   "playerWins": undefined,
-                  "pot": 600,
+                  "pot": 400,
                   "slots": Array [
                     Object {
                       "num": 8,
@@ -481,28 +513,56 @@ Object {
               "lRampMini": Array [
                 "Orange",
               ],
-              "lRampStartMb": Array [],
+              "lRampStartMb": Array [
+                "Red",
+              ],
               "lShooterStartHand": Array [],
               "leftMagnet": false,
               "rampUp": true,
               "shooterDiverter": undefined,
             },
             "state": Object {
-              "_score": 106020,
+              "_score": 90020,
               "ball": "Ball26",
               "chips": 2,
               "closeShooter": false,
-              "focus": "Poker43",
+              "focus": "Poker44",
               "laneChips": Array [
                 true,
                 true,
                 true,
                 true,
               ],
-              "mbsQualified": Array [],
+              "mbsQualified": Array [
+                Array [
+                  "HandMb",
+                  Array [
+                    Object {
+                      "num": 7,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 8,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 9,
+                      "suit": "c",
+                    },
+                    Object {
+                      "num": 10,
+                      "suit": "s",
+                    },
+                    Object {
+                      "num": 11,
+                      "suit": "s",
+                    },
+                  ],
+                ],
+              ],
               "miniReady": false,
               "modesQualified": Array [],
-              "selectedMb": undefined,
+              "selectedMb": "HandMb",
             },
           },
         ],

@@ -100,6 +100,7 @@ export class HandMb extends Multiball {
             spinnerValue: () => this.spinner,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
+        this.misc = undefined;
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (this.state._==='starting' && !this.state.secondBallLocked) {

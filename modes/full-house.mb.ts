@@ -39,6 +39,8 @@ export class FullHouseMb extends Multiball {
 
     jackpots = 0;
 
+    lastJp?: Jackpot;
+
     get value(): number|undefined {
         if (this.state._ !== 'jackpotLit') return undefined;
         switch (this.state.jp) {
@@ -120,7 +122,9 @@ export class FullHouseMb extends Multiball {
             }
             else {
                 if (this.state._ === 'started') {
-                    this.state = JackpotLit(this.jpRng.weightedSelect([4, Jackpot.RightLane], [3, Jackpot.RightTarget], [4, Jackpot.LeftLane], [3, Jackpot.LeftTarget]));
+                    this.state = JackpotLit(this.jpRng.weightedSelect(...[
+                        [4, Jackpot.RightLane], [3, Jackpot.RightTarget], [4, Jackpot.LeftLane], [3, Jackpot.LeftTarget],
+                    ].filter(([_, jp]) => jp !== this.lastJp) as any));
                     if (this.state.jp === Jackpot.RightLane)
                         fork(ResetBank(this, machine.upper3Bank));
                 }
@@ -188,6 +192,7 @@ export class FullHouseMb extends Multiball {
             return;
         }
         this.jackpots++;
+        this.lastJp = this.state.jp;
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;

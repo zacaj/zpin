@@ -16,7 +16,7 @@ import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
-import { ClearHoles, ResetBank, ResetMechs } from '../util-modes';
+import { ClearHoles, KnockTarget, MiscAwards, ResetBank, ResetMechs } from '../util-modes';
 import { assert, comma, getCallerLine, getCallerLoc, money, score, seq } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
@@ -257,7 +257,7 @@ export class Player extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sRampMiniOuter), () => {
-            this.changeValue(20);
+            this.changeValue(25);
             const bank = machine.dropBanks.filter(b => b!==machine.leftBank).reduce<DropBank|undefined>((prev, cur) => cur.numDown>(prev?.numDown??0)? cur:prev, undefined);
             if (bank) {
                 return ResetBank(this, bank);
@@ -314,6 +314,7 @@ export class Player extends Mode {
         Skillshot: {},
         HandMb: {},
         NoMode: {},
+        MiscAwards: {},
         FullHouseMb: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
@@ -351,65 +352,13 @@ export class Player extends Mode {
     }
 }
 
-class NoMode extends Mode {
-    rng!: Rng;
-    targets = new Map<DropTarget, Color>();
-    spinnerValue?: number;
-
+class NoMode extends MiscAwards {
     constructor(
-        public player: Player,
+        player: Player,
     ) {
-        super(Modes.NoMode);
-        this.rng = player.rng();
-        State.declare<NoMode>(this, ['targets', 'spinnerValue']);
-        player.storeData<NoMode>(this, ['rng']);
+        super(player);
 
-        this.addTargets();
-
-        const outs: any = {};
-        for (const target of machine.dropTargets) {
-            outs[target.image.name] = () => this.targets.has(target)? colorToArrow(this.targets.get(target)) : undefined;
-        }
-        this.out = new Outputs(this, {
-            ...outs,
-            spinnerValue: () => this.spinnerValue,
-        });
-
-        this.listen<DropDownEvent>([DropDownEvent.on(), e => this.targets.has(e.target)], (e) => {
-            this.spinnerValue = undefined;
-            switch (this.targets.get(e.target)) {
-                case Color.Orange:
-                    player.addChip();
-                    break;
-                case Color.Green:
-                    player.changeValue(20);
-                    break;
-                case Color.Red:
-                    player.changeValue(-20);
-                    break;
-                case Color.Blue:
-                    this.spinnerValue = 2000;
-                    break;
-            }
-            this.targets.delete(e.target);
-            if (this.targets.size === 0)
-                this.addTargets();
-        });
-    }
-
-    addTargets() {
-        for (const target of this.rng.randSelectRange(2, 4-this.player.chips+1, ...machine.dropTargets))
-            this.targets.set(target, Color.Orange);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
-            this.targets.set(target, Color.Blue);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [3, 2], [3, 0]), ...machine.dropTargets))
-            this.targets.set(target, Color.Red);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([14, 1], [3, 2], [3, 0]), ...machine.dropTargets))
-            this.targets.set(target, Color.Green);
-    }
-
-    end() {
-        return super.end();
+        this.randomizeTargets();
     }
 }
 

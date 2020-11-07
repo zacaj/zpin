@@ -203,15 +203,15 @@ export class Skillshot extends Mode {
             const gen = generic[i];
             const rand = (!current[i]?.dontOverride && randInds.includes(i))?
                 this.rng.weightedSelect<SkillshotAward>(
-                    [10, {
+                    [this.player.store.Poker!.cashValue < 200?  20 : 10, {
                         switch: gen.switch,
-                        award: '+30 $ value',
-                        made: () => this.player.changeValue(20),
+                        award: '+50 $ value',
+                        made: () => this.player.changeValue(50),
                     }],
-                    [20, {
+                    [this.player.store.Poker!.cashValue < 200? 40 : 20, {
                         switch: gen.switch,
-                        award: '+20 $ value',
-                        made: () => this.player.changeValue(10),
+                        award: '+25 $ value',
+                        made: () => this.player.changeValue(25),
                     }],
                     [18-(5-i), {
                         switch: gen.switch,

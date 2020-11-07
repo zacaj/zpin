@@ -75,12 +75,7 @@ Object {
     ],
     "lPower3": Array [],
     "lPower4": Array [],
-    "lRampArrow": Array [
-      Array [
-        "Yellow",
-        "fl",
-      ],
-    ],
+    "lRampArrow": Array [],
     "lRampMini": Array [
       "Orange",
     ],
@@ -106,7 +101,7 @@ Object {
     "miniFlipperEnable": true,
     "outhole": false,
     "popper": false,
-    "rampUp": false,
+    "rampUp": true,
     "realRightBank": false,
     "right1": false,
     "right2": false,
@@ -265,21 +260,6 @@ Object {
                 },
               },
               Object {
-                "_name": "RampCombo36",
-                "children": Array [],
-                "name": "RampCombo36",
-                "ownOuts": Object {
-                  "lRampArrow": Array [
-                    Array [
-                      "Yellow",
-                      "fl",
-                    ],
-                  ],
-                  "rampUp": false,
-                },
-                "state": Object {},
-              },
-              Object {
                 "_name": "Spinner23",
                 "children": Array [],
                 "name": "Spinner23",
@@ -308,7 +288,37 @@ Object {
               },
               Object {
                 "_name": "Poker34",
-                "children": Array [],
+                "children": Array [
+                  Object {
+                    "_name": "MiscAwards35",
+                    "children": Array [],
+                    "name": "MiscAwards35",
+                    "ownOuts": Object {
+                      "iCenter1": undefined,
+                      "iCenter2": undefined,
+                      "iCenter3": undefined,
+                      "iLeft1": undefined,
+                      "iLeft2": undefined,
+                      "iLeft3": undefined,
+                      "iLeft4": undefined,
+                      "iRight1": undefined,
+                      "iRight2": undefined,
+                      "iRight3": undefined,
+                      "iRight4": undefined,
+                      "iRight5": undefined,
+                      "iUpper21": undefined,
+                      "iUpper22": undefined,
+                      "iUpper31": undefined,
+                      "iUpper32": undefined,
+                      "iUpper33": undefined,
+                      "spinnerValue": undefined,
+                    },
+                    "state": Object {
+                      "spinnerValue": undefined,
+                      "targets": Array [],
+                    },
+                  },
+                ],
                 "name": "Poker34",
                 "ownOuts": Object {
                   "getSkillshot": [Function],
@@ -380,7 +390,7 @@ Object {
                   ],
                   "playerHandDesc": undefined,
                   "playerWins": undefined,
-                  "pot": 600,
+                  "pot": 400,
                   "slots": Array [
                     Object {
                       "num": 1,

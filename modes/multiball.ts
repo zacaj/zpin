@@ -2,7 +2,7 @@ import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { MPU } from '../mpu';
 import { gfx } from '../gfx';
-import { ResetMechs, ReleaseBall } from '../util-modes';
+import { ResetMechs, ReleaseBall, MiscAwards } from '../util-modes';
 import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { Log } from '../log';
 import { Outputs } from '../outputs';
@@ -13,9 +13,18 @@ import { Player } from './player';
 import { assert, getCallerLoc } from '../util';
 
 export abstract class Multiball extends Mode {
+    get nodes() {
+        return [
+            this.misc,
+            ...this.tempNodes,
+        ].truthy();
+    }
+
     balls = 1;
 
     lockPost? = false;
+
+    misc?: MiscAwards;
 
     protected constructor(
         public player: Player,
@@ -28,6 +37,9 @@ export abstract class Multiball extends Mode {
         State.declare<Multiball>(this, ['lockPost']);
 
         this.listen(onSwitchClose(machine.sOuthole), 'ballDrained');
+
+        this.misc = new MiscAwards(player);
+        this.misc.randomizeTargets();
 
         this.out = new Outputs(this, {
             miniDiverter: false,

@@ -41,10 +41,10 @@ export class PlayerGfx extends ModeGroup {
         ].filter(x => !!x).join('\n')));
 
         this.noMode.add(leftAlign(
-            makeText(': SPINNER VALUE => 2000', 40, 'left', 'bottom', gfx, Color.Blue).y(-Screen.h*.25),
-            makeText(': $ VALUE +20', 40, 'left', 'bottom', gfx, Color.Green).y(-Screen.h*.15),
+            makeText(': SPINNER VALUE => 4000', 40, 'left', 'bottom', gfx, Color.Blue).y(-Screen.h*.25),
+            makeText(': $ VALUE +25', 40, 'left', 'bottom', gfx, Color.Green).y(-Screen.h*.15),
             makeText(': Add Chip', 40, 'left', 'bottom', gfx, Color.Orange).y(-Screen.h*.05),
-            makeText(': $ VALUE -20', 40, 'left', 'bottom', gfx, Color.Red).y(-Screen.h*-.05),
+            makeText(': $ VALUE -25', 40, 'left', 'bottom', gfx, Color.Red).y(-Screen.h*-.05),
         ).y(Screen.h*.15));
 
         this.add(this.score);
