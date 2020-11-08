@@ -13,14 +13,17 @@ int main() {
     Image ten("media/128/Playing Card Vectors - Samples 10D.png");
     Image king("media/128/Playing Card Vectors - Samples KS.png");
     Image queen("media/128/Playing Card Vectors - Samples QH.png");
+    Image test("media/160/raise_bet_100.png");
 
-    Disp160* disp = new Disp160(0, MIRROR_NONE, ROTATE_0);
+    Disp160* disp = new Disp160(0, MIRROR_NONE, ROTATE_90);
     disp->init();
     
     disp->clear(YELLOW);
 
-    disp->drawImage(&queen); 
-    disp->drawImage(&king, 0, 160-128); 
+    // disp->drawImage(&queen); 
+    // disp->drawImage(&king, 0, 160-128); 
+
+    disp->drawImage(&test); 
 
     // disp->drawRect(20, 40, 140, 60, RED);
 

@@ -161,17 +161,17 @@ void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
     scanDir = Scan_dir;
 
 	//Get GRAM and LCD width and height
-	if(Scan_dir == L2R_U2D || Scan_dir == L2R_D2U || Scan_dir == R2L_U2D || Scan_dir == R2L_D2U){
-		pixWidth	= width;
-		pixHeight = height ;	
-		// sLCD_DIS.LCD_X_Adjust = LCD_X;
-		// sLCD_DIS.LCD_Y_Adjust = LCD_Y;
-	}else{	
-		pixWidth	= height;
-		pixHeight = width ;		
-		// sLCD_DIS.LCD_X_Adjust = LCD_Y;
-		// sLCD_DIS.LCD_Y_Adjust = LCD_X;
-	}
+	// if(Scan_dir == L2R_U2D || Scan_dir == L2R_D2U || Scan_dir == R2L_U2D || Scan_dir == R2L_D2U){
+	// 	pixWidth	= width;
+	// 	pixHeight = height ;	
+	// 	// sLCD_DIS.LCD_X_Adjust = LCD_X;
+	// 	// sLCD_DIS.LCD_Y_Adjust = LCD_Y;
+	// }else{	
+	// 	pixWidth	= height;
+	// 	pixHeight = width ;		
+	// 	// sLCD_DIS.LCD_X_Adjust = LCD_Y;
+	// 	// sLCD_DIS.LCD_Y_Adjust = LCD_X;
+	// }
 
     // Gets the scan direction of GRAM
     uint16_t MemoryAccessReg_Data=0;  //0x36

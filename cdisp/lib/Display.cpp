@@ -5,16 +5,16 @@
 #include "stb_image_write.h"
 
 Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate)
-: number(number), width(width), height(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
+: number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
     pixels = new u16[width*height];
     clear(MAGENTA);
 
     if (rotate == ROTATE_0 || rotate == ROTATE_180) {
-        pixWidth = width;
-        pixHeight = height;
+        this->width = width;
+        this->height = height;
     } else {
-        pixWidth = height;
-        pixHeight = width;
+        this->width = height;
+        this->height = width;
     }
 }
 
@@ -101,10 +101,10 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
 }
 
 void Display::savePng(const char* path) {
-    u8* image = new u8[width*height*3];
+    u8* image = new u8[pixWidth*pixHeight*3];
     u8* img = image;
     u16* disp = pixels;
-    for (int i=0; i<width*height; i++) {
+    for (int i=0; i<pixWidth*pixHeight; i++) {
         img[0] = (*disp>>11)<<3;
         img[1] = ((*disp>>5)&0x3f)<<2;
         img[2] = ((*disp)&0x1f)<<3;
@@ -112,6 +112,6 @@ void Display::savePng(const char* path) {
         disp++;
     }
 
-    stbi_write_png(path, width, height, 3, image, 0);
+    stbi_write_png(path, pixWidth, pixHeight, 3, image, 0);
     delete image;
 }
