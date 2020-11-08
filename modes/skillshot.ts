@@ -5,7 +5,7 @@ import { State } from '../state';
 import { Outputs } from '../outputs';
 import { screen, makeText, alert, pfx, addToScreen } from '../gfx';
 import { onAnyPfSwitchExcept, onSwitchClose, onAnySwitchClose, Switch, onSwitchOpen, SwitchEvent } from '../switch-matrix';
-import { wrap, assert, comma, range, seq } from '../util';
+import { wrap, assert, comma, range, seq, rangeSelect } from '../util';
 import { Text, Node } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
@@ -197,18 +197,18 @@ export class Skillshot extends Mode {
         const generic = this.getGenericAwards();
         const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot(this) : [];
         const awards: SkillshotAward[] = [];
-        const nRand = this.rng.weightedRand(30, 60, 30, 5);
+        const nRand = this.rng.weightedRand(30, 60, 30, 5)+(this.isFirstOfBall? 2:0);
         const randInds = seq(nRand).map(() => this.rng.randRange(0, 5));
         for (let i=0; i<7; i++) {
             const gen = generic[i];
             const rand = (!current[i]?.dontOverride && randInds.includes(i))?
                 this.rng.weightedSelect<SkillshotAward>(
-                    [this.player.store.Poker!.cashValue < 200?  20 : 10, {
+                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 30], [350, 15], [0, 3]), {
                         switch: gen.switch,
                         award: '+50 $ value',
                         made: () => this.player.changeValue(50),
                     }],
-                    [this.player.store.Poker!.cashValue < 200? 40 : 20, {
+                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 60], [350, 30], [0, 10]), {
                         switch: gen.switch,
                         award: '+25 $ value',
                         made: () => this.player.changeValue(25),

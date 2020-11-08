@@ -241,6 +241,13 @@ export function repeat<T>(x: T, count: number): T[] {
     return ret;
 }
 
+export function rangeSelect<T>(val: number, ...choices: [number, T][]): T {
+    for (let i=0; i<choices.length; i++) {
+        if (val < choices[i][0]) return choices[i][1];
+    }
+    return choices.last()![1];
+}
+
 export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {
     const c = Object.create(Object.getPrototypeOf(obj));
     for (const p of props)

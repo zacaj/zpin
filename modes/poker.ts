@@ -70,7 +70,7 @@ export class Poker extends Mode {
     newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
 
     get betAdjust(): number {
-        return round(this.bet * .2, 10);
+        return round(this.bet * .15, 10);
     }
     adjustSide = -1;
 

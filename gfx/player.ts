@@ -116,16 +116,16 @@ export class StatusReportGfx extends Group {
             }
 
             {
-                const h = game.players.length<4? 35 : 20;
+                const h = game.players.length<4? 30 : 20;
                 scores.clear();
                 if (game.players.length === 1) return;
                 let y = bottom;
                 for (let i=game.players.length-1; i>=0; i--) {
                     scores.add(makeText(`PLAYER ${i+1}:`, h, 'left', 'bottom').x(left).y(y));
-                    scores.add(makeText(score(game.players[i].score), h, 'right', 'bottom').x(right).y(y));
+                    scores.add(makeText(`${score(game.players[i].score)} ${money(game.players[i].store.Poker?.bank ?? Poker.BankStart, 6)}`, h, 'right', 'bottom').x(right).y(y));
                     y -= h*1.25;
                 }
-                scores.add(makeText('SCORES:', h+5, 'center', 'bottom').x(left).w(this.w()).y(y));
+                scores.add(makeText('SCORES:', h+5, 'center', 'bottom').x(0).w(this.w()).y(y));
             }
         }, true);
     }
