@@ -7,7 +7,7 @@ import { DropDownEvent, DropBankCompleteEvent, DropBankResetEvent } from '../dro
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
-import { Player } from './player';
+import { Player, SpinnerHit } from './player';
 import { KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
 import { Color, light } from '../light';
 import { StraightMb } from './straight.mb';
@@ -19,6 +19,8 @@ import { MPU } from '../mpu';
 import { Tree } from '../tree';
 import { playSound } from '../sound';
 import { Skillshot } from './skillshot';
+import { time } from '../timer';
+import { dText } from '../disp';
 
 
 export class Poker extends Mode {
@@ -67,13 +69,18 @@ export class Poker extends Mode {
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
 
+    get betAdjust(): number {
+        return round(this.bet * .2, 10);
+    }
+    adjustSide = -1;
+
     constructor(
         public player: Player,
     ) {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'foldLit', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'foldLit', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
 
@@ -96,6 +103,8 @@ export class Poker extends Mode {
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             lFold: () => light(this.foldLit, Color.Red),
+            iRamp: () => this.step<7? dText(money(-this.betAdjust*this.adjustSide, 0, '+')) : undefined,
+            iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dText(money(this.betAdjust*this.adjustSide, 0, '+')) : undefined,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -200,7 +209,18 @@ export class Poker extends Mode {
             }
         });
 
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.adjustSide *= -1);
+
         this.listen([() => this.foldLit, ...onAnyPfSwitchExcept(machine.sUpperEject)], () => this.foldLit = false);
+
+        this.listen(onAnySwitchClose(machine.sLeftOrbit, machine.sRampMade), () => {
+            if (this.step < 7)
+                this.bet -= this.betAdjust*this.adjustSide;
+        });
+        this.listen(e => e instanceof SpinnerHit, () => {
+            if (this.step < 7)
+                this.bet += this.betAdjust*this.adjustSide;
+        });
 
         addToScreen(() => new PokerGfx(this));
     }

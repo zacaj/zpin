@@ -2,6 +2,7 @@ import { AminoGfx, AminoImage, Circle, fonts, Group, ImageView, Node, Polygon, R
 // import { Game } from './game';
 // import { MPU } from './mpu';
 import * as fs from 'fs';
+import { DisplayContent } from './disp';
 import { EventListener, Events } from './events';
 import { Color, colorToHex, LightState, normalizeLight } from './light';
 import { Log } from './log';
@@ -11,7 +12,7 @@ import { onChange } from './state';
 import { getSwitchByName, matrix, onSwitch, resetSwitchMatrix, Switch } from './switch-matrix';
 import { time, wait } from './timer';
 import { TreeChangeEvent } from './tree';
-import { assert } from './util';
+import { assert, eq } from './util';
 const argv = require('yargs').argv;
 
 export let gfx: AminoGfx;
@@ -457,14 +458,20 @@ export class Display extends Group {
         this.add(this.image);
     }
 
-    set(val: string|Node) {
-        if (this.node && val !== this.node) {
+    set(val: string|Node|DisplayContent) {
+        if (this.node && !eq(val, this.node)) {
             this.remove(this.node);
             this.node = undefined;
         }
         if (typeof val === 'string') {
             this.image.visible(true);
             return this.image.set(val);
+        } else if ('hash' in val) {
+            if ('text' in val) {
+                this.image.visible(false);
+                this.node = makeText(val.text!, val.text!.length>=5? 60 : 70, 'corner', undefined, pfx).rz(90).x(80).y(160).sy(-1);
+                this.add(this.node);
+            }
         } else {
             this.image.visible(false);
             this.node = val;
@@ -768,6 +775,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iSS5: { x: 6.4125, y: 42.525, r: 90 },
     iSS6: { x: 1.8999999999999999, y: 25.875, r: 90 },
     iSpinner: { x: 15.35625, y: 30.0375, r: 90-20 },
+    iRamp: { x: 5.6812499999999995, y: 25.650000000000002, r: 20+90 },
 };
 
 const gfxCoils: { [name: string]: {

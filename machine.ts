@@ -1,6 +1,7 @@
 import { Node } from 'aminogfx-gl';
 import { AttractMode } from './attract';
 import { Solenoid16 } from './boards';
+import { DisplayContent } from './disp';
 import { DropBank, DropTarget, Standup } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
@@ -410,33 +411,34 @@ export type LightOutputs = {
     lFold: LightState[];
 };
 export type ImageOutputs = {
-    iCenter1: string|Node;
-    iCenter2: string|Node;
-    iCenter3: string|Node;
-    iUpper31: string|Node;
-    iUpper32: string|Node;
-    iUpper33: string|Node;
-    iUpper21: string|Node;
-    iUpper22: string|Node;
-    iLeft1: string|Node;
-    iLeft2: string|Node;
-    iLeft3: string|Node;
-    iLeft4: string|Node;
-    iRight1: string|Node;
-    iRight2: string|Node;
-    iRight3: string|Node;
-    iRight4: string|Node;
-    iRight5: string|Node;
-    iMini1: string|Node;
-    iMini2: string|Node;
-    iMini3: string|Node;
-    iSS1: string|Node;
-    iSS2: string|Node;
-    iSS3: string|Node;
-    iSS4: string|Node;
-    iSS5: string|Node;
-    iSS6: string|Node;
-    iSpinner: string|Node;
+    iCenter1: string|Node|DisplayContent;
+    iCenter2: string|Node|DisplayContent;
+    iCenter3: string|Node|DisplayContent;
+    iUpper31: string|Node|DisplayContent;
+    iUpper32: string|Node|DisplayContent;
+    iUpper33: string|Node|DisplayContent;
+    iUpper21: string|Node|DisplayContent;
+    iUpper22: string|Node|DisplayContent;
+    iLeft1: string|Node|DisplayContent;
+    iLeft2: string|Node|DisplayContent;
+    iLeft3: string|Node|DisplayContent;
+    iLeft4: string|Node|DisplayContent;
+    iRight1: string|Node|DisplayContent;
+    iRight2: string|Node|DisplayContent;
+    iRight3: string|Node|DisplayContent;
+    iRight4: string|Node|DisplayContent;
+    iRight5: string|Node|DisplayContent;
+    iMini1: string|Node|DisplayContent;
+    iMini2: string|Node|DisplayContent;
+    iMini3: string|Node|DisplayContent;
+    iSS1: string|Node|DisplayContent;
+    iSS2: string|Node|DisplayContent;
+    iSS3: string|Node|DisplayContent;
+    iSS4: string|Node|DisplayContent;
+    iSS5: string|Node|DisplayContent;
+    iSS6: string|Node|DisplayContent;
+    iSpinner: string|Node|DisplayContent;
+    iRamp: string|Node|DisplayContent;
 };
 
 export class Machine extends Tree<MachineOutputs> {
@@ -659,6 +661,7 @@ export class Machine extends Tree<MachineOutputs> {
     iSS5 = new Image('iSS5');
     iSS6 = new Image('iSS6');
     iSpinner = new Image('iSpinner');
+    iRamp = new Image('iRamp');
 
     dropTargets: DropTarget[] = [];
     allDropTargets: DropTarget[] = [];
@@ -824,6 +827,7 @@ export class Machine extends Tree<MachineOutputs> {
             iSS5: '',
             iSS6: '',
             iSpinner: '',
+            iRamp: '',
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
             spinnerValue: undefined,
