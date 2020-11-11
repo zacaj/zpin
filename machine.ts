@@ -432,6 +432,10 @@ export type LightOutputs = {
     lRampMini: LightState[];
     lShootAgain: LightState[];
     lFold: LightState[];
+    lLaneLower1: LightState[];
+    lLaneLower2: LightState[];
+    lLaneLower3: LightState[];
+    lLaneLower4: LightState[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node|DisplayContent;
@@ -676,6 +680,10 @@ export class Machine extends Tree<MachineOutputs> {
     lMainTargetArrow = new Light('lMainTargetArrow', 0);
     lShootAgain = new Light('lShootAgain', 0);
     lFold = new Light('lFold', 0);
+    lLaneLower1 = new Light('lLaneLower1', 0);
+    lLaneLower2 = new Light('lLaneLower2', 0);
+    lLaneLower3 = new Light('lLaneLower3', 0);
+    lLaneLower4 = new Light('lLaneLower4', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -823,6 +831,10 @@ export class Machine extends Tree<MachineOutputs> {
             lShootAgain: [],
             lRampMini: [],
             lFold: [],
+            lLaneLower1: [],
+            lLaneLower2: [],
+            lLaneLower3: [],
+            lLaneLower4: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',

@@ -746,6 +746,10 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lMagnet1: { x: 4.05, y: 17.6625, d: 5/8 },
     lShootAgain: { x: 9.05625, y: 5.399999999999999, d: 1 },
     lFold: { x: 8.49375, y: 33.975, d: 3/4 },
+    lLaneLower1: { x: 1.0687499999999999, y: 17.212500000000002, d: 5/8 },
+    lLaneLower2: { x: 2.64375, y: 16.875, d: 5/8 },
+    lLaneLower3: { x: 15.581249999999999, y: 16.481250000000003, d: 5/8 },
+    lLaneLower4: { x: 17.15625, y: 16.59375, d: 5/8 },
 };
 
 export const gfxImages: { [name in keyof ImageOutputs]: {

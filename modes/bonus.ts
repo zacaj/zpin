@@ -1,4 +1,5 @@
 import { Node, Text } from 'aminogfx-gl';
+import { Event, Events } from '../events';
 import { addToScreen, alert, gfx, gWait, makeText, ModeGroup, Screen } from '../gfx';
 import { GameGfx } from '../gfx/game';
 import { Mode, Modes } from '../mode';
@@ -57,6 +58,7 @@ export class Bonus extends Mode {
             // if (!this.ball.tilted) 
                 await gWait(1000, 'bonus x');
         }
+        const initialTotal = this.total;
         if (!this.ball.tilted) {
             this.lines.push([`Total: ${score(this.total)}`]);
 
@@ -64,7 +66,6 @@ export class Bonus extends Mode {
             const start = new Date().getTime();
             const speed = 25;
             const maxTime = 4000;
-            const initialTotal = this.total;
             const rate = Math.max(500, round(Math.abs(this.total)/(maxTime/speed), 1000));
             console.log('bonus raw rate', Math.abs(this.total)/(maxTime/speed));
             while (this.total > 0) {
@@ -76,6 +77,8 @@ export class Bonus extends Mode {
             console.log('bonus time %i for %i', new Date().getTime()-start, initialTotal);
         }
         // alert(`bonus took ${new Date().getTime()-start}`);
+        // await gWait(1000, 'bonus end');
+        this.total = initialTotal;
         await gWait(2000, 'bonus end');
         // if (this.ball.tilted) 
         this.end();
@@ -92,6 +95,7 @@ export class Bonus extends Mode {
 
     end() {
         this.ball.bonus = undefined;
+        Events.fire(new BonusEnd(this));
         return super.end();
     }
 }
@@ -131,5 +135,13 @@ export class BonusGfx extends ModeGroup {
                 y += l.fontSize()*1.25;
             }
         });
+    }
+}
+
+export class BonusEnd extends Event {
+    constructor(
+        public bonus: Bonus,
+    ) {
+        super();
     }
 }

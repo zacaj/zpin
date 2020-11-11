@@ -4,14 +4,14 @@ import { Poker, Card } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
-import { Color, colorToArrow, light } from '../light';
+import { Color, colorToArrow, flash, light } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank, DropTarget } from '../drop-bank';
-import { Ball } from './ball';
+import { Ball, BallEnd, BallEnding } from './ball';
 import { Tree } from '../tree';
 import { Event, Events, Priorities } from '../events';
 import { Time, time, Timer, TimerQueueEntry, wait } from '../timer';
-import { makeText, gfx, screen, addToScreen, alert, notify, pfx, textBox } from '../gfx';
+import { makeText, gfx, screen, addToScreen, alert, notify, pfx, textBox, Screen } from '../gfx';
 import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
@@ -27,6 +27,7 @@ import { Group, Text } from 'aminogfx-gl';
 import { FullHouseMb } from './full-house.mb';
 import { playSound } from '../sound';
 import { Log } from '../log';
+import { BonusEnd } from './bonus';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -60,7 +61,8 @@ export class Player extends Mode {
     }
     miniReady = false;
 
-    laneChips = [true, true, true, true];
+    upperLaneChips = [true, true, true, true];
+    lowerLanes = [true, true, true, true];
     
     get curMbMode(): Multiball|undefined {
         if (this.focus instanceof Multiball) return this.focus;
@@ -85,6 +87,7 @@ export class Player extends Mode {
     overrides = new PlayerOverrides(this);
     rampCombo?: RampCombo;
     ball?: Ball;
+    mult?: Multiplier;
 
     get nodes() {
         return [
@@ -94,6 +97,7 @@ export class Player extends Mode {
             this.spinner,
             this.leftOrbit,
             this.focus,
+            this.mult,
             ...this.tempNodes,
             this.overrides,
         ].truthy();
@@ -133,7 +137,7 @@ export class Player extends Mode {
     ) {
         super(Modes.Player);
         this.rand = this.rng();
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'laneChips']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
@@ -147,10 +151,14 @@ export class Player extends Mode {
             lPower4: () => light(this.chips>=4, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
-            lLaneUpper1: () => light(this.laneChips[0], Color.Orange),
-            lLaneUpper2: () => light(this.laneChips[1], Color.Orange),
-            lLaneUpper3: () => light(this.laneChips[2], Color.Orange),
-            lLaneUpper4: () => light(this.laneChips[3], Color.Orange),
+            lLaneUpper1: () => light(this.upperLaneChips[0], Color.Orange),
+            lLaneUpper2: () => light(this.upperLaneChips[1], Color.Orange),
+            lLaneUpper3: () => light(this.upperLaneChips[2], Color.Orange),
+            lLaneUpper4: () => light(this.upperLaneChips[3], Color.Orange),
+            lLaneLower1: () => light(this.lowerLanes[0], Color.Yellow),
+            lLaneLower2: () => light(this.lowerLanes[1], Color.Yellow),
+            lLaneLower3: () => light(this.lowerLanes[2], Color.Yellow),
+            lLaneLower4: () => light(this.lowerLanes[3], Color.Yellow),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
             lRampMini: [Color.Orange],
         });
@@ -169,11 +177,13 @@ export class Player extends Mode {
         // lane change
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
             e => {
-                this.laneChips.rotate(-1);
+                this.upperLaneChips.rotate(-1);
+                this.lowerLanes.rotate(-1);
             });
         this.listen(onAnySwitchClose(machine.sRightFlipper),
             e => {
-                this.laneChips.rotate(1);
+                this.upperLaneChips.rotate(1);
+                this.lowerLanes.rotate(1);
             });
 
 
@@ -196,14 +206,28 @@ export class Player extends Mode {
             onAnySwitchClose(...machine.sUpperLanes),
             (e) => {
                 const i = machine.sUpperLanes.indexOf(e.sw);
-                if (!this.laneChips[i]) return;
+                if (!this.upperLaneChips[i]) return;
                 this.addChip();
                 // this.addChip();             
-                this.laneChips[i] = false;
-                if (this.laneChips.every(c => !c)) {
-                    this.laneChips.fill(true);
+                this.upperLaneChips[i] = false;
+                if (this.upperLaneChips.every(c => !c)) {
+                    this.upperLaneChips.fill(true);
                     this.ball!.bonusX++;
                     alert(`bonus ${this.ball!.bonusX}X`);
+                }
+            });
+        
+        // lower lanes
+        this.listen(
+            onAnySwitchClose(...machine.sLowerlanes),
+            (e) => {
+                const i = machine.sLowerlanes.indexOf(e.sw);
+                if (!this.lowerLanes[i] || this.mult) return;
+                this.lowerLanes[i] = false;
+                if (this.lowerLanes.every(c => !c)) {
+                    this.lowerLanes.fill(true);
+                    this.mult = new Multiplier(this);
+                    this.mult.started();
                 }
             });
         // award chips on bank complete
@@ -242,6 +266,7 @@ export class Player extends Mode {
             }
         });
 
+        this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
         
         // allow orbits to loop
         this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
@@ -548,6 +573,59 @@ export class RampCombo extends Tree<MachineOutputs> {
         return super.end();
     }
 }
+
+
+export class Multiplier extends Tree<MachineOutputs> {
+    total = 0;
+    text!: Group;
+
+    constructor(
+        public player: Player,
+    ) {
+        super();
+        State.declare<Multiplier>(this, ['total']);
+
+        this.out = new Outputs(this, {
+            lLaneLower1: () => [[Color.Red, 'pl']],
+            lLaneLower2: () => [[Color.Red, 'pl']],
+            lLaneLower3: () => [[Color.Red, 'pl']],
+            lLaneLower4: () => [[Color.Red, 'pl']],
+        });
+
+        this.listen(
+            onAnySwitchClose(...machine.sLowerlanes),
+            async (e) => {
+                await wait(250);
+                return this.end();
+            });
+
+        this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
+
+        this.text = textBox({maxWidth: 0.8}, 
+            ['2X SCORING', 60, 20],
+            ['Avoid Lanes', 35, 20],
+            ['', 50, 10],
+        );
+        if (screen) {
+            player.gfx?.add(this.text);
+            this.text.z(100);
+            this.text.y(Screen.h*.25);
+            this.watch(() => (this.text.children[3] as Text).text(score(this.total)));
+        }
+
+        this.listen(e => e instanceof BonusEnd, 'end');
+    }
+
+    end() {
+        this.player.gfx?.remove(this.text);
+        this.player.mult = undefined;
+        const ret = super.end();
+        this.player.score += this.total;
+        notify(`2X Total: ${score(this.total)}`);
+        return ret;
+    }
+}
+
 
 class PlayerOverrides extends Mode {
     constructor(public player: Player) {
