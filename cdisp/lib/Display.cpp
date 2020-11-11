@@ -19,6 +19,7 @@ Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR
 }
 
 void Display::clear(Color color) {
+    color = ((color<<8)&0xff00)|(color>>8);
     for (int i=0; i<width*height; i++)
         pixels[i] = color;
 }

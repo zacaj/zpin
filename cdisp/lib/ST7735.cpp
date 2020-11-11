@@ -51,11 +51,11 @@ typedef enum {
 
 void ST7735::init() {
     // reset
-    DEV_Delay_ms(200);
-	DEV_Digital_Write(DEV_RST_PIN, 0);
-	DEV_Delay_ms(200);
-	DEV_Digital_Write(DEV_RST_PIN, 1);
-	DEV_Delay_ms(200);
+    // DEV_Delay_ms(200);
+	// DEV_Digital_Write(DEV_RST_PIN, 0);
+	// DEV_Delay_ms(200);
+	// DEV_Digital_Write(DEV_RST_PIN, 1);
+	// DEV_Delay_ms(200);
 
     // init
     LCD_Write_Command(SWRESET);
@@ -153,6 +153,8 @@ void ST7735::init() {
 	setScanDir(scanDir);
 
 	LCD_Write_Command(DISPON); // turn on display
+
+	clearDisp(BLUE);
 }
 
 void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
@@ -209,7 +211,7 @@ void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
 #elif defined(LCD_1IN8)
     LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
 #endif
-    LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
+    LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//RGB color filter panel
 
 }
 
@@ -243,4 +245,16 @@ void ST7735::setWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD  Yend)
 	LCD_WriteData_Byte(Yend);
 
 	LCD_Write_Command(RAMWR);
+}
+
+void ST7735::clearDisp(Color color) {
+    color = ((color<<8)&0xff00)|((color>>8)&0xff);
+	u16* row = new u16[pixWidth];
+	for (int i=0; i<pixWidth; i++)
+		row[i] = color;
+    setWindow(0, 0, pixWidth-1, pixHeight-1);
+    DEV_Digital_Write(DEV_DC_PIN, 1);
+	for (int j=0; j<pixHeight; j++) {
+        DEV_SPI_Write_nByte((uint8_t *)row, pixWidth*2);
+	}
 }

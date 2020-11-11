@@ -14,4 +14,6 @@ public:
     void setWindow(u16 Xstart, u16 Ystart, u16 Xend, u16 Yend);
 
     void setScanDir(LCD_SCAN_DIR Scan_dir);
+
+    void clearDisp(Color color);
 };

@@ -44,17 +44,17 @@
 //#define SPI_MOSI 10
 //#define SPI_SCK  11
 
-// 19: blue, MOSI ser data
-// 23: yellow, ser clock (orange)
+// pin 19: blue, MOSI ser data
+// pin 23: yellow, ser clock (orange)
 
 //GPIO config
 #define DEV_RST_PIN     27 // pin 13, grey
-#define DEV_DC_PIN      25 // pin 22, green (pink)
+#define DEV_DC_PIN      22 // pin 15, green (pink)
 //#define DEV_CS_PIN      8  // pin 24, brown
 #define DEV_BL_PIN      18
 
-#define DEV_CS_CLK_PIN 21 // pin 40, purple
-#define DEV_CS_DAT_PIN 26 // pin 37, brown
+#define DEV_CS_CLK_PIN 3 // pin 5, purple
+#define DEV_CS_DAT_PIN 4 // pin 7, brown
 
 /*------------------------------------------------------------------------------------------------------*/
 UBYTE DEV_ModuleInit(void);

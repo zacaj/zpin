@@ -18,26 +18,26 @@ void Manager::updateDisplay(int num) {
 
 void Manager::updateAll() {
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
-    DEV_Delay_ms(10);
+    // DEV_Delay_ms(10);
     DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
-    DEV_Delay_ms(10);
+    // DEV_Delay_ms(10);
     for (int i=0; i<numDisplays+2; i++) {   
         DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-        DEV_Delay_ms(10);
+        // DEV_Delay_ms(10);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     }
 
     DEV_Digital_Write(DEV_CS_DAT_PIN, 0);
     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-    DEV_Delay_ms(10);
+    // DEV_Delay_ms(10);
 
     DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
-    DEV_Delay_ms(10);
+    // DEV_Delay_ms(10);
 
     for (int i=0; i<numDisplays; i++) {   
         DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-        DEV_Delay_ms(10);
+        // DEV_Delay_ms(10);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
         if (displays[i])
             displays[i]->update();
@@ -45,6 +45,14 @@ void Manager::updateAll() {
 }
 
 void Manager::initAll() {
+    // reset all
+	DEV_Digital_Write(DEV_RST_PIN, 0);
+	DEV_Delay_ms(200);
+	DEV_Digital_Write(DEV_RST_PIN, 1);
+	DEV_Delay_ms(200);
+
+
+    // clear selects to high
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     DEV_Delay_ms(10);
     DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
@@ -55,6 +63,7 @@ void Manager::initAll() {
         DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     }
 
+    // prime
     DEV_Digital_Write(DEV_CS_DAT_PIN, 0);
     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
     DEV_Delay_ms(10);
@@ -63,6 +72,7 @@ void Manager::initAll() {
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     DEV_Delay_ms(10);
 
+    // init one at a time
     for (int i=0; i<numDisplays; i++) {   
         DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
         DEV_Delay_ms(10);
