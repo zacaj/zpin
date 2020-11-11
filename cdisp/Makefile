@@ -14,15 +14,15 @@ OBJ_O = $(patsubst %.cpp,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 CC = g++
 
-DEBUG = -g -O3 -Wall
-CFLAGS += $(DEBUG)
+DEBUG = -g #-O3 -Wall
+CFLAGS = $(DEBUG)
 
 TARGET = $(patsubst %.cpp,%,$(wildcard ./*.cpp))
 
 # USELIB = USE_BCM2835_LIB
 # USELIB = USE_WIRINGPI_LIB
 USELIB = USE_DEV_LIB
-DEBUG = -D $(USELIB)
+DEBUG += -D $(USELIB)
 LIB = -lm
 ifeq ($(USELIB), USE_BCM2835_LIB)
     LIB = -lbcm2835 -lm 
