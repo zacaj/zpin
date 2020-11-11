@@ -7,6 +7,7 @@ Image::Image(const char* path) {
     int w,h;
     int channels;
     float* pixels = stbi_loadf(path, &w, &h, &channels, 3);
+    if (!pixels) throw path;
     printf("loaded %ix%i image '%s' with %i channels\n", w, h, path, channels);
     assert(channels == 3 || channels == 4);
     unsigned char* image = new unsigned char[w*h*2];

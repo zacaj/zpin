@@ -20,7 +20,7 @@ import { Tree } from '../tree';
 import { playSound } from '../sound';
 import { Skillshot } from './skillshot';
 import { time } from '../timer';
-import { dText } from '../disp';
+import { dImage, dText } from '../disp';
 
 
 export class Poker extends Mode {
@@ -90,7 +90,7 @@ export class Poker extends Mode {
 
         const outs: any  = {};
         for (const target of machine.dropTargets) {
-            outs[target.image.name] = () => this.step<7 && this.slots[target.num]? getFile(this.slots[target.num]) : undefined;
+            outs[target.image.name] = () => this.step<7 && this.slots[target.num]? dImage(getFile(this.slots[target.num])) : undefined;
         }
         this.out = new Outputs(this, {
             ...outs,

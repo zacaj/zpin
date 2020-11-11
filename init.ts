@@ -10,6 +10,8 @@ import { initRecording, playRecording } from './recording';
 import { wait } from './timer';
 import { initAudio } from './sound';
 import { AttractMode } from './attract';
+import { CPU } from './cpu';
+import { fork } from './promises';
 
 const argv = require('yargs').argv;
 
@@ -20,6 +22,7 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
         if (argv.game !== undefined) game = argv.game;
         if (argv.trace !== undefined) trace = argv.trace;
         if (argv.recording !== undefined) recording = argv.recording;
+        const cpu = argv.cpu ?? false;
         const sound = argv.sound ?? mpu;
         Log.init(trace);
         Log.log(['console'], 'Initializing....');
@@ -33,6 +36,9 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
             await MPU.init(argv.ip);
         
             await machine.initOutputs();
+        }
+        if (cpu) {
+            fork(CPU.init(argv.cpuIp ?? argv.ip));
         }
 
         if (sound)

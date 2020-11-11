@@ -1,12 +1,13 @@
 import { Node } from 'aminogfx-gl';
 import { AttractMode } from './attract';
 import { Solenoid16 } from './boards';
+import { CPU } from './cpu';
 import { DisplayContent } from './disp';
 import { DropBank, DropTarget, Standup } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
 import { gfx, gfxImages, gfxLights, screen } from './gfx';
-import { Color, light, LightState } from './light';
+import { Color, colorToHex, light, LightState } from './light';
 import { Log } from './log';
 import { Mode, Modes } from './mode';
 import { Skillshot } from './modes/skillshot';
@@ -315,15 +316,32 @@ export class Image extends MachineOutput<string, ImageOutputs> {
 
     }
 
-    set(state: string|Node): boolean {
+    async set(state: string|Node|DisplayContent): Promise<boolean> {
         if (!gfx) return true;
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
+        let ret = false;
         if (l?.l) {
             l.l!.set(state);
-            return true;
+            ret = true;
         }
-        return false;
+        if (l?.n !== undefined && CPU.isConnected) {
+            if (typeof state === 'object' && 'hash' in state) {
+                if ('text' in state) {
+                    Log.log(['machine', 'cpu'], 'disp text not implemented yet');
+                }
+                else if ('image' in state) {
+                    await CPU.sendCommand(`image ${l.n} ${state.image!}`);
+                }
+                else if ('color' in state) {
+                    await CPU.sendCommand(`clear ${l.n} ${colorToHex(state.color!)!.slice(1)}`);
+                }
+            } else {
+                await CPU.sendCommand(`clear ${l.n} 000000`);
+            }
+            ret = true;
+        }
+        return ret;
     }
 }
 

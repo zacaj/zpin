@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <signal.h>
+
 using namespace std;
 
 map<string, Image*> images;
@@ -23,7 +25,7 @@ Image* getImage(string path) {
     return images[path];
 }
 
-vector<string> split(char *phrase, string delimiter){
+vector<string> split(string phrase, string delimiter){
     vector<string> list;
     string s = string(phrase);
     size_t pos = 0;
@@ -86,6 +88,9 @@ int main() {
         perror("socket failed"); 
         exit(1); 
     } 
+
+    signal(SIGPIPE, SIG_IGN);
+
        
     // Forcefully attaching socket to the port 8080 
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
@@ -124,7 +129,7 @@ int main() {
     manager.displays[7] = new Disp128(1);
     manager.initAll();
 
-    printf("server ready");
+    printf("server ready\n");
 
     while (true) {
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) 
@@ -151,19 +156,32 @@ int main() {
             close(new_socket);
             continue;
         }
+        fprintf(w, "200\n");
+        fflush(w);
         printf("Connected\n");
 
         while(true) {
+            string resp = "200";
+            string seq = "0 ";
+
             try {
                 char _cmd[1000];
-                fprintf(w, "> ");
-                fflush(w);
+                // fprintf(w, "> ");
+                // fflush(w);
                 fgets(_cmd, 1000, r);
+                if (feof(r))
+                    break;
                 _cmd[strcspn(_cmd, "\r\n")] = 0;
                 printf("got command '%s'\n", _cmd);
 
-                vector<string> parts = split(_cmd, " ");
                 string cmd(_cmd);
+
+                if (cmd[0] == '#') {
+                    seq = cmd.substr(1, cmd.find(' '));
+                    cmd = cmd.substr(1+seq.length());
+                } 
+
+                vector<string> parts = split(cmd, " ");
 
                 if (parts[0] == "q") {
                     printf("end session\n");
@@ -189,17 +207,25 @@ int main() {
                     manager.displays[disp]->drawImage(getImage(string(path)));
                     manager.updateDisplay(disp);
                 } else {
-                    fprintf(w, "unknown command '%s'\n", parts[0].c_str());
+                    resp = "400 unknown command '"+parts[0]+"'";
                 }
             } catch (...) {
                 printf("error\n");
+                resp = "500 internal server error\n";
             }
+
+            if (seq != "0")
+                fprintf(w, "#%s", seq.c_str());
+            fprintf(w, "%s\n", resp.c_str());
+            if (fflush(w))
+                break;
         }
 
         fclose(r);
         fclose(w);
         shutdown(new_socket, SHUT_RDWR);
         close(new_socket);
+        printf("connection terminated\n");
     }
     close(server_fd);
 }

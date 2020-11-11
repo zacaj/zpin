@@ -15,6 +15,7 @@ import { Color, colorToArrow } from './light';
 import { Player } from './modes/player';
 import { Rng } from './rand';
 import { State } from './state';
+import { dImage } from './disp';
 
 
 
@@ -196,7 +197,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
 
         const outs: any = {};
         for (const target of machine.dropTargets) {
-            outs[target.image.name] = () => this.targets.has(target)? this.targets.get(target) : undefined;
+            outs[target.image.name] = () => this.targets.has(target)? dImage(this.targets.get(target) as string) : undefined;
         }
         this.out = new Outputs(this, {
             ...outs,
