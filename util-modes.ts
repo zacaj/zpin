@@ -122,6 +122,8 @@ export async function KnockTarget(parent: Tree<MachineOutputs>, i?: number) {
 
     parent.addTemp(node);
 
+    fork(wait(1500).then(() => node.end()));
+
     await parent.await(node.onEnd());
 }
 

@@ -39,27 +39,6 @@ vector<string> split(string phrase, string delimiter){
     return list;
 }
 
-// void sprint(int sockfd, const char *fmt, ...) {
-//     va_list args;
-//     va_start(args, fmt);
-//     char buf[1000];
-//     vsprintf(buf, fmt, args);
-//     va_end(args);
-
-//     send(sockfd, buf, strlen(buf));
-// }
-// void sread(int sockfd, const char *fmt, ...) {
-//     char buf[1000];
-//     receive(sockfd, buf, 1000)
-
-//     va_list args;
-//     va_start(args, fmt);
-//     vsprintf(buf, fmt, args);
-//     va_end(args);
-
-//     send(sockfd, buf, strlen(buf));
-// }
-
 Color toColor(const char* str) {
     u16 r, g, b;
     sscanf(str, "%2hx%2hx%2hx", &r, &g, &b);
@@ -73,6 +52,17 @@ Color toColor(const char* str) {
     c |= ((g<<5)|(b>>0))&0xFF;
 
     return c; 
+}
+
+Manager manager(8);
+
+void clearAll(Color color) {
+    for (int i=0; i<manager.numDisplays; i++) {
+        if (manager.displays[i]) {
+            manager.displays[i]->clear(color);
+        }
+    }
+    manager.updateAll();
 }
 
 int main() {
@@ -122,7 +112,6 @@ int main() {
         return 1;
     } 
 
-    Manager manager(8);
     manager.displays[4] = new Disp128(1);
     manager.displays[5] = new Disp128(1);
     manager.displays[6] = new Disp128(1);
@@ -159,6 +148,8 @@ int main() {
         fprintf(w, "200\n");
         fflush(w);
         printf("Connected\n");
+
+        clearAll(BLACK);
 
         while(true) {
             string resp = "200";
@@ -226,6 +217,7 @@ int main() {
         shutdown(new_socket, SHUT_RDWR);
         close(new_socket);
         printf("connection terminated\n");
+        clearAll(BLUE);
     }
     close(server_fd);
 }

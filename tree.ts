@@ -64,6 +64,7 @@ export abstract class Tree<Outs extends {} = {}> {
     }
 
     end(): 'remove' {
+        if (this.ended) return 'remove';
         Events.fire(new TreeWillEndEvent(this));
         for (const child of this.children)
             child.end();

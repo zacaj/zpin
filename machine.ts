@@ -305,7 +305,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
 }
 
 
-export class Image extends MachineOutput<string, ImageOutputs> {
+export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutputs> {
     constructor(
         name: keyof ImageOutputs,
     ) {
@@ -325,6 +325,13 @@ export class Image extends MachineOutput<string, ImageOutputs> {
             l.l!.set(state);
             ret = true;
         }
+        await this.syncDisp();
+        return ret;
+    }
+
+    async syncDisp() {
+        const l = gfxImages?.[this.name];
+        const state = this.val;
         if (l?.n !== undefined && CPU.isConnected) {
             if (typeof state === 'object' && 'hash' in state) {
                 if ('text' in state) {
@@ -339,9 +346,7 @@ export class Image extends MachineOutput<string, ImageOutputs> {
             } else {
                 await CPU.sendCommand(`clear ${l.n} 000000`);
             }
-            ret = true;
         }
-        return ret;
     }
 }
 
