@@ -154,14 +154,15 @@ int main() {
         printf("Connected\n");
 
         while(true) {
-            char cmd[1000];
+            char _cmd[1000];
             fprintf(w, "> ");
             fflush(w);
-            fgets(cmd, 1000, r);
-            cmd[strcspn(cmd, "\r\n")] = 0;
-            printf("got command '%s'\n", cmd);
+            fgets(_cmd, 1000, r);
+            _cmd[strcspn(_cmd, "\r\n")] = 0;
+            printf("got command '%s'\n", _cmd);
 
-            vector<string> parts = split(cmd, " ");
+            vector<string> parts = split(_cmd, " ");
+            string cmd(_cmd);
 
             if (parts[0] == "q") {
                 printf("end session\n");
@@ -174,7 +175,7 @@ int main() {
                 manager.updateDisplay(disp);
             } else if (parts[0] == "image") {
                 int disp = stoi(parts[1]);
-                string path = parts[2];
+                string path = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
                 printf("blit image '%s' to disp %i\n", path.c_str(), disp);
                 manager.displays[disp]->drawImage(getImage(path));
                 manager.updateDisplay(disp);

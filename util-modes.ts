@@ -250,14 +250,15 @@ export class MiscAwards extends Tree<MachineOutputs> {
 
     randomizeTargets() {
         this.targets.clear();
-        for (const target of this.rng.randSelectRange(2, 4-this.player.chips+1, ...machine.dropTargets))
-            this.targets.set(target, Award.AddChip);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
-            this.targets.set(target, Award.SetSpinner);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [3, 2], [3, 0]), ...machine.dropTargets))
-            this.targets.set(target, Award.SubtractValue);
-        for (const target of this.rng.randSelectMany(this.rng.weightedSelect([5, 1], [8, 2], [3, 0]), ...machine.dropTargets))
-            this.targets.set(target, Award.AddValue);
+        // for (const target of this.rng.randSelectRange(2, 4-this.player.chips+1, ...machine.dropTargets))
+        //     this.targets.set(target, Award.AddChip);
+        // for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [1, 2], [1, 0]), ...machine.dropTargets))
+        //     this.targets.set(target, Award.SetSpinner);
+        // for (const target of this.rng.randSelectMany(this.rng.weightedSelect([8, 1], [3, 2], [3, 0]), ...machine.dropTargets))
+        //     this.targets.set(target, Award.SubtractValue);
+        // for (const target of this.rng.randSelectMany(this.rng.weightedSelect([5, 1], [8, 2], [3, 0]), ...machine.dropTargets))
+        //     this.targets.set(target, Award.AddValue);
+        this.addTargets(this.rng.weightedSelect([50, 7], [20, 5], [20, 10], [10, 12]));
     }
 
     end() {

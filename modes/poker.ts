@@ -368,14 +368,14 @@ export class Poker extends Mode {
                 change = 50;
                 break;
             case Hand.ThreeOfAKind:
-                change = 25;
-                break;
-            case Hand.TwoPair:
                 change = 20;
                 break;
-            case Hand.Pair:
+            case Hand.TwoPair:
                 change = 10;
                 break;
+            // case Hand.Pair:
+            //     change = 10;
+            //     break;
         }
         if (change) {
             this.player.changeValue(change, false);
