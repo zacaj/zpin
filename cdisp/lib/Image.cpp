@@ -8,7 +8,7 @@ Image::Image(const char* path) {
     int channels;
     float* pixels = stbi_loadf(path, &w, &h, &channels, 3);
     printf("loaded %ix%i image '%s' with %i channels\n", w, h, path, channels);
-    assert(channels == 3);
+    assert(channels == 3 || channels == 4);
     unsigned char* image = new unsigned char[w*h*2];
     for (int x=0; x<w; x++)
         for (int y=0; y<h; y++) {
@@ -25,6 +25,8 @@ Image::Image(const char* path) {
     width = w;
     height = h;
     this->pixels = (u16*) image;
+
+    stbi_image_free(pixels);
 }
 
 Color Image::getColor(u16 x, u16 y) {

@@ -154,33 +154,45 @@ int main() {
         printf("Connected\n");
 
         while(true) {
-            char _cmd[1000];
-            fprintf(w, "> ");
-            fflush(w);
-            fgets(_cmd, 1000, r);
-            _cmd[strcspn(_cmd, "\r\n")] = 0;
-            printf("got command '%s'\n", _cmd);
+            try {
+                char _cmd[1000];
+                fprintf(w, "> ");
+                fflush(w);
+                fgets(_cmd, 1000, r);
+                _cmd[strcspn(_cmd, "\r\n")] = 0;
+                printf("got command '%s'\n", _cmd);
 
-            vector<string> parts = split(_cmd, " ");
-            string cmd(_cmd);
+                vector<string> parts = split(_cmd, " ");
+                string cmd(_cmd);
 
-            if (parts[0] == "q") {
-                printf("end session\n");
-                break;
-            } else if (parts[0] == "clear") {
-                int disp = stoi(parts[1]);
-                Color color = toColor(parts[2].c_str());
-                printf("clear disp %i to 0x%x\n", disp, color);
-                manager.displays[disp]->clear(color);
-                manager.updateDisplay(disp);
-            } else if (parts[0] == "image") {
-                int disp = stoi(parts[1]);
-                string path = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
-                printf("blit image '%s' to disp %i\n", path.c_str(), disp);
-                manager.displays[disp]->drawImage(getImage(path));
-                manager.updateDisplay(disp);
-            } else {
-                fprintf(w, "unknown command '%s'\n", parts[0].c_str());
+                if (parts[0] == "q") {
+                    printf("end session\n");
+                    break;
+                } else if (parts[0] == "clear") {
+                    int disp = stoi(parts[1]);
+                    Color color = toColor(parts[2].c_str());
+                    printf("clear disp %i to 0x%x\n", disp, color);
+                    manager.displays[disp]->clear(color);
+                    manager.updateDisplay(disp);
+                } else if (parts[0] == "file") {
+                    int disp = stoi(parts[1]);
+                    string path = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
+                    printf("blit image '%s' to disp %i\n", path.c_str(), disp);
+                    manager.displays[disp]->drawImage(getImage(path));
+                    manager.updateDisplay(disp);
+                } else if (parts[0] == "image") {
+                    int disp = stoi(parts[1]);
+                    string name = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
+                    char path[1000];
+                    sprintf(path, "media/%i/%s.png", manager.displays[disp]->height, name.c_str());
+                    printf("blit image '%s' to disp %i\n", path, disp);
+                    manager.displays[disp]->drawImage(getImage(string(path)));
+                    manager.updateDisplay(disp);
+                } else {
+                    fprintf(w, "unknown command '%s'\n", parts[0].c_str());
+                }
+            } catch (...) {
+                printf("error\n");
             }
         }
 
