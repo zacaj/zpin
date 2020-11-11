@@ -31,7 +31,7 @@ import { BonusEnd } from './bonus';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
-    chips = 2;
+    chips = 1;
     _score = 0;
     get score() {
         return this._score;
@@ -161,6 +161,8 @@ export class Player extends Mode {
             lLaneLower4: () => light(this.lowerLanes[3], Color.Yellow),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
             lRampMini: [Color.Orange],
+            lSpinnerTarget: [Color.Orange],
+            lUpperTargetArrow: [Color.Orange],
         });
         
 
@@ -200,7 +202,13 @@ export class Player extends Mode {
 
         // add chips
         this.listen(
-            onAnySwitchClose(machine.sRampMini, machine.sRampMiniOuter, machine.sSpinnerMini, machine.sSidePopMini, machine.sUpperPopMini),
+            onAnySwitchClose(
+                machine.sRampMini,
+                // machine.sRampMiniOuter,
+                machine.sSpinnerMini,
+                machine.sSidePopMini,
+                // machine.sUpperPopMini
+            ),
             'addChip');
         this.listen(
             onAnySwitchClose(...machine.sUpperLanes),
@@ -241,7 +249,7 @@ export class Player extends Mode {
             if (this.chips === 0) return;
             await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
             if (time() - (machine.cPopper.lastFired??time()) > 100) return;
-            this.chips-=2;
+            this.chips-=1;
             if (this.chips<0) this.chips = 0;
         });
         
@@ -364,7 +372,7 @@ export class Player extends Mode {
     }
 
     addChip() {
-        if (this.chips < 4)
+        if (this.chips < 3)
             this.chips++;
         else 
             this.store.Poker.bank += 50;

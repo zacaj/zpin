@@ -585,11 +585,11 @@ export class Poker extends Mode {
 
     snail() {
         if (machine.sShooterLane.state) return;
-        if (this.player.chips < 2) return;
+        if (this.player.chips < 1) return;
         if (this.step <= 2 || this.step>=7)
             return;
 
-        this.player.chips -= 2;
+        this.player.chips -= 1;
 
         this.pot -= this.bet * 2;
         this.bank += this.bet;

@@ -233,7 +233,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
     setTarget(award?: Award, target?: DropTarget) {
         if (!award)
             award = this.rng.weightedSelect(
-                [.5, Award.AddChip],
+                [(3-this.player.chips)*.2, Award.AddChip],
                 [1, Award.SetSpinner],
                 [this.player.store.Poker!.cashValue<250? 0.9 : 1.6, Award.SubtractValue],
                 [this.player.store.Poker!.cashValue<250? 1.5 : 0.6, Award.AddValue],

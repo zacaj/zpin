@@ -223,10 +223,10 @@ export class Skillshot extends Mode {
                         award: '$1000',
                         made: () => this.player.store.Poker!.bank+=1000,
                     }],
-                    [32-this.player.chips*8, {
+                    [24-this.player.chips*8, {
                         switch: gen.switch,
-                        award: `+${4-this.player.chips} chips`,
-                        made: () => seq(4).forEach(() => this.player.addChip()),
+                        award: `+${3-this.player.chips} chips`,
+                        made: () => seq(3-this.player.chips).forEach(() => this.player.addChip()),
                     }],
                     [(this.player.poker?.step??0)>2? 20:0, {
                         switch: gen.switch,

@@ -436,6 +436,8 @@ export type LightOutputs = {
     lLaneLower2: LightState[];
     lLaneLower3: LightState[];
     lLaneLower4: LightState[];
+    lSpinnerTarget: LightState[];
+    lUpperLaneTarget: LightState[];
 };
 export type ImageOutputs = {
     iCenter1: string|Node|DisplayContent;
@@ -684,6 +686,8 @@ export class Machine extends Tree<MachineOutputs> {
     lLaneLower2 = new Light('lLaneLower2', 0);
     lLaneLower3 = new Light('lLaneLower3', 0);
     lLaneLower4 = new Light('lLaneLower4', 0);
+    lSpinnerTarget = new Light('lSpinnerTarget', 0);
+    lUpperLaneTarget = new Light('lUpperLaneTarget', 0);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -835,6 +839,8 @@ export class Machine extends Tree<MachineOutputs> {
             lLaneLower2: [],
             lLaneLower3: [],
             lLaneLower4: [],
+            lSpinnerTarget: [],
+            lUpperLaneTarget: [],
             iCenter1: '',
             iCenter2: '',
             iCenter3: '',
