@@ -15,7 +15,7 @@ int main() {
     Image queen("media/128/Playing Card Vectors - Samples QH.png");
     Image test("media/160/raise_bet_100.png");
 
-    Disp160* disp = new Disp160(0, MIRROR_NONE, ROTATE_90);
+    Disp160* disp = new Disp160(0, ROTATE_180);
     disp->init();
     
     disp->clear(YELLOW);

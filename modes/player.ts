@@ -618,7 +618,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         if (screen) {
             player.gfx?.add(this.text);
             this.text.z(100);
-            this.text.y(Screen.h*.25);
+            this.text.y(0);
             this.watch(() => (this.text.children[3] as Text).text(score(this.total)));
         }
 

@@ -6,7 +6,7 @@ public:
     int xOffset = 0;
     int yOffset = 0;
 
-    ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
+    ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate = ROTATE_0, MIRROR_IMAGE mirror = MIRROR_NONE);
 
     virtual void init();
     virtual void update();

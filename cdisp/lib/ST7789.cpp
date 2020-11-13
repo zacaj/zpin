@@ -1,8 +1,8 @@
 #include "ST7789.h"
 #include "../HW/DEV_Config.h"
 
-ST7789::ST7789(int number, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate): 
-    Display(number, 320, 240, L2R_U2D, mirror, rotate) {
+ST7789::ST7789(int number, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror):
+    Display(number, 320, 240, L2R_U2D, rotate, mirror) {
         
 }
 

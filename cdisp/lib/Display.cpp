@@ -4,7 +4,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror, ROTATE_IMAGE rotate)
+Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror)
 : number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
     pixels = new u16[width*height];
     clear(MAGENTA);
@@ -114,5 +114,5 @@ void Display::savePng(const char* path) {
     }
 
     stbi_write_png(path, pixWidth, pixHeight, 3, image, 0);
-    delete image;
+    delete[] image;
 }

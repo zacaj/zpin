@@ -30,7 +30,7 @@ typedef enum {
 
 class Display {
 protected:
-    Display(int number, int width, int height, LCD_SCAN_DIR scanDir, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
+    Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate = ROTATE_0, MIRROR_IMAGE mirror = MIRROR_NONE);
 
 public:
     int number;

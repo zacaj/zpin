@@ -3,7 +3,7 @@
 
 class ST7789 : public Display {
 public:    
-    ST7789(int number, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
+    ST7789(int number, ROTATE_IMAGE rotate = ROTATE_0, MIRROR_IMAGE mirror = MIRROR_NONE);
 
     virtual void init();
     virtual void update();

@@ -4,5 +4,5 @@
 
 class Disp160 : public ST7735 {
 public:
-    Disp160(int number, MIRROR_IMAGE mirror = MIRROR_NONE, ROTATE_IMAGE rotate = ROTATE_0);
+    Disp160(int number, ROTATE_IMAGE rotate = ROTATE_0, MIRROR_IMAGE mirror = MIRROR_NONE);
 };

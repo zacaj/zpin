@@ -112,10 +112,11 @@ int main() {
         return 1;
     } 
 
-    manager.displays[4] = new Disp128(1);
-    manager.displays[5] = new Disp128(1);
-    manager.displays[6] = new Disp128(1);
-    manager.displays[7] = new Disp128(1);
+    manager.displays[1] = new Disp128(1, ROTATE_180);
+    manager.displays[4] = new Disp128(4, ROTATE_180);
+    manager.displays[5] = new Disp128(5, ROTATE_180);
+    manager.displays[6] = new Disp128(6);
+    manager.displays[7] = new Disp128(7);
     manager.initAll();
 
     printf("server ready\n");
