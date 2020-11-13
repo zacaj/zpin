@@ -475,7 +475,7 @@ export class Display extends Group {
                 this.node = pfx?.createRect().fill(colorToHex(val.color!)!).w(160).h(80);
             }
             if ('image' in val) {
-                this.node = makeImage(val.image!, 80, 160);
+                this.node = makeImage(val.image!, 80, 160, undefined, pfx);
             }
             this.add(this.node!);
         } else {
@@ -761,9 +761,9 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     l?: Display;
     n?: number; // physical display number
 }} = {
-    iCenter1: { x: 9.5, y: 23.65, r: -17},
-    iCenter2: { x: 10.7, y: 23.35, r: -17},
-    iCenter3: { x: 12.0, y: 22.95, r: -17},
+    iCenter1: { x: 9.5, y: 23.65, r: -17, n: 1 },
+    iCenter2: { x: 10.7, y: 23.35, r: -17, n: 4 },
+    iCenter3: { x: 12.0, y: 22.95, r: -17, n: 5 },
     iLeft1: { x: 3, y: 21.5, r: 77.6 },
     iLeft2: { x: 3.25, y: 22.7, r: 77.6 },
     iLeft3: { x: 3.5, y: 23.9, r: 77.6 },
@@ -775,7 +775,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iRight5: { x: 17.1, y: 21.1, r: -77.6 },
     iUpper21: { x: 6.9, y: 38.0, r: -157-180 },
     iUpper22: { x: 7.95, y: 38.37, r: -157-180 },
-    iUpper31: { x: 9.8, y: 38.9, r: -42, n: 5 },
+    iUpper31: { x: 9.8, y: 38.9, r: -42, },
     iUpper32: { x: 10.5, y: 38.1, r: -42, n: 6 },
     iUpper33: { x: 11.5, y: 37.3, r: -42, n: 7 },
     iMini1: { x: 2.5, y: 6.8, r: 153-180 },

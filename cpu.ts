@@ -24,7 +24,8 @@ export const CPU = {
     connecting: false,
 
     async init(ip?: string) {
-        this.ip = '192.168.2.11';
+        // this.ip = '192.168.2.11';
+        if (ip) this.ip = ip;
 
         socket.setTimeout(1000);
         socket.setNoDelay(true);

@@ -606,12 +606,13 @@ export class Multiplier extends Tree<MachineOutputs> {
                 await wait(250);
                 return this.end();
             });
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), 'end');
 
         this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
 
         this.text = textBox({maxWidth: 0.8}, 
             ['2X SCORING', 60, 20],
-            ['Avoid Lanes', 35, 20],
+            ['Avoid Lanes and Slings', 35, 20],
             ['', 50, 10],
         );
         if (screen) {

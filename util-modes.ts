@@ -1,7 +1,7 @@
 import { Mode, Modes } from './mode';
 import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light } from './machine';
 import { Outputs, toggle } from './outputs';
-import { getTypeIn, assert, score } from './util';
+import { getTypeIn, assert, score, eq } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent, DropDownEvent, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Events, onType } from './events';
@@ -207,7 +207,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
         });
 
         this.listen<DropDownEvent>([DropDownEvent.on(), e => this.targets.has(e.target)], (e) => {
-            if (machine.out!.treeValues[e.target.image.name] !== this.out?.treeValues[e.target.image.name])
+            if (!eq(machine.out!.treeValues[e.target.image.name], this.out?.treeValues[e.target.image.name]))
                 return;
             this.spinnerValue = undefined;
             switch (this.targets.get(e.target)) {
