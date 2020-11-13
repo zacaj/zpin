@@ -1,3 +1,5 @@
+import { dImage, DisplayContent } from "./disp";
+
 export enum Color {
     Red = 'Red',
     Green = 'Green',
@@ -98,7 +100,7 @@ export function flashLight(cond: boolean, color = Color.White, off = Color.Red, 
     }] : [off];
 }
 
-export function colorToArrow(color?: Color): string|undefined {
+export function colorToArrow(color?: Color): DisplayContent|undefined {
     if (!color) return undefined;
-    return color.toLowerCase()+'Arrow';
+    return dImage(color.toLowerCase()+'Arrow');
 }

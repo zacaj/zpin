@@ -103,7 +103,9 @@ export class Poker extends Mode {
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             lFold: () => light(this.foldLit, Color.Red),
-            iRamp: () => this.step<7? dText(money(-this.betAdjust*this.adjustSide, 0, '+')) : undefined,
+            iRamp: () => this.step<7? dText(money(-this.betAdjust*this.adjustSide, 0, '+')) : dText('Finish'),
+            iSS5: () => this.step >=7? dText('Finish') : (this.foldLit? dText('Fold') : undefined),
+            iSS1: () => this.step >=7? dText('Finish') : undefined,
             iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dText(money(this.betAdjust*this.adjustSide, 0, '+')) : undefined,
         });
 
@@ -128,7 +130,7 @@ export class Poker extends Mode {
                 // this.qualifyModes();
 
                 if (this.step === 7) {
-                    this.misc.addTargets(7 - this.misc.targets.size);
+                    // this.misc.addTargets(7 - this.misc.targets.size);
                     fork(ResetDropBanks(this, machine.rightBank).then(() => {
                         for (let i=0; i<3; i++) {
                             if (machine.rightBank.targets.slice(i+1).every(t => t.state))
@@ -360,6 +362,7 @@ export class Poker extends Mode {
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
+        fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 
         let change: number|undefined = undefined;
@@ -382,14 +385,16 @@ export class Poker extends Mode {
             notify(`${HandNames[result.aHand]}: $ VALUE +${comma(change)} -> ${this.player.store.Poker!.cashValue}`, 3000);
         }
 
-        const speed = 30;
-        const maxTime = 2000;
-        const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
-        while (this.pot !== 0) {
-            const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1);
-            this.bank += change;
-            this.pot -= Math.abs(change);
-            await gWait(speed, 'win count');
+        if (this.playerWins) {
+            const speed = 30;
+            const maxTime = 2000;
+            const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
+            while (this.pot !== 0) {
+                const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1);
+                this.bank += change;
+                this.pot -= Math.abs(change);
+                await gWait(speed, 'win count');
+            }
         }
 
         await gWait(1500, 'showing cards');

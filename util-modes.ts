@@ -233,10 +233,10 @@ export class MiscAwards extends Tree<MachineOutputs> {
     setTarget(award?: Award, target?: DropTarget) {
         if (!award)
             award = this.rng.weightedSelect(
-                [(3-this.player.chips)*.2, Award.AddChip],
+                [(3-this.player.chips)*.35, Award.AddChip],
                 [1, Award.SetSpinner],
-                [this.player.store.Poker!.cashValue<250? 0.9 : 1.6, Award.SubtractValue],
-                [this.player.store.Poker!.cashValue<250? 1.5 : 0.6, Award.AddValue],
+                [this.player.store.Poker!.cashValue<250? 0.6 : 1.3, Award.SubtractValue],
+                [this.player.store.Poker!.cashValue<250? 1.3 : 0.4, Award.AddValue],
                 [1, undefined],
             );
         if (!target)
@@ -261,7 +261,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
         //     this.targets.set(target, Award.SubtractValue);
         // for (const target of this.rng.randSelectMany(this.rng.weightedSelect([5, 1], [8, 2], [3, 0]), ...machine.dropTargets))
         //     this.targets.set(target, Award.AddValue);
-        this.addTargets(this.rng.weightedSelect([50, 7], [20, 5], [20, 10], [10, 12]));
+        this.addTargets(this.rng.weightedSelect([50, 5], [20, 3], [20, 7], [7, 10]));
     }
 
     end() {

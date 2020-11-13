@@ -78,7 +78,7 @@ export class Bonus extends Mode {
         }
         // alert(`bonus took ${new Date().getTime()-start}`);
         // await gWait(1000, 'bonus end');
-        this.total = initialTotal;
+        // this.total = initialTotal;
         await gWait(2000, 'bonus end');
         // if (this.ball.tilted) 
         this.end();

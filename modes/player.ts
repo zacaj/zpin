@@ -28,6 +28,7 @@ import { FullHouseMb } from './full-house.mb';
 import { playSound } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
+import { dText } from '../disp';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -143,8 +144,10 @@ export class Player extends Mode {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
             rampUp: () => machine.lRampStartMb.is(Color.Red) || !machine.lRampStartMb.lit(),
             lShooterStartHand: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
+            iSS1: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? dText('Hand') : undefined,
             lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[this.mbColor(), 'fl']] : [Color.Red]) : [],
+            iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dText('Multi') : undefined,
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
