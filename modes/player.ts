@@ -131,6 +131,14 @@ export class Player extends Mode {
         else return Color.Blue;
     }
 
+    get mbReady(): boolean {
+        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7;
+    }
+
+    get shooterStartHand(): boolean {
+        return (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7;
+    }
+
     constructor(
         public game: Game,
         public number: number,
@@ -142,18 +150,16 @@ export class Player extends Mode {
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
-            rampUp: () => machine.lRampStartMb.is(Color.Red) || !machine.lRampStartMb.lit(),
-            lShooterStartHand: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? [[Color.Green, 'fl']] : [],
+            rampUp: () => !this.mbReady,
             iSS1: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? dText('Hand') : undefined,
-            lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
-            lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[this.mbColor(), 'fl']] : [Color.Red]) : [],
+            // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
+            // lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[this.mbColor(), 'fl']] : [Color.Red]) : [],
             iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dText('Multi') : undefined,
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
-            lPower4: () => light(this.chips>=4, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
-            shooterDiverter: () => machine.lShooterStartHand.lit()? true : undefined,
+            shooterDiverter: () =>  (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : undefined,
             lLaneUpper1: () => light(this.upperLaneChips[0], Color.Orange),
             lLaneUpper2: () => light(this.upperLaneChips[1], Color.Orange),
             lLaneUpper3: () => light(this.upperLaneChips[2], Color.Orange),
@@ -249,16 +255,20 @@ export class Player extends Mode {
         });
         // subtract chips
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable], async () => {
-            if (this.chips === 0) return;
+            if (!machine.lPower1.lit()) return;
             await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
             if (time() - (machine.cPopper.lastFired??time()) > 100) return;
-            this.chips-=1;
+            
+            if (!machine.lPower1.is(Color.Orange))
+                this.chips-=1;
             if (this.chips<0) this.chips = 0;
         });
         
         this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
-            if (this.chips === 0) return;
-            this.chips--;
+            if (!machine.lPower1.lit()) return;
+            if (!machine.lPower1.is(Color.Orange))
+                this.chips-=1;
+                if (this.chips<0) this.chips = 0;
         });
 
         this.listen(onChange(this, 'focus'), e => {
@@ -304,7 +314,7 @@ export class Player extends Mode {
         });
 
 
-        this.listen([...onSwitchClose(machine.sRampMade), () => machine.lRampStartMb.lit()], () => {
+        this.listen([...onSwitchClose(machine.sRampMade), () => this.mbReady], () => {
             switch (this.selectedMb) {
                 case 'HandMb':
                     return HandMb.start(this);
@@ -319,7 +329,7 @@ export class Player extends Mode {
             }
         });
 
-        this.listen([...onSwitchClose(machine.sShooterLane), () => machine.lShooterStartHand.lit()], async () => {
+        this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
             await Poker.start(this);
         });
 

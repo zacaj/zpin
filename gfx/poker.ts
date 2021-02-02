@@ -56,8 +56,8 @@ export class PokerGfx extends ModeGroup {
         poker.watch(() => this.doneInstr.visible(poker.step === 7 && !poker.closeShooter));
         poker.watch(() => {
             const places = ['Shooter Lane'];
-            if (machine.lEjectShowCards.lit()) places.push('Eject');
-            if (machine.lRampShowCards.lit()) places.push('Ramp');
+            if (poker.showCardsReady) places.push('Eject');
+            if (poker.showCardsReady) places.push('Ramp');
             this.doneInstr.text('finish hand at '+places.nonOxford('or'));
         });
 

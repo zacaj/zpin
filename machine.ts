@@ -374,7 +374,7 @@ export type CoilOutputs = {
     miniEject: boolean;
     miniBank: boolean;
     miniDiverter: boolean;
-    magnetPost: boolean;
+    // magnetPost: boolean;
     leftBank: boolean;
     rightBank: boolean;
     realRightBank: boolean;
@@ -398,23 +398,14 @@ export type CoilOutputs = {
 };
 
 export type LightOutputs = {
-    lLowerRamp: LightState[];
     lMiniReady: LightState[];
-    lShooterShowCards: LightState[];
-    lShooterStartHand: LightState[];
-    lEjectShowCards: LightState[];
-    lEjectStartMode: LightState[];
-    lRampShowCards: LightState[];
-    lRampStartMb: LightState[];
     lRampArrow: LightState[];
     lPower1: LightState[];
     lPower2: LightState[];
     lPower3: LightState[];
-    lPower4: LightState[];
     lMagnet1: LightState[];
     lMagnet2: LightState[];
     lMagnet3: LightState[];
-    lMagnet4: LightState[];
     lPopperStatus: LightState[];
     lLaneUpper1: LightState[];
     lLaneUpper2: LightState[];
@@ -425,13 +416,11 @@ export type LightOutputs = {
     lUpperLaneArrow: LightState[];
     lUpperTargetArrow: LightState[];
     lSpinnerArrow: LightState[];
-    lShooterLaneArrow: LightState[];
     lLeftArrow: LightState[];
     lSideTargetArrow: LightState[];
     lMainTargetArrow: LightState[];
     lRampMini: LightState[];
     lShootAgain: LightState[];
-    lFold: LightState[];
     lLaneLower1: LightState[];
     lLaneLower2: LightState[];
     lLaneLower3: LightState[];
@@ -477,7 +466,7 @@ export class Machine extends Tree<MachineOutputs> {
     cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 40, 1000);
     cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
-    cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
+    // cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
     cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
@@ -648,23 +637,14 @@ export class Machine extends Tree<MachineOutputs> {
 
     lastSwitchHit?: Switch;
 
-    lRampDown = new Light('lLowerRamp', 0);
     lMiniReady = new Light('lMiniReady', 0);
-    lShooterShowCards = new Light('lShooterShowCards', 0);
-    lShooterStartHand = new Light('lShooterStartHand', 0);
-    lEjectShowCards = new Light('lEjectShowCards', 0);
-    lEjectStartMode = new Light('lEjectStartMode', 0);
-    lRampShowCards = new Light('lRampShowCards', 0);
-    lRampStartMb = new Light('lRampStartMb', 0);
     lRampArrow = new Light('lRampArrow', 0);
     lPower1 = new Light('lPower1', 0);
     lPower2 = new Light('lPower2', 0);
     lPower3 = new Light('lPower3', 0);
-    lPower4 = new Light('lPower4', 0);
     lMagnet1 = new Light('lMagnet1', 0);
     lMagnet2 = new Light('lMagnet2', 0);
     lMagnet3 = new Light('lMagnet3', 0);
-    lMagnet4 = new Light('lMagnet4', 0);
     lPopperStatus = new Light('lPopperStatus', 0);
     lLaneUpper1 = new Light('lLaneUpper1', 0);
     lLaneUpper2 = new Light('lLaneUpper2', 0);
@@ -675,13 +655,11 @@ export class Machine extends Tree<MachineOutputs> {
     lUpperLaneArrow = new Light('lUpperLaneArrow', 0);
     lUpperTargetArrow = new Light('lUpperTargetArrow', 0);
     lSpinnerArrow = new Light('lSpinnerArrow', 0);
-    lShooterLaneArrow = new Light('lShooterLaneArrow', 0);
     lLeftArrow = new Light('lLeftArrow', 0);
     lSideTargetArrow = new Light('lSideTargetArrow', 0);
     lRampMini = new Light('lRampMini', 0);
     lMainTargetArrow = new Light('lMainTargetArrow', 0);
     lShootAgain = new Light('lShootAgain', 0);
-    lFold = new Light('lFold', 0);
     lLaneLower1 = new Light('lLaneLower1', 0);
     lLaneLower2 = new Light('lLaneLower2', 0);
     lLaneLower3 = new Light('lLaneLower3', 0);
@@ -799,25 +777,16 @@ export class Machine extends Tree<MachineOutputs> {
             right3: false,
             right4: false,
             right5: false,
-            magnetPost: false,
+            // magnetPost: false,
             // temp: () => 0,
-            lLowerRamp: [],
             lMiniReady: [Color.Red],
-            lShooterShowCards: [],
-            lShooterStartHand: [],
-            lEjectShowCards: [],
-            lEjectStartMode: [],
-            lRampShowCards: [],
-            lRampStartMb: [],
             lRampArrow: [],
             lPower1: [],
             lPower2: [],
             lPower3: [],
-            lPower4: [],
             lMagnet1: () => light(this.lPower1.lit(), Color.Green),
             lMagnet2: () => light(this.lPower2.lit(), Color.Green),
             lMagnet3: () => light(this.lPower3.lit(), Color.Green),
-            lMagnet4: () => light(this.lPower4.lit(), Color.Green),
             lPopperStatus: [],
             lLaneUpper1: [],
             lLaneUpper2: [],
@@ -828,13 +797,11 @@ export class Machine extends Tree<MachineOutputs> {
             lUpperLaneArrow: [],
             lUpperTargetArrow: [],
             lSpinnerArrow: [],
-            lShooterLaneArrow: [],
             lLeftArrow: [],
             lSideTargetArrow: [],
             lMainTargetArrow: [],
             lShootAgain: [],
             lRampMini: [],
-            lFold: [],
             lLaneLower1: [],
             lLaneLower2: [],
             lLaneLower3: [],

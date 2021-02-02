@@ -35,9 +35,9 @@ export class PlayerGfx extends ModeGroup {
         this.noMode.add(this.instr.y(Screen.h*.49));
         player.watch(() => this.instr.visible(!player.curMode));
         player.watch(() => this.instr.text([
-            machine.lShooterStartHand.lit()? 'START HAND IN SHOOTER LANE' : undefined,
-            machine.lEjectStartMode.lit()? 'START MODE aT EJECT HOLE' : undefined,
-            machine.lRampStartMb.lit()? 'START MULTIBALL aT RAMP' : undefined,
+            player.shooterStartHand? 'START HAND IN SHOOTER LANE' : undefined,
+            // machine.lEjectStartMode.lit()? 'START MODE aT EJECT HOLE' : undefined,
+            player.mbReady? 'START MULTIBALL aT RAMP' : undefined,
         ].filter(x => !!x).join('\n')));
 
         this.noMode.add(leftAlign(

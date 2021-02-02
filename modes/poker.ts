@@ -74,6 +74,10 @@ export class Poker extends Mode {
     }
     adjustSide = -1;
 
+    get showCardsReady(): boolean {
+        return this.step >= 7;
+    }
+
     constructor(
         public player: Player,
     ) {
@@ -94,12 +98,9 @@ export class Poker extends Mode {
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => machine.lRampShowCards.lit()? false : undefined,
-            lockPost: () => machine.lRampShowCards.lit()? false : undefined,
-            upperEject: () => machine.lEjectShowCards.lit()? false : undefined,
-            lShooterShowCards: () => this.step >= 7? [Color.White] : [],
-            lEjectShowCards: () => this.step >= 7? [Color.White] : [],
-            lRampShowCards: () => this.step >= 7? [Color.White] : [],
+            rampUp: () => this.showCardsReady? false : undefined,
+            lockPost: () => this.showCardsReady? false : undefined,
+            upperEject: () => this.showCardsReady? false : undefined,
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             lFold: () => light(this.foldLit, Color.Red),
