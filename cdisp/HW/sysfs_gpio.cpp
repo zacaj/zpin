@@ -104,6 +104,22 @@ int SYSFS_GPIO_Direction(int Pin, int Dir)
     }
     
     close(fd);
+
+
+    // snprintf(path, DIR_MAXSIZ, "/sys/class/gpio/gpio%d/active_low", Pin);
+    // fd = open(path, O_WRONLY);
+    // if (fd < 0) {
+    //     SYSFS_GPIO_Debug( "Set pd failed: Pin%d\n", Pin);
+    //     return -1;
+    // }
+
+    // if (write(fd, "1", 1) < 0) {
+    //     SYSFS_GPIO_Debug("failed to set pd!\r\n");
+    //     return -1;
+    // }
+
+    
+    // close(fd);
     return 0;
 }
 

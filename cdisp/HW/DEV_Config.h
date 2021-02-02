@@ -31,7 +31,34 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+/* J6
+        black
+        white
+        orange - SCL
+        blue - SDA
+        grey - RST
+        pink - DC
+        orange - 1
+        not used
+        blue - 4
+        purple - 5
+        pink - 6
+        brown - 7
 
+    J1
+        black
+        white
+        orange - SCL
+        blue - SDA
+        grey - RST
+        pink - DC
+        not used
+        not used
+        red - 0
+        orange - 1
+        yellow - 2
+        green - 3
+        */
 /**
  * data
 **/
@@ -55,6 +82,7 @@
 
 #define DEV_CS_CLK_PIN 3 // pin 5, purple
 #define DEV_CS_DAT_PIN 4 // pin 7, brown
+#define DEV_3V_PIN 17 // pin 11, white
 
 /*------------------------------------------------------------------------------------------------------*/
 UBYTE DEV_ModuleInit(void);

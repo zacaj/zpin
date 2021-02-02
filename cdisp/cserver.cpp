@@ -54,7 +54,7 @@ Color toColor(const char* str) {
     return c; 
 }
 
-Manager manager(8);
+Manager manager(24);
 
 void clearAll(Color color) {
     for (int i=0; i<manager.numDisplays; i++) {
@@ -65,6 +65,27 @@ void clearAll(Color color) {
     manager.updateAll();
 }
 
+u8 power = 0;
+void checkPower() {
+    u8 now = DEV_Digital_Read(DEV_3V_PIN);
+    // printf("power: %i\n", now);
+    if (now && !power) {
+        printf("power detected\n");
+        fflush(stdout);
+        usleep(6000000);
+        printf("initializing displays... ");
+        fflush(stdout);
+        clock_t start = clock();
+        manager.initAll();
+        printf("done in %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
+        fflush(stdout);
+    }
+    else if (!now && power) {
+        printf("power lost!\n");
+    }
+    power = now;
+}
+
 int main() {
     printf("Starting C server\n"); 
     int server_fd, new_socket, valread; 
@@ -73,7 +94,7 @@ int main() {
     int addrlen = sizeof(address); 
 
      // Creating socket file descriptor 
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) 
+    if ((server_fd = socket(AF_INET, SOCK_STREAM|SOCK_NONBLOCK, 0)) == 0) 
     { 
         perror("socket failed"); 
         exit(1); 
@@ -106,28 +127,99 @@ int main() {
         exit(1); 
     } 
 
-    printf("initializing displays..");
 	if(DEV_ModuleInit() != 0){
         DEV_ModuleExit();
         return 1;
     } 
 
-    manager.displays[1] = new Disp128(1, ROTATE_180);
-    manager.displays[4] = new Disp128(4, ROTATE_180);
-    manager.displays[5] = new Disp128(5, ROTATE_180);
-    manager.displays[6] = new Disp128(6);
-    manager.displays[7] = new Disp128(7);
-    manager.initAll();
+    /*
+        center bank plexer:
+            1: center 1 (J6)
+            4: center 2
+            5: center 3
+
+        4 bank plexer:
+            4: 4 bank 1  (J6)
+            5: 4 bank 2
+            6: 4 bank 3
+            7: 4 bank 4
+
+        5 bank plexer:
+            1: 5 bank 1 (J6)
+            4: 5 bank 2
+            5: 5 bank 3
+            6: 5 bank 4
+            7: 5 bank 5
+
+        upper banks plexer:
+            2: 2 bank 1 (J1)
+            3: 2 bank 2
+            5: 3 bank 3 (J6)
+            6: 3 bank 2
+            7: 3 bank 1
+    */
+
+#define CenterPlex(n) +n
+#define LeftPlex(n) 8+n
+#define UpperPlex(n) 16+n
+#define RightPlex(n) 0+n
+    // manager.displays[CenterPlex(1)] = new Disp128(1, ROTATE_180); // Center 1
+    // manager.displays[CenterPlex(4)] = new Disp128(4, ROTATE_180); // center 2
+    // manager.displays[CenterPlex(5)] = new Disp128(5, ROTATE_180); // center 3 
+    // manager.displays[6] = new Disp128(6);
+    // // manager.displays[7] = new Disp128(7);
+    manager.displays[LeftPlex(4)] = new Disp128(4, ROTATE_180); // left 1
+    manager.displays[LeftPlex(5)] = new Disp128(5, ROTATE_180); // left 2
+    manager.displays[LeftPlex(6)] = new Disp128(6, ROTATE_180); // left 3 
+    manager.displays[LeftPlex(7)] = new Disp128(7, ROTATE_180); // left 4
+    manager.displays[RightPlex(1)] = new Disp128(1, ROTATE_0); // right 1
+    manager.displays[RightPlex(4)] = new Disp128(4, ROTATE_0); // right 2
+    manager.displays[RightPlex(5)] = new Disp128(5, ROTATE_0); // right 3
+    manager.displays[RightPlex(6)] = new Disp128(6, ROTATE_0); // right 4 
+    manager.displays[RightPlex(7)] = new Disp128(7, ROTATE_0); // right 5
+    manager.displays[UpperPlex(2)] = new Disp128(2, ROTATE_0); // left 1
+    manager.displays[UpperPlex(3)] = new Disp128(3, ROTATE_0); // left 2
+    manager.displays[UpperPlex(5)] = new Disp128(5, ROTATE_180); // right 3
+    manager.displays[UpperPlex(6)] = new Disp128(6, ROTATE_180); // right 2
+    manager.displays[UpperPlex(7)] = new Disp128(7, ROTATE_180); // right 1
+
+    // reset all
+	// DEV_Digital_Write(DEV_RST_PIN, 1);
+	// DEV_Delay_ms(200);
+
+
+    // // clear selects to high
+    // DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // // DEV_Delay_ms(10);
+    // DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
+    // // DEV_Delay_ms(10);
+    // for (int i=0; i<manager.numDisplays+2; i++) {   
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
+    //     // DEV_Delay_ms(10);
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // }
+
 
     printf("server ready\n");
 
     while (true) {
+        connWait:
+        checkPower();
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) 
         { 
-            perror("accept fail"); 
+            int err = errno;
+            if (err == EAGAIN || err == EWOULDBLOCK) {
+                usleep(500000);
+                // printf("waiting for connectoin...\n");
+                printf("x");
+                fflush(stdout);
+                goto connWait;
+            }
+            printf("accept fail %i\n", err); 
             exit(1); 
         } 
         printf("Incoming connection...\n");
+        fflush(stdout);
         FILE* r = fdopen(dup(new_socket), "r");
         FILE* w = fdopen(dup(new_socket), "w");
 
@@ -160,6 +252,7 @@ int main() {
                 char _cmd[1000];
                 // fprintf(w, "> ");
                 // fflush(w);
+                checkPower();
                 fgets(_cmd, 1000, r);
                 if (feof(r))
                     break;
@@ -198,7 +291,16 @@ int main() {
                     printf("blit image '%s' to disp %i\n", path, disp);
                     manager.displays[disp]->drawImage(getImage(string(path)));
                     manager.updateDisplay(disp);
-                } else {
+                } else if (parts[0] == "rand") {
+                    for (int i=0; i<manager.numDisplays; i++) {
+                        if (!manager.displays[i]) continue;
+                        manager.displays[i]->clear(rand());
+                    }
+                    clock_t start = clock();
+                    manager.updateAll();
+                    printf("rand all took %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
+                }
+                else {
                     resp = "400 unknown command '"+parts[0]+"'";
                 }
             } catch (...) {

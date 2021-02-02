@@ -103,6 +103,7 @@ static void DEV_GPIOConfig(void)
     DEV_GPIO_Mode(DEV_DC_PIN, 1);
     DEV_GPIO_Mode(DEV_CS_CLK_PIN, 1);
     DEV_GPIO_Mode(DEV_CS_DAT_PIN, 1);
+    DEV_GPIO_Mode(DEV_3V_PIN, 0);
 
 }
 

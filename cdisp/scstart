@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd /home/pi/zpin/cdisp/
+screen -L -Logfile scserver.log -S cserver -d -m ./cstart
