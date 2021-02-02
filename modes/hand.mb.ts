@@ -131,7 +131,7 @@ export class HandMb extends Multiball {
         addToScreen(() => new HandMbGfx(this));
     }
 
-    static async start(player: Player, isRestarted = false): Promise<HandMb|false> {
+    static async start(player: Player, isRestarted = false, value?: number, drops?: number, banks?: number): Promise<HandMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
@@ -141,6 +141,9 @@ export class HandMb extends Multiball {
                 player.mbsQualified.delete('HandMb');
             }
             const mb = new HandMb(player, isRestarted);
+            if (value) mb.value = value;
+            if (drops) mb.drops = drops;
+            if (banks) mb.banks = banks;
             player.focus = mb;
             (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Hand Multiball!', 3000)[1];
@@ -163,8 +166,8 @@ export class HandMb extends Multiball {
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(20 - this.drops * 4, 6), () => {
-                return HandMb.start(this.player, true);
+            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(25 - this.drops * 4, 9), () => {
+                return HandMb.start(this.player, true, this.value, this.drops, this.banks);
             }));
         }
         return ret;

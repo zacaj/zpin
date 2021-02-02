@@ -291,8 +291,10 @@ export class Playfield extends Group {
         } else {
             this.x(-((Playfield.w*screenH/Playfield.h)-screenW)/2).y(0);
         }
-        this.add(pfx!.createRect().w(Playfield.w).h(Playfield.h).originX(0).originY(0));
-        this.add(this.bg);
+        this.add(pfx!.createRect().w(Playfield.w).h(Playfield.h).originX(0).originY(0).fill('#000000'));
+        if (split)
+            this.bg.opacity(.8);
+            this.add(this.bg);
 
         for (const name of Object.keys(gfxLights) as (keyof LightOutputs)[]) {
             gfxLights[name].l = new (gfxLights[name].d? CircleLight: ArrowLight)(name);
@@ -673,7 +675,7 @@ export function makeText<T extends Color|undefined = undefined>(text: string, he
     align: 'corner'|'center'|'left'|'right' = 'center',
     vAlign: 'baseline'|'top'|'middle'|'bottom'|undefined = undefined,
     g = gfx,
-    colorSwatch?: T,
+    colorSwatch?: T | (() => T),
 ): T extends Color? Group : Text {
     const t = g.createText().fontName('card').sy(1).sx(1).text(text).fontSize(height)
         .align(align === 'corner' ? 'left' : align)
@@ -681,7 +683,7 @@ export function makeText<T extends Color|undefined = undefined>(text: string, he
     if (colorSwatch) {
         const group = g.createGroup();
         group.add(t);
-        const r = g.createRect().fill(colorToHex(colorSwatch!)!);
+        const r = g.createRect().fill(colorToHex(typeof colorSwatch==='function'? colorSwatch()! : colorSwatch!)!);
         r.h(height*.8);
         r.y(-height*.05);
         r.w(height*.5);

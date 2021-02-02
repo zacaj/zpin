@@ -11,6 +11,7 @@ import { wait } from '../timer';
 import { fork } from '../promises';
 import { Player } from './player';
 import { assert, getCallerLoc } from '../util';
+import { Color } from '../light';
 
 export abstract class Multiball extends Mode {
     get nodes() {
@@ -39,13 +40,16 @@ export abstract class Multiball extends Mode {
         this.listen(onSwitchClose(machine.sOuthole), 'ballDrained');
 
         this.misc = new MiscAwards(player);
-        this.misc.randomizeTargets();
+        this.misc.addTargets(3);
 
         this.out = new Outputs(this, {
             miniDiverter: false,
             lMiniReady: [],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
+            lPower1: () => [[Color.White, 'pl']],
+            lPower2: () => [[Color.White, 'pl']],
+            lPower3: () => [[Color.White, 'pl']],
         }, true);
     }
 

@@ -47,8 +47,10 @@ export class Game extends Mode {
 
         this.out = new Outputs(this, {
             kickerEnable: true,
-            // magnetPost: () => machine.sShooterUpper.wasClosedWithin(500) && !machine.sShooterLower.wasClosedWithin(750),
-            // upperMagnet: () => machine.sShooterUpper.wasClosedWithin(5000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
+            // magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
+            //         (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
+            //         && !machine.sShooterLower.wasClosedWithin(750),
+            // upperMagnet: () => machine.sShooterUpper.wasClosedWithin(3000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
         this.listen(onSwitchClose(machine.sStartButton), 'addPlayer');

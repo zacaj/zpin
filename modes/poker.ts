@@ -32,7 +32,7 @@ export class Poker extends Mode {
     }
 
     static BankStart = 5000;
-    static BetStart = 100;
+    static BetStart = 150;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -49,7 +49,6 @@ export class Poker extends Mode {
     readonly playerCardsUsed: Card[] = [];
     readonly dealerCardsUsed: Card[] = [];
     closeShooter = false;
-    foldLit = false;
     finishShow?: any;
 
     playerHandDesc?: string;
@@ -64,13 +63,13 @@ export class Poker extends Mode {
     handsPlayed = 0;
     handsForMb = 1;
     wasQuit = false;
-    cashValue = 100;
+    cashValue = 150;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
 
     get betAdjust(): number {
-        return round(this.bet * .15, 10);
+        return Math.max(20, round(this.bet * .15, 10));
     }
     adjustSide = -1;
 
@@ -84,7 +83,7 @@ export class Poker extends Mode {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'foldLit', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
         this.deal();
 
@@ -103,9 +102,8 @@ export class Poker extends Mode {
             upperEject: () => this.showCardsReady? false : undefined,
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
-            lFold: () => light(this.foldLit, Color.Red),
             iRamp: () => this.step<7? dText(money(-this.betAdjust*this.adjustSide, 0, '+')) : dText('Finish'),
-            iSS5: () => this.step >=7? dText('Finish') : (this.foldLit? dText('Fold') : undefined),
+            iSS5: () => this.step >=7? dText('Finish') : undefined,
             iSS1: () => this.step >=7? dText('Finish') : undefined,
             iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dText(money(this.betAdjust*this.adjustSide, 0, '+')) : undefined,
         });
@@ -191,7 +189,8 @@ export class Poker extends Mode {
         // });
 
         this.listen(onSwitchClose(machine.sActionButton), () => {
-            if (this.step <= 2 && machine.sShooterLane.state && this.handsPlayed>0) {
+            if (this.player.game.ballNum===1 && this.player.score===0) return;
+            if (machine.sShooterLane.state) {
                 this.wasQuit = true;
                 player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
                     this.wasQuit = false;
@@ -203,18 +202,7 @@ export class Poker extends Mode {
             }
         });
 
-        this.listen(onSwitchClose(machine.sUpperEject), () => {
-            if (!this.foldLit)
-                this.foldLit = true;
-            else {
-                alert('FOLDED');
-                return this.end();
-            }
-        });
-
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.adjustSide *= -1);
-
-        this.listen([() => this.foldLit, ...onAnyPfSwitchExcept(machine.sUpperEject)], () => this.foldLit = false);
 
         this.listen(onAnySwitchClose(machine.sLeftOrbit, machine.sRampMade), () => {
             if (this.step < 7)
@@ -391,7 +379,7 @@ export class Poker extends Mode {
             const maxTime = 2000;
             const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
             while (this.pot !== 0) {
-                const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1);
+                const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1) * Math.sign(this.pot);
                 this.bank += change;
                 this.pot -= Math.abs(change);
                 await gWait(speed, 'win count');

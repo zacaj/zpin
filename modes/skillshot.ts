@@ -75,7 +75,7 @@ export class Skillshot extends Mode {
         // if (player.game.ballNum === 1)
         //     this.gateMode = GateMode.Closed;
         // else
-        this.gateMode = this.rng.weightedSelect([2, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);
+        this.gateMode = this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);
 
         this.out = new Outputs(this, {
             ...outs,
@@ -85,9 +85,7 @@ export class Skillshot extends Mode {
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
         });
         
-        this.setAward(0);//(Math.random()*this.awards.length)|0);
-
-        
+        this.setAward(this.rng.randRange(0, 5));//(Math.random()*this.awards.length)|0);
 
 
         this.listen([...onAnyPfSwitchExcept(machine.sShooterLane), () => !machine.sShooterLane.state], () => this.shooterOpen = false);
@@ -203,12 +201,12 @@ export class Skillshot extends Mode {
             const gen = generic[i];
             const rand = (!current[i]?.dontOverride && randInds.includes(i))?
                 this.rng.weightedSelect<SkillshotAward>(
-                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 30], [350, 15], [0, 3]), {
+                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 25], [350, 15], [0, 3]), {
                         switch: gen.switch,
                         award: '+50 $ value',
                         made: () => this.player.changeValue(50),
                     }],
-                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 60], [350, 30], [0, 10]), {
+                    [rangeSelect(this.player.store.Poker!.cashValue, [200, 50], [350, 30], [0, 10]), {
                         switch: gen.switch,
                         award: '+25 $ value',
                         made: () => this.player.changeValue(25),
