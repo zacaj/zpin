@@ -8,15 +8,19 @@ import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
 import { State } from '../state';
-import { onAnyPfSwitchExcept, onSwitchClose, SwitchEvent } from '../switch-matrix';
+import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, SwitchEvent } from '../switch-matrix';
+import { time } from '../timer';
 import { comma, makeState, repeat } from '../util';
 import { ResetBank } from '../util-modes';
 import { Multiball } from './multiball';
-import { Player } from './player';
+import { Player, SpinnerHit, SpinnerRip } from './player';
 import { Card } from './poker';
 import { Restart } from './restart';
 
 export enum Jackpot {
+    Drop1 = 'Drop1',
+    Drop2 = 'Drop2',
+    Drop3 = 'Drop3',
     RightLane = 'RightLane',
     RightTarget = 'RightTarget',
     LeftLane = 'LeftLane',
@@ -52,9 +56,13 @@ export class FullHouseMb extends Multiball {
             case Jackpot.RightTarget:
                 return 1500000+this.base;
             case Jackpot.LeftLane:
-                return 1000000+this.base;
-            case Jackpot.LeftTarget:
                 return 1500000+this.base;
+            case Jackpot.LeftTarget:
+                return 1000000+this.base;
+            case Jackpot.Drop1:
+            case Jackpot.Drop2:
+            case Jackpot.Drop3:
+                return 250000+this.base;
             default:
                 throw new Error();
         }
@@ -63,19 +71,28 @@ export class FullHouseMb extends Multiball {
     base = 0;
 
     jpColor(jp?: Jackpot): Color {
-        if (this.state._ !== 'jackpotLit' && !jp) return Color.Red;
+        if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
         switch (jp ?? (this.state as any).jp) {
             case Jackpot.RightLane:
-                return Color.Yellow;
+                if (machine.upper3Bank.targets[2].state)
+                    return Color.Red;
+                else
+                    return Color.Orange;
             case Jackpot.RightTarget:
-                return Color.Orange;
+                return Color.Tan;
             case Jackpot.LeftLane:
                 return Color.Purple;
             case Jackpot.LeftTarget:
                 return Color.Blue;
-            default: return Color.Red;
+            case Jackpot.Drop1: 
+            case Jackpot.Drop2: 
+            case Jackpot.Drop3: 
+                return Color.Yellow;
+            default: return Color.Pink;
         }
     }
+
+    magnetOnUntil = 0;
 
     protected constructor(
         player: Player,
@@ -88,28 +105,35 @@ export class FullHouseMb extends Multiball {
             machine.ballsLocked++;
         this.skillshotRng = player.rng();
         this.jpRng = player.rng();
-        State.declare<FullHouseMb>(this, ['state']);
+        State.declare<FullHouseMb>(this, ['state', 'magnetOnUntil']);
         player.storeData<FullHouseMb>(this, ['jpRng', 'skillshotRng', 'base']);
         this.out = new Outputs(this, {
-            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0))
-                         || (this.state._==='jackpotLit' && [Jackpot.LeftLane, Jackpot.LeftTarget].includes(this.state.jp)),
+            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] :
+            lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : []),
+            lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] : [],
             getSkillshot: () => () => this.getSkillshot(),
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget)),
             lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget)),
             lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane)),
-            iUpper33: () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state? colorToArrow(Color.Red) : undefined,
+            iUpper31: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1)? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
+            iUpper32: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2)? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
+            iUpper33: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3)? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
+                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane)? colorToArrow(Color.Red) : undefined,
             rightGate: true,
             leftGate: true,
-            magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
-                    (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
-                    && !machine.sShooterLower.wasClosedWithin(750),
-            upperMagnet: () => machine.sShooterUpper.wasClosedWithin(3000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
+            // magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
+            //         (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
+            //         && !machine.sShooterLower.wasClosedWithin(750),
+            upperMagnet: () => time()<this.magnetOnUntil,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
+
+        machine.upper2Bank.targets.forEach(t => this.misc?.targets.delete(t));
+        machine.upper3Bank.targets.forEach(t => this.misc?.targets.delete(t));
+        this.misc?.targets.clear();
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (machine.ballsLocked !== 'unknown')
@@ -121,22 +145,32 @@ export class FullHouseMb extends Multiball {
                 await this.releaseBallFromTrough();
             }
             else {
-                if (this.state._ === 'started') {
-                    this.state = JackpotLit(this.jpRng.weightedSelect(...[
-                        [4, Jackpot.RightLane], [3, Jackpot.RightTarget], [4, Jackpot.LeftLane], [3, Jackpot.LeftTarget],
-                    ].filter(([_, jp]) => jp !== this.lastJp) as any));
-                    if (this.state.jp === Jackpot.RightLane)
-                        fork(ResetBank(this, machine.upper3Bank));
-                }
+                this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => j.startsWith('Left')) as Jackpot[]));
                 await this.releaseBallsFromLock();
+            }
+        });
+        this.listen([...onSwitchClose(machine.sUpperEject)], () => {
+            if (machine.sUpperInlane.wasClosedWithin(1500) && this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane) {
+                return this.jackpot();
+            } else {
+                this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => !j.startsWith('Left')) as Jackpot[]));
+                if (this.state.jp !== Jackpot.RightTarget)
+                    fork(ResetBank(this, machine.upper3Bank));
             }
         });
 
         this.listen([...onSwitchClose(machine.sBackLane), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane], 'jackpot');
         this.listen([...onSwitchClose(machine.sSidePopMini), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget], 'jackpot');
         this.listen([...onSwitchClose(machine.sUnderUpperFlipper), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget], 'jackpot');
-        this.listen([...onSwitchClose(machine.sUpperEject), () => machine.sUpperInlane.wasClosedWithin(1500), 
-            () => this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane], 'jackpot');
+        this.listen([machine.upper3Bank.onTargetDown(0), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1], 'jackpot');
+        this.listen([machine.upper3Bank.onTargetDown(1), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2], 'jackpot');
+        this.listen([machine.upper3Bank.onTargetDown(2), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3], 'jackpot');
+
+        this.listen([e => e instanceof SpinnerRip, () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left')], () => {
+            if (time() < this.magnetOnUntil + 2000) return;
+            this.magnetOnUntil = time() + 3000;
+        });
+        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet), () => time()<this.magnetOnUntil], () => this.magnetOnUntil = 0);
 
         addToScreen(() => new FullHouseMbGfx(this));
     }
