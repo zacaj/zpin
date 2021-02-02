@@ -37,6 +37,7 @@ public class SwitchMatrix extends Thread {
 		double minOffTime = 1;
 		double rawLastOnAt = 0;
 		double rawLastOffAt = 0;
+		String name = null;
 	}
 	
 	Switch[] switches = new Switch[Width*Height];
@@ -62,6 +63,8 @@ public class SwitchMatrix extends Thread {
 		for (int x=0; x<Width; x++)
 			for (int y=0; y<Height; y++)
 				switches[x+y*Width] = new Switch();
+		
+		nameSwitches();
 	}
 	
 	private static SwitchMatrix instance = null;
@@ -108,6 +111,9 @@ public class SwitchMatrix extends Thread {
 	@Override
     public void run() {
 		double last = 0;
+		lock();
+		setCol(-1);
+		unlock();
 		while(true) {
 			try {
 				lock();
@@ -116,27 +122,34 @@ public class SwitchMatrix extends Thread {
 //						System.out.println("scan time = " +  (new Date().getTime() - last));
 //					last = new Date().getTime();
 //				}
-				setCol(curCol);
+//				setCol(curCol);
 //				Thread.sleep(0, 5);
+				serLatch.low();
+				serClk.low();
+				serOut.setState(curCol != 0);
+				serClk.high();
+				serLatch.high();
 				for (int row = 0; row<Height; row++) {
 					boolean on = returns[row].isState(PinState.LOW);
+					double ms = ms();
 					Switch sw = switches[row*Width+curCol];
 					if (on != sw.rawState) {
 						sw.rawState = on;
-						if (on) sw.rawLastOnAt = ms();
-						else sw.rawLastOffAt = ms();
-						System.out.println("raw switch change "+row+","+curCol+"->"+sw.rawState+" @"+ms());
-					} else if (sw.rawState != sw.state && ((sw.rawState && ms()-sw.rawLastOnAt>sw.minOnTime) || (!sw.rawState && ms()-sw.rawLastOffAt>sw.minOffTime))) {
+						if (on) sw.rawLastOnAt = ms;
+						else sw.rawLastOffAt = ms;
+						System.out.println("  raw switch change "+row+","+curCol+"->"+(sw.rawState? "true ":"false")+" @"+ms+(sw.name!=null? "     "+sw.name:""));
+					} else if (sw.rawState != sw.state && ((sw.rawState && ms-sw.rawLastOnAt>=sw.minOnTime) || (!sw.rawState && ms-sw.rawLastOffAt>=sw.minOffTime))) {
 						Event e = new Event();
 						e.col = curCol;
 						e.row = row;
-						e.when = ms();
-						e.state = on;
+						e.when = ms;
+						e.state = sw.rawState;
+						e.name = sw.name;
 						events.add(e);
 						
 						sw.state = sw.rawState;
 						
-						System.out.println("NEW switch event: "+e);
+						System.out.println("NEW   switch event: "+e);
 					}
 				}
 				
@@ -162,9 +175,79 @@ public class SwitchMatrix extends Thread {
 		int row, col;
 		boolean state;
 		double when;
+		String name;
 		
 		public String toString() {
-			return ""+row+","+col+"->"+state+" @"+when;
+			return ""+row+","+col+"->"+(state? "true ":"false")+" @"+when+(name!=null? "     "+name:"")+(state? " CLOSE": "   open");
 		}
+	}
+	
+	
+	
+	void nameSwitch(int row, int col, String name) {
+		switches[row*Width+col].name = name;
+	}
+	
+	void nameSwitches() {
+		nameSwitch(1, 2, "left inlane");
+		nameSwitch(1, 1, "left outlane");
+		nameSwitch(0, 4, "right inlane");
+		nameSwitch(0, 5, "right outlane");
+		nameSwitch(0, 3, "mini out");
+		nameSwitch(0, 2, "outhole");
+		nameSwitch(0, 1, "trough full");
+		nameSwitch(1, 0, "left sling");
+		nameSwitch(0, 7, "right sling");
+		nameSwitch(1, 7, "mini left");
+		nameSwitch(1, 6, "mini center");
+		nameSwitch(1, 5, "mini right");
+		nameSwitch(4, 3, "center left");
+		nameSwitch(4, 2, "center center");
+		nameSwitch(4, 1, "center right");
+		nameSwitch(3, 1, "left 1");
+		nameSwitch(3, 2, "left 2");
+		nameSwitch(3, 3, "left 3");
+		nameSwitch(3, 5, "left 4");
+		nameSwitch(2, 5, "right 1");
+		nameSwitch(2, 4, "right 2");
+		nameSwitch(2, 3, "right 3");
+		nameSwitch(2, 2, "right 4");
+		nameSwitch(2, 1, "right 5");
+		nameSwitch(3, 4, "left back 1");
+		nameSwitch(3, 6, "left back 2");
+		nameSwitch(5, 2, "");
+		nameSwitch(5, 1, "upper 3 center");
+		nameSwitch(5, 0, "upper 3 right");
+		nameSwitch(6, 4, "upper 2 left");
+		nameSwitch(6, 3, "upper 2 right");
+		nameSwitch(7, 3, "single standup");
+		nameSwitch(3, 7, "ramp mini");
+		nameSwitch(3, 0, "ramp mini outer");
+		nameSwitch(7, 4, "ramp up");
+		nameSwitch(7, 7, "under ramp");
+		nameSwitch(7, 2, "left orbit");
+		nameSwitch(6, 6, "spinner");
+		nameSwitch(6, 2, "spinner mini");
+		nameSwitch(6, 7, "upper pop mini");
+		nameSwitch(6, 0, "side pop mini");
+		nameSwitch(2, 6, "shooter upper");
+		nameSwitch(2, 7, "shooter magnet");
+		nameSwitch(0, 0, "shooter lane");
+		nameSwitch(2, 0, "shooter lower");
+		nameSwitch(5, 5, "back lane");
+		nameSwitch(4, 7, "pop");
+		nameSwitch(7, 1, "upper inlane");
+		nameSwitch(7, 5, "under upper flipper");
+		nameSwitch(7, 6, "upper eject");
+		nameSwitch(6, 5, "upper lane 2");
+		nameSwitch(5, 7, "upper lane 3");
+		nameSwitch(5, 3, "upper lane 4");
+		nameSwitch(7, 0, "ramp made");
+		nameSwitch(0, 8, "start");
+		nameSwitch(4, 8, "left flipper");
+		nameSwitch(1, 8, "right flipper");
+		nameSwitch(6, 8, "left magnet");
+		nameSwitch(5, 8, "right magnet ");
+		nameSwitch(2, 8, "tilt");
 	}
 }
