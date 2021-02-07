@@ -12,6 +12,7 @@ import { initAudio } from './sound';
 import { AttractMode } from './attract';
 import { CPU } from './cpu';
 import { fork } from './promises';
+import { LPU } from './light';
 
 const argv = require('yargs').argv;
 
@@ -23,6 +24,7 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
         if (argv.trace !== undefined) trace = argv.trace;
         if (argv.recording !== undefined) recording = argv.recording;
         const cpu = argv.cpu ?? false;
+        const lights = argv.lpu ?? argv.mpu ?? false;
         const sound = argv.sound ?? mpu;
         Log.init(trace);
         Log.log(['console'], 'Initializing....');
@@ -45,6 +47,8 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
             await initAudio();
         if (gfx)
             await initGfx();
+        if (lights)
+            await LPU.init(argv.lightIp);
         if (game)
             Game.start();
         else

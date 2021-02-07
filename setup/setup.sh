@@ -21,3 +21,11 @@ chmod +x rebuild.sh
 cd ../zpin
 npm install
 chmod +x *start*
+
+cd ..
+sudo apt-get install gcc make git libjpeg-dev libpng-dev
+git clone https://github.com/tom-2015/rpi-ws2812-server.git
+cd rpi-ws2812-server
+make
+sudo chmod +x ws2812svr
+sudo make install

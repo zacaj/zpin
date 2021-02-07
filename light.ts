@@ -106,3 +106,91 @@ export function colorToArrow(color?: Color): DisplayContent|undefined {
     if (!color) return undefined;
     return dImage(color.toLowerCase()+'Arrow');
 }
+
+
+import {Socket} from 'net';
+import { Log } from './log';
+import { Image } from "./gfx";
+import { Light, machine } from "./machine";
+import { fork } from "./promises";
+import { wait } from "./timer";
+import { split, num } from "./util";
+
+const socket = new Socket();
+
+export const LPU = {
+    isConnected: false,
+    
+    ip: '127.0.0.1',
+
+    timeout: 10,
+    connecting: false,
+
+    promises: [] as ((resp: string) => void)[],
+
+    async init(ip?: string) {
+        // this.ip = '192.168.2.11';
+        if (ip) this.ip = ip;
+
+        socket.setTimeout(1000);
+        socket.setNoDelay(true);
+        socket.on('error', err => {
+            Log.error(['lpu', 'console'],'socket error: ', err);
+        });
+        socket.on('close', err => {
+            this.isConnected = false;
+            this.connecting = false;
+            Log.error(['lpu', 'console'], 'lost connection to LPU', err);
+            this.reconnect();
+        });
+        this.connect();
+    },
+
+    reconnect() {
+        if (this.connecting) return;
+        this.connecting = true;
+        fork(wait(this.timeout*1000).then(() => this.connect()));
+        Log.info('lpu', 'reconnect to LPU in %is', this.timeout);
+        if (this.timeout < 30)
+            this.timeout *= 2;
+    },
+
+    connect() {
+        if (this.isConnected) return;
+        this.connecting = true;
+        Log.info(['lpu'], 'connecting to %s', this.ip);
+        socket.connect(9999, this.ip, async () => {
+            Log.info(['lpu'],'reached LPU');
+            this.isConnected = true;
+            this.connecting = false;
+            this.timeout = 10;
+
+            await this.sendCommand("reset");
+            await this.sendCommand(`setup 1,${Math.max(0, ...machine.lights.flatMap(l => l.nums ?? [])) + 1},3`);
+            await this.sendCommand('init');
+            await this.sendCommand('fill 1,0');
+            await this.sendCommand(`thread_start 63, 0
+    do
+        delay 30
+        render
+    loop
+thread_stop\n\n`);
+
+            Log.log(['lpu', 'console'], 'connected to LPU');
+
+            for (const light of machine.lights) {
+                await light.sync();
+            }
+        });
+    },
+
+    async sendCommand(cmd: string, expectedResp: string|null = "", force = false): Promise<void> {
+        if (!this.isConnected && !force) {
+            Log.info('lpu', 'ignoring command %s, not connected', cmd);
+            return;// "fake";
+        }
+        Log.info('lpu', 'send command %s', cmd);
+
+        socket.write(cmd+(cmd.endsWith('\n')? '' : '\n'));
+    },
+}

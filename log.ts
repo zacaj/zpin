@@ -13,6 +13,7 @@ export type LogCategory =
     'console' |
     'switch' |
     'mpu' |
+    'lpu' |
     'cpu' |
     'solenoid' |
     'machine' |
@@ -23,6 +24,7 @@ const files = [
     'console',
     'switch',
     'mpu',
+    'lpu',
     'cpu',
     'solenoid',
     'machine',

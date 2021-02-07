@@ -7,7 +7,7 @@ import { DropBank, DropTarget, Standup } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
 import { gfx, gfxImages, gfxLights, screen } from './gfx';
-import { Color, colorToHex, light, LightState } from './light';
+import { Color, colorToHex, light, LightState, LPU, normalizeLight } from './light';
 import { Log } from './log';
 import { Mode, Modes } from './mode';
 import { Skillshot } from './modes/skillshot';
@@ -19,7 +19,7 @@ import { State } from './state';
 import { Bumper, Drain, Drop, Hole, Lane, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { Tree } from './tree';
-import { assert, eq as eq, getTypeIn, then } from './util';
+import { arrayify, assert, eq as eq, getTypeIn, OrArray, then } from './util';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -265,19 +265,22 @@ export class OnOffSolenoid extends Solenoid {
 
 
 export class Light extends MachineOutput<LightState[], LightOutputs> {
+    nums!: number[];
     constructor(
         name: keyof LightOutputs,
-        public num: number,
+        num?: OrArray<number>,
     ) {
         super([], name);
+        this.nums = arrayify(num ?? []);
     }
 
     async init() {
 
     }
 
-    set(state: LightState[]): boolean {
+    async set(state: LightState[]): Promise<boolean> {
         if (!gfx) return true;
+        await this.sync();
         if (!gfxLights) return false;
         const l = gfxLights[this.name];
         if (l?.l) {
@@ -302,6 +305,61 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
             && e.on === this
             && e.prop === 'val';
     }
+
+    async sync() {
+        const state = this.val;
+        if (this.nums.length && LPU.isConnected) {
+            let cmd = '';
+            const threadId = machine.lights.indexOf(this) + 1;
+            Log.info('lpu', `Light: %s`, this.name);
+            if (state.length) {
+                const states = state.map(normalizeLight);
+                let loopNeeded = states.length > 1;
+                for (const {color, type, freq} of states) {
+                    switch (type) {
+                        case "solid":
+                            for (const num of this.nums)
+                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                            if (states.length>1)
+                                cmd += `\t\tdelay 500\n\n`;
+                            break;
+                        case "flashing":
+                            for (const num of this.nums)
+                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                            cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
+                            for (const num of this.nums)
+                                cmd += `\t\tfill 1,000000,${num},1\n`;
+                            cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
+                            loopNeeded = true;
+                            // cmd += `\t\tblink 1,0,${colorToHex(color)?.slice(1)},${(1000/freq).toFixed(0)},3,${this.num},1\n\n`;
+                            break;
+                        case "pulsing":
+                            for (const num of this.nums)
+                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                            for (const num of this.nums)
+                                cmd += `\t\tfade 1,255,0,15,${(1000/15/freq).toFixed(0)},${num},1\n`;
+                            for (const num of this.nums)
+                                cmd += `\t\tfade 1,0,255,15,${(1000/15/freq).toFixed(0)},${num},1\n\n`;
+                            loopNeeded = true;
+                            break;
+                    }
+                }
+                if (loopNeeded) {
+                    cmd = `thread_start ${threadId}, 0\n\tdo\n`+cmd;
+                    cmd += "\tloop\n";
+                    cmd += "thread_stop\n";
+                }
+            }
+            else {
+                for (const num of this.nums)
+                    cmd += `\t\tfill 1,000000,${num},1\n\n`;
+                cmd += `\t\tkill_thread ${threadId},0\n`;
+                for (const num of this.nums)
+                    cmd += `\t\tfill 1,000000,${num},1\n\n`;
+            }
+            await LPU.sendCommand(cmd);
+        }
+    }
 }
 
 
@@ -318,6 +376,7 @@ export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutput
 
     async set(state: string|Node|DisplayContent): Promise<boolean> {
         if (!gfx) return true;
+        await this.syncDisp();
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
         let ret = false;
@@ -325,7 +384,6 @@ export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutput
             l.l!.set(state);
             ret = true;
         }
-        await this.syncDisp();
         return ret;
     }
 
@@ -637,35 +695,35 @@ export class Machine extends Tree<MachineOutputs> {
 
     lastSwitchHit?: Switch;
 
-    lMiniReady = new Light('lMiniReady', 0);
-    lRampArrow = new Light('lRampArrow', 0);
-    lPower1 = new Light('lPower1', 0);
-    lPower2 = new Light('lPower2', 0);
-    lPower3 = new Light('lPower3', 0);
-    lMagnet1 = new Light('lMagnet1', 0);
-    lMagnet2 = new Light('lMagnet2', 0);
-    lMagnet3 = new Light('lMagnet3', 0);
-    lPopperStatus = new Light('lPopperStatus', 0);
-    lLaneUpper1 = new Light('lLaneUpper1', 0);
-    lLaneUpper2 = new Light('lLaneUpper2', 0);
-    lLaneUpper3 = new Light('lLaneUpper3', 0);
-    lLaneUpper4 = new Light('lLaneUpper4', 0);
-    lSideShotArrow = new Light('lSideShotArrow', 0);
-    lEjectArrow = new Light('lEjectArrow', 0);
-    lUpperLaneArrow = new Light('lUpperLaneArrow', 0);
-    lUpperTargetArrow = new Light('lUpperTargetArrow', 0);
-    lSpinnerArrow = new Light('lSpinnerArrow', 0);
-    lLeftArrow = new Light('lLeftArrow', 0);
-    lSideTargetArrow = new Light('lSideTargetArrow', 0);
-    lRampMini = new Light('lRampMini', 0);
-    lMainTargetArrow = new Light('lMainTargetArrow', 0);
-    lShootAgain = new Light('lShootAgain', 0);
-    lLaneLower1 = new Light('lLaneLower1', 0);
-    lLaneLower2 = new Light('lLaneLower2', 0);
-    lLaneLower3 = new Light('lLaneLower3', 0);
-    lLaneLower4 = new Light('lLaneLower4', 0);
-    lSpinnerTarget = new Light('lSpinnerTarget', 0);
-    lUpperLaneTarget = new Light('lUpperLaneTarget', 0);
+    lMiniReady = new Light('lMiniReady');
+    lRampArrow = new Light('lRampArrow', [62, 61]);
+    lPower1 = new Light('lPower1', 100);
+    lPower2 = new Light('lPower2', 102);
+    lPower3 = new Light('lPower3', 103);
+    lMagnet1 = new Light('lMagnet1', 77);
+    lMagnet2 = new Light('lMagnet2', 79);
+    lMagnet3 = new Light('lMagnet3', 80);
+    lPopperStatus = new Light('lPopperStatus', 117);
+    lLaneUpper1 = new Light('lLaneUpper1', 14);
+    lLaneUpper2 = new Light('lLaneUpper2', 12);
+    lLaneUpper3 = new Light('lLaneUpper3', 10);
+    lLaneUpper4 = new Light('lLaneUpper4', 6);
+    lSideShotArrow = new Light('lSideShotArrow', 50);
+    lEjectArrow = new Light('lEjectArrow', [43, 44]);
+    lUpperLaneArrow = new Light('lUpperLaneArrow', 39);
+    lUpperTargetArrow = new Light('lUpperTargetArrow', 35);
+    lSpinnerArrow = new Light('lSpinnerArrow', [29, 28]);
+    lLeftArrow = new Light('lLeftArrow', 66);
+    lSideTargetArrow = new Light('lSideTargetArrow', 52);
+    lRampMini = new Light('lRampMini', 64);
+    lMainTargetArrow = new Light('lMainTargetArrow', 55);
+    lShootAgain = new Light('lShootAgain', 109);
+    lLaneLower1 = new Light('lLaneLower1', 125);
+    lLaneLower2 = new Light('lLaneLower2', 126);
+    lLaneLower3 = new Light('lLaneLower3', 87);
+    lLaneLower4 = new Light('lLaneLower4', 89);
+    lSpinnerTarget = new Light('lSpinnerTarget', 33);
+    lUpperLaneTarget = new Light('lUpperLaneTarget', 37);
 
     iSS1 = new Image('iSS1');
     iSS2 = new Image('iSS2');
@@ -881,6 +939,10 @@ export class Machine extends Tree<MachineOutputs> {
             .truthy().every(sw => sw.noActivityFor(30000))
             ;
             // && (!SwitchEvent.last || SwitchEvent.last.sw===this.sRampDown || time() - SwitchEvent.last.when > 30000);
+    }
+
+    get lights(): Light[] {
+        return Object.keys(this).map(key => (this as any)[key]).filter(o => o instanceof Light);
     }
 }
 
