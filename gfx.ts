@@ -361,6 +361,8 @@ export class Screen extends Group {
 
 abstract class Light extends Group {
     shape!: Polygon;
+    timer?: any;
+    lastState = '';
 
     constructor(
         public name: keyof LightOutputs,
@@ -372,24 +374,43 @@ abstract class Light extends Group {
     }
 
     set(val: LightState[]) {
+        const jState = JSON.stringify(val);
+        if (jState === this.lastState) return;
+        this.lastState = jState;
+
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = undefined;
+        }
         this.shape.opacity.curAnim?.stop();
         this.shape.opacity(1);
         if (val.length) {
-            const state = normalizeLight(val[0]);
-            this.shape.fill(colorToHex(state.color)!);
-            switch (state.type) {
-                case 'flashing':
-                case 'pulsing':
-                    this.shape.opacity.anim({
-                        autoreverse: true,
-                        duration: 1000/state.freq / 2,
-                        from: 1,
-                        to: 0,
-                        loop: -1,
-                    }).start();
-                    break;
-                case 'solid':
-                    break;
+            const setShape = (s: LightState) => {
+                const state = normalizeLight(s);
+                this.shape.fill(colorToHex(state.color)!);
+                switch (state.type) {
+                    case 'flashing':
+                    case 'pulsing':
+                        this.shape.opacity.anim({
+                            autoreverse: true,
+                            duration: 1000/state.freq / 2,
+                            from: 1,
+                            to: 0,
+                            loop: -1,
+                        }).start();
+                        break;
+                    case 'solid':
+                        break;
+                }
+            };
+            setShape(val[0]);
+            if (val.length > 1) {
+                let i = 1;
+                this.timer = setInterval(() => {
+                    setShape(val[i++]);
+                    if (i >= val.length)
+                        i = 0;
+                }, 500);
             }
         } else {
             this.shape.fill('#FFFFFF');

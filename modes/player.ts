@@ -4,7 +4,7 @@ import { Poker, Card } from './poker';
 import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
-import { Color, colorToArrow, flash, light } from '../light';
+import { add, Color, colorToArrow, flash, light, many, mix } from '../light';
 import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank, DropTarget } from '../drop-bank';
 import { Ball, BallEnd, BallEnding } from './ball';
@@ -64,6 +64,7 @@ export class Player extends Mode {
 
     upperLaneChips = [true, true, true, true];
     lowerLanes = [true, true, true, true];
+    chipsLit = [true, false, true, false, true];
     
     get curMbMode(): Multiball|undefined {
         if (this.focus instanceof Multiball) return this.focus;
@@ -123,10 +124,11 @@ export class Player extends Mode {
 
     closeShooter = false;
 
-    mbColor(): Color {
-        if (this.selectedMb === 'HandMb')
+    mbColor(mb?: string): Color {
+        if (!mb) mb = this.selectedMb;
+        if (mb === 'HandMb')
             return Color.Green;
-        if (this.selectedMb === 'FullHouseMb')
+        if (mb === 'FullHouseMb')
             return Color.Yellow;
         else return Color.Blue;
     }
@@ -139,6 +141,15 @@ export class Player extends Mode {
         return (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7;
     }
 
+    get nextMb() {
+        const mbs = [...this.mbsReady.keys()];
+        const cur = mbs.indexOf(this.selectedMb!);
+        if (cur >= mbs.length - 1)
+            return mbs[0];
+        else
+           return mbs[cur+1];
+    }
+
     constructor(
         public game: Game,
         public number: number,
@@ -146,14 +157,14 @@ export class Player extends Mode {
     ) {
         super(Modes.Player);
         this.rand = this.rng();
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes', 'chipsLit']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
             rampUp: () => !this.mbReady,
             iSS1: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? dText('Hand') : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
-            // lRampStartMb: () => (!this.curMode || this.poker) && this.mbsReady.size>0? ((this.poker?.step??7) >= 7? [[this.mbColor(), 'fl']] : [Color.Red]) : [],
+            lRampArrow: mix(() => !this.curMode && this.mbsReady.size>0? [this.mbColor(), 'fl'] : undefined),
             iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dText('Multi') : undefined,
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
@@ -169,21 +180,26 @@ export class Player extends Mode {
             lLaneLower3: () => light(this.lowerLanes[2], Color.Yellow),
             lLaneLower4: () => light(this.lowerLanes[3], Color.Yellow),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
-            lRampMini: [Color.Orange],
-            lSpinnerTarget: [Color.Orange],
-            lUpperTargetArrow: [Color.Orange],
+            lRampMini: add(() => this.chipsLit[0], Color.Orange),
+            lUpperLaneTarget: add(() => this.chipsLit[2], Color.Orange),
+            lUpperTargetArrow: add(() => this.chipsLit[3], Color.Orange),
+            lSpinnerTarget: add(() => this.chipsLit[4], Color.Orange),
+            lMainTargetArrow: many(() => ({
+                [this.mbColor(this.nextMb)]: this.mbsReady.size>1,
+                [Color.Orange]: this.chipsLit[1],
+            })),
         });
         
 
         // natural inlane -> lower ramp
-        this.listen(
-            [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000) && !machine.sRightInlane.wasClosedWithin(2000)],
-            e => {
-                if (!this.rampCombo) {
-                    this.rampCombo = new RampCombo(this);
-                    this.rampCombo.started();
-                }
-            });
+        // this.listen(
+        //     [...onSwitchClose(machine.sRightInlane), () => !machine.sShooterLower.wasClosedWithin(2000) && !machine.sShooterMagnet.wasClosedWithin(2000) && !machine.sRightInlane.wasClosedWithin(2000)],
+        //     e => {
+        //         if (!this.rampCombo) {
+        //             this.rampCombo = new RampCombo(this);
+        //             this.rampCombo.started();
+        //         }
+        //     });
 
         // lane change
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
@@ -201,24 +217,26 @@ export class Player extends Mode {
         // swap mb
         this.listen(onSwitchClose(machine.sSingleStandup), () => {
             if (this.mbsReady.size < 2) return;
-            const mbs = [...this.mbsReady.keys()];
-            const cur = mbs.indexOf(this.selectedMb!);
-            if (cur >= mbs.length - 1)
-                this.selectedMb = mbs[0];
-            else
-                this.selectedMb = mbs[cur+1];
+            this.selectedMb = this.nextMb;
         });
 
+        const chipSwitches = [
+            machine.sRampMini,
+            machine.sSingleStandup,
+            machine.sUpperPopMini,
+            machine.sSidePopMini,
+            machine.sSpinnerMini,
+        ];
         // add chips
         this.listen(
-            onAnySwitchClose(
-                machine.sRampMini,
-                // machine.sRampMiniOuter,
-                machine.sSpinnerMini,
-                machine.sSidePopMini,
-                // machine.sUpperPopMini
-            ),
-            'addChip');
+            onAnySwitchClose(...chipSwitches),
+            (e) => {
+                const i = chipSwitches.indexOf(e.sw);
+                if (this.chipsLit[i]) {
+                    this.addChip();
+                    this.chipsLit.rotate(1);
+                }
+            });
         this.listen(
             onAnySwitchClose(...machine.sUpperLanes),
             (e) => {

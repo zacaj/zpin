@@ -50,7 +50,7 @@ export function normalizeLight(state: LightState): {
     };
 }
 
-export function colorToHex(color: Color): Color|undefined {
+export function colorToHex(color: Color): string|undefined {
     const colors = {'aliceblue':'#f0f8ff','antiquewhite':'#faebd7','aqua':'#00ffff','aquamarine':'#7fffd4','azure':'#f0ffff',
     'beige':'#f5f5dc','bisque':'#ffe4c4','black':'#000000','blanchedalmond':'#ffebcd','blue':'#0000ff','blueviolet':'#8a2be2','brown':'#a52a2a','burlywood':'#deb887',
     'cadetblue':'#5f9ea0','chartreuse':'#7fff00','chocolate':'#d2691e','coral':'#ff7f50','cornflowerblue':'#6495ed','cornsilk':'#fff8dc','crimson':'#dc143c','cyan':'#00ffff',
@@ -107,6 +107,34 @@ export function colorToArrow(color?: Color): DisplayContent|undefined {
     return dImage(color.toLowerCase()+'Arrow');
 }
 
+export function mix(func: () => LightState|undefined): (state?: LightState[]) => LightState[] | undefined {
+    return prev => {
+        const l = func();
+        if (l)
+            return [l, ...(prev??[])];
+        else
+            return prev;
+    };
+}
+
+export function add(func: () => boolean, color: Color): (state?: LightState[]) => LightState[] | undefined {
+    return mix(() => func()? color : undefined);
+}
+
+export function many(func: () => {[color: string]: boolean}): (state?: LightState[]) => LightState[] | undefined {
+    return (prev) => {
+        const o = func();
+        let state: LightState[] = [];
+        for (const key of Object.keys(o)) {
+            if (key === 'prev' && o[key])
+                state = [...state, ...prev ?? []];
+            else if (o[key]) {
+                state.push(key as Color);
+            }
+        }
+        return state;
+    };
+}
 
 import {Socket} from 'net';
 import { Log } from './log';
