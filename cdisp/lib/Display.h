@@ -28,6 +28,14 @@ typedef enum {
     D2U_R2L  ,
 } LCD_SCAN_DIR;
 
+typedef enum {
+    TOP,
+    CENTER_ALL,
+    CENTER_ASC,
+    BASELINE,
+    BOTTOM,
+} VALIGN;
+
 class Display {
 protected:
     Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate = ROTATE_0, MIRROR_IMAGE mirror = MIRROR_NONE);
@@ -51,9 +59,14 @@ public:
 
     void setPixel(u16 Xpoint, u16 Ypoint, Color Color);
 
+    Color getPixel(u16 Xpoint, u16 Ypoint);
+
     void drawRect(u16 x1, u16 y1, u16 x2, u16 y2, Color color);
 
     void drawImage(Image* image, u16 xStart = 0, u16 yStart = 0);
 
+    void drawText(const char* text, int sx, int sy, int size, VALIGN vAlign = TOP, u8 thresh = 64);
+
     void savePng(const char* path);
+    void loadFont();
 };

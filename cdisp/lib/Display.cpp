@@ -3,6 +3,10 @@
 #include "../HW/Debug.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "../lib/stb_truetype.h"
+
+stbtt_fontinfo font;
 
 Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror)
 : number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
@@ -18,6 +22,18 @@ Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE
     }
 }
 
+void Display::loadFont() {
+    unsigned char* ttf_buffer;  
+    FILE* fp = fopen("../media/CardCharacters.ttf", "rb");
+    fseek(fp, 0, SEEK_END);
+    size_t size = ftell(fp);
+    ttf_buffer = new u8[size];
+    fseek(fp, 0, SEEK_SET);
+    fread(ttf_buffer, 1, size, fp);
+    fclose(fp);
+    stbtt_InitFont(&font, ttf_buffer, 0);
+}
+
 void Display::clear(Color color) {
     color = ((color<<8)&0xff00)|(color>>8);
     for (int i=0; i<width*height; i++)
@@ -26,10 +42,10 @@ void Display::clear(Color color) {
 
 void Display::setPixel(u16 Xpoint, u16 Ypoint, Color Color)
 {
-    if(Xpoint > width || Ypoint > height){
-        DEBUG("Exceeding display boundaries\r\n");
-        return;
-    }      
+    // if(Xpoint > width || Ypoint > height){
+    //     DEBUG("Exceeding display boundaries\r\n");
+    //     return;
+    // }      
     u16 X, Y;
 
     switch(rotate) {
@@ -71,12 +87,66 @@ void Display::setPixel(u16 Xpoint, u16 Ypoint, Color Color)
     }
 
     if(X > pixWidth || Y > pixHeight){
-        DEBUG("Exceeding display boundaries\r\n");
+        // DEBUG("Exceeding display boundaries\r\n");
         return;
     }
     Color = ((Color<<8)&0xff00)|(Color>>8);
     int Addr = X  + Y * pixWidth;
     pixels[Addr] = Color;
+}
+
+Color Display::getPixel(u16 Xpoint, u16 Ypoint)
+{
+    // if(Xpoint > width || Ypoint > height){
+    //     DEBUG("Exceeding display boundaries\r\n");
+    //     return RED;
+    // }      
+    u16 X, Y;
+
+    switch(rotate) {
+    case 0:
+        X = Xpoint;
+        Y = Ypoint;  
+        break;
+    case 90:
+        X = pixWidth - Ypoint - 1;
+        Y = Xpoint;
+        break;
+    case 180:
+        X = pixWidth - Xpoint - 1;
+        Y = pixHeight - Ypoint - 1;
+        break;
+    case 270:
+        X = Ypoint;
+        Y = pixHeight - Xpoint - 1;
+        break;
+    default:
+        return RED;
+    }
+    
+    switch(mirror) {
+    case MIRROR_NONE:
+        break;
+    case MIRROR_HORIZONTAL:
+        X = pixWidth - X - 1;
+        break;
+    case MIRROR_VERTICAL:
+        Y = pixHeight - Y - 1;
+        break;
+    case MIRROR_ORIGIN:
+        X = pixWidth - X - 1;
+        Y = pixHeight - Y - 1;
+        break;
+    default:
+        return RED;
+    }
+
+    if(X > pixWidth || Y > pixHeight){
+        // DEBUG("Exceeding display boundaries\r\n");
+        return RED;
+    }
+    int Addr = X  + Y * pixWidth;
+    return pixels[Addr];
 }
 
 void Display::drawRect(u16 x1, u16 y1, u16 x2, u16 y2, Color color) {
@@ -99,6 +169,50 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
 			}
 		}
       
+}
+
+// size = including descenders below baseline
+void Display::drawText(const char* text, int sx, int sy, int size, VALIGN vAlign, u8 thresh) {
+    int i,j,ascent,baseline,ch=0;
+    float scale, xpos = 0;    
+    scale = stbtt_ScaleForPixelHeight(&font, size);
+    stbtt_GetFontVMetrics(&font, &ascent,0,0);
+    baseline = (int) (ascent*scale); // distance from top to baseline
+
+    if (vAlign == TOP) sy+=baseline;
+    if (vAlign == CENTER_ASC) sy+=baseline-size/2;
+    if (vAlign == BOTTOM) sy+=baseline-size;
+    if (vAlign == CENTER_ALL) sy+=baseline/2;
+
+    while (text[ch]) {
+        int advance,lsb;
+        float x_shift = xpos - (float) floor(xpos);
+        stbtt_GetCodepointHMetrics(&font, text[ch], &advance, &lsb);
+        int width, height, xOff, yOff;
+        unsigned char* buffer = stbtt_GetCodepointBitmapSubpixel(&font,scale,scale,x_shift,0, text[ch], &width, &height, &xOff, &yOff);
+        // yOff is relative to baseline
+        
+        for (int x=0; x<width; x++)
+            for (int y=0; y<height; y++) {
+                Color oldColor = this->getPixel(sx+x+xpos+xOff, sy+y+yOff);
+                u8 r = (oldColor&RED)>>8;
+                u8 g = ((oldColor&GREEN)>>6)<<2;
+                u8 b = (oldColor&BLUE)<<3;
+                u8 c = buffer[x+(y)*width];
+                r = c>thresh? c : r;
+                g = c>thresh? c : g;
+                b = c>thresh? c : b;
+                Color newColor = (r<<8)|(g<<3)|(b>>3);
+                this->setPixel(sx+x+xpos+xOff, sy+y+yOff, newColor);
+            }
+
+        delete buffer;
+        
+        xpos += (advance * scale);
+        if (text[ch+1])
+            xpos += scale*stbtt_GetCodepointKernAdvance(&font, text[ch],text[ch+1]);
+        ++ch;
+    }
 }
 
 void Display::savePng(const char* path) {
