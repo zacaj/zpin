@@ -7,6 +7,7 @@
 #include "lib/common.h"
 #include "lib/Manager.h"
 #include "lib/Disp128.h"
+#include "lib/Disp160.h"
 #include "lib/Image.h"
 #include "HW/DEV_Config.h"
 #include <string>
@@ -54,7 +55,7 @@ Color toColor(const char* str) {
     return c; 
 }
 
-Manager manager(24);
+Manager manager(7*8);
 
 void clearAll(Color color) {
     for (int i=0; i<manager.numDisplays; i++) {
@@ -72,13 +73,8 @@ void checkPower() {
     if (now && !power) {
         printf("power detected\n");
         fflush(stdout);
-        usleep(6000000);
-        printf("initializing displays... ");
-        fflush(stdout);
-        clock_t start = clock();
+        usleep(2000000);
         manager.initAll();
-        printf("done in %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
-        fflush(stdout);
     }
     else if (!now && power) {
         printf("power lost!\n");
@@ -133,10 +129,6 @@ int main() {
     } 
 
     /*
-        center bank plexer:
-            1: center 1 (J6)
-            4: center 2
-            5: center 3
 
         4 bank plexer:
             4: 4 bank 1  (J6)
@@ -145,11 +137,20 @@ int main() {
             7: 4 bank 4
 
         5 bank plexer:
+            0: shooter 1 (J1) (160)
             1: 5 bank 1 (J6)
             4: 5 bank 2
             5: 5 bank 3
             6: 5 bank 4
             7: 5 bank 5
+
+        spinner plexer:
+            0: spinner 160 (J1)
+            1: shooter 3 (J6)
+
+        upper plexer:
+            0: eject 160 (J1)
+            1: lanes 160 (J6)
 
         upper banks plexer:
             2: 2 bank 1 (J1)
@@ -157,31 +158,68 @@ int main() {
             5: 3 bank 3 (J6)
             6: 3 bank 2
             7: 3 bank 1
+
+        left side plexer:
+            0: ramp 160 (J1)
+            1: left inlane (J6)
+
+        center bank plexer: (last, old board)
+            1: center 1 (J6)
+            4: center 2
+            5: center 3
+
     */
 
-#define CenterPlex(n) +n
-#define LeftPlex(n) 8+n
-#define UpperPlex(n) 16+n
-#define RightPlex(n) 0+n
-    // manager.displays[CenterPlex(1)] = new Disp128(1, ROTATE_180); // Center 1
-    // manager.displays[CenterPlex(4)] = new Disp128(4, ROTATE_180); // center 2
-    // manager.displays[CenterPlex(5)] = new Disp128(5, ROTATE_180); // center 3 
-    // manager.displays[6] = new Disp128(6);
-    // // manager.displays[7] = new Disp128(7);
+#define CenterPlex(n) 48+n
+#define LeftPlex(n) 0+n
+#define UpperBanksPlex(n) 32+n
+#define RightPlex(n) 8+n
+#define SpinnerPlex(n) 16+n
+#define UpperPlex(n) 24+n
+#define LeftSidePlex(n) 40+n
+    manager.displays[CenterPlex(1)] = new Disp128(1, ROTATE_180); // Center 1
+    manager.displays[CenterPlex(4)] = new Disp128(4, ROTATE_180); // center 2
+    manager.displays[CenterPlex(5)] = new Disp128(5, ROTATE_180); // center 3 
+    // manager.displays[LeftPlex(0)] = new Disp128(4, ROTATE_180); // left 1f
+    // manager.displays[LeftPlex(1)] = new Disp128(4, ROTATE_180); // left 1f
+    // manager.displays[LeftPlex(2)] = new Disp128(4, ROTATE_180); // left 1f
+    // manager.displays[LeftPlex(3)] = new Disp128(4, ROTATE_180); // left 1f
     manager.displays[LeftPlex(4)] = new Disp128(4, ROTATE_180); // left 1
     manager.displays[LeftPlex(5)] = new Disp128(5, ROTATE_180); // left 2
     manager.displays[LeftPlex(6)] = new Disp128(6, ROTATE_180); // left 3 
     manager.displays[LeftPlex(7)] = new Disp128(7, ROTATE_180); // left 4
+    manager.displays[RightPlex(0)] = new Disp160(0, ROTATE_0); // shooter 1
     manager.displays[RightPlex(1)] = new Disp128(1, ROTATE_0); // right 1
+    // manager.displays[RightPlex(2)] = new Disp128(4, ROTATE_0); // right 2f
+    // manager.displays[RightPlex(3)] = new Disp128(4, ROTATE_0); // right 2f
     manager.displays[RightPlex(4)] = new Disp128(4, ROTATE_0); // right 2
     manager.displays[RightPlex(5)] = new Disp128(5, ROTATE_0); // right 3
     manager.displays[RightPlex(6)] = new Disp128(6, ROTATE_0); // right 4 
     manager.displays[RightPlex(7)] = new Disp128(7, ROTATE_0); // right 5
-    manager.displays[UpperPlex(2)] = new Disp128(2, ROTATE_0); // left 1
-    manager.displays[UpperPlex(3)] = new Disp128(3, ROTATE_0); // left 2
-    manager.displays[UpperPlex(5)] = new Disp128(5, ROTATE_180); // right 3
-    manager.displays[UpperPlex(6)] = new Disp128(6, ROTATE_180); // right 2
-    manager.displays[UpperPlex(7)] = new Disp128(7, ROTATE_180); // right 1
+    // manager.displays[UpperBanksPlex(0)] = new Disp128(1, ROTATE_0); // shooter 1f
+    // manager.displays[UpperBanksPlex(1)] = new Disp128(1, ROTATE_0); // shooter 1f
+    manager.displays[UpperBanksPlex(2)] = new Disp128(2, ROTATE_0); // left 1
+    manager.displays[UpperBanksPlex(3)] = new Disp128(3, ROTATE_0); // left 2
+    // manager.displays[UpperBanksPlex(4)] = new Disp128(3, ROTATE_0); // left 2f
+    manager.displays[UpperBanksPlex(5)] = new Disp128(5, ROTATE_180); // right 3
+    manager.displays[UpperBanksPlex(6)] = new Disp128(6, ROTATE_180); // right 2
+    manager.displays[UpperBanksPlex(7)] = new Disp128(7, ROTATE_180); // right 1
+    manager.displays[SpinnerPlex(0)] = new Disp160(0, ROTATE_180); // spinner
+    manager.displays[SpinnerPlex(1)] = new Disp128(1, ROTATE_180); // shooter 1
+    manager.displays[UpperPlex(0)] = new Disp160(0, ROTATE_180); // eject
+    manager.displays[UpperPlex(1)] = new Disp160(1, ROTATE_180); // lanes
+    manager.displays[LeftSidePlex(0)] = new Disp160(0, ROTATE_180); // ramp
+    manager.displays[LeftSidePlex(1)] = new Disp128(1, ROTATE_180); // left inlane
+
+
+    // manager.displays[LeftSidePlex(0)] = new Disp128(4, ROTATE_180); // left 1
+    // manager.displays[LeftSidePlex(1)] = new Disp128(4, ROTATE_180); // left 1
+    // manager.displays[LeftSidePlex(2)] = new Disp128(4, ROTATE_180); // left 1
+    // manager.displays[LeftSidePlex(3)] = new Disp128(4, ROTATE_180); // left 1
+    // manager.displays[LeftSidePlex(4)] = new Disp128(4, ROTATE_180); // left 1
+    // manager.displays[LeftSidePlex(5)] = new Disp128(5, ROTATE_180); // left 2
+    // manager.displays[LeftSidePlex(6)] = new Disp128(6, ROTATE_180); // left 3 
+    // manager.displays[LeftSidePlex(7)] = new Disp128(7, ROTATE_180); // left 4
 
     // reset all
 	// DEV_Digital_Write(DEV_RST_PIN, 1);

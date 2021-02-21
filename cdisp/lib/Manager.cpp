@@ -1,6 +1,8 @@
 #include "Manager.h"
 #include "../HW/DEV_Config.h"
 #include "Display.h"
+#include <unistd.h>
+#include <time.h>
 
 Manager::Manager(int displayCount) {
     numDisplays = displayCount;
@@ -45,6 +47,10 @@ void Manager::updateAll() {
 }
 
 void Manager::initAll() {
+    printf("initializing displays... ");
+    fflush(stdout);
+    clock_t start = clock();
+
     // reset all
 	DEV_Digital_Write(DEV_RST_PIN, 0);
 	DEV_Delay_ms(200);
@@ -80,8 +86,13 @@ void Manager::initAll() {
         if (displays[i]) {
             ///DEV_Delay_ms(100);
             displays[i]->init();
+            printf("%i, ", i);
+    fflush(stdout);
         }
     }
+
+    printf("\ndone in %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
+    fflush(stdout);
 }
 
 void Manager::selectDisplay(int num) {

@@ -1,9 +1,9 @@
 #include "ST7735.h"
 #include "../HW/DEV_Config.h"
 
-ST7735::ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror): 
+ST7735::ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, u8 rgbOrder, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror): 
     Display(number, width, height, scanDir, rotate, mirror) {
-
+	this->rgbOrder = rgbOrder;
 }
 
 static void LCD_Write_Command(UBYTE data)	 
@@ -205,13 +205,16 @@ void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
     }
 
     // Set the read / write scan direction of the frame memory
-    LCD_Write_Command(0x36); //MX, MY, RGB mode
+    LCD_Write_Command(MADCTL); //MX, MY, RGB mode
 #if defined(LCD_1IN44)
     LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//0x08 set RGB
 #elif defined(LCD_1IN8)
     LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
 #endif
-    LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//RGB color filter panel
+	if (this->rgbOrder)
+		LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//RGB color filter panel
+	else
+    	LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
 
 }
 

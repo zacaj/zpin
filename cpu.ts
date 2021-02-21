@@ -18,7 +18,7 @@ export const CPU = {
         context: string;
     };},
 
-    ip: '127.0.0.1',
+    ip: '192.168.10.2',
 
     timeout: 10,
     connecting: false,
