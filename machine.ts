@@ -362,6 +362,32 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
     }
 }
 
+const dispNumbers: { [T in keyof ImageOutputs]: number} = {
+    iCenter1: 49,
+    iCenter2: 52,
+    iCenter3: 53,
+    iUpper31: 39,
+    iUpper32: 38,
+    iUpper33: 37,
+    iUpper21: 34,
+    iUpper22: 35,
+    iLeft1: 4,
+    iLeft2: 5,
+    iLeft3: 6,
+    iLeft4: 7,
+    iRight1: 9,
+    iRight2: 10,
+    iRight3: 11,
+    iRight4: 12,
+    iRight5: 13,
+    iSS1: 8,
+    iSS3: 17,
+    iSS4: 25,
+    iSS5: 24,
+    iSS6: 41,
+    iSpinner: 16,
+    iRamp: 40,
+};
 
 export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutputs> {
     constructor(
@@ -372,6 +398,10 @@ export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutput
 
     async init() {
 
+    }
+
+    get num() {
+        return dispNumbers[this.name];
     }
 
     async set(state: string|Node|DisplayContent): Promise<boolean> {
@@ -390,19 +420,24 @@ export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutput
     async syncDisp() {
         const l = gfxImages?.[this.name];
         const state = this.val;
-        if (l?.n !== undefined && CPU.isConnected) {
+        if (CPU.isConnected) {
             if (typeof state === 'object' && 'hash' in state) {
+                const cmds: string[] = [];
                 if ('text' in state) {
                     Log.log(['machine', 'cpu'], 'disp text not implemented yet');
                 }
                 else if ('image' in state) {
-                    await CPU.sendCommand(`image ${l.n} ${state.image!}`);
+                    cmds.push(`image ${this.num} ${state.image!}`);
                 }
                 else if ('color' in state) {
-                    await CPU.sendCommand(`clear ${l.n} ${colorToHex(state.color!)!.slice(1)}`);
+                    cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
+                }
+
+                for (const cmd of cmds) {
+                    await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
                 }
             } else {
-                await CPU.sendCommand(`clear ${l.n} 000000`);
+                await CPU.sendCommand(`clear ${this.num} 000000`);
             }
         }
     }
@@ -504,11 +539,7 @@ export type ImageOutputs = {
     iRight3: string|Node|DisplayContent;
     iRight4: string|Node|DisplayContent;
     iRight5: string|Node|DisplayContent;
-    iMini1: string|Node|DisplayContent;
-    iMini2: string|Node|DisplayContent;
-    iMini3: string|Node|DisplayContent;
     iSS1: string|Node|DisplayContent;
-    iSS2: string|Node|DisplayContent;
     iSS3: string|Node|DisplayContent;
     iSS4: string|Node|DisplayContent;
     iSS5: string|Node|DisplayContent;
@@ -516,6 +547,7 @@ export type ImageOutputs = {
     iSpinner: string|Node|DisplayContent;
     iRamp: string|Node|DisplayContent;
 };
+
 
 export class Machine extends Tree<MachineOutputs> {
     solenoidBank1 = new Solenoid16(0);
@@ -726,7 +758,6 @@ export class Machine extends Tree<MachineOutputs> {
     lUpperLaneTarget = new Light('lUpperLaneTarget', 37);
 
     iSS1 = new Image('iSS1');
-    iSS2 = new Image('iSS2');
     iSS3 = new Image('iSS3');
     iSS4 = new Image('iSS4');
     iSS5 = new Image('iSS5');
@@ -759,8 +790,7 @@ export class Machine extends Tree<MachineOutputs> {
         ['iCenter1', 'iCenter2', 'iCenter3']);
     miniBank = new DropBank(this, this.cMiniBank,
         [ this.sMiniLeft, this.sMiniCenter, this.sMiniRight ],
-        [17, 18, 19],
-        ['iMini1', 'iMini2', 'iMini3']);
+        [17, 18, 19]);
     leftBank = new DropBank(this, this.cLeftBank, 
         [ this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4 ],
         [8, 9, 10, 11],
@@ -883,11 +913,7 @@ export class Machine extends Tree<MachineOutputs> {
             iRight3: '',
             iRight4: '',
             iRight5: '',
-            iMini1: '',
-            iMini2: '',
-            iMini3: '',
             iSS1: '',
-            iSS2: '',
             iSS3: '',
             iSS4: '',
             iSS5: '',

@@ -4,15 +4,27 @@ import { Color } from "./light";
 
 export type DisplayContent = {
     hash: string;
-    text?: string;
     image?: string;
     color?: Color;
+    text?: {
+        text: string;
+        vAlign: 'top'|'bottom'|'center'|'baseline';
+        x: number;
+        y: number;
+        size: number;
+    }[];
 };
 
 export function dText(text: string): DisplayContent {
     return {
         hash: `text ${text}`,
-        text,
+        text: [{
+            text,
+            vAlign: 'top',
+            x: 0,
+            y: 0,
+            size: 40,
+        }],
     };
 }
 
@@ -27,5 +39,12 @@ export function dClear(color: Color): DisplayContent {
     return {
         hash: `clear ${color}`,
         color,
+    };
+}
+
+export function dHash(d: Partial<DisplayContent>): DisplayContent {
+    return {
+        hash: JSON.stringify(d),
+        ...d,
     };
 }

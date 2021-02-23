@@ -107,9 +107,9 @@ export class Player extends Mode {
 
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
-        // ['HandMb', []],
-        // ['StraightMb', []],
-        // ['FullHouseMb', []],
+        ['HandMb', []],
+        ['StraightMb', []],
+        ['FullHouseMb', []],
     ]);
 
     selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';

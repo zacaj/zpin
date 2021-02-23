@@ -20,7 +20,20 @@ import { Tree } from '../tree';
 import { playSound } from '../sound';
 import { Skillshot } from './skillshot';
 import { time } from '../timer';
-import { dImage, dText } from '../disp';
+import { dHash, dImage, DisplayContent, dText } from '../disp';
+
+function dAdjustBet(amount: number): DisplayContent {
+    return dHash({
+        image: amount>0? 'raise_bet' : 'lower_bet',
+        text: [{
+            text: money(amount, 0, '+'),
+            x: 0,
+            y: 95,
+            size: 60,
+            vAlign: 'baseline',
+        }],
+    });
+}
 
 
 export class Poker extends Mode {
@@ -93,6 +106,7 @@ export class Poker extends Mode {
 
         const outs: any  = {};
         for (const target of machine.dropTargets) {
+            if (!target.image) continue;
             outs[target.image.name] = () => this.step<7 && this.slots[target.num]? dImage(getFile(this.slots[target.num])) : undefined;
         }
         this.out = new Outputs(this, {
@@ -102,10 +116,10 @@ export class Poker extends Mode {
             upperEject: () => this.showCardsReady? false : undefined,
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
-            iRamp: () => this.step<7? dText(money(-this.betAdjust*this.adjustSide, 0, '+')) : dText('Finish'),
+            iRamp: () => this.step<7? dAdjustBet(-this.betAdjust*this.adjustSide) : dText('Finish'),
             iSS5: () => this.step >=7? dText('Finish') : undefined,
             iSS1: () => this.step >=7? dText('Finish') : undefined,
-            iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dText(money(this.betAdjust*this.adjustSide, 0, '+')) : undefined,
+            iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {

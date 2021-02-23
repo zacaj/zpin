@@ -26,6 +26,9 @@ const showPf = argv.showPf ?? true;
 const split = argv.split ?? false;
 const swap = argv.swap ?? false;
 const halfScreen = argv.half ?? false;
+const showDisp = !isRpi && !split;
+
+// eslint-disable-next-line complexity
 export async function initGfx() {
     gfx = new AminoGfx({display: isRpi? (swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
     await new Promise((resolve, reject) => {
@@ -154,7 +157,7 @@ export async function initGfx() {
                 screen.w(Screen.w/2);
                 screen.h(Screen.h/2);
                 screen.x(screenW+screen.w()/2);
-                screen.y(-screenH/2);
+                screen.y(-screenH/4*3);
             } else {
                 playfield.add(screen);
                 screen.w(Screen.pw+2);
@@ -460,17 +463,14 @@ class ArrowLight extends Light {
 export class Display extends Group {
     image!: Image;
     node?: Node;
+    setttings!: DisplaySettings;
+
+    static zoomed?: Display;
+
     constructor(public name: keyof ImageOutputs) {
         super(pfx!);
-        const {x,y,r} = gfxImages[name];
-        this.x(x);
-        this.y(y);
-        this.rz(r ?? 0);
-        this.w(80);
-        this.h(160);
-        this.originX(0.5);
-        this.originY(0.5);
-        this.sx(1/80).sy(1/80);
+        this.setttings = gfxImages[name];
+        this.resetPos();
 
         this.add(pfx!.createRect().w(this.w()).h(this.h()).fill('#000000').z(-1));
 
@@ -479,6 +479,35 @@ export class Display extends Group {
         this.image.h(120);
         this.image.top(1).bottom(0).size('stretch');
         this.add(this.image);
+
+        this.acceptsMouseEvents = true;
+        pfx!.on('press', this, (e) => {
+            console.log('disp %s clicked', name);
+            if (Display.zoomed) {
+                Display.zoomed.resetPos();
+                Display.zoomed = undefined;
+            }
+            Display.zoomed = this;
+            this.x(Playfield.w*1.25);
+            this.y(Playfield.h-10-10);
+            // this.w(50);
+            // this.h(50*(this.setttings.large? 160:128)/128);
+            this.rz(0);
+            this.sx(1/7);
+            this.sy(1/7);
+        });
+    }
+
+    resetPos() {
+        const {x,y,r, large} = this.setttings;
+        this.x(x);
+        this.y(y);
+        this.rz(r ?? 0);
+        this.w(large? 160:128);
+        this.h(128);
+        this.originX(0);
+        this.originY(0);
+        this.sx(1/80).sy(1/80);
     }
 
     set(val: string|Node|DisplayContent) {
@@ -491,14 +520,23 @@ export class Display extends Group {
             return this.image.set(val);
         } else if ('hash' in val) {
             this.image.visible(false);
-            if ('text' in val) {
-                this.node = makeText(val.text!, val.text!.length>=5? 60 : 70, 'corner', undefined, pfx).rz(90).x(80).y(160).sy(-1);
-            }
+            const g = this.node = pfx!.createGroup();
             if ('color' in val) {
-                this.node = pfx?.createRect().fill(colorToHex(val.color!)!).w(160).h(80);
+                g.add(pfx!.createRect().fill(colorToHex(val.color!)!).w(160).h(80));
             }
             if ('image' in val) {
-                this.node = makeImage(val.image!, 80, 160, undefined, pfx);
+                // g.add(makeImage(val.image!, 80, 160, undefined, pfx!));
+                const img = pfx!.createImageView().w(this.w()).h(this.h());
+                img.size('stretch');
+                img.src(`cdisp/media/${this.setttings.large? '160':'128'}/${val.image!}.png`);
+                img.top(1).bottom(0);
+                g.add(img);
+            }
+            if ('text' in val) {
+                for (const {text, x, y, size, vAlign} of val.text!) {
+                    const t = makeText(text, size, 'left', vAlign!=='center'? vAlign : 'middle', pfx!);
+                    g.add(t.rz(0).x(x).y(this.h()-y).sy(-1).originY(0));
+                }
             }
             this.add(this.node!);
         } else {
@@ -766,16 +804,17 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lLaneLower4: { x: 17.15625, y: 16.59375, d: 5/8 },
 };
 
-export const gfxImages: { [name in keyof ImageOutputs]: {
+type DisplaySettings = {
     x: number;
     y: number;
     r?: number;
     l?: Display;
-    n?: number; // physical display number
-}} = {
-    iCenter1: { x: 9.5, y: 23.65, r: -17, n: 1 },
-    iCenter2: { x: 10.7, y: 23.35, r: -17, n: 4 },
-    iCenter3: { x: 12.0, y: 22.95, r: -17, n: 5 },
+    large?: boolean;
+};
+export const gfxImages: { [name in keyof ImageOutputs]: DisplaySettings} = {
+    iCenter1: { x: 9.5, y: 23.65, r: -17 },
+    iCenter2: { x: 10.7, y: 23.35, r: -17 },
+    iCenter3: { x: 12.0, y: 22.95, r: -17 },
     iLeft1: { x: 3, y: 21.5, r: 77.6 },
     iLeft2: { x: 3.25, y: 22.7, r: 77.6 },
     iLeft3: { x: 3.5, y: 23.9, r: 77.6 },
@@ -788,19 +827,15 @@ export const gfxImages: { [name in keyof ImageOutputs]: {
     iUpper21: { x: 6.9, y: 38.0, r: -157-180 },
     iUpper22: { x: 7.95, y: 38.37, r: -157-180 },
     iUpper31: { x: 9.8, y: 38.9, r: -42, },
-    iUpper32: { x: 10.5, y: 38.1, r: -42, n: 6 },
-    iUpper33: { x: 11.5, y: 37.3, r: -42, n: 7 },
-    iMini1: { x: 2.5, y: 6.8, r: 153-180 },
-    iMini2: { x: 3.6, y: 6.25, r: 153-180 },
-    iMini3: { x: 4.8, y: 5.78, r: 153-180 },
-    iSS1: { x: 18.5, y: 20.5125, r: 90 },
-    iSS2: { x: 17.05625, y: 31.725, r: 90 },
-    iSS3: { x: 17.912499999999998, y: 37.35, r: 90 },
-    iSS4: { x: 16.875, y: 42.01875, r: 90 },
-    iSS5: { x: 6.4125, y: 42.525, r: 90 },
-    iSS6: { x: 1.8999999999999999, y: 25.875, r: 90 },
-    iSpinner: { x: 15.35625, y: 30.0375, r: 90-20 },
-    iRamp: { x: 5.6812499999999995, y: 25.650000000000002, r: 20+90 },
+    iUpper32: { x: 10.5, y: 38.1, r: -42 },
+    iUpper33: { x: 11.5, y: 37.3, r: -42 },
+    iSS1: { x: 18.5, y: 20.5125, r: 90, large: true },
+    iSS3: { x: 17.912499999999998, y: 37.35, r: 0 },
+    iSS4: { x: 16.875, y: 42.01875, r: 0, large: true },
+    iSS5: { x: 6.4125, y: 42.525, r: 0, large: true },
+    iSS6: { x: 1.8999999999999999, y: 25.875, r: 0 },
+    iSpinner: { x: 15.35625, y: 30.0375, r: 0-20, large: true },
+    iRamp: { x: 5.6812499999999995, y: 25.650000000000002, r: 20+0, large: true },
 };
 
 const gfxCoils: { [name: string]: {

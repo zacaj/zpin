@@ -200,6 +200,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
 
         const outs: any = {};
         for (const target of machine.dropTargets) {
+            if (!target.image) continue;
             outs[target.image.name] = () => this.targets.has(target)? dImage(this.targets.get(target) as string) : undefined;
         }
         this.out = new Outputs(this, {
@@ -208,6 +209,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
         });
 
         this.listen<DropDownEvent>([DropDownEvent.on(), e => this.targets.has(e.target)], (e) => {
+            if (!e.target.image) return;
             if (!eq(machine.out!.treeValues[e.target.image.name], this.out?.treeValues[e.target.image.name]))
                 return;
             this.spinnerValue = undefined;

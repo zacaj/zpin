@@ -60,6 +60,7 @@ export class StraightMb extends Multiball {
         player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
+            if (!target.image) continue;
             outs[target.image.name] = () => {
                 switch (this.state._) {
                     case 'starting':

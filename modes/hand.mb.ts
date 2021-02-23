@@ -79,6 +79,7 @@ export class HandMb extends Multiball {
         this.spinsPerJp = this.skillshotRng.randRange(40, 60);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
+            if (!target.image) continue;
             outs[target.image.name] = () => {
                 if (target.state) return undefined;
                 if (this.jackpotAwarded || this.redTargets.has(target)) return colorToArrow(Color.Red);

@@ -21,7 +21,7 @@ export interface DropTarget {
     bank: DropBank;
     num: number;
     switch: Switch;
-    image: Image;
+    image: Image|null;
 }
 
 export class DropBank extends Tree<MachineOutputs> {
@@ -32,7 +32,7 @@ export class DropBank extends Tree<MachineOutputs> {
         public coil: MomentarySolenoid,
         public switches: Switch[],
         nums: number[],
-        images: (keyof ImageOutputs)[],
+        images?: (keyof ImageOutputs|undefined)[],
     ) {
         super();
         let i=0;
@@ -41,7 +41,7 @@ export class DropBank extends Tree<MachineOutputs> {
                 state: sw.state,
                 bank: this,
                 num: nums[i],
-                image: new Image(images[i]),
+                image: images?.[i]? new Image(images[i]!) : null,
                 switch: sw,
             };
             State.declare<DropTarget>(target, ['state']);
