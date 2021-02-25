@@ -389,11 +389,12 @@ const dispNumbers: { [T in keyof ImageOutputs]: number} = {
     iRamp: 40,
 };
 
-export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutputs> {
+export type ImageType = DisplayContent|undefined;
+export class Image extends MachineOutput<ImageType, ImageOutputs> {
     constructor(
         name: keyof ImageOutputs,
     ) {
-        super('', name);
+        super(undefined, name);
     }
 
     async init() {
@@ -404,7 +405,7 @@ export class Image extends MachineOutput<string|Node|DisplayContent, ImageOutput
         return dispNumbers[this.name];
     }
 
-    async set(state: string|Node|DisplayContent): Promise<boolean> {
+    async set(state: ImageType): Promise<boolean> {
         if (!gfx) return true;
         await this.syncDisp();
         if (!gfxImages) return false;
@@ -522,30 +523,30 @@ export type LightOutputs = {
     lUpperLaneTarget: LightState[];
 };
 export type ImageOutputs = {
-    iCenter1: string|Node|DisplayContent;
-    iCenter2: string|Node|DisplayContent;
-    iCenter3: string|Node|DisplayContent;
-    iUpper31: string|Node|DisplayContent;
-    iUpper32: string|Node|DisplayContent;
-    iUpper33: string|Node|DisplayContent;
-    iUpper21: string|Node|DisplayContent;
-    iUpper22: string|Node|DisplayContent;
-    iLeft1: string|Node|DisplayContent;
-    iLeft2: string|Node|DisplayContent;
-    iLeft3: string|Node|DisplayContent;
-    iLeft4: string|Node|DisplayContent;
-    iRight1: string|Node|DisplayContent;
-    iRight2: string|Node|DisplayContent;
-    iRight3: string|Node|DisplayContent;
-    iRight4: string|Node|DisplayContent;
-    iRight5: string|Node|DisplayContent;
-    iSS1: string|Node|DisplayContent;
-    iSS3: string|Node|DisplayContent;
-    iSS4: string|Node|DisplayContent;
-    iSS5: string|Node|DisplayContent;
-    iSS6: string|Node|DisplayContent;
-    iSpinner: string|Node|DisplayContent;
-    iRamp: string|Node|DisplayContent;
+    iCenter1: ImageType;
+    iCenter2: ImageType;
+    iCenter3: ImageType;
+    iUpper31: ImageType;
+    iUpper32: ImageType;
+    iUpper33: ImageType;
+    iUpper21: ImageType;
+    iUpper22: ImageType;
+    iLeft1: ImageType;
+    iLeft2: ImageType;
+    iLeft3: ImageType;
+    iLeft4: ImageType;
+    iRight1: ImageType;
+    iRight2: ImageType;
+    iRight3: ImageType;
+    iRight4: ImageType;
+    iRight5: ImageType;
+    iSS1: ImageType;
+    iSS3: ImageType;
+    iSS4: ImageType;
+    iSS5: ImageType;
+    iSS6: ImageType;
+    iSpinner: ImageType;
+    iRamp: ImageType;
 };
 
 
@@ -896,30 +897,30 @@ export class Machine extends Tree<MachineOutputs> {
             lLaneLower4: [],
             lSpinnerTarget: [],
             lUpperLaneTarget: [],
-            iCenter1: '',
-            iCenter2: '',
-            iCenter3: '',
-            iUpper31: '',
-            iUpper32: '',
-            iUpper33: '',
-            iUpper21: '',
-            iUpper22: '',
-            iLeft1: '',
-            iLeft2: '',
-            iLeft3: '',
-            iLeft4: '',
-            iRight1: '',
-            iRight2: '',
-            iRight3: '',
-            iRight4: '',
-            iRight5: '',
-            iSS1: '',
-            iSS3: '',
-            iSS4: '',
-            iSS5: '',
-            iSS6: '',
-            iSpinner: '',
-            iRamp: '',
+            iCenter1: undefined,
+            iCenter2: undefined,
+            iCenter3: undefined,
+            iUpper31: undefined,
+            iUpper32: undefined,
+            iUpper33: undefined,
+            iUpper21: undefined,
+            iUpper22: undefined,
+            iLeft1: undefined,
+            iLeft2: undefined,
+            iLeft3: undefined,
+            iLeft4: undefined,
+            iRight1: undefined,
+            iRight2: undefined,
+            iRight3: undefined,
+            iRight4: undefined,
+            iRight5: undefined,
+            iSS1: undefined,
+            iSS3: undefined,
+            iSS4: undefined,
+            iSS5: undefined,
+            iSS6: undefined,
+            iSpinner: undefined,
+            iRamp: undefined,
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
             spinnerValue: undefined,

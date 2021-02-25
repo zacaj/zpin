@@ -107,9 +107,9 @@ export function colorToArrow(color?: Color): DisplayContent|undefined {
     return dImage(color.toLowerCase()+'Arrow');
 }
 
-export function mix(func: () => LightState|undefined): (state?: LightState[]) => LightState[] | undefined {
+export function mix(func: (() => LightState|undefined)|LightState|undefined): (state?: LightState[]) => LightState[] | undefined {
     return prev => {
-        const l = func();
+        const l = typeof func==='function'? func() : func;
         if (l)
             return [l, ...(prev??[])];
         else
@@ -117,8 +117,8 @@ export function mix(func: () => LightState|undefined): (state?: LightState[]) =>
     };
 }
 
-export function add(func: () => boolean, color: Color): (state?: LightState[]) => LightState[] | undefined {
-    return mix(() => func()? color : undefined);
+export function add(func: (() => boolean)|boolean, color: LightState): (state?: LightState[]) => LightState[] | undefined {
+    return mix(() => (typeof func==='function'? func() : func)? color : undefined);
 }
 
 export function many(func: () => {[color: string]: boolean}): (state?: LightState[]) => LightState[] | undefined {

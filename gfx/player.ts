@@ -73,6 +73,7 @@ export class StatusReportGfx extends Group {
         this.z(50);
         this.w(Screen.w*.38);
         this.h(GameGfx.main);
+        // this.x(-Screen.w/2);
         player.watch(() => this.x(player.ball?.skillshot? -Screen.w/2 : Screen.w/2-this.w()));
         this.y(-Screen.h/2+GameGfx.top);
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
@@ -130,3 +131,50 @@ export class StatusReportGfx extends Group {
         }, true);
     }
 }
+
+// export class PlayerScoresGfx extends Group {
+//     constructor(
+//         public player: Player,
+//         public game: Game,
+//         public g: PlayerGfx,
+//     ) {
+//         super(gfx);
+//         this.z(50);
+//         this.w(Screen.w*.5);
+//         this.h(GameGfx.main);
+//         this.x(Screen.w/2);
+//         // player.watch(() => this.x(player.ball?.skillshot? -Screen.w/2 : Screen.w/2-this.w()));
+//         this.y(-Screen.h/2+GameGfx.top);
+//         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
+//         const left = 20;
+//         const right = this.w()-20;
+//         const bottom = this.h()-20;
+//         const top = 20;
+
+//         this.add(makeText('SCORES', 50, 'center', 'middle').x(this.w()/2).y(top+15));
+
+//         player.watch(() => this.visible(
+//             machine.sBothFlippers.onFor(500) && machine.sBothFlippers.lastClosed! > (machine.lastSwitchHit?.lastClosed??0)+1000,
+//         ));
+
+//         const scores = gfx.createGroup();
+//         this.add(scores);
+
+//         this.visible.watch(visible => {
+//             if (!visible) return;
+
+//             {
+//                 const h = game.players.length<4? 35 : 20;
+//                 scores.clear();
+//                 if (game.players.length === 1) return;
+//                 let y = top + 55;
+//                 for (let i=game.players.length-1; i>=0; i--) {
+//                     scores.add(makeText(`PLAYER ${i+1}:`, h, 'left', 'bottom').x(left).y(y));
+//                     scores.add(makeText(`${score(game.players[i].score)}, ${money(game.players[i].store.Poker!.bank, 4)}`, h, 'right', 'bottom').x(right).y(y));
+//                     y += h*1.25;
+//                 }
+//                 scores.add(makeText('SCORES:', h+5, 'center', 'bottom').x(left).w(this.w()).y(y));
+//             }
+//         }, true);
+//     }
+// }

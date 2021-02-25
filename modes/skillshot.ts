@@ -63,13 +63,14 @@ export class Skillshot extends Mode {
 
         const outs = {} as any;
         for (const a of this.awards) {
-            if (pfx && !a.display)
-                this.displays.push(makeText('', 10, undefined, undefined, pfx));
-            else if (pfx && a.display)
-                this.displays.push((typeof a.display === 'string'?  makeText(a.display, a.display.length>=5? 60 : 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
-            else
-                this.displays.push({fill() { }} as any);
-            outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
+            // todo
+            // if (pfx && !a.display)
+            //     this.displays.push(makeText('', 10, undefined, undefined, pfx));
+            // else if (pfx && a.display)
+            //     this.displays.push((typeof a.display === 'string'?  makeText(a.display, a.display.length>=5? 60 : 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
+            // else
+            //     this.displays.push({fill() { }} as any);
+            // outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
         }
 
         // if (player.game.ballNum === 1)

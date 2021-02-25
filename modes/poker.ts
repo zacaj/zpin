@@ -9,7 +9,7 @@ import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
 import { KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
-import { Color, light } from '../light';
+import { add, Color, light } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
@@ -20,21 +20,14 @@ import { Tree } from '../tree';
 import { playSound } from '../sound';
 import { Skillshot } from './skillshot';
 import { time } from '../timer';
-import { dHash, dImage, DisplayContent, dText } from '../disp';
+import { dFitText, dHash, dImage, DisplayContent, dText } from '../disp';
 
 function dAdjustBet(amount: number): DisplayContent {
     return dHash({
         image: amount>0? 'raise_bet' : 'lower_bet',
-        text: [{
-            text: money(amount, 0, '+'),
-            x: 0,
-            y: 95,
-            size: 60,
-            vAlign: 'baseline',
-        }],
+        ...dFitText(money(amount, 0, '+'), 95, 'baseline'),
     });
 }
-
 
 export class Poker extends Mode {
     get nodes() {
@@ -116,10 +109,15 @@ export class Poker extends Mode {
             upperEject: () => this.showCardsReady? false : undefined,
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
-            iRamp: () => this.step<7? dAdjustBet(-this.betAdjust*this.adjustSide) : dText('Finish'),
-            iSS5: () => this.step >=7? dText('Finish') : undefined,
-            iSS1: () => this.step >=7? dText('Finish') : undefined,
-            iSpinner: () => this.step<7 && ((time()/1000%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
+            iRamp: (prev) => {
+                if (this.step<7) return dAdjustBet(-this.betAdjust*this.adjustSide);
+                return ((time()/1500%2)|0)===0? dImage("finish_hand_ramp") : undefined;
+            },
+            iSS5: () => this.step>=7? dImage("finish_hand_eject") : undefined,
+            iSS1: () => this.step>=7 &&  ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : undefined,
+            iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
+            lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
+            lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {

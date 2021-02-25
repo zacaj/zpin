@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="160"
+   height="128"
+   viewBox="0 0 42.333332 33.866668"
+   version="1.1"
+   id="svg877"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="finish_hand_ramp.svg"
+   inkscape:export-filename="A:\source\zpin\cdisp\media\160\finish_hand_eject.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs871" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.959798"
+     inkscape:cx="82.05343"
+     inkscape:cy="71.569071"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     units="px"
+     inkscape:snap-page="true"
+     inkscape:window-width="2497"
+     inkscape:window-height="1417"
+     inkscape:window-x="1975"
+     inkscape:window-y="1072"
+     inkscape:window-maximized="1"
+     showguides="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid891" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata874">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#000000;stroke-width:0.116946"
+       id="rect879"
+       width="42.333332"
+       height="33.866665"
+       x="0"
+       y="0" />
+    <text
+       xml:space="preserve"
+       style="font-size:10.4229px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.279184"
+       x="21.112593"
+       y="15.093608"
+       id="text883"
+       inkscape:transform-center-x="-0.066817385"
+       inkscape:transform-center-y="0.46772169"><tspan
+         sodipodi:role="line"
+         id="tspan881"
+         x="21.112593"
+         y="15.093608"
+         style="font-size:10.4229px;text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.279184">FINISH</tspan><tspan
+         sodipodi:role="line"
+         x="21.112593"
+         y="28.122232"
+         style="font-size:10.4229px;text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.279184"
+         id="tspan885">HAND</tspan></text>
+  </g>
+</svg>

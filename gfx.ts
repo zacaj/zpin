@@ -6,7 +6,7 @@ import { DisplayContent } from './disp';
 import { EventListener, Events } from './events';
 import { Color, colorToHex, LightState, normalizeLight } from './light';
 import { Log } from './log';
-import { ImageOutputs, LightOutputs, machine, resetMachine, Solenoid } from './machine';
+import { ImageOutputs, ImageType, LightOutputs, machine, resetMachine, Solenoid } from './machine';
 import { Mode } from './mode';
 import { onChange } from './state';
 import { getSwitchByName, matrix, onSwitch, resetSwitchMatrix, Switch } from './switch-matrix';
@@ -381,14 +381,15 @@ abstract class Light extends Group {
         if (jState === this.lastState) return;
         this.lastState = jState;
 
+        this.shape.opacity.curAnim?.stop();
         if (this.timer) {
             clearInterval(this.timer);
             this.timer = undefined;
         }
-        this.shape.opacity.curAnim?.stop();
-        this.shape.opacity(1);
         if (val.length) {
             const setShape = (s: LightState) => {
+                this.shape.opacity.curAnim?.stop();
+                this.shape.opacity(1);
                 const state = normalizeLight(s);
                 this.shape.fill(colorToHex(state.color)!);
                 switch (state.type) {
@@ -488,7 +489,7 @@ export class Display extends Group {
                 Display.zoomed = undefined;
             }
             Display.zoomed = this;
-            this.x(Playfield.w*1.25);
+            this.x(Playfield.w*1.1);
             this.y(Playfield.h-10-10);
             // this.w(50);
             // this.h(50*(this.setttings.large? 160:128)/128);
@@ -503,22 +504,20 @@ export class Display extends Group {
         this.x(x);
         this.y(y);
         this.rz(r ?? 0);
-        this.w(large? 160:128);
+        this.w(large? 200:128);
         this.h(128);
         this.originX(0);
         this.originY(0);
         this.sx(1/80).sy(1/80);
     }
 
-    set(val: string|Node|DisplayContent) {
-        if (this.node && !eq(val, this.node)) {
+    set(val: ImageType) {
+        if (this.node) {
             this.remove(this.node);
             this.node = undefined;
         }
-        if (typeof val === 'string') {
-            this.image.visible(true);
-            return this.image.set(val);
-        } else if ('hash' in val) {
+        if (!val) return;
+        if ('hash' in val) {
             this.image.visible(false);
             const g = this.node = pfx!.createGroup();
             if ('color' in val) {
@@ -540,10 +539,7 @@ export class Display extends Group {
             }
             this.add(this.node!);
         } else {
-            this.image.visible(false);
-            this.node = val;
-            this.add(val);
-            return undefined;
+            debugger;
         }
     }
 }

@@ -17,7 +17,7 @@ import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, KnockTarget, MiscAwards, ResetBank, ResetMechs } from '../util-modes';
-import { assert, comma, getCallerLine, getCallerLoc, money, score, seq } from '../util';
+import { assert, comma, getCallerLine, getCallerLoc, money, score, seq, short } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -28,7 +28,7 @@ import { FullHouseMb } from './full-house.mb';
 import { playSound } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
-import { dText } from '../disp';
+import { dFitText, dHash, dImage, dText } from '../disp';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -150,6 +150,10 @@ export class Player extends Mode {
            return mbs[cur+1];
     }
 
+    get pokerEndingOrDone() {
+        return (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7;
+    }
+
     constructor(
         public game: Game,
         public number: number,
@@ -162,10 +166,10 @@ export class Player extends Mode {
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
             rampUp: () => !this.mbReady,
-            iSS1: () => (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? dText('Hand') : undefined,
+            iSS1: () => this.pokerEndingOrDone? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
-            lRampArrow: mix(() => !this.curMode && this.mbsReady.size>0? [this.mbColor(), 'fl'] : undefined),
-            iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dText('Multi') : undefined,
+            lRampArrow: add(() => this.pokerEndingOrDone && this.mbsReady.size>0, [this.mbColor(), 'fl']),
+            iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -437,7 +441,7 @@ class Spinner extends Tree<MachineOutputs> {
     rounds = 0;
     maxRounds = 1;
 
-    display = pfx? makeText('10  ', 50, 'corner', undefined, pfx).rz(90).x(80).y(160).sy(-1) : undefined;
+    displayText = '10';
 
     tb?: Group;
     ripTimer?: TimerQueueEntry;
@@ -448,11 +452,14 @@ class Spinner extends Tree<MachineOutputs> {
     ) {
         super();
 
-        State.declare<Spinner>(this, ['rounds', 'score', 'comboMult']);
+        State.declare<Spinner>(this, ['rounds', 'score', 'comboMult', 'displayText']);
 
         this.out = new Outputs(this, {
             leftGate: () => this.rounds > 0,
-            iSpinner: () => this.display,
+            iSpinner: () => dHash({
+                ...dImage("per_spin"),
+                ...dFitText(this.displayText, 57, 'baseline'),
+            }),
         });
 
         this.listen(onSwitchClose(machine.sSpinner), 'hit');
@@ -520,7 +527,11 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     updateDisplay() {
-        this.display?.text(`${machine.out!.treeValues.spinnerValue ?? this.score}${this.comboMult>1? `*${this.comboMult}` : '  '}`);
+        const value = machine.out!.treeValues.spinnerValue ?? this.score;
+        if (this.comboMult>1)
+            this.displayText = `${short(value)} *${this.comboMult}`;
+        else
+            this.displayText = score(value);
     }
 
     calcScore() {
