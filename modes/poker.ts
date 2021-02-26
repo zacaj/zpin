@@ -20,13 +20,13 @@ import { Tree } from '../tree';
 import { playSound } from '../sound';
 import { Skillshot } from './skillshot';
 import { time } from '../timer';
-import { dFitText, dHash, dImage, DisplayContent, dText } from '../disp';
+import { dFitText, dHash, dImage, DisplayContent, dMany, dText } from '../disp';
 
 function dAdjustBet(amount: number): DisplayContent {
-    return dHash({
-        image: amount>0? 'raise_bet' : 'lower_bet',
-        ...dFitText(money(amount, 0, '+'), 95, 'baseline'),
-    });
+    return dMany(
+        dImage(amount>0? 'raise_bet' : 'lower_bet'),
+        dFitText(money(amount, 0, '+'), 95, 'baseline'),
+    );
 }
 
 export class Poker extends Mode {
@@ -574,13 +574,25 @@ export class Poker extends Mode {
             [[1, 10, 20], [4, 3, 10]],
             [[3, -10, -2], [5, 3, 9], [1, 10, 20]],
         ];
+        const textSettings: [number, number, 'baseline', number][] = [
+            [8, 126, 'baseline', 46],
+            [13, 110, 'baseline', 58],
+            [7, 109, 'baseline', 48],
+            [13, 110, 'baseline', 58],
+            [13, 110, 'baseline', 58],
+            [7, 109, 'baseline', 48],
+        ];
         return [...switches.map((sw, i) => {
             const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
             let change = round(percent, 10);
-            if (this.bet + change < 0) change = -this.bet;
+            if (this.bet + change < 0) change = 10;
+            const newBet = this.bet + change;
             return {
                 switch: sw,
-                display: change? money(change, 0, '+') : '',
+                display: change? dMany(
+                    dImage('bet'+(i===1? '_2' : '')),
+                    dText(money(change, 0, '+'), ...textSettings[i]),
+                ) : undefined,
                 collect: () => {
                     this.bet += change;
                     Log.log('game', 'skillshot increase bet by %i to %i', change, this.bet);

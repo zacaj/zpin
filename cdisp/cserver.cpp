@@ -345,7 +345,7 @@ int main() {
                     if (vAlignStr == "center") vAlign = CENTER_ASC;
                     if (vAlignStr == "baseline") vAlign = BASELINE;
                     manager.displays[disp]->drawText(text.c_str(), x, y, size, vAlign);
-                }
+                    if (parts.back() != "&") manager.updateDisplay(disp);
                 } else if (parts[0] == "rand") {
                     for (int i=0; i<manager.numDisplays; i++) {
                         if (!manager.displays[i]) continue;

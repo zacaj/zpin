@@ -16,6 +16,8 @@ import { Ball } from './ball';
 import { Rng } from '../rand';
 import { playSound } from '../sound';
 import { Combo } from '../util-modes';
+import { dClear, dImage, DisplayContent, dMany } from '../disp';
+import { Color } from '../light';
 
 export enum GateMode {
     Closed = 'Closed',
@@ -23,12 +25,14 @@ export enum GateMode {
     Toggle = 'Toggle',
 }
 
+const skillSuffix = ['_v', '_h', '', '_h', '_h', ''];
+
 export class Skillshot extends Mode {
     shooterOpen = true;
 
     awards!: SkillshotAward[];
     curAward = 0;
-    displays: Node[] = [];
+    displays: DisplayContent[] = [];
 
     wasMade = false;
 
@@ -59,24 +63,27 @@ export class Skillshot extends Mode {
         if (Skillshot.ballInPlay !== ball) 
             this.isFirstOfBall = true;
 
-        this.awards = this.makeAwards();          
+        this.awards = this.makeAwards();    
+        this.gateMode = this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);    
+        
+        this.setAward(this.rng.randRange(0, 5));//(Math.random()*this.awards.length)|0);  
 
         const outs = {} as any;
         for (const a of this.awards) {
-            // todo
-            // if (pfx && !a.display)
-            //     this.displays.push(makeText('', 10, undefined, undefined, pfx));
-            // else if (pfx && a.display)
-            //     this.displays.push((typeof a.display === 'string'?  makeText(a.display, a.display.length>=5? 60 : 70, 'corner', undefined, pfx) : a.display).rz(90).x(80).y(160).sy(-1));
-            // else
-            //     this.displays.push({fill() { }} as any);
-            // outs[`iSS${this.awards.indexOf(a)+1}`] = this.displays.last();
+            const disp = a.display ?? dClear(Color.Black);
+            const i = this.displays.length;
+            this.displays.push(disp);
+            outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = () => {
+                const d = i===this.curAward? dMany(disp, dImage("skill_selected")) : {...disp};
+                if (d.images)
+                    d.images = d.images.map(img => img+skillSuffix[i]);
+                return d;
+            };
         }
 
         // if (player.game.ballNum === 1)
         //     this.gateMode = GateMode.Closed;
         // else
-        this.gateMode = this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);
 
         this.out = new Outputs(this, {
             ...outs,
@@ -85,8 +92,6 @@ export class Skillshot extends Mode {
             rightGate: false,
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
         });
-        
-        this.setAward(this.rng.randRange(0, 5));//(Math.random()*this.awards.length)|0);
 
 
         this.listen([...onAnyPfSwitchExcept(machine.sShooterLane), () => !machine.sShooterLane.state], () => this.shooterOpen = false);
@@ -140,13 +145,6 @@ export class Skillshot extends Mode {
             if (!a.display) return;
             if (a.select)
                 a.select(selected, a.display as any, a);
-            const disp = this.displays[i];
-            if (disp instanceof Text) {
-                if (selected)
-                    disp.fill('#ffff00');
-                else
-                    disp.fill('#ffffff');
-            }
         };
         i = wrap(i, this.awards.length-1);
         select(this.awards[this.curAward], false, this.curAward);        

@@ -421,24 +421,24 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
     async syncDisp() {
         const l = gfxImages?.[this.name];
         const state = this.val;
-        if (CPU.isConnected) {
-            if (typeof state === 'object' && 'hash' in state) {
-                const cmds: string[] = [];
-                if ('text' in state) {
-                    Log.log(['machine', 'cpu'], 'disp text not implemented yet');
+        if (CPU.isConnected && state) {
+            const cmds: string[] = [];
+            if (state.color)
+                cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
+            
+            if (state.images) {
+                for (const img of state.images) {
+                    cmds.push(`image ${this.num} ${img}`);
                 }
-                else if ('image' in state) {
-                    cmds.push(`image ${this.num} ${state.image!}`);
+            }
+            if (state.text) {
+                for (const {x, y, size, text, vAlign} of state.text) {
+                    cmds.push(`text ${this.num} ${x} ${y} ${size} ${vAlign} ${text}`);
                 }
-                else if ('color' in state) {
-                    cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
-                }
+            }
 
-                for (const cmd of cmds) {
-                    await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
-                }
-            } else {
-                await CPU.sendCommand(`clear ${this.num} 000000`);
+            for (const cmd of cmds) {
+                await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
             }
         }
     }
@@ -447,7 +447,7 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
 export type SkillshotAward = {
     switch: string;
     award: string;
-    display?: string|Node;
+    display?: ImageType;
     collect?: (e: SwitchEvent) => void; // always called for given switch
     made: (e: SwitchEvent) => void; // if selected skillshot was made
     select?: (selected: boolean, disp: Node, a: SkillshotAward) => void;

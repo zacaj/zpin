@@ -160,8 +160,12 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
     int i,j; 
 		for(j = 0; j < image->height; j++){
 			for(i = 0; i < image->width; i++){
-				if(xStart+i < width  &&  yStart+j < height)//Exceeded part does not display
-                    setPixel(xStart+i, yStart+j, image->getColor(i, j));
+				if(xStart+i < width  &&  yStart+j < height) {//Exceeded part does not display
+                    Color color = image->getColor(i, j);
+                    if (color == (31<<11)|(31))
+                        continue;
+                    setPixel(xStart+i, yStart+j, color);
+                }
 					// setPixel(xStart + i, yStart + j, (*(image->pixels + j*image->width + i+1))<<8 | (*(image->pixels + j*image->height + i)));
 				//Using arrays is a property of sequential storage, accessing the original array by algorithm
 				//j*W_Image*2 			   Y offset

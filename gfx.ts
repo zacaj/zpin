@@ -523,11 +523,11 @@ export class Display extends Group {
             if ('color' in val) {
                 g.add(pfx!.createRect().fill(colorToHex(val.color!)!).w(160).h(80));
             }
-            if ('image' in val) {
+            for (const i of val.images ?? []) {
                 // g.add(makeImage(val.image!, 80, 160, undefined, pfx!));
                 const img = pfx!.createImageView().w(this.w()).h(this.h());
                 img.size('stretch');
-                img.src(`cdisp/media/${this.setttings.large? '160':'128'}/${val.image!}.png`);
+                img.src(`cdisp/media/${this.setttings.large? '160':'128'}/${i}.png`);
                 img.top(1).bottom(0);
                 g.add(img);
             }

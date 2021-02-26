@@ -10,6 +10,7 @@ export enum Color {
     Purple = 'Purple',
     Pink = 'Pink',
     Tan = 'Tan',
+    Black = 'Black',
 }
 
 export type Frequency = number;
