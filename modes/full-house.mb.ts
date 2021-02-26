@@ -1,4 +1,5 @@
 import { AnimParams } from 'aminogfx-gl';
+import { dClear, dImage, dMany } from '../disp';
 import { Events, Priorities } from '../events';
 import { addToScreen, alert, pfx } from '../gfx';
 import { FullHouseMbGfx } from '../gfx/full-house.mb';
@@ -112,7 +113,10 @@ export class FullHouseMb extends Multiball {
             lockPost: () => this.lockPost ?? false,
             lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : []),
+            iRamp: () => this.state._==='started'? dImage('light_jackpot') : 
+                (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] : [],
+            iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_jackpot') : undefined,
             getSkillshot: () => () => this.getSkillshot(),
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget)),
@@ -128,6 +132,7 @@ export class FullHouseMb extends Multiball {
             //         (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
             //         && !machine.sShooterLower.wasClosedWithin(750),
             upperMagnet: () => time()<this.magnetOnUntil,
+            iSpinner: () =>  this.state._==='jackpotLit' && this.state.jp.startsWith('Left')? dImage('activate_magnet') : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
@@ -153,7 +158,8 @@ export class FullHouseMb extends Multiball {
             if (machine.sUpperInlane.wasClosedWithin(1500) && this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane) {
                 return this.jackpot();
             } else {
-                this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => !j.startsWith('Left')) as Jackpot[]));
+                if (this.state._ !== 'jackpotLit' || this.state.jp.startsWith('Left'))
+                    this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => !j.startsWith('Left')) as Jackpot[]));
                 if (this.state.jp !== Jackpot.RightTarget)
                     fork(ResetBank(this, machine.upper3Bank));
             }
@@ -248,11 +254,11 @@ export class FullHouseMb extends Multiball {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const magJp = this.skillshotRng.weightedSelect([5, Jackpot.LeftTarget], [2, Jackpot.LeftLane], [2, undefined]);
         const ejectJp = this.skillshotRng.weightedSelect([2, undefined],  [3, Jackpot.RightTarget], [5, Jackpot.RightLane]);
-        const jps = this.skillshotRng.shuffle([...Object.values(Jackpot), undefined]);
+        const jps = this.skillshotRng.shuffle([...Object.values(Jackpot), undefined, undefined]);
         jps.remove(magJp);
         jps.remove(ejectJp);
         const selections: (string|Jackpot|undefined)[] = [
-            'random', 
+            undefined,
             this.restartJp ?? magJp,
             this.restartJp ?? jps[0],
             this.restartJp ?? jps[1],
@@ -262,9 +268,9 @@ export class FullHouseMb extends Multiball {
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 500K TO JACKPOT VALUE']),
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 500K TO JACKPOT VALUE']),
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
         ];
 
@@ -273,8 +279,11 @@ export class FullHouseMb extends Multiball {
                 switch: sw,
                 award: verb[i],
                 dontOverride: i===0,
-                display: !selections[i]? undefined : (selections[i] === 'random'? selections[i] as string
-                    : pfx?.createRect().h(80).w(160).fill(colorToHex(this.jpColor(selections[i] as Jackpot)!)!) ?? {fill() { }} as any),
+                display: !selections[i]? undefined : (selections[i] === 'random'? dImage('random_jp')
+                    : dMany(
+                        dClear(this.jpColor(selections[i] as Jackpot)!)!,
+                        dImage('skill_light_jp'),
+                )),
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;
                     if (!selections[i])
@@ -299,6 +308,7 @@ export class FullHouseMb extends Multiball {
                                 });
                             }
                         break;
+                        case 'ADD 500K TO JACKPOT VALUE': this.base += 250000; break;
                         case 'ADD 250K TO JACKPOT VALUE': this.base += 250000; break;
                         case '100K points': this.player.score += 100000; break;
                         case '10K points': this.player.score += 10000; break;

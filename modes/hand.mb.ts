@@ -17,6 +17,7 @@ import { Rng } from '../rand';
 import { Card, Hand } from './poker';
 import { Restart } from './restart';
 import { HandMbGfx } from '../gfx/hand.mb';
+import { dFitText, dImage } from '../disp';
 
 
 const Starting = makeState('starting', { 
@@ -82,7 +83,7 @@ export class HandMb extends Multiball {
             if (!target.image) continue;
             outs[target.image.name] = () => {
                 if (target.state) return undefined;
-                if (this.jackpotAwarded || this.redTargets.has(target)) return colorToArrow(Color.Red);
+                if (this.jackpotAwarded || this.redTargets.has(target)) return dImage("x");
                 return colorToArrow(this.bankColors.get(target.bank));
             };
         }
@@ -95,6 +96,8 @@ export class HandMb extends Multiball {
             lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
             lRampArrow: () => this.state._ === 'started'?  [this.getArrowColor()]:
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
+            iRamp: () => this.state._==='started'? dFitText(score(this.value), 64, 'center') : 
+                (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             getSkillshot: () => (ss: any) => this.getSkillshot(ss),
             leftGate: () => this.state._==='started'? true : undefined,
             rightGate: () => this.state._==='started'? true : undefined,
@@ -236,14 +239,14 @@ export class HandMb extends Multiball {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const values = [
             [[1, 5, 10]],
-            [[10, 10, 20], [10, 15, 25], [5, 30]],
-            [[1, 3, 6]],
-            ss.gateMode===GateMode.Closed? [[10, 5, 10], [3, 15, 25]] : 
-                (ss.gateMode===GateMode.Open? [[10, 10, 30], [3, 20, 35]] : [[10, 5, 20], [3, 15, 30]]),
-            ss.gateMode===GateMode.Closed? [[1, 10], [2, 20], [5, 40]] : 
+            [[10, 20, 25], [10, 25, 40], [5, 50]],
+            [[10, 20, 30], [2, 40, 70]],
+            ss.gateMode===GateMode.Closed? [[10, 15, 30], [3, 25, 50]] : 
+                (ss.gateMode===GateMode.Open? [[10, 10, 30], [3, 20, 35]] : [[10, 15, 30], [3, 25, 50]]),
+            ss.gateMode===GateMode.Closed? [[1, 20], [2, 40], [5, 60]] : 
                 (ss.gateMode===GateMode.Open? [[5, 20], [2, 30], [1, 50]] : [[2, 30], [2, 40], [1, 75]]),
             ss.gateMode===GateMode.Closed? [[1, 10, 15]] : 
-                (ss.gateMode===GateMode.Open? [[1, 1, 5]] : [[1, 20, 30]]),
+                (ss.gateMode===GateMode.Open? [[1, 1, 5]] : [[1, 20, 50]]),
         ];
 
         return [...switches.map((sw, i) => {

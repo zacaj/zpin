@@ -17,6 +17,7 @@ void Manager::updateDisplay(int num) {
 
     selectDisplay(num);
     displays[num]->update();
+    displays[num]->clear(BLACK);
 }
 
 void Manager::updateAll() {
