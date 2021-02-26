@@ -168,7 +168,7 @@ export class Player extends Mode {
             rampUp: () => !this.mbReady,
             iSS1: () => this.pokerEndingOrDone? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
-            lRampArrow: add(() => this.pokerEndingOrDone && this.mbsReady.size>0, [this.mbColor(), 'fl']),
+            lRampArrow: add(() => !this.curMode || (this.poker?.step??-1) >= 7 && this.mbsReady.size>0, () => [this.mbColor(), 'fl']),
             iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),

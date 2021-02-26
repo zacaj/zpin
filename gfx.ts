@@ -521,7 +521,7 @@ export class Display extends Group {
             this.image.visible(false);
             const g = this.node = pfx!.createGroup();
             if ('color' in val) {
-                g.add(pfx!.createRect().fill(colorToHex(val.color!)!).w(160).h(80));
+                g.add(pfx!.createRect().fill(colorToHex(val.color!)!).w(this.w()).h(this.h()));
             }
             for (const i of val.images ?? []) {
                 // g.add(makeImage(val.image!, 80, 160, undefined, pfx!));

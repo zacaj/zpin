@@ -1,10 +1,10 @@
 import { Group, Node } from "aminogfx-gl";
-import { makeText, pfx } from "./gfx";
+import { Display, makeText, pfx } from "./gfx";
 import { Color } from "./light";
 
 export type DisplayContent = {
     hash: string;
-    image?: string;
+    images?: string[];
     color?: Color;
     text?: {
         text: string;
@@ -71,7 +71,7 @@ export function dFitText(text: string, y: number, vAlign: 'top'|'bottom'|'center
 export function dImage(name: string): DisplayContent {
     return {
         hash: `image ${name}`,
-        image: name,
+        images: [name],
     };
 }
 
@@ -84,8 +84,8 @@ export function dClear(color: Color): DisplayContent {
 
 export function dHash(d: Partial<DisplayContent>): DisplayContent {
     return {
-        hash: JSON.stringify(d),
         ...d,
+        hash: JSON.stringify(d),
     };
 }
 
@@ -97,4 +97,11 @@ export function dMix(func: (() => DisplayContent|undefined)|DisplayContent|undef
         else
             return prev;
     };
+}
+
+export function dMany(...content: DisplayContent[]): DisplayContent {
+    let obj: DisplayContent = { hash: ''};
+    for (const c  of content)
+        obj = {...obj, ...c, images: [...obj.images ?? [], ...c.images ?? []]};
+    return dHash(obj);
 }

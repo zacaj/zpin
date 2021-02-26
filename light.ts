@@ -118,8 +118,8 @@ export function mix(func: (() => LightState|undefined)|LightState|undefined): (s
     };
 }
 
-export function add(func: (() => boolean)|boolean, color: LightState): (state?: LightState[]) => LightState[] | undefined {
-    return mix(() => (typeof func==='function'? func() : func)? color : undefined);
+export function add(func: (() => boolean)|boolean, color: LightState|(() => LightState)): (state?: LightState[]) => LightState[] | undefined {
+    return mix(() => (typeof func==='function'? func() : func)? (typeof color==='function'? color() : color) : undefined);
 }
 
 export function many(func: () => {[color: string]: boolean}): (state?: LightState[]) => LightState[] | undefined {

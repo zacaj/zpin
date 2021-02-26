@@ -16,6 +16,7 @@ import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
+import { dClear, dImage } from '../disp';
 
 
 const Starting = makeState('starting', { 
@@ -199,11 +200,11 @@ export class StraightMb extends Multiball {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const selections: (string|DropBank)[] = [
             'random', 
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank], [2, machine.rightBank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank], [2, machine.rightBank], [1, machine.upper3Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank], [1, machine.upper2Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [1, machine.upper3Bank]),
         ];
         const verb = this.isRestarted? repeat('ADD 50K TO JACKPOT VALUE', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? 'ADD 50K TO JACKPOT VALUE' : 'ONE-SHOT ADD-A-BALL',
@@ -219,8 +220,8 @@ export class StraightMb extends Multiball {
                 switch: sw,
                 award: verb[i],
                 dontOverride: i===0,
-                display: typeof selections[i] === 'string'? selections[i] as string
-                    : pfx?.createRect().h(80).w(160).fill(colorToHex(this.bankColors.get(selections[i] as DropBank)!)!) ?? {fill() { }} as any,
+                display: selections[i] === 'random'? dImage("random_bank")
+                    : dClear(this.bankColors.get(selections[i] as DropBank)!),
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;
                     this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank));
