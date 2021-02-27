@@ -14,7 +14,7 @@ OBJ_O = $(patsubst %.cpp,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 
 CC = g++
 
-DEBUG = -g #-O3 -Wall
+DEBUG = -g -O3 #-Wall
 CFLAGS = $(DEBUG)
 
 TARGET = $(patsubst %.cpp,%,$(wildcard ./*.cpp))

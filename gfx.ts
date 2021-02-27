@@ -22,7 +22,7 @@ let screenH: number;
 let playfield: Playfield|undefined;
 export let screen: Screen;
 let isRpi = false;
-const showPf = argv.showPf ?? true;
+const showPf = argv.showPf ?? false;
 const split = argv.split ?? false;
 const swap = argv.swap ?? false;
 const halfScreen = argv.half ?? false;

@@ -178,10 +178,10 @@ export async function Combo(player: Player, sw: Switch, light: Light, amount = 3
 }
 
 export enum Award {
-    AddValue = 'greenArrow',
-    SubtractValue = 'redArrow',
-    SetSpinner = 'blueArrow',
-    AddChip = 'orangeArrow',
+    AddValue = 'add_cash_value',
+    SubtractValue = 'subtract_cash_value',
+    SetSpinner = 'spinner_value',
+    AddChip = 'add_cheat',
 }
 
 export class MiscAwards extends Tree<MachineOutputs> {

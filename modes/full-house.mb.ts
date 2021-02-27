@@ -113,19 +113,19 @@ export class FullHouseMb extends Multiball {
             lockPost: () => this.lockPost ?? false,
             lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : []),
-            iRamp: () => this.state._==='started'? dImage('light_jackpot') : 
+            iRamp: () => (this.state._==='started' || (this.state._==='jackpotLit' && !this.state.jp.startsWith('Left')))? dImage('light_left_jackpot') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] : [],
-            iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_jackpot') : undefined,
+            iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_right_jackpot') : undefined,
             getSkillshot: () => () => this.getSkillshot(),
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget)),
             lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget)),
             lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane)),
-            iUpper31: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1)? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
-            iUpper32: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2)? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
-            iUpper33: () => this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3)? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
-                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane)? colorToArrow(Color.Red) : undefined,
+            iUpper31: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1))? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
+            iUpper32: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2))? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
+            iUpper33: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3))? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
+                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane)? dImage('x') : undefined,
             rightGate: true,
             leftGate: true,
             // magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 

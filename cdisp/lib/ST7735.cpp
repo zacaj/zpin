@@ -207,9 +207,9 @@ void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
     // Set the read / write scan direction of the frame memory
     LCD_Write_Command(MADCTL); //MX, MY, RGB mode
 #if defined(LCD_1IN44)
-    LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//0x08 set RGB
+    // LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//0x08 set RGB
 #elif defined(LCD_1IN8)
-    LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
+    // LCD_WriteData_Byte( MemoryAccessReg_Data & 0xf7);	//RGB color filter panel
 #endif
 	if (this->rgbOrder)
 		LCD_WriteData_Byte( MemoryAccessReg_Data | 0x08);	//RGB color filter panel

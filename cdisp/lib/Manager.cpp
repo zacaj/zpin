@@ -18,6 +18,8 @@ void Manager::updateDisplay(int num) {
     selectDisplay(num);
     displays[num]->update();
     displays[num]->clear(BLACK);
+
+    printf(" flip display %i\n", num);
 }
 
 void Manager::updateAll() {

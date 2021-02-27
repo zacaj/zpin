@@ -94,7 +94,7 @@ export class HandMb extends Multiball {
             ...outs,
             rampUp: () => this.state._==='started' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
-            lRampArrow: () => this.state._ === 'started'?  [this.getArrowColor()]:
+            lRampArrow: () => this.state._ === 'started'?  [this.getArrowColor(), 'fl']:
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='started'? dFitText(score(this.value), 64, 'center') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),

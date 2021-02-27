@@ -100,7 +100,7 @@ export class Poker extends Mode {
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
-            outs[target.image.name] = () => this.step<7 && this.slots[target.num]? dImage(getFile(this.slots[target.num])) : undefined;
+            outs[target.image.name] = () => this.step<7 && this.slots[target.num] && !!this.playerCardsUsed? dImage(getFile(this.slots[target.num])) : undefined;
         }
         this.out = new Outputs(this, {
             ...outs,
@@ -114,7 +114,7 @@ export class Poker extends Mode {
                 return ((time()/1500%2)|0)===0? dImage("finish_hand_ramp") : undefined;
             },
             iSS5: () => this.step>=7? dImage("finish_hand_eject") : undefined,
-            iSS1: () => this.step>=7 &&  ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : undefined,
+            iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
             iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),

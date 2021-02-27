@@ -287,7 +287,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
             l.l!.set(state);
             return true;
         }
-        return false;
+        return true;
     }
 
     lit(): boolean {
@@ -376,10 +376,10 @@ const dispNumbers: { [T in keyof ImageOutputs]: number} = {
     iLeft3: 6,
     iLeft4: 7,
     iRight1: 9,
-    iRight2: 10,
-    iRight3: 11,
-    iRight4: 12,
-    iRight5: 13,
+    iRight2: 12,
+    iRight3: 13,
+    iRight4: 14,
+    iRight5: 15,
     iSS1: 8,
     iSS3: 17,
     iSS4: 25,
@@ -410,7 +410,7 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
         await this.syncDisp();
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
-        let ret = false;
+        let ret = true;
         if (l?.l) {
             l.l!.set(state);
             ret = true;
@@ -421,21 +421,27 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
     async syncDisp() {
         const l = gfxImages?.[this.name];
         const state = this.val;
-        if (CPU.isConnected && state) {
+        if (CPU.isConnected) {
             const cmds: string[] = [];
-            if (state.color)
-                cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
-            
-            if (state.images) {
-                for (const img of state.images) {
-                    cmds.push(`image ${this.num} ${img}`);
+            if (state) {
+                if (state.color)
+                    cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
+                else
+                    cmds.push(`clear ${this.num} ${colorToHex(Color.Black)!.slice(1)}`);
+                
+                if (state.images) {
+                    for (const img of state.images) {
+                        cmds.push(`image ${this.num} ${img}`);
+                    }
+                }
+                if (state.text) {
+                    for (const {x, y, size, text, vAlign} of state.text) {
+                        cmds.push(`text ${this.num} ${x} ${y} ${size} ${vAlign} ${text}`);
+                    }
                 }
             }
-            if (state.text) {
-                for (const {x, y, size, text, vAlign} of state.text) {
-                    cmds.push(`text ${this.num} ${x} ${y} ${size} ${vAlign} ${text}`);
-                }
-            }
+            else
+                cmds.push(`clear ${this.num} ${colorToHex(Color.Black)!.slice(1)}`);
 
             for (const cmd of cmds) {
                 await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));

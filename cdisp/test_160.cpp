@@ -10,12 +10,14 @@ int main() {
         return 1;
     } 
 
-    Image ten("media/128/Playing Card Vectors - Samples 10D.png");
-    Image king("media/128/Playing Card Vectors - Samples KS.png");
-    Image queen("media/128/Playing Card Vectors - Samples QH.png");
-    Image test("media/160/raise_bet.png");
+    // Image ten("media/128/Playing Card Vectors - Samples 10D.png");
+    // Image king("media/128/Playing Card Vectors - Samples KS.png");
+    // Image queen("media/128/Playing Card Vectors - Samples QH.png");
+    Image test("media/128/test.png");
+    // Image test("media/160/lanes_go_stop.png");
+    Image overlay("media/160/skill_selected_v.png");
 
-    Disp160* disp = new Disp160(0, ROTATE_90);
+    Disp160* disp = new Disp160(0, ROTATE_0);
     disp->loadFont();
     disp->init();
     
@@ -28,6 +30,7 @@ int main() {
 
     // disp->drawRect(20, 40, 140, 60, RED);
     disp->drawText("+$1/(", 0, 78, 60, CENTER_ALL);
+    disp->drawImage(&overlay); 
 
     disp->update();
 

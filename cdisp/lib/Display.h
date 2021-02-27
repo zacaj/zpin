@@ -45,7 +45,7 @@ public:
     int width, height;
 
     u16 pixWidth, pixHeight;
-    u16* pixels;
+    u16* pixels; // always stored RG, GB
     MIRROR_IMAGE mirror = MIRROR_NONE;
     ROTATE_IMAGE rotate = ROTATE_0;
     LCD_SCAN_DIR scanDir;

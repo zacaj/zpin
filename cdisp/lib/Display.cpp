@@ -11,7 +11,6 @@ stbtt_fontinfo font;
 Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror)
 : number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
     pixels = new u16[width*height];
-    clear(MAGENTA);
 
     if (rotate == ROTATE_0 || rotate == ROTATE_180) {
         this->width = width;
@@ -20,11 +19,13 @@ Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE
         this->width = height;
         this->height = width;
     }
+
+    clear(MAGENTA);
 }
 
 void Display::loadFont() {
     unsigned char* ttf_buffer;  
-    FILE* fp = fopen("../media/CardCharacters.ttf", "rb");
+    FILE* fp = fopen("media/CardCharacters.ttf", "rb");
     fseek(fp, 0, SEEK_END);
     size_t size = ftell(fp);
     ttf_buffer = new u8[size];
@@ -35,7 +36,7 @@ void Display::loadFont() {
 }
 
 void Display::clear(Color color) {
-    color = ((color<<8)&0xff00)|(color>>8);
+    // color = ((color<<8)&0xff00)|(color>>8);
     for (int i=0; i<width*height; i++)
         pixels[i] = color;
 }
@@ -90,7 +91,7 @@ void Display::setPixel(u16 Xpoint, u16 Ypoint, Color Color)
         // DEBUG("Exceeding display boundaries\r\n");
         return;
     }
-    Color = ((Color<<8)&0xff00)|(Color>>8);
+    // Color = ((Color<<8)&0xff00)|(Color>>8);
     int Addr = X  + Y * pixWidth;
     pixels[Addr] = Color;
 }
@@ -162,7 +163,7 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
 			for(i = 0; i < image->width; i++){
 				if(xStart+i < width  &&  yStart+j < height) {//Exceeded part does not display
                     Color color = image->getColor(i, j);
-                    if (color == (31<<11)|(31))
+                    if (color == makeRGB(255,0,255))
                         continue;
                     setPixel(xStart+i, yStart+j, color);
                 }
@@ -199,14 +200,18 @@ void Display::drawText(const char* text, int sx, int sy, int size, VALIGN vAlign
         for (int x=0; x<width; x++)
             for (int y=0; y<height; y++) {
                 Color oldColor = this->getPixel(sx+x+xpos+xOff, sy+y+yOff);
-                u8 r = (oldColor&RED)>>8;
-                u8 g = ((oldColor&GREEN)>>6)<<2;
-                u8 b = (oldColor&BLUE)<<3;
+                // u8 r = (oldColor&RED)>>8;
+                // u8 g = ((oldColor&GREEN)>>6)<<2;
+                // u8 b = (oldColor&BLUE)<<3;
+                u8 r = getR(oldColor);
+                u8 g = getG(oldColor);
+                u8 b = getB(oldColor);
                 u8 c = buffer[x+(y)*width];
                 r = c>thresh? c : r;
                 g = c>thresh? c : g;
                 b = c>thresh? c : b;
-                Color newColor = (r<<8)|(g<<3)|(b>>3);
+                // Color newColor = (r<<8)|(g<<3)|(b>>3);
+                Color newColor = makeRGB(r,g,b);
                 this->setPixel(sx+x+xpos+xOff, sy+y+yOff, newColor);
             }
 
@@ -224,9 +229,16 @@ void Display::savePng(const char* path) {
     u8* img = image;
     u16* disp = pixels;
     for (int i=0; i<pixWidth*pixHeight; i++) {
-        img[0] = (*disp>>11)<<3;
-        img[1] = ((*disp>>5)&0x3f)<<2;
-        img[2] = ((*disp)&0x1f)<<3;
+        Color c = *disp;
+#ifdef _MSC_VER
+        c = ((c<<8)&0xff00)|(c>>8);
+#endif
+        // img[0] = (*disp>>11)<<3;
+        // img[1] = ((*disp>>5)&0x3f)<<2;
+        // img[2] = ((*disp)&0x1f)<<3;
+        u8 r = img[0] = getR(c);
+        u8 g = img[1] = getG(c);
+        u8 b = img[2] = getB(c);
         img+=3;
         disp++;
     }
