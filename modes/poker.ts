@@ -115,7 +115,7 @@ export class Poker extends Mode {
             },
             iSS5: () => this.step>=7? dImage("finish_hand_eject") : undefined,
             iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
-            iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
+            // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),
         });
@@ -220,10 +220,10 @@ export class Poker extends Mode {
             if (this.step < 7)
                 this.bet -= this.betAdjust*this.adjustSide;
         });
-        this.listen(e => e instanceof SpinnerHit, () => {
-            if (this.step < 7)
-                this.bet += this.betAdjust*this.adjustSide;
-        });
+        // this.listen(e => e instanceof SpinnerHit, () => {
+        //     if (this.step < 7)
+        //         this.bet += this.betAdjust*this.adjustSide;
+        // });
 
         addToScreen(() => new PokerGfx(this));
     }

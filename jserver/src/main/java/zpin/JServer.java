@@ -6,9 +6,10 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+
+import zpin.LedManager.LedMode;
+import zpin.LedManager.LedState;
 
 
 /**
@@ -29,6 +30,7 @@ public class JServer extends Thread
     
     static SwitchMatrix matrix = SwitchMatrix.get();
     static Sounds sound = Sounds.get();
+    static LedManager led = LedManager.get();
     
     public boolean isLive;
 
@@ -36,6 +38,7 @@ public class JServer extends Thread
         this.socket = socket;
         this.isLive = isLive;
         this.start();
+        led.start();
     }
     
     String seqPrefix() {
@@ -210,6 +213,35 @@ public class JServer extends Thread
 							else
 								resp(201);
 							return true;
+						case "light":
+							if (parts.length < 7)
+								error("usage: light stateCount ledNum hex solid|flashing|pulsing frequency phase [hex sol...]");
+							int stateCount = num(1);
+							int n = num(2);
+							int j = 3;
+							LedState[] states = new LedState[stateCount];
+							for (int i=0; i<stateCount; i++) {
+								LedState state = new LedState();
+								String hex = parts[j++];
+								if (hex.startsWith("#")) hex = hex.substring(1);
+								String modeStr = parts[j++];
+								state.freq = Double.parseDouble(parts[j++]);
+								state.phase = Double.parseDouble(parts[j++]);
+								state.r = Integer.valueOf(hex.substring(0,2), 16);
+								state.g = Integer.valueOf(hex.substring(2,4), 16);
+								state.b = Integer.valueOf(hex.substring(4,6), 16);
+//								System.out.println("r "+state.r+" g "+state.g+" b "+state.b);
+								if (modeStr.equals("solid"))
+									state.mode = LedMode.Solid;
+								if (modeStr.equals("flashing"))
+									state.mode = LedMode.Flashing;
+								if (modeStr.equals("pulsing"))
+									state.mode = LedMode.Pulsing;
+								states[i] = state;
+							}
+							led.leds[n] = states;
+							ack();
+							return true;
 						case "s":
 						case "select":
 							curBoard = num(1);
@@ -376,6 +408,7 @@ public class JServer extends Thread
     {
     	matrix.start();
     	sound.start();
+    	led.init();
 //    	try {
 //			sound.playSound("shoot the ball carefully", 1);
 //		} catch (Exception e) {

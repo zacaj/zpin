@@ -21,33 +21,39 @@ export type LightState = Color|{
     color: Color;
     flashing: true;
     freq: Frequency;
+    phase: number;
 }|{
     color: Color;
     pulsing: true;
     freq: Frequency;
-}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse', Frequency?];
+    phase: number;
+}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse', Frequency?, number?];
 const defaultFlashFreq: Frequency = 3;
 export function normalizeLight(state: LightState): {
     color: Color;
     type: 'solid'|'pulsing'|'flashing';
     freq: Frequency;
+    phase: number;
 } {
     if (typeof state === 'string')
         return {
             color: state,
             type: 'solid',
             freq: defaultFlashFreq,
+            phase: 0,
         };
     if (Array.isArray(state)) 
         return {
             color: state[0],
             type: state[1].startsWith('f')? 'flashing' : 'pulsing',
             freq: state[2] ?? defaultFlashFreq,
+            phase: state[3] ?? 0,
         };
     return {
         color: state.color,
         type: 'flashing' in state? 'flashing' : 'pulsing',
         freq: state.freq ?? defaultFlashFreq,
+        phase: state.phase ?? 0,
     };
 }
 
@@ -86,20 +92,22 @@ export function colorToHex(color: Color): string|undefined {
 export function light(cond: boolean, color: LightState = Color.White, offColor?: LightState): LightState[] {
     return cond? [color] : (offColor? [offColor] : []);
 }
-export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency|Color = defaultFlashFreq, freq = defaultFlashFreq): LightState[] {
+export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency|Color = defaultFlashFreq, freq = defaultFlashFreq, phase = 0): LightState[] {
     if (typeof freqOrColor === 'number')
         freq = freqOrColor;
     return cond? [{
         color,
         flashing: true,
         freq,
+        phase,
     }] : (typeof freqOrColor !== 'number'? [[freqOrColor, 'flash', freq]] : []);
 }
-export function flashLight(cond: boolean, color = Color.White, off = Color.Red, freq = defaultFlashFreq): LightState[] {
+export function flashLight(cond: boolean, color = Color.White, off = Color.Red, freq = defaultFlashFreq, phase = 0): LightState[] {
     return cond? [{
         color,
         flashing: true,
         freq,
+        phase,
     }] : [off];
 }
 

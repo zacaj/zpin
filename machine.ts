@@ -306,58 +306,74 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
             && e.prop === 'val';
     }
 
+    // eslint-disable-next-line complexity
     async sync() {
         const state = this.val;
-        if (this.nums.length && LPU.isConnected) {
-            let cmd = '';
-            const threadId = machine.lights.indexOf(this) + 1;
-            Log.info('lpu', `Light: %s`, this.name);
-            if (state.length) {
-                const states = state.map(normalizeLight);
-                let loopNeeded = states.length > 1;
-                for (const {color, type, freq} of states) {
-                    switch (type) {
-                        case "solid":
-                            for (const num of this.nums)
-                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
-                            if (states.length>1)
-                                cmd += `\t\tdelay 500\n\n`;
-                            break;
-                        case "flashing":
-                            for (const num of this.nums)
-                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
-                            cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
-                            for (const num of this.nums)
-                                cmd += `\t\tfill 1,000000,${num},1\n`;
-                            cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
-                            loopNeeded = true;
-                            // cmd += `\t\tblink 1,0,${colorToHex(color)?.slice(1)},${(1000/freq).toFixed(0)},3,${this.num},1\n\n`;
-                            break;
-                        case "pulsing":
-                            for (const num of this.nums)
-                                cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
-                            for (const num of this.nums)
-                                cmd += `\t\tfade 1,255,0,15,${(1000/15/freq).toFixed(0)},${num},1\n`;
-                            for (const num of this.nums)
-                                cmd += `\t\tfade 1,0,255,15,${(1000/15/freq).toFixed(0)},${num},1\n\n`;
-                            loopNeeded = true;
-                            break;
+        if (this.nums.length) {
+            if (LPU.isConnected) {
+                let cmd = '';
+                const threadId = machine.lights.indexOf(this) + 1;
+                Log.info('lpu', `Light: %s`, this.name);
+                if (state.length) {
+                    const states = state.map(normalizeLight);
+                    let loopNeeded = states.length > 1;
+                    for (const {color, type, freq} of states) {
+                        switch (type) {
+                            case "solid":
+                                for (const num of this.nums)
+                                    cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                                if (states.length>1)
+                                    cmd += `\t\tdelay 500\n\n`;
+                                break;
+                            case "flashing":
+                                for (const num of this.nums)
+                                    cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                                cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
+                                for (const num of this.nums)
+                                    cmd += `\t\tfill 1,000000,${num},1\n`;
+                                cmd += `\t\tdelay ${(1000/freq/2).toFixed(0)}\n\n`;
+                                loopNeeded = true;
+                                // cmd += `\t\tblink 1,0,${colorToHex(color)?.slice(1)},${(1000/freq).toFixed(0)},3,${this.num},1\n\n`;
+                                break;
+                            case "pulsing":
+                                for (const num of this.nums)
+                                    cmd += `\t\tfill 1,${colorToHex(color)?.slice(1)},${num},1\n`;
+                                for (const num of this.nums)
+                                    cmd += `\t\tfade 1,255,0,15,${(1000/15/freq).toFixed(0)},${num},1\n`;
+                                for (const num of this.nums)
+                                    cmd += `\t\tfade 1,0,255,15,${(1000/15/freq).toFixed(0)},${num},1\n\n`;
+                                loopNeeded = true;
+                                break;
+                        }
+                    }
+                    if (loopNeeded) {
+                        cmd = `thread_start ${threadId}, 0\n\tdo\n`+cmd;
+                        cmd += "\tloop\n";
+                        cmd += "thread_stop\n";
                     }
                 }
-                if (loopNeeded) {
-                    cmd = `thread_start ${threadId}, 0\n\tdo\n`+cmd;
-                    cmd += "\tloop\n";
-                    cmd += "thread_stop\n";
+                else {
+                    for (const num of this.nums)
+                        cmd += `\t\tfill 1,000000,${num},1\n\n`;
+                    cmd += `\t\tkill_thread ${threadId},0\n`;
+                    for (const num of this.nums)
+                        cmd += `\t\tfill 1,000000,${num},1\n\n`;
+                }
+                await LPU.sendCommand(cmd);
+            }
+            else if (MPU.isConnected) {
+                Log.info('lpu', `Light: %s`, this.name);
+                if (state.length) {
+                    const states = state.map(normalizeLight);
+                    const parts = states.map(({color, type, freq, phase}) => `${colorToHex(color)} ${type} ${freq} ${phase}`);
+                    for (const num of this.nums)
+                        await MPU.sendCommand(`light ${states.length} ${num} `+parts.join(' '));
+                }
+                else {
+                    for (const num of this.nums)
+                        await MPU.sendCommand(`light 1 ${num} 000000 solid 1`);
                 }
             }
-            else {
-                for (const num of this.nums)
-                    cmd += `\t\tfill 1,000000,${num},1\n\n`;
-                cmd += `\t\tkill_thread ${threadId},0\n`;
-                for (const num of this.nums)
-                    cmd += `\t\tfill 1,000000,${num},1\n\n`;
-            }
-            await LPU.sendCommand(cmd);
         }
     }
 }
@@ -743,10 +759,10 @@ export class Machine extends Tree<MachineOutputs> {
     lMagnet2 = new Light('lMagnet2', 79);
     lMagnet3 = new Light('lMagnet3', 80);
     lPopperStatus = new Light('lPopperStatus', 117);
-    lLaneUpper1 = new Light('lLaneUpper1', 14);
-    lLaneUpper2 = new Light('lLaneUpper2', 12);
-    lLaneUpper3 = new Light('lLaneUpper3', 10);
-    lLaneUpper4 = new Light('lLaneUpper4', 6);
+    lLaneUpper1 = new Light('lLaneUpper1', 6);
+    lLaneUpper2 = new Light('lLaneUpper2', 10);
+    lLaneUpper3 = new Light('lLaneUpper3', 12);
+    lLaneUpper4 = new Light('lLaneUpper4', 14);
     lSideShotArrow = new Light('lSideShotArrow', 50);
     lEjectArrow = new Light('lEjectArrow', [43, 44]);
     lUpperLaneArrow = new Light('lUpperLaneArrow', 39);
@@ -757,10 +773,10 @@ export class Machine extends Tree<MachineOutputs> {
     lRampMini = new Light('lRampMini', 64);
     lMainTargetArrow = new Light('lMainTargetArrow', 55);
     lShootAgain = new Light('lShootAgain', 109);
-    lLaneLower1 = new Light('lLaneLower1', 125);
-    lLaneLower2 = new Light('lLaneLower2', 126);
-    lLaneLower3 = new Light('lLaneLower3', 87);
-    lLaneLower4 = new Light('lLaneLower4', 89);
+    lLaneLower1 = new Light('lLaneLower1', 89);
+    lLaneLower2 = new Light('lLaneLower2', 87);
+    lLaneLower3 = new Light('lLaneLower3', 126);
+    lLaneLower4 = new Light('lLaneLower4', 125);
     lSpinnerTarget = new Light('lSpinnerTarget', 33);
     lUpperLaneTarget = new Light('lUpperLaneTarget', 37);
 

@@ -398,9 +398,10 @@ abstract class Light extends Group {
                         this.shape.opacity.anim({
                             autoreverse: true,
                             duration: 1000/state.freq / 2,
-                            from: 1,
-                            to: 0,
+                            from: 1-state.phase,
+                            to: state.phase,
                             loop: -1,
+
                         }).start();
                         break;
                     case 'solid':
