@@ -60,7 +60,7 @@ export class Player extends Mode {
         this.game.totals[source].total += amount;
         this.game.totals[source].average = this.game.totals[source].total / this.game.totals[source].times;
     }
-    miniReady = false;
+    miniReady = true;
 
     upperLaneChips = [true, true, true, true];
     lowerLanes = [true, true, true, true];

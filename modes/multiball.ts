@@ -44,7 +44,7 @@ export abstract class Multiball extends Mode {
 
         this.out = new Outputs(this, {
             miniDiverter: false,
-            lMiniReady: [],
+            lMiniReady: [[Color.Green, 'pl']],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
             lPower1: () => [[Color.White, 'pl']],

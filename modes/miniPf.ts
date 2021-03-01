@@ -7,6 +7,7 @@ import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { DropBankCompleteEvent } from '../drop-bank';
 import { alert, notify } from '../gfx';
 import { score } from '../util';
+import { time } from '../timer';
 
 export class MiniPf extends Mode {
     waitingForSwitch = true;
@@ -14,9 +15,10 @@ export class MiniPf extends Mode {
         public ball: Ball,
     ) {
         super(Modes.MiniPf);
+        const startTime = time();
         State.declare<MiniPf>(this, ['waitingForSwitch']);
         this.out = new Outputs(this, {
-            miniDiverter: () => this.waitingForSwitch,
+            miniDiverter: () => this.waitingForSwitch || time()-startTime<1500,
         });
         ball.player.miniReady = false;
 
