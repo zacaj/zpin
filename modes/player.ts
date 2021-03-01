@@ -29,6 +29,8 @@ import { playSound } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
 import { dFitText, dHash, dImage, dText } from '../disp';
+import { HighscoreEntry } from './highscore.mode';
+import { getHighscores } from '../highscore';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -369,6 +371,8 @@ export class Player extends Mode {
         });
 
         addToScreen(() => new PlayerGfx(this));
+
+        // game.addTemp(new HighscoreEntry(game, this, ['HIGH SCORES', 'TOP EARNERS'], getHighscores()));
     }
 
     rng(): Rng {

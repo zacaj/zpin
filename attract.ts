@@ -1,6 +1,8 @@
+import { Group } from 'aminogfx-gl';
 import { argv } from 'yargs';
 import { Game } from './game';
-import { addToScreen, makeText, ModeGroup, Screen } from './gfx';
+import { addToScreen, gfx, makeText, ModeGroup, Screen } from './gfx';
+import { getHighscores, Highscores } from './highscore';
 import { initMachine } from './init';
 import { Color } from './light';
 import { Log } from './log';
@@ -9,6 +11,7 @@ import { Mode, Modes } from './mode';
 import { Outputs } from './outputs';
 import { fork } from './promises';
 import { onSwitchClose } from './switch-matrix';
+import { time } from './timer';
 import { money, score } from './util';
 import { ClearHoles } from './util-modes';
 
@@ -87,19 +90,47 @@ export class AttractGfx extends ModeGroup {
     ) {
         super(a);
         this.z(a.gPriority);
+        const startTime = time();
 
+        const slides: Group[] = [];
+
+        const scores = gfx.createGroup();
         if (!a.scores)
-            this.add(makeText('Attract Mode', 100, 'center'));
+            scores.add(makeText('Attract Mode', 100, 'center'));
         else {
-            this.add(makeText('Game Over', 100, 'center').y(-Screen.h*.3));
+            scores.add(makeText('Game Over', 100, 'center').y(-Screen.h*.35));
             let y = -Screen.h * .15;
             let i = 1;
             for (const [sc, bank] of a.scores) {
-                this.add(makeText(`PLAYER ${i}:`, 50, 'left').x(-Screen.w*.4).y(y));
-                this.add(makeText(`${score(sc)}  |  ${money(bank)}`, 50, 'right').x(Screen.w*.4).y(y));
+                scores.add(makeText(`PLAYER ${i}:`, 50, 'left').x(-Screen.w*.4).y(y));
+                scores.add(makeText(`${score(sc)}  |  ${money(bank)}`, 50, 'right').x(Screen.w*.4).y(y));
                 y += 75;
                 i++;
             }
         }
+        slides.push(scores);
+
+        const highscores = getHighscores();
+        for (const type of Object.keys(highscores) as (keyof Highscores)[]) {
+            const slide = gfx.createGroup();
+            slide.add(makeText(type, 100, 'center').y(-Screen.h*.35));
+            let y = -Screen.h * .15;
+            let i = 1;
+            for (const {name, score} of highscores[type].slice(0, 4)) {
+                slide.add(makeText(`${i}: ${name}`, 50, 'left').x(-Screen.w*.4).y(y));
+                slide.add(makeText(score, 50, 'right').x(Screen.w*.4).y(y));
+                y += 75;
+                i++;
+            }
+            slides.push(slide);
+        }
+
+        for (const slide of slides)
+            this.add(slide);
+        a.watch(() => {
+            slides.forEach((slide, i) => 
+                slide.visible((((time()-startTime)/4000%slides.length)|0) === i),
+            );
+        });
     }
 }

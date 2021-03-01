@@ -4,6 +4,7 @@ import { AttractMode } from './attract';
 import { Events } from './events';
 import { addToScreen, alert, gfx, screen } from './gfx';
 import { GameGfx } from './gfx/game';
+import { checkForScores } from './highscore';
 import { initMachine } from './init';
 import { Log } from './log';
 import { machine } from './machine';
@@ -73,6 +74,8 @@ export class Game extends Mode {
             this.ballNum++;
             if (this.ballNum > this.ballCount) {
                 // alert('GAME OVER', 5000);
+                await checkForScores(this);
+
                 fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify(this.totals, undefined, 2));
                 if (require.main === module) {
                     debugger;
