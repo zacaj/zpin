@@ -267,11 +267,11 @@ export class FullHouseMb extends Multiball {
         ];
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 500K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 500K TO JACKPOT VALUE']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'ADD 250K TO JACKPOT VALUE']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500KE']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
         ];
 
         return [...switches.map((sw, i) => {
@@ -308,10 +308,10 @@ export class FullHouseMb extends Multiball {
                                 });
                             }
                         break;
-                        case 'ADD 500K TO JACKPOT VALUE': this.base += 250000; break;
-                        case 'ADD 250K TO JACKPOT VALUE': this.base += 250000; break;
+                        case 'JACKPOT +500K': this.base += 250000; break;
+                        case 'JACKPOT +250K': this.base += 250000; break;
                         case '100K points': this.player.score += 100000; break;
-                        case '10K points': this.player.score += 10000; break;
+                        case '10K POINTS': this.player.score += 10000; break;
                         default:
                             debugger;
                     }

@@ -254,7 +254,7 @@ export class HandMb extends Multiball {
             return {
                 switch: sw,
                 award: this.state._==='starting'&&!this.state.secondBallLocked&&i===0? 'ONE-SHOT ADD-A-BALL' :
-                    `ADD ${short(value*1000)} TO BASE VALUE` ,
+                    `JACKPOT +${short(value*1000)}` ,
                 dontOverride: i===0,
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;

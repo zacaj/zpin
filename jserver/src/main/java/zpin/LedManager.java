@@ -48,7 +48,7 @@ public class LedManager extends Thread {
 					LedState s = states[j];
 					double t = now / (1000.f/s.freq);
 					t = t - Math.floor(t);
-					t += s.phase;
+					t += s.phase/s.freq/2;
 					if (t > 1) t -= 1;
 					switch (s.mode) {
 					case Solid:
