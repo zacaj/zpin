@@ -15,6 +15,12 @@ export type Standup = [
     sw: Switch,
     light: Light,
 ];
+export type Thing = {
+    sw: Switch;
+    light: Light;
+};
+export type Lane = Thing&{ isLane: true };
+export type Shot = Thing&{ isShot: true };
 
 export interface DropTarget {
     state: boolean;

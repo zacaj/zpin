@@ -45,8 +45,8 @@ export class Timer {
         return Timer.schedule(func, time() + ms as Time, context);
     }
 
-    static setInterval(func: TimerCallback, ms: number, context?: string) {
-        const entry = Timer.callIn(func, ms, context);
+    static setInterval(func: TimerCallback, ms: number, context?: string, initialMs?: number) {
+        const entry = Timer.callIn(func, initialMs ?? ms, context);
         entry.repeat = ms as Time;
         return entry;
     }

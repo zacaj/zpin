@@ -121,12 +121,11 @@ export class StraightMb extends Multiball {
             const hand = player.mbsQualified.get('StraightMb') ?? [];
             if (!isRestarted) {
                 player.mbsQualified.delete('StraightMb');
-                player.mbsQualified.delete('FlushMb');
             }
             const mb = new StraightMb(player, hand, isRestarted, bank);
             player.focus = mb;
             mb.gfx?.visible(false);
-            await alert('Multiball!', 3000)[1];
+            await alert('STRAIGHT Multiball!', 3000)[1];
             mb.gfx?.visible(true);
             if (!isRestarted) {
                 await mb.start();

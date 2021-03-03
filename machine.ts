@@ -3,7 +3,7 @@ import { AttractMode } from './attract';
 import { Solenoid16 } from './boards';
 import { CPU } from './cpu';
 import { DisplayContent } from './disp';
-import { DropBank, DropTarget, Standup } from './drop-bank';
+import { DropBank, DropTarget, Standup, Lane, Shot } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
 import { gfx, gfxImages, gfxLights, screen } from './gfx';
@@ -16,7 +16,7 @@ import { Outputs, TreeOutputEvent } from './outputs';
 import { fork } from './promises';
 import { curRecording } from './recording';
 import { State } from './state';
-import { Bumper, Drain, Drop, Hole, Lane, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
+import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { Tree } from './tree';
 import { arrayify, assert, eq as eq, getTypeIn, OrArray, then } from './util';
@@ -606,10 +606,10 @@ export class Machine extends Tree<MachineOutputs> {
     cKickerEnable = new OnOffSolenoid('kickerEnable', 14, this.solenoidBank2);
     cUpperMagnet = new OnOffSolenoid('upperMagnet', 7, this.solenoidBank2, 10000);
 
-    sLeftInlane = new Switch(1, 2, 'left inlane', Lane);
-    sLeftOutlane = new Switch(1, 1, 'left outlane', Lane);
-    sRightInlane = new Switch(0, 5, 'right inlane', Lane);
-    sRightOutlane = new Switch(0, 4, 'right outlane', Lane);
+    sLeftInlane = new Switch(1, 2, 'left inlane', LaneSet);
+    sLeftOutlane = new Switch(1, 1, 'left outlane', LaneSet);
+    sRightInlane = new Switch(0, 5, 'right inlane', LaneSet);
+    sRightOutlane = new Switch(0, 4, 'right outlane', LaneSet);
     sMiniOut = new Switch(0, 3, 'mini out', Drain);
     sOuthole = new Switch(0, 2, 'outhole', Drain);
     sTroughFull = new Switch(0, 1, 'trough full', Drain);
@@ -647,20 +647,20 @@ export class Machine extends Tree<MachineOutputs> {
     sSpinnerMini = new Switch(6, 2, 'spinner mini', StandupSet);
     sUpperPopMini = new Switch(6, 7, 'upper pop mini', StandupSet);
     sSidePopMini = new Switch(6, 0, 'side pop mini', StandupSet);
-    sShooterUpper = new Switch(2, 6, 'shooter upper', Lane);
-    sShooterMagnet = new Switch(2, 7, 'shooter magnet', Lane);
+    sShooterUpper = new Switch(2, 6, 'shooter upper', LaneSet);
+    sShooterMagnet = new Switch(2, 7, 'shooter magnet', LaneSet);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 50);
-    sShooterLower = new Switch(2, 0, 'shooter lower', Lane);
-    sBackLane = new Switch(5, 5, 'back lane', Lane);
+    sShooterLower = new Switch(2, 0, 'shooter lower', LaneSet);
+    sBackLane = new Switch(5, 5, 'back lane', LaneSet);
     sPop = new Switch(4, 7, 'pop', Bumper);
-    sUpperInlane = new Switch(7, 1, 'upper inlane', Lane);
+    sUpperInlane = new Switch(7, 1, 'upper inlane', LaneSet);
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
-    sUpperLane2 = new Switch(6, 5, 'upper lane 2', Lane);
-    sUpperLane3 = new Switch(5, 7, 'upper lane 3', Lane);
-    sUpperLane4 = new Switch(5, 3, 'upper lane 4', Lane);
-    sRampMade = new Switch(7, 0, 'ramp made', Lane);
+    sUpperLane2 = new Switch(6, 5, 'upper lane 2', LaneSet);
+    sUpperLane3 = new Switch(5, 7, 'upper lane 3', LaneSet);
+    sUpperLane4 = new Switch(5, 3, 'upper lane 4', LaneSet);
+    sRampMade = new Switch(7, 0, 'ramp made', LaneSet);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
@@ -797,6 +797,31 @@ export class Machine extends Tree<MachineOutputs> {
         [this.sRampMini, this.lRampMini],
         [this.sSingleStandup, this.lMainTargetArrow],
         [this.sSidePopMini, this.lUpperTargetArrow],
+        [this.sUpperPopMini, this.lUpperLaneTarget],
+    ];
+
+    upperLanes: Lane[] = [
+        {sw: this.sBackLane, light: this.lLaneUpper1, isLane: true},
+        {sw: this.sUpperLane2, light: this.lLaneUpper2, isLane: true},
+        {sw: this.sUpperLane3, light: this.lLaneUpper3, isLane: true},
+        {sw: this.sUpperLane4, light: this.lLaneUpper4, isLane: true},
+    ];
+
+    lowerLanes: Lane[] = [
+        {sw: this.sLeftInlane, light: this.lLaneLower1, isLane: true},
+        {sw: this.sLeftOutlane, light: this.lLaneLower2, isLane: true},
+        {sw: this.sRightInlane, light: this.lLaneLower3, isLane: true},
+        {sw: this.sRightOutlane, light: this.lLaneLower4, isLane: true},
+    ];
+    orbitShot: Shot = {sw: this.sLeftOrbit, light: this.lRampArrow, isShot: true};
+    rampShot: Shot = {sw: this.sRampMade, light: this.lRampArrow, isShot: true};
+    ejectShot: Shot = {sw: this.sUpperEject, light: this.lEjectArrow, isShot: true};
+    spinnerShot: Shot = {sw: this.sSpinner, light: this.lSpinnerArrow, isShot: true};
+    shots: Shot[] = [
+        this.orbitShot,
+        this.rampShot,
+        this.ejectShot,
+        this.spinnerShot,
     ];
 
     upper3Bank = new DropBank(this, this.cUpper3, 

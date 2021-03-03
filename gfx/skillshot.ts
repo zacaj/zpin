@@ -9,12 +9,12 @@ import { machine } from '../machine';
 import { time, Timer, onTick } from '../timer';
 
 const switches = [
-    '1st switch:',
-    '2nd switch:',
-    '3rd switch:',
-    'top lanes: ',
-    'top eject: ',
-    'left lane: ',
+    '1st switch:  ',
+    '2nd switch:  ',
+    '3rd switch:  ',
+    'top lanes:   ',
+    'top eject:   ',
+    'left lane:   ',
 ];
 
 export class SkillShotGfx extends ModeGroup {

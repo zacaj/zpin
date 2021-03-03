@@ -31,6 +31,7 @@ import { BonusEnd } from './bonus';
 import { dFitText, dHash, dImage, dText } from '../disp';
 import { HighscoreEntry } from './highscore.mode';
 import { getHighscores } from '../highscore';
+import { FlushMb } from './flush.mb';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -109,9 +110,10 @@ export class Player extends Mode {
 
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
-        ['HandMb', []],
-        ['StraightMb', []],
-        ['FullHouseMb', []],
+        // ['HandMb', []],
+        // ['StraightMb', []],
+        // ['FullHouseMb', []],
+        ['FlushMb', []],
     ]);
 
     selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
@@ -132,6 +134,8 @@ export class Player extends Mode {
             return Color.Green;
         if (mb === 'FullHouseMb')
             return Color.Yellow;
+        if (mb === 'FlushMb')
+            return Color.Pink;
         else return Color.Blue;
     }
 
@@ -348,6 +352,7 @@ export class Player extends Mode {
                 case 'FullHouseMb':
                     return FullHouseMb.start(this);
                 case 'FlushMb':
+                    return FlushMb.start(this);
                 case 'StraightMb':
                     return StraightMb.start(this);
                 default:
@@ -357,7 +362,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            await Poker.start(this);
+            // await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -391,6 +396,7 @@ export class Player extends Mode {
         NoMode: {},
         MiscAwards: {},
         FullHouseMb: {},
+        FlushMb: {},
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
