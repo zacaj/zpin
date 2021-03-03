@@ -745,7 +745,7 @@ export class Machine extends Tree<MachineOutputs> {
     ];
 
     sStandups = [
-        this.sRampMini, this.sRampMiniOuter, this.sSpinnerMini, this.sSidePopMini, this.sUpperPopMini,
+        this.sRampMini, this.sRampMiniOuter, this.sSpinnerMini, this.sSidePopMini, this.sUpperPopMini, this.sSingleStandup,
     ];
 
     lastSwitchHit?: Switch;

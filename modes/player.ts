@@ -5,7 +5,7 @@ import { State, onChange } from '../state';
 import { Game } from '../game';
 import { Outputs } from '../outputs';
 import { add, Color, colorToArrow, flash, light, many, mix } from '../light';
-import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch } from '../switch-matrix';
+import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, onSwitch, SwitchEvent } from '../switch-matrix';
 import { DropBankCompleteEvent, DropDownEvent, DropBankResetEvent, DropBank, DropTarget } from '../drop-bank';
 import { Ball, BallEnd, BallEnding } from './ball';
 import { Tree } from '../tree';
@@ -28,10 +28,11 @@ import { FullHouseMb } from './full-house.mb';
 import { playSound } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
-import { dFitText, dHash, dImage, dText } from '../disp';
+import { dFitText, dHash, dImage, dMany, dText } from '../disp';
 import { HighscoreEntry } from './highscore.mode';
 import { getHighscores } from '../highscore';
 import { FlushMb } from './flush.mb';
+import { getMysteryAwards, Mystery, MysteryAward, MysteryNext } from './mystery.mode';
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
@@ -50,11 +51,13 @@ export class Player extends Mode {
             this.recordScore(diff, source);
         }
     }
-    addScore(amount: number, source: string|null) {
+    addScore(amount: number, source: string|null, announce = false) {
         if (this.ball?.tilted) return;
         this._score += amount;
         if (source && amount)
             this.recordScore(amount, source);
+        if (announce)
+            alert(score(amount)+'!');
     }
     recordScore(amount: number, source: string) {
         if (!this.game.totals[source])
@@ -93,6 +96,7 @@ export class Player extends Mode {
     rampCombo?: RampCombo;
     ball?: Ball;
     mult?: Multiplier;
+    mystery?: Mystery;
 
     get nodes() {
         return [
@@ -103,6 +107,7 @@ export class Player extends Mode {
             this.leftOrbit,
             this.focus,
             this.mult,
+            this.mystery,
             ...this.tempNodes,
             this.overrides,
         ].truthy();
@@ -125,6 +130,10 @@ export class Player extends Mode {
         return new Map([...this.mbsQualified, ...(this.poker?.newMbs ?? [])]);
     }
     rand!: Rng;
+    mysteryRng!: Rng;
+    mysteryLeft = 3;
+    mysteryNext = MysteryNext.Target;
+    mysteryAwards!: MysteryAward[];
 
     closeShooter = false;
 
@@ -167,7 +176,9 @@ export class Player extends Mode {
     ) {
         super(Modes.Player);
         this.rand = this.rng();
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes', 'chipsLit']);
+        this.mysteryRng = this.rng();
+        this.mysteryAwards = getMysteryAwards(this);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
@@ -175,9 +186,11 @@ export class Player extends Mode {
             iSS1: () => this.pokerEndingOrDone? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             iSS4: () => dImage(`lanes_`+[machine.cLeftGate.actual, machine.cRightGate.actual].map(b => b? "go" : 'stop').join('_')),
+            iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery') : undefined,
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
             iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
+            lEjectArrow: add(() => this.mysteryLeft===0, [Color.Pink, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -201,6 +214,38 @@ export class Player extends Mode {
                 [Color.Orange]: this.chipsLit[1],
             })),
 
+        });
+
+        // mystery
+        this.listen<SwitchEvent>(e => e instanceof SwitchEvent && e.sw.state, e => {
+            if (!this.mysteryLeft) return;
+            switch (this.mysteryNext) {
+                case MysteryNext.Lane:
+                    if (!machine.sLanes.includes(e.sw)) return;
+                    break;
+                case MysteryNext.Shot:
+                    if (!machine.shots.some(s => s.sw === e.sw)) return;
+                    break;
+                case MysteryNext.Sling:
+                    if (machine.sLeftSling!==e.sw && machine.sRightSling!==e.sw) return;
+                    break;
+                case MysteryNext.Standup:
+                    if (!machine.sStandups.includes(e.sw)) return;
+                    break;
+                case MysteryNext.Target:
+                    if (!machine.dropTargets.some(t => t.switch === e.sw)) return;
+                    break;
+            }
+
+            this.mysteryNext = this.mysteryRng.randSelect(...Object.values(MysteryNext));
+            this.mysteryLeft--;
+        });
+
+        this.listen(onSwitchClose(machine.sUpperEject), () => {
+            if (this.mysteryLeft === 0) {
+                this.mystery = new Mystery(this);
+                this.mystery.started();
+            }
         });
         
 
@@ -362,7 +407,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            // await Poker.start(this);
+            await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -430,6 +475,25 @@ export class Player extends Mode {
         Log.log('game', 'change cash value by %i to %i', value, this.store.Poker!.cashValue);
         if (showAlert)
             alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
+    }
+
+    qualifyMb(mb: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', hand: Card[] = []) {
+        if (this.mbsQualified.has(mb)) return;
+        this.mbsQualified.set(mb, hand);
+        switch (mb) {
+            case 'FlushMb':
+                alert('flush multiball qualified');
+                break;
+            case 'StraightMb':
+                alert('straight multiball qualified');
+                break;
+            case 'FullHouseMb':
+                alert('full house multiball qualified');
+                break;
+            case 'HandMb':
+                alert('hand multiball qualified');
+                break;
+        }
     }
 }
 

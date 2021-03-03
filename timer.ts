@@ -62,6 +62,10 @@ export class Timer {
             const entry = Timer.queue[0];
             if (entry && entry.time <= before) {
                 Timer.cancel(entry);
+                if (entry.repeat) {
+                    entry.time = time() + entry.repeat as Time;
+                    Timer.addToQueue(entry);
+                }
                 try {
                     if (updateMock)
                         Timer.mockTime = entry.time;
@@ -71,10 +75,6 @@ export class Timer {
                 } catch (err) {
                     Log.error('console', 'error running entry %o: ', entry, err);
                     debugger;
-                }
-                if (entry.repeat) {
-                    entry.time = time() + entry.repeat as Time;
-                    Timer.addToQueue(entry);
                 }
             } else {
                 break;

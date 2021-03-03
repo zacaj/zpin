@@ -121,6 +121,7 @@ export class Poker extends Mode {
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
+            if (player.mystery) return;
             const target = e.target;
             if (this.slots[target.num] && this.step < 7) {
                 const card = this.slots[target.num];
@@ -233,6 +234,7 @@ export class Poker extends Mode {
         const finish = await Events.tryPriority(Priorities.StartPoker);
 
         if (!finish) return false;
+        // return false;
 
         if (!player.curMode) {
             const poker = new Poker(player);
@@ -312,16 +314,16 @@ export class Poker extends Mode {
             // if (!this.newMbs.size) {
             if (!this.newMbs.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
-                alert('multiball qualified');
+                alert('straight multiball qualified');
             }
             this.newMbs.set('StraightMb', straight);
             break;
         }
         if (flushes.length > 0) {
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('StraightMb')) {
+            if (!this.newMbs.has('FlushMb')) {
                 Log.info('game', 'qualified flush multiball');
-                alert('multiball qualified');
+                alert('flush multiball qualified');
             }
             this.newMbs.set('StraightMb', flushes[0]);
         }
