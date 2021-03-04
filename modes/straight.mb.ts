@@ -1,7 +1,7 @@
 import { Multiball } from './multiball';
 import { addToScreen, alert, gfx, pfx, screen } from '../gfx';
 import { fork } from '../promises';
-import { DropBank, DropBankCompleteEvent, DropDownEvent } from '../drop-bank';
+import { DropBank, DropBankCompleteEvent, DropDownEvent, DropTarget } from '../drop-bank';
 import { Player } from './player';
 import { machine, SkillshotAward } from '../machine';
 import { State } from '../state';
@@ -11,12 +11,13 @@ import { onAnyPfSwitchExcept, onSwitchClose, SwitchEvent } from '../switch-matri
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
-import { comma, and, assert, makeState, repeat } from '../util';
+import { comma, and, assert, makeState, repeat, round } from '../util';
 import { SkillshotEomplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
 import { dClear, dImage } from '../disp';
+import { time } from '../timer';
 
 
 const Starting = makeState('starting', { 
@@ -25,6 +26,11 @@ const Starting = makeState('starting', {
 });
 const BankLit = makeState('bankLit', (curBank: DropBank) => ({ curBank}));
 const JackpotLit = makeState('jackpotLit', { awardingJp: 0});
+
+function isFirstDown(target: DropTarget): boolean {
+    const targetI = target.bank.targets.indexOf(target);
+    return target.bank.targets.every((t, i) => t.state || i >=targetI);
+}
 
 export class StraightMb extends Multiball {
     readonly bankColors = new Map<DropBank, Color>([
@@ -68,7 +74,7 @@ export class StraightMb extends Multiball {
                         return colorToArrow(this.bankColors.get(target.bank));
                     case 'bankLit':
                         if (target.bank === this.state.curBank)
-                            return colorToArrow(this.bankColors.get(this.state.curBank));
+                            return (((time()/500%2)|0)===0 || !isFirstDown(target)) && !target.state? colorToArrow(this.bankColors.get(this.state.curBank)) : undefined;
                         return undefined;
                     case 'jackpotLit':
                     default:
@@ -100,14 +106,17 @@ export class StraightMb extends Multiball {
             else
                 return this.jackpot();
         });
+        
 
         this.listen<DropBankCompleteEvent>([
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => this.state = JackpotLit());
 
-        this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, () => {
+        this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
             this.drops++;
-            player.addChip();
+            if (isFirstDown(e.target)) {
+                this.value += round(this.value * .2, 100000);
+            }
         });
 
         addToScreen(() => new StraightMbGfx(this));
@@ -124,9 +133,9 @@ export class StraightMb extends Multiball {
             }
             const mb = new StraightMb(player, hand, isRestarted, bank);
             player.focus = mb;
-            mb.gfx?.visible(false);
+            (mb.gfx as any)?.notInstructions.visible(false);
             await alert('STRAIGHT Multiball!', 3000)[1];
-            mb.gfx?.visible(true);
+            (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
             }

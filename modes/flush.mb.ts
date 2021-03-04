@@ -128,9 +128,9 @@ export class FlushMb extends Multiball {
             }
             const mb = new FlushMb(player, hand, isRestarted);
             player.focus = mb;
-            mb.gfx?.visible(false);
+            (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Flush Multiball!', 3000)[1];
-            mb.gfx?.visible(true);
+            (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
             }

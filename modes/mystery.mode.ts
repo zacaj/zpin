@@ -145,10 +145,10 @@ const allAwards: Award[] = [
     // },
     {
         name(player) {
-            return `CASH OUT ${money(Math.min(Math.max(round(player.store.Poker!.bank * .25, 100), 500), 10000))} at 2X`;
+            return `CASH OUT ${money(Math.max(round(player.store.Poker!.bank * (player.store.Poker!.bank/1000%3+1)*.25, 100), 500))} at 2X`;
         },
         giveAward(player) {
-            const value = Math.min(Math.max(round(player.store.Poker!.bank * .25, 100), 500), 10000);
+            const value = Math.max(round(player.store.Poker!.bank * (player.store.Poker!.bank/1000%3+1)*.25, 100), 500);
             player.store.Poker!.bank -= value;
             player.addScore(value*player.store.Poker!.cashValue*2, 'cash out', true);
         },

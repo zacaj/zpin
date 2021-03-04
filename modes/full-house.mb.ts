@@ -192,9 +192,9 @@ export class FullHouseMb extends Multiball {
             }
             const mb = new FullHouseMb(player, hand, isRestarted, jp);
             player.focus = mb;
-            mb.gfx?.visible(false);
+            (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Full House Multiball!', 3000)[1];
-            mb.gfx?.visible(true);
+            (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
             }
