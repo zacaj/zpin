@@ -147,25 +147,30 @@ public class Sounds extends Thread {
 		Mixer.Info[] infos = AudioSystem.getMixerInfo();
 		Mixer.Info bestInfo = null;
 		for (Mixer.Info info : infos) {
-			System.out.println(info);
-			if (info.getName().toLowerCase().contains("headphone")) {
+			System.out.println("Mixer: " + info);
+			if (info.getName().toLowerCase().contains("device")) {
 				if (!AudioSystem.getMixer(info).isLineSupported(lineInfo))
 					System.out.println("skipping, line doesn't support requested format");
-				else
+				else {
 					bestInfo = info;
+					System.out.println("Selected");
+				}
 			}
 		}
 		
 		try {
 			if (bestInfo != null) {
-				System.out.println("using output "+bestInfo);
+				System.out.println("using preferred output "+bestInfo);
 			}
 			else if (!AudioSystem.isLineSupported(lineInfo)){
 		         System.out.println("Line matching " + lineInfo + " is not supported.");
 		         throw new Exception("could not init sound");
-			}
+			} 
+			else
+				System.out.println("using default output");
 			line = (SourceDataLine)(bestInfo!=null? 
 					AudioSystem.getMixer(bestInfo).getLine(lineInfo) : AudioSystem.getLine(lineInfo));
+			
 			line.open(targetFormat, (int) (2*targetFormat.getSampleRate()*(50/1000.f)));
 			line.start();
 		} catch (Exception e1) {

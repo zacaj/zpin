@@ -1,6 +1,6 @@
 import { Mode, Modes } from './mode';
 import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light } from './machine';
-import { Outputs, toggle } from './outputs';
+import { OutputFuncsOrValues, Outputs, toggle } from './outputs';
 import { getTypeIn, assert, score, eq } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent, DropDownEvent, DropTarget } from './drop-bank';
 import { Log } from './log';
@@ -8,7 +8,7 @@ import { Events, onType } from './events';
 import { Tree } from './tree';
 import { onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { MPU } from './mpu';
-import { wait } from './timer';
+import { Time, wait } from './timer';
 import { fork } from './promises';
 import { notify } from './gfx';
 import { Color, colorToArrow } from './light';
@@ -151,6 +151,20 @@ export async function ReleaseBall(parent: Tree<MachineOutputs>) {
     await parent.await(node.onEnd());
 }
 
+export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs: OutputFuncsOrValues<MachineOutputs>) {
+
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+            this.out = new Outputs(this, origFuncs);
+        }
+    };
+
+    parent.addTemp(node);
+
+    return wait(ms, 'effect').then(() => node.end());
+}
+
 export async function Combo(player: Player, sw: Switch, light: Light, amount = 35000, length = 5000) {
     const node = new class extends Tree<MachineOutputs> {
         constructor(
@@ -218,10 +232,10 @@ export class MiscAwards extends Tree<MachineOutputs> {
                     player.addChip();
                     break;
                 case Award.AddValue:
-                    player.changeValue(25);
+                    player.changeValue(5);
                     break;
                 case Award.SubtractValue:
-                    player.changeValue(-25);
+                    player.changeValue(-10);
                     break;
                 case Award.SetSpinner:
                     this.spinnerValue = 4000;

@@ -75,12 +75,9 @@ export class FullHouseMb extends Multiball {
         if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
         switch (jp ?? (this.state as any).jp) {
             case Jackpot.RightLane:
-                if (machine.upper3Bank.targets[2].state)
-                    return Color.Red;
-                else
-                    return Color.Orange;
+                return Color.Orange;
             case Jackpot.RightTarget:
-                return Color.Tan;
+                return Color.Pink;
             case Jackpot.LeftLane:
                 return Color.Purple;
             case Jackpot.LeftTarget:
@@ -89,7 +86,7 @@ export class FullHouseMb extends Multiball {
             case Jackpot.Drop2: 
             case Jackpot.Drop3: 
                 return Color.Yellow;
-            default: return Color.Pink;
+            default: return Color.Red;
         }
     }
 
@@ -111,11 +108,11 @@ export class FullHouseMb extends Multiball {
         this.out = new Outputs(this, {
             rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] :
+            lRampArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.Gray] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : []),
             iRamp: () => (this.state._==='started' || (this.state._==='jackpotLit' && !this.state.jp.startsWith('Left')))? dImage('light_left_jackpot') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
-            lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.White] : [],
+            lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.Gray] : [],
             iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_right_jackpot') : undefined,
             getSkillshot: () => () => this.getSkillshot(),
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),

@@ -40,6 +40,7 @@ export function fork<T>(promise?: Promise<T>|void|any, name?: string): FakePromi
     promise.catch((err: any) => {
         Log.error('console', 'fork %s errored: ', name, err);
         Log.error('console', 'fork source stack: ', e.stack);
+        return Promise.resolve();
     });
 
     return new FakePromise(promise, name, 0);

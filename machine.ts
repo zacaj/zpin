@@ -70,6 +70,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         Log[this instanceof Solenoid? 'log':'trace'](['machine'], 'try set %s to ', this.name, this.val);
         return then(this.set(this.val), success => {
             try {
+                if (success instanceof Error) throw success;
                 if (success === true) {
                     Log.info('machine', '%s successfully set to ', this.name, this.val);
                     this.lastActualChange = time();
@@ -85,7 +86,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
                 }
             } catch (err) {
                 Log.error(['machine'], 'error setting output %s to ', this.name, this.val, err);
-                debugger;
+                // debugger;
                 if (!this.timer)
                     this.timer = Timer.callIn(() => this.trySet(), 5, `delayed retry set ${this.name} to ${this.val}`);
             }
@@ -362,7 +363,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
                 await LPU.sendCommand(cmd);
             }
             else if (MPU.isConnected) {
-                Log.info('lpu', `Light: %s`, this.name);
+                Log.info('mpu', `Light: %s`, this.name);
                 if (state.length) {
                     const states = state.map(normalizeLight);
                     const parts = states.map(({color, type, freq, phase}) => `${colorToHex(color)} ${type} ${freq} ${phase}`);
@@ -371,7 +372,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
                 }
                 else {
                     for (const num of this.nums)
-                        await MPU.sendCommand(`light 1 ${num} 000000 solid 1`);
+                        await MPU.sendCommand(`light 1 ${num} 000000 solid 1 0`);
                 }
             }
         }
@@ -592,7 +593,7 @@ export class Machine extends Tree<MachineOutputs> {
     solenoidBank2 = new Solenoid16(2);
     cUpper2 = new IncreaseSolenoid('upper2', 13, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
     cUpper3 = new IncreaseSolenoid('upper3', 12, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
-    cUpperEject = new IncreaseSolenoid('upperEject', 11, this.solenoidBank2, 7, 15, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
+    cUpperEject = new IncreaseSolenoid('upperEject', 11, this.solenoidBank2, 9, 20, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
     cLeftGate = new OnOffSolenoid('leftGate', 8, this.solenoidBank2, 25, 50, 10);
     cRightGate = new OnOffSolenoid('rightGate', 9, this.solenoidBank2);
     cRealRightBank = new IncreaseSolenoid('realRightBank', 6, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.changeState(false, 'fake')));

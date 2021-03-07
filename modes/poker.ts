@@ -597,6 +597,7 @@ export class Poker extends Mode {
                 ) : undefined,
                 collect: () => {
                     this.bet += change;
+                    notify(`BET ${money(change, 0, '+')}`);
                     Log.log('game', 'skillshot increase bet by %i to %i', change, this.bet);
                 },
             };

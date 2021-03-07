@@ -8,6 +8,7 @@ import { DropBankCompleteEvent } from '../drop-bank';
 import { alert, notify } from '../gfx';
 import { score } from '../util';
 import { time } from '../timer';
+import { Color } from '../light';
 
 export class MiniPf extends Mode {
     waitingForSwitch = true;
@@ -20,7 +21,9 @@ export class MiniPf extends Mode {
         this.out = new Outputs(this, {
             miniDiverter: () => this.waitingForSwitch || time()-startTime<1500,
         });
-        ball.player.miniReady = false;
+
+        if (machine.lMiniReady.is(Color.Green))
+            ball.player.miniReady = false;
 
         this.listen(onAnyPfSwitchExcept(...machine.miniBank.switches), 'end');
 

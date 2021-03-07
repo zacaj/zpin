@@ -116,8 +116,8 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        // ['StraightMb', []],
-        // ['FullHouseMb', []],
+        ['StraightMb', []],
+        ['FullHouseMb', []],
         ['FlushMb', []],
     ]);
 
@@ -190,7 +190,7 @@ export class Player extends Mode {
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
             iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
-            lEjectArrow: add(() => this.mysteryLeft===0, [Color.Pink, 'pl']),
+            lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode, [Color.Pink, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -242,6 +242,7 @@ export class Player extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sUpperEject), () => {
+            if (this.curMbMode) return;
             if (this.mysteryLeft === 0) {
                 this.mystery = new Mystery(this);
                 this.mystery.started();
@@ -335,16 +336,16 @@ export class Player extends Mode {
             await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
             if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             
-            if (!machine.lPower1.is(Color.Orange))
+            if (machine.lPopperStatus.is(Color.Green))
                 this.chips-=1;
             if (this.chips<0) this.chips = 0;
         });
         
         this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
             if (!machine.lPower1.lit()) return;
-            if (!machine.lPower1.is(Color.Orange))
+            if (machine.lMagnet1.is(Color.Green))
                 this.chips-=1;
-                if (this.chips<0) this.chips = 0;
+            if (this.chips<0) this.chips = 0;
         });
 
         this.listen(onChange(this, 'focus'), e => {
@@ -745,9 +746,10 @@ export class Multiplier extends Tree<MachineOutputs> {
     }
 
     end() {
-        this.player.gfx?.remove(this.text);
         this.player.mult = undefined;
         const ret = super.end();
+        if (screen)
+            this.player.gfx?.remove(this.text);
         this.player.score += this.total;
         notify(`2X Total: ${score(this.total)}`);
         return ret;

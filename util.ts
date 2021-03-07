@@ -315,8 +315,8 @@ export function getCallerLoc(ignoreCurFile = false, ignorePattern?: RegExp, forc
     const callers = getCallerStack(ignoreCurFile, ignorePattern, force);
     return callers.map(l => split(l, 'at')[1] || l).join(' <- ');
 }
-export function then<T, U = undefined>(val: Promise<T>|T, cb: (x: T) => U): Promise<U>|U {
-    if ((val as any).then) return (val as Promise<T>).then(cb);
+export function then<T, U = undefined>(val: Promise<T>|T, cb: (x: T|Error) => U): Promise<U>|U {
+    if ((val as any).then) return (val as Promise<T>).then(cb).catch(cb);
     return cb(val as T);
 }
 

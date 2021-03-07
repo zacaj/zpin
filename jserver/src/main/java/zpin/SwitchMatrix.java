@@ -127,6 +127,7 @@ public class SwitchMatrix extends Thread {
 				serOut.setState(curCol != 0);
 				serClk.high();
 				serLatch.high();
+				Thread.sleep(0, 5);
 				for (int row = 0; row<Height; row++) {
 					boolean on = returns[row].isState(PinState.LOW);
 					double ms = ms();

@@ -40,16 +40,20 @@ export abstract class Multiball extends Mode {
         this.listen(onSwitchClose(machine.sOuthole), 'ballDrained');
 
         this.misc = new MiscAwards(player);
-        this.misc.addTargets(3);
+        // this.misc.addTargets(3);
 
         this.out = new Outputs(this, {
             miniDiverter: false,
-            lMiniReady: [[Color.Green, 'pl']],
+            lMiniReady: [[Color.Gray, 'pl', .25, 1]],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
-            lPower1: () => [[Color.White, 'pl']],
-            lPower2: () => [[Color.White, 'pl']],
-            lPower3: () => [[Color.White, 'pl']],
+            lPower1: () => [[Color.Gray, 'pl', .25]],
+            lPower2: () => [[Color.Gray, 'pl', .25, 1]],
+            lPower3: () => [[Color.Gray, 'pl', .25]],
+            lMagnet1: () => [[Color.Gray, 'pl', .25]],
+            lMagnet2: () => [[Color.Gray, 'pl', .25, 1]],
+            lMagnet3: () => [[Color.Gray, 'pl', .25]],
+            lPopperStatus: () => [[Color.Gray, 'pl', .25, 1]],
         }, true);
     }
 

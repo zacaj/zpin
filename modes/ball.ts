@@ -69,7 +69,7 @@ export class Ball extends Mode {
             fork(Skillshot.start(this));
         });
 
-        this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.is(Color.Green)], () => {
+        this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.lit() && !machine.lMiniReady.is(Color.Red)], () => {
             this.miniPf = new MiniPf(this);
             this.miniPf.started();
         });

@@ -162,9 +162,20 @@ void Display::drawImage(Image* image, u16 xStart, u16 yStart)
 		for(j = 0; j < image->height; j++){
 			for(i = 0; i < image->width; i++){
 				if(xStart+i < width  &&  yStart+j < height) {//Exceeded part does not display
-                    Color color = image->getColor(i, j);
-                    if (color == makeRGB(255,0,255))
-                        continue;
+                    Color color = image->getColor(i, j);    
+#ifndef _MSC_VER
+                    color = ((color<<8)&0xff00)|(color>>8);
+#endif
+                    u8 r = getR(color);
+                    u8 g = getG(color);
+                    u8 b = getB(color);
+                    if (r >= 224 && g <= 16 && b >= 224)
+                        continue; 
+#ifndef _MSC_VER
+                    color = ((color<<8)&0xff00)|(color>>8);
+#endif
+                    // if (color == makeRGB(255,0,255))
+                    //     continue;
                     setPixel(xStart+i, yStart+j, color);
                 }
 					// setPixel(xStart + i, yStart + j, (*(image->pixels + j*image->width + i+1))<<8 | (*(image->pixels + j*image->height + i)));

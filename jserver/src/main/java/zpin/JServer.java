@@ -38,7 +38,7 @@ public class JServer extends Thread
         this.socket = socket;
         this.isLive = isLive;
         this.start();
-        led.start();
+//        led.start();
     }
     
     String seqPrefix() {
@@ -94,11 +94,14 @@ public class JServer extends Thread
 	        }
 	        
 		} catch (Exception e) {
+			System.out.println("connection fatal error: ");
 			e.printStackTrace();
 		} finally {
 			try {
 				this.socket.close();
+				System.out.println("connection closed");
 			} catch (IOException e1) {
+				System.out.println("error closing connection");
 				e1.printStackTrace();
 			}
 		}
@@ -394,6 +397,7 @@ public class JServer extends Thread
 				lastCommand = input;
 			}
     	} catch (SocketException|RuntimeException e) {
+            led.clear();
     		throw new RuntimeException(e);
 		} catch (Exception e) {
 			System.err.println("Error reading command");
@@ -425,6 +429,7 @@ public class JServer extends Thread
                 new JServer(connection, args.length==0 || !args[0].equals("sim")); 
             }
         } finally {
+        	System.out.println("No longer listening");
             socket.close();
         }
     }

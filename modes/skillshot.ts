@@ -237,6 +237,11 @@ export class Skillshot extends Mode {
                         award: 'UNDO TWO CARDS',
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
+                    [(this.player.mbsQualified.size<=2? 3 : 0), {
+                        switch: gen.switch,
+                        award: 'LIGHT MULTIBALL',
+                        made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
+                    }],
                 ) : undefined;
             const cur = {...current[i], ...rand} ?? current[i];
             awards.push({

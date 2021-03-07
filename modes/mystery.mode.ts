@@ -14,7 +14,7 @@ import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from "../switch-
 import { time, Timer, TimerQueueEntry } from "../timer";
 import { Tree } from "../tree";
 import { money, round, score } from "../util";
-import { FireCoil, ResetBank } from "../util-modes";
+import { Effect, FireCoil, ResetBank } from "../util-modes";
 import { Multiplier, Player } from "./player";
 
 export enum MysteryNext {
@@ -163,12 +163,13 @@ export function getMysteryAwards(player: Player) {
 export class Mystery extends Mode {
     awards: Award[] = [];
     timer!: TimerQueueEntry;
+    done = false;
 
     constructor(
         public player: Player,
     ) {
         super(Modes.Mystery);
-        State.declare<Mystery>(this, ['awards']);
+        State.declare<Mystery>(this, ['awards', 'done']);
         const startTime = time();
         if (machine.upper3Bank.targets.some(t => t.state))
             fork(ResetBank(this, machine.upper3Bank));
@@ -199,14 +200,20 @@ export class Mystery extends Mode {
             iUpper31: () => this.awards.length>=1? dImage('mystery_1') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
             iUpper32: () => this.awards.length>=2? dImage('mystery_2') : ((time()/500%2)|0)!==0? dImage('mystery_q') : dClear(Color.Black),
             iUpper33: () => this.awards.length>=3? dImage('mystery_3') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
-            upperEject: false,
+            upperEject: () => this.done,
         });
 
         this.listen([...onAnyPfSwitchExcept(...machine.upper3Bank.targets.map(t => t.switch), machine.sUpperEject), () => time()-startTime>10000], 'end');
 
         this.listen(machine.upper3Bank.onTargetDown(), e => {
-            const award = this.awards[e.target.bank.targets.indexOf(e.target)];
+            const i = e.target.bank.targets.indexOf(e.target);
+            const award = this.awards[i];
             award.giveAward(player);
+            fork(Effect(player.overrides, 1000, {
+                iUpper31: () => i === 0? dImage('mystery_1') : dClear(Color.Black),
+                iUpper32: () => i === 1? dImage('mystery_2') : dClear(Color.Black),
+                iUpper33: () => i === 2? dImage('mystery_3') : dClear(Color.Black),
+            }));
             return this.end();
         });
 
@@ -216,7 +223,7 @@ export class Mystery extends Mode {
             if (this.awards.length < 3) this.awards.push(chosenAwards.pop()!);
             else {
                 Timer.cancel(this.timer);
-                return FireCoil(this, machine.cUpperEject);
+                this.done = true;
             }
         }, 2000, 'mstery', 3000);
     }

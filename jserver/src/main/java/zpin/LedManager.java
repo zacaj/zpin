@@ -21,8 +21,16 @@ public class LedManager extends Thread {
 	public static class LedState {
 		public int r,g,b;
 		public LedMode mode;
-		public double freq;
-		public double phase;
+		public double freq = 1;
+		public double phase = 0;
+		
+		public LedState() {}
+		public LedState(int r, int g, int b) {
+			this.r = r;
+			this.g = g;
+			this.b = b;
+			this.mode = LedMode.Solid;
+		}
 	}
 	
 	public LedState[][] leds = new LedState[128][];
@@ -32,7 +40,15 @@ public class LedManager extends Thread {
 		strip.setStrip(0, 0, 0);
 		strip.setPixel(109, 0, 255,0);
 		strip.render();
-		System.out.println("LEDs initialized");
+		System.out.println("LEDs initialized");;
+		this.leds[109] = new LedState[] { new LedState(255, 0, 0) };
+		this.start();
+	}
+	
+	public void clear() {
+		for (int i=0; i<this.leds.length; i++)
+			this.leds[i] = null;
+		this.leds[109] = new LedState[] { new LedState(255, 0, 0) };
 	}
 	
 	@Override
@@ -63,6 +79,8 @@ public class LedManager extends Thread {
 					case Pulsing:
 						t *= 2;
 						if (t < 1) {
+//							t = -Math.sin(Math.PI*.5*t+Math.PI);
+							t = Math.pow(t, 3);
 							strip.setPixel(i, (int)(s.r*t), (int)(s.g*t), (int)(s.b*t));
 						}
 						else {

@@ -1,4 +1,5 @@
 #!/bin/sh
 
 cd /home/pi/zpin/cdisp/
+sudo killall cserver
 screen -L -Logfile scserver.log -S cserver -d -m ./cstart

@@ -86,7 +86,7 @@ export class StraightMb extends Multiball {
             ...outs,
             rampUp: () => this.state._==='bankLit' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => this.state._ === 'jackpotLit'? [Color.Yellow, 'fl'] :
+            lRampArrow: () => this.state._ === 'jackpotLit'? [[Color.Yellow, 'fl']] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='jackpotLit'? dImage("jackpot") : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),

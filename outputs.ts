@@ -9,7 +9,7 @@ type OutputFuncs<OutputTypes extends {}> = {
     [key in keyof OutputTypes]?: (prev?: OutputTypes[key]) => OutputTypes[key]|undefined;
 };
 
-type OutputFuncsOrValues<OutputTypes extends {}> = {
+export type OutputFuncsOrValues<OutputTypes extends {}> = {
     [key in keyof OutputTypes]?: ((prev?: OutputTypes[key]) => OutputTypes[key]|undefined)|OutputTypes[key];
 };
 // type Outputs<OutputTypes extends {}> = OutputFuncs<OutputTypes> & {

@@ -126,7 +126,7 @@ export const MPU = {
             };
         }
         Log.error('mpu', 'error running command %s: ', cmd, resp);
-        debugger;
+        // debugger;
         throw new Error(resp);
     },
 
