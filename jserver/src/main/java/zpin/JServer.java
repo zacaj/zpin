@@ -38,6 +38,8 @@ public class JServer extends Thread
         this.socket = socket;
         this.isLive = isLive;
         this.start();
+    	if (isLive)
+        	led.init();
 //        led.start();
     }
     
@@ -412,7 +414,6 @@ public class JServer extends Thread
     {
     	matrix.start();
     	sound.start();
-    	led.init();
 //    	try {
 //			sound.playSound("shoot the ball carefully", 1);
 //		} catch (Exception e) {

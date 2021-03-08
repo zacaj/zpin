@@ -4,13 +4,13 @@ export enum Color {
     Red = 'Red',
     Green = 'Green',
     White = 'White',
-    Orange = 'Orange',
+    Orange = '#FF3000',
     Yellow = 'Yellow',
-    Blue = 'Blue',
-    Purple = 'Purple',
-    Pink = 'Pink',
-    Tan = 'Tan',
+    Blue = '#0000A0',
+    Purple = '#230054',
+    Pink = '#ff0066',
     Black = 'Black',
+    Gray = '#393939',
 }
 
 export type Frequency = number;
@@ -29,6 +29,7 @@ export type LightState = Color|{
     phase: number;
 }|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse', Frequency?, number?];
 const defaultFlashFreq: Frequency = 3;
+const defaultPulseFreq: Frequency = 1;
 export function normalizeLight(state: LightState): {
     color: Color;
     type: 'solid'|'pulsing'|'flashing';
@@ -46,18 +47,20 @@ export function normalizeLight(state: LightState): {
         return {
             color: state[0],
             type: state[1].startsWith('f')? 'flashing' : 'pulsing',
-            freq: state[2] ?? defaultFlashFreq,
+            freq: state[2] ?? (state[1].startsWith('f')? defaultFlashFreq : defaultPulseFreq),
             phase: state[3] ?? 0,
         };
     return {
         color: state.color,
         type: 'flashing' in state? 'flashing' : 'pulsing',
-        freq: state.freq ?? defaultFlashFreq,
+        freq: state.freq ?? ('flashing' in state? defaultFlashFreq : defaultPulseFreq),
         phase: state.phase ?? 0,
     };
 }
 
 export function colorToHex(color: Color): string|undefined {
+    if (typeof color === "string" && color.startsWith("#"))
+        return color;
     const colors = {'aliceblue':'#f0f8ff','antiquewhite':'#faebd7','aqua':'#00ffff','aquamarine':'#7fffd4','azure':'#f0ffff',
     'beige':'#f5f5dc','bisque':'#ffe4c4','black':'#000000','blanchedalmond':'#ffebcd','blue':'#0000ff','blueviolet':'#8a2be2','brown':'#a52a2a','burlywood':'#deb887',
     'cadetblue':'#5f9ea0','chartreuse':'#7fff00','chocolate':'#d2691e','coral':'#ff7f50','cornflowerblue':'#6495ed','cornsilk':'#fff8dc','crimson':'#dc143c','cyan':'#00ffff',
@@ -85,6 +88,7 @@ export function colorToHex(color: Color): string|undefined {
 
     if ((colors as any)[color.toLowerCase()])
         return (colors as any)[color.toLowerCase()];
+    Log.error('console', 'no hex found for color "%s"', color);
 
     return undefined;
 }
@@ -113,7 +117,7 @@ export function flashLight(cond: boolean, color = Color.White, off = Color.Red, 
 
 export function colorToArrow(color?: Color): DisplayContent|undefined {
     if (!color) return undefined;
-    return dImage(color.toLowerCase()+'Arrow');
+    return dImage(Object.entries(Color).find(e => e[1] === color)![0].toLowerCase()+'Arrow');
 }
 
 export function mix(func: (() => LightState|undefined)|LightState|undefined): (state?: LightState[]) => LightState[] | undefined {

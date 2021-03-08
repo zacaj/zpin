@@ -5,6 +5,7 @@ import { machine, MachineOutputs } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
+import { playSound } from '../sound';
 import { State } from '../state';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { Ball, BallEnding } from './ball';
@@ -26,6 +27,8 @@ export class Restart extends Mode {
             rampUp: false,
         });
 
+        void playSound('shoot the ramp');
+
         this.listen(onAnySwitchClose(machine.sLeftFlipper, machine.sRightFlipper), () => {
             if (this.flips > 0) {
                 this.flips--;
@@ -38,6 +41,14 @@ export class Restart extends Mode {
         this.listen(onSwitchClose(machine.sRampMade), () => {
             fork(action(this));
             return this.end();
+        });
+
+        let misses = 2;
+        this.listen(onAnySwitchClose(machine.sRampMini, machine.sSingleStandup), () => {
+            if (--misses === 0) {
+                void playSound('no the ramp');
+                misses = 3;
+            }
         });
 
         this.text = textBox({maxWidth: 0.8}, 

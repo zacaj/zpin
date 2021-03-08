@@ -8,6 +8,7 @@ import { machine, SkillshotAward } from '../machine';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
+import { playSound } from '../sound';
 import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, SwitchEvent } from '../switch-matrix';
 import { time } from '../timer';
@@ -230,6 +231,7 @@ export class FullHouseMb extends Multiball {
         }
         this.jackpots++;
         this.lastJp = this.state.jp;
+        void playSound('jackpot excited');
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;

@@ -4,7 +4,7 @@ import com.github.mbelling.ws281x.LedStripType;
 import com.github.mbelling.ws281x.Ws281xLedStrip;
 
 public class LedManager extends Thread {
-	Ws281xLedStrip strip;
+	Ws281xLedStrip strip = null;
 	
 	private static LedManager instance = null;
 	public static LedManager get() {
@@ -36,6 +36,7 @@ public class LedManager extends Thread {
 	public LedState[][] leds = new LedState[128][];
 	
 	public void init() {
+		if (this.strip != null) return;
 		strip = new Ws281xLedStrip(128, 18, 800000, 10, 255, 0, false, LedStripType.WS2811_STRIP_GRB, true);
 		strip.setStrip(0, 0, 0);
 		strip.setPixel(109, 0, 255,0);

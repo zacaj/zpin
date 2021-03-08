@@ -6,11 +6,11 @@ import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent, 
 import { Log } from './log';
 import { Events, onType } from './events';
 import { Tree } from './tree';
-import { onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
+import { onAnySwitchClose, onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { MPU } from './mpu';
 import { Time, wait } from './timer';
 import { fork } from './promises';
-import { notify } from './gfx';
+import { alert, notify } from './gfx';
 import { Color, colorToArrow } from './light';
 import { Player } from './modes/player';
 import { Rng } from './rand';
@@ -163,6 +163,27 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
     parent.addTemp(node);
 
     return wait(ms, 'effect').then(() => node.end());
+}
+
+export async function AddABall(parent: Tree<MachineOutputs>) {
+
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+            this.out = new Outputs(this, {
+                upperEject: false,
+            });
+
+            this.listen(onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper, ...machine.sLanes), 'end');
+            this.listen(e => e instanceof DropDownEvent, 'end');
+        }
+    };
+
+    parent.addTemp(node);
+    alert('BALL ADDED');
+    await ReleaseBall(parent);
+
+    await parent.await(node.onEnd());
 }
 
 export async function Combo(player: Player, sw: Switch, light: Light, amount = 35000, length = 5000) {

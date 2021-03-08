@@ -18,6 +18,7 @@ import { Card, Hand } from './poker';
 import { Restart } from './restart';
 import { HandMbGfx } from '../gfx/hand.mb';
 import { dFitText, dImage } from '../disp';
+import { playSound } from '../sound';
 
 
 const Starting = makeState('starting', { 
@@ -185,16 +186,21 @@ export class HandMb extends Multiball {
             this.jackpotAwarded = false;
             this.redTargets.clear();
         } else {
+            const oldValue = this.value;
             if (typeof target === 'object') {
                 this.value += 25000 + 10000*this.banks + 1500*this.drops;
                 this.drops++;
                 this.player.score += 5000;
-                this.player.addChip();
             }
             if (bank) {
                 this.banks++;
                 this.value += 10000 * bank.targets.length;
             }
+
+            if ([250000, 600000, 1000000].some(v => this.value > v && oldValue < v)) {
+                void playSound(Math.random()>.5? 'under the ramp' : 'shoot the spinner'); 
+            }
+
         }
     }
 
@@ -208,6 +214,7 @@ export class HandMb extends Multiball {
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.collected();
         this.player.score += this.value;
+        void playSound(this.value > 500000? 'jackpot' : 'jackpot short');
         const anim: AnimParams = {
             from: 1,
             to: 2,

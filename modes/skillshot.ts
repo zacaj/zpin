@@ -15,7 +15,7 @@ import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
 import { playSound } from '../sound';
-import { Combo } from '../util-modes';
+import { AddABall, Combo } from '../util-modes';
 import { dClear, dImage, DisplayContent, dMany } from '../disp';
 import { Color } from '../light';
 
@@ -198,6 +198,7 @@ export class Skillshot extends Mode {
         const awards: SkillshotAward[] = [];
         const nRand = this.rng.weightedRand(30, 60, 30, 5)+(this.isFirstOfBall? 2:0);
         const randInds = seq(nRand).map(() => this.rng.randRange(0, 5));
+        randInds.push(4);
         for (let i=0; i<7; i++) {
             const gen = generic[i];
             const rand = (!current[i]?.dontOverride && randInds.includes(i))?
@@ -215,12 +216,18 @@ export class Skillshot extends Mode {
                     [18-(5-i), {
                         switch: gen.switch,
                         award: '$500',
-                        made: () => this.player.store.Poker!.bank+=500,
+                        made: () => {
+                            void playSound('cash');
+                            this.player.store.Poker!.bank+=500;
+                        },
                     }],
                     [7-(5-i), {
                         switch: gen.switch,
                         award: '$1000',
-                        made: () => this.player.store.Poker!.bank+=1000,
+                        made: () => {
+                            void playSound('cash');
+                            this.player.store.Poker!.bank+=1000;
+                        },
                     }],
                     [24-this.player.chips*8, {
                         switch: gen.switch,
@@ -237,10 +244,15 @@ export class Skillshot extends Mode {
                         award: 'UNDO TWO CARDS',
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
-                    [(this.player.mbsQualified.size<=2? 3 : 0), {
+                    [rangeSelect(this.player.mbsQualified.size, [1, 15], [2, 10], [3, 5], [-1, 0]), {
                         switch: gen.switch,
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
+                    }],
+                    [i===4 && machine.ballsInPlay<=1? 15 : 0, {
+                        switch: gen.switch,
+                        award: 'ADD A BALL',
+                        made: () => AddABall(this.player.overrides),
                     }],
                 ) : undefined;
             const cur = {...current[i], ...rand} ?? current[i];
@@ -256,7 +268,9 @@ export class Skillshot extends Mode {
                     if (rand) excite = true;
                     if (i===2 || i===4) excite = true;
                     if (i>=3 && this.gateMode!==GateMode.Closed) excite = true;
+                    if (excite && Math.random()>.7) excite = false;
                     void playSound(`skillshot${excite? '!':''}`);
+                    // void playSound(`skillshot${excite? '!':''}`);
 
                     if (cur?.made)
                         cur.made(e);

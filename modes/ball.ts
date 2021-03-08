@@ -101,13 +101,13 @@ export class Ball extends Mode {
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.banks++);
         this.listen(onSwitchClose(machine.sSpinner), () => this.spins++);
         this.listen(onSwitchClose(machine.sRampMade), () => this.ramps++);
-        this.listen(onSwitchClose(machine.sRampMade), () => void playSound('bop'));
+        this.listen(onSwitchClose(machine.sRampMade), () => void playSound('ramp'));
         this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
         this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
-        this.listen(onAnySwitchClose(...machine.sStandups), () =>
-        void playSound('bop'));
-        this.listen(onAnySwitchClose(...machine.sLanes), () => 
-        void playSound('bop'));
+        // this.listen(onAnySwitchClose(...machine.sStandups), () =>
+        //     void playSound('bop'));
+        // this.listen(onAnySwitchClose(...machine.sLanes), () => 
+        //     void playSound('bop'));
 
         this.listen([...onSwitchClose(machine.sMiniOut), () => !this.player.curMbMode], () => this.drained = true);
 

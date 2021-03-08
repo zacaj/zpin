@@ -83,6 +83,8 @@ export class Poker extends Mode {
         return this.step >= 7;
     }
 
+    bestHandAnnounced = Hand.Card;
+
     constructor(
         public player: Player,
     ) {
@@ -204,6 +206,7 @@ export class Poker extends Mode {
         this.listen(onSwitchClose(machine.sActionButton), () => {
             if (this.player.game.ballNum===1 && this.player.score===0) return;
             if (machine.sShooterLane.state) {
+                void playSound('folded');
                 this.wasQuit = true;
                 player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
                     this.wasQuit = false;
@@ -252,6 +255,7 @@ export class Poker extends Mode {
     }
 
     deal() {
+        void playSound('shuffle');
         // console.profile('deal');
         this.playerWins = undefined;
         this.playerCardsUsed.clear();
@@ -300,6 +304,30 @@ export class Poker extends Mode {
 
     qualifyModes() {
         const cards = this.playerHand.filter(c => !!c) as Card[];
+        const [_, hand] = bestHand(cards, 5);
+        if (hand > this.bestHandAnnounced) {
+            this.bestHandAnnounced = hand;
+            switch (hand) {
+                case Hand.Pair:
+                    void playSound('good for a pair');
+                    break;
+                case Hand.TwoPair:
+                    void playSound('thats two pair');
+                    break;
+                case Hand.FullHouse:
+                    void playSound('looking at a full house');
+                    break;
+                case Hand.ThreeOfAKind:
+                    void playSound('were looking at a set');
+                    break;
+                case Hand.Straight:
+                    void playSound('thats-a straight');
+                    break;
+                case Hand.Flush:
+                    void playSound('thats-a flush');
+                    break;
+            }
+        }
         const flushes = findFlushes(cards);
         const straights = findStraights(cards);
         const pairs = findPairs(cards);
@@ -349,6 +377,7 @@ export class Poker extends Mode {
         const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
         this.playerWins = result.aWon;
         Log.info('game', 'poker results: %o', result);
+        void playSound("player win");
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         this.handsPlayed++;
@@ -609,6 +638,8 @@ export class Poker extends Mode {
         if (this.player.chips < 1) return;
         if (this.step <= 2 || this.step>=7)
             return;
+
+        void playSound('snail');
 
         this.player.chips -= 1;
 

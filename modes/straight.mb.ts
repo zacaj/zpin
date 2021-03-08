@@ -18,6 +18,7 @@ import { Card } from './poker';
 import { Restart } from './restart';
 import { dClear, dImage } from '../disp';
 import { time } from '../timer';
+import { playSound } from '../sound';
 
 
 const Starting = makeState('starting', { 
@@ -110,7 +111,10 @@ export class StraightMb extends Multiball {
 
         this.listen<DropBankCompleteEvent>([
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
-        () => this.state = JackpotLit());
+        () => {
+            this.state = JackpotLit();
+            void playSound('shoot the ramp');
+        });
 
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
             this.drops++;
@@ -182,8 +186,12 @@ export class StraightMb extends Multiball {
             return;
         }
         this.jackpots++;
-        if (this.state.awardingJp)
+        if (this.state.awardingJp) {
             fork(this.releaseBallFromLock());
+            void playSound('rowdy ramp round');
+        } 
+        else
+            void playSound('jackpot');
         this.state.awardingJp++;
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.player.score += this.value;

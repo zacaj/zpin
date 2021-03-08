@@ -258,7 +258,7 @@ public class Sounds extends Thread {
 		if (sound == null)
 			throw new Exception("sound '"+name+"' not found");
 		
-		Wav wav = sound.files.get(0);
+		Wav wav = sound.files.get((int) (Math.random()*sound.files.size()));
 		for (Channel c : channels) {
 			if (c.curPlay!=null && c.curPlay.playing)
 				if (new Date().getTime()-c.curPlay.startTime<50)

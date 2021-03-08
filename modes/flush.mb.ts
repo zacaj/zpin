@@ -9,6 +9,7 @@ import { machine, SkillshotAward } from '../machine';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
+import { playSound } from '../sound';
 import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, Switch, SwitchEvent } from '../switch-matrix';
 import { time, Timer, TimerQueueEntry } from '../timer';
@@ -179,6 +180,11 @@ export class FlushMb extends Multiball {
             return;
 
         this.state = JackpotLit(jp, this.calcValue(jp));
+        if (jp === machine.rampShot)
+            void playSound('shoot the ramp');
+        if (jp === machine.spinnerShot)
+            void playSound('shoot the spinner');
+
         this.countdown = Timer.setInterval(() => {
             if (this.state._ !== 'jackpotLit') return;
             const newValue = this.state.value - 1110 * ('bank' in this.state.jp? this.targetMult*this.targetSpeed : 'isShot' in this.state.jp? this.shotMult*this.shotSpeed : this.standupMult*this.standupSpeed);
@@ -245,6 +251,7 @@ export class FlushMb extends Multiball {
             this.lastJps.shift();
 
         this.jackpots++;
+        void playSound('jackpot short');
 
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;

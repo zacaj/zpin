@@ -149,7 +149,7 @@ export class Player extends Mode {
     }
 
     get mbReady(): boolean {
-        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7;
+        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7 && (machine.ballsInPlay==='unknown'||machine.ballsInPlay<=1);
     }
 
     get shooterStartHand(): boolean {
@@ -189,7 +189,7 @@ export class Player extends Mode {
             iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery') : undefined,
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
-            iRamp: () => (!this.curMode || this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
+            iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
             lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode, [Color.Pink, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
@@ -277,6 +277,7 @@ export class Player extends Mode {
         this.listen(onSwitchClose(machine.sSingleStandup), () => {
             if (this.mbsReady.size < 2) return;
             this.selectedMb = this.nextMb;
+            void playSound('swap mb');
         });
 
         const chipSwitches = [
@@ -295,12 +296,18 @@ export class Player extends Mode {
                     this.addChip();
                     this.chipsLit.rotate(1);
                 }
+                else
+                    void playSound('single chip fall wood deep');
             });
         this.listen(
             onAnySwitchClose(...machine.sUpperLanes),
             (e) => {
                 const i = machine.sUpperLanes.indexOf(e.sw);
-                if (!this.upperLaneChips[i]) return;
+                if (!this.upperLaneChips[i]) {
+                    void playSound('lane');
+                    return;
+                }
+                
                 this.addChip();
                 // this.addChip();             
                 this.upperLaneChips[i] = false;
@@ -308,6 +315,10 @@ export class Player extends Mode {
                     this.upperLaneChips.fill(true);
                     this.ball!.bonusX++;
                     alert(`bonus ${this.ball!.bonusX}X`);
+                    if (this.ball!.bonusX <= 4)
+                        void playSound(`bonus ${this.ball!.bonusX}x`);
+                    else
+                        void playSound('bonus x');
                 }
             });
         
@@ -323,6 +334,8 @@ export class Player extends Mode {
                     this.mult = new Multiplier(this);
                     this.mult.started();
                 }
+                else   
+                    void playSound('lane');
             });
         // award chips on bank complete
         this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
@@ -332,7 +345,10 @@ export class Player extends Mode {
         });
         // subtract chips
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable], async () => {
-            if (!machine.lPower1.lit()) return;
+            if (!machine.lPower1.lit()) {
+                void playSound('wrong');
+                return;
+            }
             await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
             if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             
@@ -342,7 +358,10 @@ export class Player extends Mode {
         });
         
         this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
-            if (!machine.lPower1.lit()) return;
+            if (!machine.lPower1.lit()) {
+                void playSound('wrong');
+                return;
+            }
             if (machine.lMagnet1.is(Color.Green))
                 this.chips-=1;
             if (this.chips<0) this.chips = 0;
@@ -364,7 +383,7 @@ export class Player extends Mode {
             }
         });
 
-        this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
+        // this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
         
         // allow orbits to loop
         this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
@@ -466,12 +485,20 @@ export class Player extends Mode {
     }
 
     addChip() {
-        if (this.chips < 3)
+        if (this.chips < 3) {
             this.chips++;
-        else 
+            void playSound('single chip fall chip deep');
+        }
+        else {
             this.store.Poker.bank += 50;
+            void playSound('cash');
+        }
     }
     changeValue(value: number, showAlert = true) {
+        if (value > 0)
+            void playSound('ca ching');
+        else 
+            void playSound('ching ca');
         this.store.Poker!.cashValue += value;
         Log.log('game', 'change cash value by %i to %i', value, this.store.Poker!.cashValue);
         if (showAlert)
@@ -575,7 +602,7 @@ class Spinner extends Tree<MachineOutputs> {
     }
 
     hit() {
-        void playSound('deal');
+        void playSound('spinner');
         if (!this.lastSpinAt || time()-this.lastSpinAt > 750) {
             Events.fire(new SpinnerHit());
             this.lastHitAt = time();
@@ -601,6 +628,9 @@ class Spinner extends Tree<MachineOutputs> {
                 (this.tb.children[2] as Text).text(`${this.ripCount} SPINS`);
                 this.ripTimer.time = time() + 750 as Time;
             }
+
+            if (this.ripCount === 69)
+                void playSound('nice');
         }
     }
 
@@ -671,6 +701,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
     hit() {
         this.player.score += this.score * this.comboMult;
+        void playSound('orbit');
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
     }
 }
@@ -723,10 +754,14 @@ export class Multiplier extends Tree<MachineOutputs> {
         this.listen(
             onAnySwitchClose(...machine.sLowerlanes),
             async (e) => {
+                void playSound('error');
                 await wait(250);
                 return this.end();
             });
-        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), 'end');
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => {
+            void playSound('error');
+            return 'end';
+        });
 
         this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
 
