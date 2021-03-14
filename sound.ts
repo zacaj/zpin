@@ -1,5 +1,7 @@
 import { Log } from "./log";
 import { MPU } from "./mpu";
+import { fork } from "./promises";
+const argv = require('yargs').argv;
 
 let soundEnabled = false;
 
@@ -32,13 +34,56 @@ export interface SoundInstance {
 
 let playNum = 0;
 
-export async function playSound(name: string, volume = 50): Promise<SoundInstance> {
+export async function playSound(name: string, volume = 50, force = false, loops = 0): Promise<SoundInstance> {
     const play = ++playNum;
 
     if (soundEnabled)
-        await MPU.sendCommand(`sound ${volume} ${name}`);
+        await fork(MPU.sendCommand(`sound ${volume} 1 ${force} ${loops} ${name}`));
     return {
         sound: new Sound(),
         ended: new Promise(resolve => {}),
     };
+}
+
+export async function playVoice(name: string, volume = 50, force = false) {
+    const play = ++playNum;
+
+    if (soundEnabled)
+        await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 ${name}`));
+    return {
+        sound: new Sound(),
+        ended: new Promise(resolve => {}),
+    };
+}
+
+export async function playMusic(name: string, loops = 0, volume = 50, solo = true) {
+    const play = ++playNum;
+
+    if (argv.music === false) volume = 0;
+
+    if (soundEnabled)
+        await fork(MPU.sendCommand(`sound ${volume} 0 ${solo} ${loops} ${name}`));
+    return {
+        sound: new Sound(),
+        ended: new Promise(resolve => {}),
+    };
+}
+
+export async function stopTrack(num: number) {
+    if (soundEnabled)
+        await fork(MPU.sendCommand('stop-track '+num));
+}
+
+export async function stopMusic() {
+    return stopTrack(0);
+}
+
+export async function muteMusic() {
+    if (soundEnabled)
+        await fork(MPU.sendCommand(`mute 0 true`));
+}
+
+export async function unmuteMusic() {
+    if (soundEnabled)
+        await fork(MPU.sendCommand(`mute 0 false`));
 }

@@ -43,7 +43,6 @@ export abstract class Multiball extends Mode {
         // this.misc.addTargets(3);
 
         this.out = new Outputs(this, {
-            miniDiverter: false,
             lMiniReady: [[Color.Gray, 'pl', .25, 1]],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
@@ -82,7 +81,11 @@ export abstract class Multiball extends Mode {
     async releaseBallsFromLock() {
         Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
         assert(machine.ballsLocked !== 0);
-        await wait(100, 'release locks');
+        this.lockPost = true;
+        await wait(75, 'release lock');
+        this.lockPost = false;
+
+        await wait(250, 'release locks');
         this.lockPost = true;
         machine.ballsLocked = 0;
         await wait(1200, 'release locks');

@@ -9,12 +9,12 @@ import { wrap, assert, comma, range, seq, rangeSelect } from '../util';
 import { Text, Node } from 'aminogfx-gl';
 import { Player } from './player';
 import { Log } from '../log';
-import { time } from '../timer';
+import { time, wait } from '../timer';
 import { Events, Priorities, Event, onAny } from '../events';
 import { fork } from '../promises';
 import { Ball } from './ball';
 import { Rng } from '../rand';
-import { playSound } from '../sound';
+import { playMusic, playSound, playVoice, stopMusic } from '../sound';
 import { AddABall, Combo } from '../util-modes';
 import { dClear, dImage, DisplayContent, dMany } from '../disp';
 import { Color } from '../light';
@@ -108,6 +108,10 @@ export class Skillshot extends Mode {
         this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
         this.listen(onAnySwitchClose(machine.sLeftInlane), (e) => this.made(5, e));
 
+        if (this.isFirstOfBall)
+            this.listen(onSwitchClose(machine.sShooterLane), () => playMusic('green grass intro a end'));
+            this.listen(onSwitchOpen(machine.sShooterLane), () => playMusic('green grass intro a'));
+
         this.listen<SwitchEvent>([onAny(
             onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
             onSwitchClose(machine.sSpinner),
@@ -130,10 +134,12 @@ export class Skillshot extends Mode {
         if (!finish) return false;
 
         const skillshot = new Skillshot(ball.player, ball);
+        if (skillshot.isFirstOfBall)
+            void stopMusic();
         skillshot.finishDisplay = finish;
         assert(!ball.skillshot);
         if (Skillshot.isShootAgain === ball) {
-            void playSound('shoot the ball carefully');
+            void playVoice('shoot the ball carefully');
         }
         Skillshot.isShootAgain = undefined;
         Skillshot.ballInPlay = ball;
@@ -157,14 +163,20 @@ export class Skillshot extends Mode {
 
     made(i: number, e: SwitchEvent) { 
         Log.log('game', 'skillshot %i', i);
+        void stopMusic();
         if (i === this.curAward) {
             this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
         }
+        else {
+            void playSound('wrong');
+        }
         if (this.awards[i].collect)
             this.awards[i].collect!(e);
         this.wasMade = true;
-        Events.fire(new SkillshotEomplete(i, i === this.curAward));
+        Events.fire(new SkillshotComplete(i, i === this.curAward));
+
+        void wait(1000).then(() => playMusic('green grass main'));
 
         if (this.curAward===1 && e.sw===machine.sSpinner) {
             fork(Combo(this.player, machine.sUpperEject, machine.lLeftArrow, 100000));
@@ -176,7 +188,7 @@ export class Skillshot extends Mode {
 
     finish(e: SwitchEvent) {
         if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole].includes(e.sw)) {
-            void playSound(`wait you'll get that back`);
+            void playVoice(`wait you'll get that back`);
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
         } else if (!this.wasMade) {
@@ -244,7 +256,7 @@ export class Skillshot extends Mode {
                         award: 'UNDO TWO CARDS',
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
-                    [rangeSelect(this.player.mbsQualified.size, [1, 15], [2, 10], [3, 5], [-1, 0]), {
+                    [rangeSelect(this.player.mbsQualified.size, [1, 15] ,[-1, 0]), {
                         switch: gen.switch,
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
@@ -269,7 +281,7 @@ export class Skillshot extends Mode {
                     if (i===2 || i===4) excite = true;
                     if (i>=3 && this.gateMode!==GateMode.Closed) excite = true;
                     if (excite && Math.random()>.7) excite = false;
-                    void playSound(`skillshot${excite? '!':''}`);
+                    void playVoice(`skillshot${excite? '!':''}`);
                     // void playSound(`skillshot${excite? '!':''}`);
 
                     if (cur?.made)
@@ -307,7 +319,7 @@ export class Skillshot extends Mode {
     }
 }
 
-export class SkillshotEomplete extends Event {
+export class SkillshotComplete extends Event {
     constructor(
         public skillshot: number,
         public made: boolean,

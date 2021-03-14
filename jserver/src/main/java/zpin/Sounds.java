@@ -19,17 +19,21 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import zpin.Sounds.Channel;
+
 public class Sounds extends Thread {
 	static class Channel {
 		static int channelCount = 0;
 		int num = ++Channel.channelCount;
+		public float volume = 1;
+		public Track track = null;
 		
 		public static Channel getFreeChannel() {
 			for (int i=0; i<channels.length; i++) {
 				if (channels[i].curPlay==null)
 					return channels[i];
 			}
-			throw new RuntimeException("no free channels");
+			return null;
 		}
 		
 		public Clip clip;
@@ -43,12 +47,44 @@ public class Sounds extends Thread {
 	}
 	static Channel[] channels = new Channel[16];
 	
+	static class Track {
+		public Channel[] channels;
+		public float volume = 1;
+		public float duckVolume = 0.5f;
+		public String name;
+		public Track[] ducks = null; // duck this track when specified tracks are active
+		public int muted = 0;
+		
+		public Track(Channel[] channels) {
+			this.channels = channels;
+			for (Channel c : channels)
+				c.track = this;
+		}
+		
+		public Channel getFreeChannel() {
+			for (int i=0; i<this.channels.length; i++) {
+				if (channels[i].curPlay==null)
+					return channels[i];
+			}
+			return null;
+		}
+		
+		public void stop() {
+			for (Channel c : channels) {
+				if (c.curPlay!=null && c.curPlay.playing)
+					c.curPlay.stop();
+			}
+		}
+	}
+	
+	static Track[] tracks = new Track[3];
 	
 	static class Play {
 		static int playNum = 0;
 		int num = ++Play.playNum;
 		Wav wav;
 		Channel channel;
+		int loops = 0;
 		boolean playing = true;
 		boolean finished = false;
 		float volume; // 0-1
@@ -111,11 +147,11 @@ public class Sounds extends Thread {
 		    this.length = this.data.length / format.getSampleRate();
 		}
 		
-		public Play play(float volume) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+		public Play play(Channel channel, float volume) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 			if (this.curPlay != null && !this.curPlay.finished) {
 				this.curPlay.stop();
 			}
-			return this.curPlay = new Play(this, Channel.getFreeChannel(), volume);
+			return this.curPlay = new Play(this, channel, volume);
 		}
 	}
 	
@@ -142,6 +178,7 @@ public class Sounds extends Thread {
 	}
 	
 	private Sounds() {
+		
 		DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, targetFormat);
 		
 		Mixer.Info[] infos = AudioSystem.getMixerInfo();
@@ -186,6 +223,37 @@ public class Sounds extends Thread {
 //				e.printStackTrace();
 //			}
 		
+		int ci = 0;
+		tracks[0] = new Track(new Channel[] {
+				channels[ci++],
+				channels[ci++],
+		});
+		tracks[0].name = "music";
+		tracks[0].volume = 0.25f;
+		tracks[0].duckVolume = 0.15f;
+		
+		tracks[1] = new Track(new Channel[] {
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+				channels[ci++],
+		});
+		tracks[1].name = "effects";
+		
+		tracks[2] = new Track(new Channel[] {
+				channels[ci++],
+		});
+		tracks[2].name = "voice";
+		tracks[2].volume = 0.9f;
+		
+		tracks[0].ducks = new Track[] {
+				tracks[2],
+		};
+		
 		String mediaDir = "./media";
 		File[] files = new File(mediaDir).listFiles();
 		for (File file : files) {
@@ -227,10 +295,26 @@ public class Sounds extends Thread {
 						Wav wav = curPlay.wav;
 						short s = wav.data[curPlay.position++];
 						if (curPlay.position >= wav.data.length) {
-							curPlay.completed();
+							if (curPlay.loops-- == 0)
+								curPlay.completed();
+							else
+								curPlay.position = 0;
 						}
 //						System.out.println(s+","+((double)s)*curPlay.volume);//+","+(short)(((double)s)*curPlay.volume));
-						sample += ((double)s)*curPlay.volume;
+						float volume = curPlay.volume;
+						volume *= channel.volume;
+						if (channel.track != null) {
+							boolean ducked = false;
+							if (channel.track.ducks != null)
+								for (Track t : channel.track.ducks)
+									for (Channel cc : t.channels)
+										if (cc.curPlay != null && cc.curPlay.playing)
+											ducked = true;
+							volume *= !ducked? channel.track.volume : channel.track.duckVolume;
+						}
+						if (channel.track.muted>0)
+							volume = 0;
+						sample += ((double)s)*volume;
 					}
 					short total;
 					if (sample < Short.MIN_VALUE)
@@ -251,7 +335,7 @@ public class Sounds extends Thread {
 		}
 	}
 
-	public Play playSound(String name, float volume) throws Exception {
+	public Play playSound(String name, int trackNum, float volume) throws Exception {
 		long start = System.nanoTime();
 		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound '"+name+"' requested ");
 		Sound sound = this.sounds.get(name);
@@ -259,7 +343,8 @@ public class Sounds extends Thread {
 			throw new Exception("sound '"+name+"' not found");
 		
 		Wav wav = sound.files.get((int) (Math.random()*sound.files.size()));
-		for (Channel c : channels) {
+		Track track = this.tracks[trackNum];
+		for (Channel c : track.channels) {
 			if (c.curPlay!=null && c.curPlay.playing)
 				if (new Date().getTime()-c.curPlay.startTime<50)
 					if (c.curPlay.wav.length > wav.length) {
@@ -269,11 +354,17 @@ public class Sounds extends Thread {
 						System.out.println(""+(Play.playNum+1)+"|?| "+System.nanoTime()/1000000+": canceling "+c.curPlay.wav.name);
 						c.curPlay.stop();
 					}
-				
 		}
-		Play play = wav.play(volume);
-		System.out.println(""+play.num+"|"+play.channel.num+"| "+System.nanoTime()/1000000+": play sound '"+play.wav.name+"' in "+(System.nanoTime()-start)/1000000);
+				
+		Channel channel = track.getFreeChannel();
+		if (channel == null) return null;
+		Play play = wav.play(channel, volume);
+		System.out.println(""+play.num+"|"+play.channel.num+"| "+System.nanoTime()/1000000+": play sound '"+play.wav.name+"' on t "+trackNum+" c "+channel.num+" in "+(System.nanoTime()-start)/1000000);
 		return play;
 	}
 	
+	public void stopAll() {
+		for (Track t : tracks)
+			t.stop();
+	}
 }

@@ -8,7 +8,7 @@ import { machine, SkillshotAward } from '../machine';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
-import { playSound } from '../sound';
+import { playVoice } from '../sound';
 import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, SwitchEvent } from '../switch-matrix';
 import { time } from '../timer';
@@ -52,19 +52,19 @@ export class FullHouseMb extends Multiball {
         switch (this.state.jp) {
             case Jackpot.RightLane:
                 if (machine.upper3Bank.targets[2].state)
-                    return 750000+this.base;
+                    return 300000+this.base;
                 else
-                    return 1250000+this.base;
+                    return 600000+this.base;
             case Jackpot.RightTarget:
-                return 1500000+this.base;
+                return 750000+this.base;
             case Jackpot.LeftLane:
-                return 1500000+this.base;
+                return 600000+this.base;
             case Jackpot.LeftTarget:
-                return 1000000+this.base;
+                return 500000+this.base;
             case Jackpot.Drop1:
             case Jackpot.Drop2:
             case Jackpot.Drop3:
-                return 250000+this.base;
+                return 200000+this.base;
             default:
                 throw new Error();
         }
@@ -73,7 +73,7 @@ export class FullHouseMb extends Multiball {
     base = 0;
 
     jpColor(jp?: Jackpot): Color {
-        if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
+        // if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
         switch (jp ?? (this.state as any).jp) {
             case Jackpot.RightLane:
                 return Color.Orange;
@@ -115,7 +115,7 @@ export class FullHouseMb extends Multiball {
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit'? [Color.Gray] : [],
             iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_right_jackpot') : undefined,
-            getSkillshot: () => () => this.getSkillshot(),
+            getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
             lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane)),
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget)),
             lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget)),
@@ -123,7 +123,7 @@ export class FullHouseMb extends Multiball {
             iUpper31: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1))? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
             iUpper32: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2))? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
             iUpper33: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3))? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
-                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane)? dImage('x') : undefined,
+                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state)? dImage('x') : undefined,
             rightGate: true,
             leftGate: true,
             // magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
@@ -174,7 +174,7 @@ export class FullHouseMb extends Multiball {
             if (time() < this.magnetOnUntil + 2000) return;
             this.magnetOnUntil = time() + 3000;
         });
-        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet), () => time()<this.magnetOnUntil], () => this.magnetOnUntil = 0);
+        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet, ...machine.sUpperLanes), () => time()<this.magnetOnUntil], () => this.magnetOnUntil = 0);
 
         addToScreen(() => new FullHouseMbGfx(this));
     }
@@ -231,7 +231,7 @@ export class FullHouseMb extends Multiball {
         }
         this.jackpots++;
         this.lastJp = this.state.jp;
-        void playSound('jackpot excited');
+        void playVoice('jackpot excited');
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;

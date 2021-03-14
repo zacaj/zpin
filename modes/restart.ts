@@ -1,11 +1,12 @@
 import { Group, Text } from 'aminogfx-gl';
+import { dImage } from '../disp';
 import { gfx, screen, textBox } from '../gfx';
 import { Color, flash } from '../light';
 import { machine, MachineOutputs } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
-import { playSound } from '../sound';
+import { playVoice } from '../sound';
 import { State } from '../state';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { Ball, BallEnding } from './ball';
@@ -24,10 +25,11 @@ export class Restart extends Mode {
 
         this.out = new Outputs(this, {
             lRampArrow: flash(true, Color.Yellow, 5),
+            iRamp: dImage('restart_mb'),
             rampUp: false,
         });
 
-        void playSound('shoot the ramp');
+        void playVoice('shoot the ramp');
 
         this.listen(onAnySwitchClose(machine.sLeftFlipper, machine.sRightFlipper), () => {
             if (this.flips > 0) {
@@ -46,7 +48,7 @@ export class Restart extends Mode {
         let misses = 2;
         this.listen(onAnySwitchClose(machine.sRampMini, machine.sSingleStandup), () => {
             if (--misses === 0) {
-                void playSound('no the ramp');
+                void playVoice('no the ramp');
                 misses = 3;
             }
         });

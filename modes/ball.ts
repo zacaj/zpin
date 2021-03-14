@@ -143,8 +143,8 @@ export class Ball extends Mode {
         }
         Events.fire(new BallStart(ball));
 
-        if (player.chips === 0)
-            player.chips++;
+        // if (player.chips === 0)
+        player.chips = 3;
 
         return ball;
     }

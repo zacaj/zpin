@@ -12,13 +12,13 @@ import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow, flash, LightState } from '../light';
 import { Priorities, Events } from '../events';
 import { comma, and, assert, makeState, repeat, score, short } from '../util';
-import { GateMode, Skillshot, SkillshotEomplete as SkillshotComplete } from './skillshot';
+import { GateMode, Skillshot, SkillshotComplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card, Hand } from './poker';
 import { Restart } from './restart';
 import { HandMbGfx } from '../gfx/hand.mb';
 import { dFitText, dImage } from '../disp';
-import { playSound } from '../sound';
+import { playVoice } from '../sound';
 
 
 const Starting = makeState('starting', { 
@@ -40,7 +40,7 @@ export class HandMb extends Multiball {
 
     baseValue = 30000;
     value = 100000;
-    spinsPerJp = 35;
+    spinsPerJp = 30;
 
     get spinner() {
         return Math.ceil((this.value / this.spinsPerJp) / 100) * 100;
@@ -63,8 +63,9 @@ export class HandMb extends Multiball {
         if (this.value > 500000) color = Color.Orange;
         if (this.value > 1000000) color = Color.Red;
         
-        if (this.jackpotAwarded) return [color, 'fl'];
-        else return color;
+        // if (this.jackpotAwarded) return [color, 'fl'];
+        // else
+            return color;
     }
 
     protected constructor(
@@ -99,7 +100,7 @@ export class HandMb extends Multiball {
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='started'? dFitText(score(this.value), 64, 'center') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
-            getSkillshot: () => (ss: any) => this.getSkillshot(ss),
+            getSkillshot: () => this.state._==='starting'? (ss: any) => this.getSkillshot(ss) : undefined,            
             leftGate: () => this.state._==='started'? true : undefined,
             rightGate: () => this.state._==='started'? true : undefined,
             spinnerValue: () => this.spinner,
@@ -171,7 +172,7 @@ export class HandMb extends Multiball {
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(25 - this.drops * 4, 9), () => {
+            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
                 return HandMb.start(this.player, true, this.value, this.drops, this.banks);
             }));
         }
@@ -198,7 +199,7 @@ export class HandMb extends Multiball {
             }
 
             if ([250000, 600000, 1000000].some(v => this.value > v && oldValue < v)) {
-                void playSound(Math.random()>.5? 'under the ramp' : 'shoot the spinner'); 
+                void playVoice(Math.random()>.5? 'under the ramp' : 'shoot the spinner'); 
             }
 
         }
@@ -214,7 +215,7 @@ export class HandMb extends Multiball {
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.collected();
         this.player.score += this.value;
-        void playSound(this.value > 500000? 'jackpot' : 'jackpot short');
+        void playVoice(this.value > 500000? 'jackpot' : 'jackpot short');
         const anim: AnimParams = {
             from: 1,
             to: 2,

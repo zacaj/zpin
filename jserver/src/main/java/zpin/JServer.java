@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import zpin.LedManager.LedMode;
 import zpin.LedManager.LedState;
+import zpin.Sounds.Channel;
 
 
 /**
@@ -98,6 +99,8 @@ public class JServer extends Thread
 		} catch (Exception e) {
 			System.out.println("connection fatal error: ");
 			e.printStackTrace();
+			sound.stopAll();
+				
 		} finally {
 			try {
 				this.socket.close();
@@ -208,16 +211,43 @@ public class JServer extends Thread
 							System.out.println("Configure switch "+row+","+col);
 							ack();
 							return true;
-						case "sound":
-							if (parts.length < 3)
-								error("usage: sound volume name ");
+						case "sound": {
+							if (parts.length < 6)
+								error("usage: sound volume track solo loops name ");
 							int volume = num(1);
-							Sounds.Play play = sound.playSound(String.join(" ", Arrays.asList(parts).subList(2, parts.length)), ((float)volume)/100);
-							if (play != null)
+							int track = num(2);
+							boolean solo = parts[3].equals("true");
+							int loops = num(4);
+							if (solo)
+								sound.tracks[track].stop();
+							Sounds.Play play = sound.playSound(
+									String.join(" ", Arrays.asList(parts).subList(5, parts.length)), 
+									track, 
+									((float)volume)/100
+								);
+							if (play != null) {
+								play.loops = loops;
 								resp(play.num);
+							}
 							else
 								resp(201);
 							return true;
+						}
+						case "stop-track": {
+							if (parts.length < 2)
+								error("usage: stop-track track");
+							int track = num(1);
+							sound.tracks[track].stop();
+							return true;
+						}
+						case "mute": {
+							if (parts.length < 3)
+								error("usage: mute track status");
+							int track = num(1);
+							boolean muted = parts[2].equals("true");
+							sound.tracks[track].muted += muted? 1 : -1;
+							return true;
+						}
 						case "light":
 							if (parts.length < 7)
 								error("usage: light stateCount ledNum hex solid|flashing|pulsing frequency phase [hex sol...]");
@@ -410,10 +440,13 @@ public class JServer extends Thread
     }
     
 
-    public static void main( String[] args) throws IOException
+    public static void main( String[] args) throws Exception
     {
     	matrix.start();
     	sound.start();
+//    	sound.playSound("card flops", 1, .50f).loops = -1;;
+//    	Thread.sleep(240);
+//    	sound.playSound("card flops b", 1, .50f).loops = -1;;
 //    	try {
 //			sound.playSound("shoot the ball carefully", 1);
 //		} catch (Exception e) {

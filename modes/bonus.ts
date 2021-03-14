@@ -8,6 +8,7 @@ import { machine } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
+import { stopMusic } from '../sound';
 import { State } from '../state';
 import { comma, round, score, short } from '../util';
 import { Ball } from './ball';
@@ -39,6 +40,8 @@ export class Bonus extends Mode {
             leftGate: false,
             rightGate: false,
         });
+
+        void stopMusic();
 
         fork(this.run());
 

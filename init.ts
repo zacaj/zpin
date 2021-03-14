@@ -63,6 +63,10 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
     }
 }
 
+process.on('unhandledRejection', (err, promise) => {
+    Log.error(['console', 'machine'], 'Unhandled rejection (promise: ', promise, ', reason: ', err, ').');
+});
+
 
 if (require.main === module) {
     initMachine(!!argv.mpu, !!argv.gfx, !!argv.game);

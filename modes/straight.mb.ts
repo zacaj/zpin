@@ -12,13 +12,13 @@ import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow } from '../light';
 import { Priorities, Events } from '../events';
 import { comma, and, assert, makeState, repeat, round } from '../util';
-import { SkillshotEomplete as SkillshotComplete } from './skillshot';
+import { SkillshotComplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
 import { dClear, dImage } from '../disp';
 import { time } from '../timer';
-import { playSound } from '../sound';
+import { playVoice } from '../sound';
 
 
 const Starting = makeState('starting', { 
@@ -91,7 +91,7 @@ export class StraightMb extends Multiball {
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='jackpotLit'? dImage("jackpot") : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
-            getSkillshot: () => () => this.getSkillshot(),
+            getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
@@ -113,7 +113,7 @@ export class StraightMb extends Multiball {
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => {
             this.state = JackpotLit();
-            void playSound('shoot the ramp');
+            void playVoice('shoot the ramp');
         });
 
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
@@ -173,7 +173,7 @@ export class StraightMb extends Multiball {
     
     selectBank(bank?: DropBank) {
         if (!bank) {
-            const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 3);
+            const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 0);
             bank = machine.dropBanks[i];
         }
         this.state = BankLit(bank);
@@ -188,10 +188,10 @@ export class StraightMb extends Multiball {
         this.jackpots++;
         if (this.state.awardingJp) {
             fork(this.releaseBallFromLock());
-            void playSound('rowdy ramp round');
+            void playVoice('rowdy ramp round');
         } 
         else
-            void playSound('jackpot');
+            void playVoice('jackpot');
         this.state.awardingJp++;
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.player.score += this.value;
@@ -219,8 +219,8 @@ export class StraightMb extends Multiball {
         const selections: (string|DropBank)[] = [
             'random', 
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank], [2, machine.rightBank], [1, machine.upper3Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [3, machine.rightBank], [1, machine.centerBank], [1, machine.upper2Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank],  [1, machine.upper3Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [1, machine.centerBank], [1, machine.upper2Bank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [1, machine.upper3Bank]),
         ];

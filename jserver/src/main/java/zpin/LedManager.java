@@ -65,8 +65,8 @@ public class LedManager extends Thread {
 					LedState s = states[j];
 					double t = now / (1000.f/s.freq);
 					t = t - Math.floor(t);
-					t += s.phase/s.freq/2;
-					if (t > 1) t -= 1;
+					t += s.phase/2;
+					while (t > 1) t -= 1;
 					switch (s.mode) {
 					case Solid:
 						strip.setPixel(i, s.r, s.g, s.b);

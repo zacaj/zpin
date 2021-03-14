@@ -17,9 +17,9 @@ import { comma, seq, range, repeat, money, round } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
-import { playSound } from '../sound';
+import { muteMusic, playSound, playVoice, unmuteMusic } from '../sound';
 import { Skillshot } from './skillshot';
-import { time } from '../timer';
+import { time, wait } from '../timer';
 import { dFitText, dHash, dImage, DisplayContent, dMany, dText } from '../disp';
 
 function dAdjustBet(amount: number): DisplayContent {
@@ -127,7 +127,7 @@ export class Poker extends Mode {
             const target = e.target;
             if (this.slots[target.num] && this.step < 7) {
                 const card = this.slots[target.num];
-                void playSound(`card ${getRank(card!)}`);
+                void playVoice(`card ${getRank(card!)}`);
                 // return;
                 this.playerHand[this.step] = card;
                 this.slots[target.num] = null;
@@ -206,7 +206,7 @@ export class Poker extends Mode {
         this.listen(onSwitchClose(machine.sActionButton), () => {
             if (this.player.game.ballNum===1 && this.player.score===0) return;
             if (machine.sShooterLane.state) {
-                void playSound('folded');
+                void playVoice('folded');
                 this.wasQuit = true;
                 player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
                     this.wasQuit = false;
@@ -228,6 +228,12 @@ export class Poker extends Mode {
         //     if (this.step < 7)
         //         this.bet += this.betAdjust*this.adjustSide;
         // });
+
+        // award chips on bank complete
+        this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
+            for (let i=1; i<e.bank.targets.length; i++)
+                player.addChip();
+        });
 
         addToScreen(() => new PokerGfx(this));
     }
@@ -309,22 +315,22 @@ export class Poker extends Mode {
             this.bestHandAnnounced = hand;
             switch (hand) {
                 case Hand.Pair:
-                    void playSound('good for a pair');
+                    void playVoice('good for a pair');
                     break;
                 case Hand.TwoPair:
-                    void playSound('thats two pair');
+                    void playVoice('thats two pair');
                     break;
                 case Hand.FullHouse:
-                    void playSound('looking at a full house');
+                    void playVoice('looking at a full house');
                     break;
                 case Hand.ThreeOfAKind:
-                    void playSound('were looking at a set');
+                    void playVoice('were looking at a set');
                     break;
                 case Hand.Straight:
-                    void playSound('thats-a straight');
+                    void playVoice('thats-a straight');
                     break;
                 case Hand.Flush:
-                    void playSound('thats-a flush');
+                    void playVoice('thats-a flush');
                     break;
             }
         }
@@ -340,28 +346,28 @@ export class Poker extends Mode {
         }
         for (const straight of straights) {
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('StraightMb')) {
-                Log.info('game', 'qualified straight multiball');
-                alert('straight multiball qualified');
-            }
-            this.newMbs.set('StraightMb', straight);
+            // if (!this.newMbs.has('StraightMb')) {
+            //     Log.info('game', 'qualified straight multiball');
+            //     alert('straight multiball qualified');
+            // }
+            // this.newMbs.set('StraightMb', straight);
             break;
         }
         if (flushes.length > 0) {
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FlushMb')) {
-                Log.info('game', 'qualified flush multiball');
-                alert('flush multiball qualified');
-            }
-            this.newMbs.set('StraightMb', flushes[0]);
+            // if (!this.newMbs.has('FlushMb')) {
+            //     Log.info('game', 'qualified flush multiball');
+            //     alert('flush multiball qualified');
+            // }
+            // this.newMbs.set('StraightMb', flushes[0]);
         }
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FullHouseMb')) {
-                Log.info('game', 'qualified full house multiball');
-                alert('full house multiball qualified');
-            }
+            // if (!this.newMbs.has('FullHouseMb')) {
+            //     Log.info('game', 'qualified full house multiball');
+            //     alert('full house multiball qualified');
+            // }
             this.newMbs.set('FullHouseMb', [...pairs[0], ...pairs[1]]);
         }
     }
@@ -369,6 +375,7 @@ export class Poker extends Mode {
     async showCards() {
         this.step++;
         this.finishShow = await Events.waitPriority(Priorities.ShowCards);
+        void muteMusic();
         Log.info('game', 'showing hand');
         for (let i=0; i<7; i++) {
             if (this.dealerHand[i]?.flipped)
@@ -377,7 +384,8 @@ export class Poker extends Mode {
         const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
         this.playerWins = result.aWon;
         Log.info('game', 'poker results: %o', result);
-        void playSound("player win");
+        if (this.playerWins)
+            fork(wait(1000).then(() => playVoice("player win")));
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         this.handsPlayed++;
@@ -390,10 +398,12 @@ export class Poker extends Mode {
                 
             if (!this.player.mbsQualified.size) {
                 Log.info('game', 'qualified hands multiball');
-                alert('hand multiball qualified', 2000, `${this.handsPlayed} hands played`);
+                await alert('hand multiball qualified', 2000, `${this.handsPlayed} hands played`)[1];
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
+        for (const [mb, hand] of this.newMbs)
+            await this.player.qualifyMb(mb, hand, 2000)[1];
         fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 
@@ -430,6 +440,8 @@ export class Poker extends Mode {
         }
 
         await gWait(1500, 'showing cards');
+
+        void unmuteMusic();
         
         this.end();
     }
@@ -437,8 +449,6 @@ export class Poker extends Mode {
     end() {
         for (const mode of this.newModes)
             this.player.modesQualified.add(mode);
-        for (const [mb, hand] of this.newMbs)
-            this.player.mbsQualified.set(mb, hand);
 
         if (this.finishShow)
             this.finishShow();

@@ -6,10 +6,10 @@ import { Time, time, safeSetInterval } from './timer';
 import { Log } from './log';
 import { machine } from './machine';
 
-export const Standup = [0,50];
-export const Drop = [10, 150];
+export const Standup = [0,100];
+export const Drop = [25, 250];
 export const Bumper = [0, 25];
-export const Lane = [1, 10];
+export const Lane = [1, 100];
 export const Hole = [100, 100];
 export const Drain = [500, 250];
 
@@ -181,7 +181,7 @@ safeSetInterval(async () => {
         assert(resp.when >= lastSwitchEvent);
         lastSwitchEvent = resp.when;
         // const ago = time() - resp.when;
-        if (resp.when < lastRawCheck-1) {
+        if (resp.when < lastRawCheck+10) {
             Log.info(['switch'], 'ignore switch event %j, %i late', resp, lastRawCheck - resp.when);
         }
         else {

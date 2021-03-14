@@ -9,7 +9,7 @@ import { machine, SkillshotAward } from '../machine';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
-import { playSound } from '../sound';
+import { playVoice } from '../sound';
 import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, Switch, SwitchEvent } from '../switch-matrix';
 import { time, Timer, TimerQueueEntry } from '../timer';
@@ -90,7 +90,7 @@ export class FlushMb extends Multiball {
             lRampArrow: () => 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady))?  [[Color.Green, 'fl']] :
                 origRamp(),
-            getSkillshot: () => () => this.getSkillshot(),
+            getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
             rightGate: true,
             leftGate: true,
         });
@@ -181,9 +181,9 @@ export class FlushMb extends Multiball {
 
         this.state = JackpotLit(jp, this.calcValue(jp));
         if (jp === machine.rampShot)
-            void playSound('shoot the ramp');
+            void playVoice('shoot the ramp');
         if (jp === machine.spinnerShot)
-            void playSound('shoot the spinner');
+            void playVoice('shoot the spinner');
 
         this.countdown = Timer.setInterval(() => {
             if (this.state._ !== 'jackpotLit') return;
@@ -251,7 +251,7 @@ export class FlushMb extends Multiball {
             this.lastJps.shift();
 
         this.jackpots++;
-        void playSound('jackpot short');
+        void playVoice('jackpot short');
 
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;

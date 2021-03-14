@@ -1,5 +1,6 @@
 import { Group, Text } from "aminogfx-gl";
 import { dClear, dImage } from "../disp";
+import { Events, Priorities } from "../events";
 import { Game } from "../game";
 import { addToScreen, alert, gfx, makeText, ModeGroup, notify, Screen } from "../gfx";
 import { GameGfx } from "../gfx/game";
@@ -9,6 +10,7 @@ import { machine, MachineOutputs } from "../machine";
 import { Mode, Modes } from "../mode";
 import { Outputs } from "../outputs";
 import { fork } from "../promises";
+import { muteMusic, unmuteMusic } from "../sound";
 import { State } from "../state";
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { time, Timer, TimerQueueEntry } from "../timer";
@@ -165,7 +167,7 @@ export class Mystery extends Mode {
     timer!: TimerQueueEntry;
     done = false;
 
-    constructor(
+    private constructor(
         public player: Player,
     ) {
         super(Modes.Mystery);
@@ -173,6 +175,8 @@ export class Mystery extends Mode {
         const startTime = time();
         if (machine.upper3Bank.targets.some(t => t.state))
             fork(ResetBank(this, machine.upper3Bank));
+
+        void muteMusic();
 
         // const validAwards = allAwards.filter(a => !a.isValid || a.isValid(player));
         const chosenAwards: Award[] = [];
@@ -200,7 +204,7 @@ export class Mystery extends Mode {
             iUpper31: () => this.awards.length>=1? dImage('mystery_1') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
             iUpper32: () => this.awards.length>=2? dImage('mystery_2') : ((time()/500%2)|0)!==0? dImage('mystery_q') : dClear(Color.Black),
             iUpper33: () => this.awards.length>=3? dImage('mystery_3') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
-            upperEject: () => this.done,
+            upperEject: () => this.done && machine.sUpperEject.state,
         });
 
         this.listen([...onAnyPfSwitchExcept(...machine.upper3Bank.targets.map(t => t.switch), machine.sUpperEject), () => time()-startTime>10000], 'end');
@@ -228,10 +232,27 @@ export class Mystery extends Mode {
         }, 2000, 'mstery', 3000);
     }
 
+    static async start(player: Player): Promise<Mystery|false> {
+        const finish = await Events.tryPriority(Priorities.Mystery);
+
+        if (!finish) return false;
+
+        if (!player.curMbMode && !player.mystery && player.mysteryLeft === 0) {
+            const mystery = new Mystery(player);
+            player.mystery = mystery;
+            finish();
+            return mystery;
+        } else {
+            finish();
+            return false;
+        }
+    }
+
     end() {
         Timer.cancel(this.timer);
         this.player.mystery = undefined;
         this.player.mysteryLeft = this.player.mysteryRng.randRange(4, 7);
+        void unmuteMusic();
         return super.end();
     }
 }

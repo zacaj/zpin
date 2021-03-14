@@ -53,7 +53,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -87,28 +87,36 @@
          y="23.563047"
          style="stroke-width:0.173513">MULTIBALL</tspan></text>
     <circle
-       style="fill:#ff00ff;stroke-width:0.163725"
+       style="fill:#ff6cff;stroke-width:0.163725;fill-opacity:1"
        id="path897"
        cx="3.8754082"
        cy="3.8085907"
-       r="3.7417731" />
+       r="3.7417731"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <circle
-       style="fill:#ff00ff;stroke-width:0.163725"
+       style="fill:#ff6cff;stroke-width:0.163725;fill-opacity:1"
        id="path897-0"
        cx="38.754082"
        cy="3.8085909"
-       r="3.7417731" />
+       r="3.7417731"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <circle
-       style="fill:#ff00ff;stroke-width:0.163725"
+       style="fill:#ff6cff;stroke-width:0.163725;fill-opacity:1"
        id="path897-0-3"
        cx="38.620449"
        cy="30.201456"
-       r="3.7417731" />
+       r="3.7417731"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <circle
-       style="fill:#ff00ff;stroke-width:0.163725"
+       style="fill:#ff6cff;stroke-width:0.163725;fill-opacity:1"
        id="path897-0-3-1"
        cx="3.8085902"
        cy="30.067823"
-       r="3.7417731" />
+       r="3.7417731"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>

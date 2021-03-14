@@ -16,7 +16,7 @@ import { StraightMb } from './straight.mb';
 import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
-import { ClearHoles, KnockTarget, MiscAwards, ResetBank, ResetMechs } from '../util-modes';
+import { ClearHoles, Effect, KnockTarget, MiscAwards, ResetBank, ResetMechs } from '../util-modes';
 import { assert, comma, getCallerLine, getCallerLoc, money, score, seq, short } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
@@ -25,7 +25,7 @@ import { Restart } from './restart';
 import { HandMb } from './hand.mb';
 import { Group, Text } from 'aminogfx-gl';
 import { FullHouseMb } from './full-house.mb';
-import { playSound } from '../sound';
+import { playSound, playVoice } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
 import { dFitText, dHash, dImage, dMany, dText } from '../disp';
@@ -36,7 +36,7 @@ import { getMysteryAwards, Mystery, MysteryAward, MysteryNext } from './mystery.
 const argv = require('yargs').argv;
 
 export class Player extends Mode {
-    chips = 1;
+    chips = 3;
     _score = 0;
     get score() {
         return this._score;
@@ -68,9 +68,10 @@ export class Player extends Mode {
     }
     miniReady = true;
 
-    upperLaneChips = [true, true, true, true];
+    upperLaneChips = [true, false, false, false];
+    upperLanes = [true, true, true, true];
     lowerLanes = [true, true, true, true];
-    chipsLit = [true, false, true, false, true];
+    chipsLit = [true, false, false, false, false];
     
     get curMbMode(): Multiball|undefined {
         if (this.focus instanceof Multiball) return this.focus;
@@ -116,9 +117,9 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        ['StraightMb', []],
-        ['FullHouseMb', []],
-        ['FlushMb', []],
+        // ['StraightMb', []],
+        // ['FullHouseMb', []],
+        // ['FlushMb', []],
     ]);
 
     selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
@@ -178,7 +179,7 @@ export class Player extends Mode {
         this.rand = this.rng();
         this.mysteryRng = this.rng();
         this.mysteryAwards = getMysteryAwards(this);
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
@@ -190,28 +191,28 @@ export class Player extends Mode {
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
             iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
-            lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode, [Color.Pink, 'pl']),
+            lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode && !this.mystery, [Color.Pink, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () =>  (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : undefined,
-            lLaneUpper1: () => light(this.upperLaneChips[0], Color.Orange),
-            lLaneUpper2: () => light(this.upperLaneChips[1], Color.Orange),
-            lLaneUpper3: () => light(this.upperLaneChips[2], Color.Orange),
-            lLaneUpper4: () => light(this.upperLaneChips[3], Color.Orange),
-            lLaneLower1: () => light(this.lowerLanes[0], Color.Yellow),
-            lLaneLower2: () => light(this.lowerLanes[1], Color.Yellow),
-            lLaneLower3: () => light(this.lowerLanes[2], Color.Yellow),
-            lLaneLower4: () => light(this.lowerLanes[3], Color.Yellow),
+            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0]? Color.Orange : Color.Green] : [],
+            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1]? Color.Orange : Color.Green] : [],
+            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2]? Color.Orange : Color.Green] : [],
+            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3]? Color.Orange : Color.Green] : [],
+            lLaneLower1: () => light(this.lowerLanes[0], Color.Blue),
+            lLaneLower2: () => light(this.lowerLanes[1], Color.Blue),
+            lLaneLower3: () => light(this.lowerLanes[2], Color.Blue),
+            lLaneLower4: () => light(this.lowerLanes[3], Color.Blue),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
-            lRampMini: add(() => this.chipsLit[0], Color.Orange),
-            lUpperLaneTarget: add(() => this.chipsLit[2], Color.Orange),
-            lUpperTargetArrow: add(() => this.chipsLit[3], Color.Orange),
-            lSpinnerTarget: add(() => this.chipsLit[4], Color.Orange),
+            lRampMini: add(() => !this.curMbMode && this.chipsLit[0], Color.Orange),
+            lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2], Color.Orange),
+            lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3], Color.Orange),
+            lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4], Color.Orange),
             lMainTargetArrow: many(() => ({
                 [this.mbColor(this.nextMb)]: this.mbsReady.size>1 && !!this.noMode,
-                [Color.Orange]: this.chipsLit[1],
+                [Color.Orange]: !this.curMbMode && this.chipsLit[1],
             })),
 
         });
@@ -241,11 +242,10 @@ export class Player extends Mode {
             this.mysteryLeft--;
         });
 
-        this.listen(onSwitchClose(machine.sUpperEject), () => {
-            if (this.curMbMode) return;
-            if (this.mysteryLeft === 0) {
-                this.mystery = new Mystery(this);
-                this.mystery.started();
+        this.listen(onSwitchClose(machine.sUpperEject), async () => {
+            const mode = await Mystery.start(this);
+            if (mode) {
+                this.mystery!.started();
             }
         });
         
@@ -263,12 +263,12 @@ export class Player extends Mode {
         // lane change
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
             e => {
-                this.upperLaneChips.rotate(-1);
+                this.upperLanes.rotate(-1);
                 this.lowerLanes.rotate(-1);
             });
         this.listen(onAnySwitchClose(machine.sRightFlipper),
             e => {
-                this.upperLaneChips.rotate(1);
+                this.upperLanes.rotate(1);
                 this.lowerLanes.rotate(1);
             });
 
@@ -303,24 +303,27 @@ export class Player extends Mode {
             onAnySwitchClose(...machine.sUpperLanes),
             (e) => {
                 const i = machine.sUpperLanes.indexOf(e.sw);
-                if (!this.upperLaneChips[i]) {
+                if (!this.upperLanes[i]) {
                     void playSound('lane');
                     return;
                 }
-                
-                this.addChip();
+
+                if (this.upperLaneChips[i]) 
+                    this.addChip();
                 // this.addChip();             
-                this.upperLaneChips[i] = false;
-                if (this.upperLaneChips.every(c => !c)) {
-                    this.upperLaneChips.fill(true);
+                this.upperLanes[i] = false;
+                if (this.upperLanes.every(c => !c)) {
+                    this.upperLanes.fill(true);
                     this.ball!.bonusX++;
                     alert(`bonus ${this.ball!.bonusX}X`);
                     if (this.ball!.bonusX <= 4)
-                        void playSound(`bonus ${this.ball!.bonusX}x`);
+                        void playVoice(`bonus ${this.ball!.bonusX}x`);
                     else
-                        void playSound('bonus x');
+                        void playVoice('bonus x');
                 }
             });
+
+        this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.chipsLit.rotate(1));
         
         // lower lanes
         this.listen(
@@ -337,12 +340,12 @@ export class Player extends Mode {
                 else   
                     void playSound('lane');
             });
-        // award chips on bank complete
+
+        //  bank complete
         this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
             this.miniReady = true;
-            for (let i=0; i<e.bank.targets.length; i++)
-                this.addChip();
         });
+
         // subtract chips
         this.listen([...onSwitchClose(machine.sPopperButton), () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable], async () => {
             if (!machine.lPower1.lit()) {
@@ -365,6 +368,13 @@ export class Player extends Mode {
             if (machine.lMagnet1.is(Color.Green))
                 this.chips-=1;
             if (this.chips<0) this.chips = 0;
+
+            // for (let i=0; i<50; i++) {
+            //     await playSound('chip drop');
+            //     await wait(Math.random()*30+15);
+            // }
+
+            // void playSound('card flop', 50, false, 100);
         });
 
         this.listen(onChange(this, 'focus'), e => {
@@ -382,6 +392,12 @@ export class Player extends Mode {
                 this.focus = new NoMode(this);
             }
         });
+
+        this.listen([...onSwitchClose(machine.sRightOutlane), () => machine.lPopperStatus.lit() && !machine.lPopperStatus.is(Color.Red)], () => 
+            Effect(this.overrides, 800, {
+                lPopperStatus: [[Color.Green, 'fl', 6]],
+            }),
+        );
 
         // this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
         
@@ -505,22 +521,18 @@ export class Player extends Mode {
             alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
     }
 
-    qualifyMb(mb: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', hand: Card[] = []) {
-        if (this.mbsQualified.has(mb)) return;
+    qualifyMb(mb: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', hand: Card[] = [], ms?: number) {
+        if (this.mbsQualified.has(mb)) return [undefined, Promise.resolve()];
         this.mbsQualified.set(mb, hand);
         switch (mb) {
             case 'FlushMb':
-                alert('flush multiball qualified');
-                break;
+                return alert('flush multiball qualified', ms);
             case 'StraightMb':
-                alert('straight multiball qualified');
-                break;
+                return alert('straight multiball qualified', ms);
             case 'FullHouseMb':
-                alert('full house multiball qualified');
-                break;
+                return alert('full house multiball qualified', ms);
             case 'HandMb':
-                alert('hand multiball qualified');
-                break;
+                return alert('hand multiball qualified', ms);
         }
     }
 }
@@ -630,7 +642,7 @@ class Spinner extends Tree<MachineOutputs> {
             }
 
             if (this.ripCount === 69)
-                void playSound('nice');
+                void playVoice('nice');
         }
     }
 
@@ -738,41 +750,56 @@ export class Multiplier extends Tree<MachineOutputs> {
     total = 0;
     text!: Group;
 
+    lanes: boolean[] = [true, true, true, false];
+
     constructor(
         public player: Player,
     ) {
         super();
-        State.declare<Multiplier>(this, ['total']);
+        State.declare<Multiplier>(this, ['total', 'lanes']);
 
         this.out = new Outputs(this, {
-            lLaneLower1: () => [[Color.Red, 'pl']],
-            lLaneLower2: () => [[Color.Red, 'pl']],
-            lLaneLower3: () => [[Color.Red, 'pl']],
-            lLaneLower4: () => [[Color.Red, 'pl']],
+            lLaneLower1: () => this.lanes[0]? [[Color.Red, 'pl', 2]] : [],
+            lLaneLower2: () => this.lanes[1]? [[Color.Red, 'pl', 2]] : [],
+            lLaneLower3: () => this.lanes[2]? [[Color.Red, 'pl', 2]] : [],
+            lLaneLower4: () => this.lanes[3]? [[Color.Red, 'pl', 2]] : [],
         });
 
         this.listen(
             onAnySwitchClose(...machine.sLowerlanes),
             async (e) => {
+                const i = machine.sLowerlanes.indexOf(e.sw);
+                if (!this.lanes[i]) return;
+
                 void playSound('error');
-                await wait(250);
+                // await wait(250);
                 return this.end();
             });
-        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => {
-            void playSound('error');
-            return 'end';
+        // this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => {
+        //     void playSound('error');
+        //     return 'end';
+        // });
+
+        // lane change
+        this.listen(onAnySwitchClose(machine.sLeftFlipper),
+        e => {
+            this.lanes.rotate(-1);
+        });
+        this.listen(onAnySwitchClose(machine.sRightFlipper),
+        e => {
+            this.lanes.rotate(1);
         });
 
         this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
 
         this.text = textBox({maxWidth: 0.8}, 
             ['2X SCORING', 60, 20],
-            ['Avoid Lanes and Slings', 35, 20],
+            ['Avoid Red Lanes', 35, 20],
             ['', 50, 10],
         );
         if (screen) {
             player.gfx?.add(this.text);
-            this.text.z(100);
+            this.text.z(80);
             this.text.y(0);
             this.watch(() => (this.text.children[3] as Text).text(score(this.total)));
         }
@@ -784,9 +811,10 @@ export class Multiplier extends Tree<MachineOutputs> {
         this.player.mult = undefined;
         const ret = super.end();
         if (screen)
-            this.player.gfx?.remove(this.text);
+            // this.player.gfx?.remove(this.text);
+            this.text.remove();
         this.player.score += this.total;
-        notify(`2X Total: ${score(this.total)}`);
+        notify(`2X Total: ${score(this.total)}`, this.total>100000? 5000 : 2500);
         return ret;
     }
 }
