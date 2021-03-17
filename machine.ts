@@ -499,7 +499,7 @@ export type CoilOutputs = {
     upper2: boolean;
     upperEject: boolean;
     lockPost: boolean;
-    upperMagnet: boolean;
+    catcher: boolean;
     leftMagnet: boolean;
     leftGate: boolean;
     rightGate: boolean;
@@ -605,7 +605,7 @@ export class Machine extends Tree<MachineOutputs> {
     cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight5.changeState(true, 'fake'));
     cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
     cKickerEnable = new OnOffSolenoid('kickerEnable', 14, this.solenoidBank2);
-    cUpperMagnet = new OnOffSolenoid('upperMagnet', 7, this.solenoidBank2, 10000);
+    cCatcher = new OnOffSolenoid('catcher', 7, this.solenoidBank2, 100, 30, 10);
 
     sLeftInlane = new Switch(1, 2, 'left inlane', LaneSet);
     sLeftOutlane = new Switch(1, 1, 'left outlane', LaneSet);
@@ -652,9 +652,9 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', LaneSet);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 50);
     sShooterLower = new Switch(2, 0, 'shooter lower', LaneSet);
-    sBackLane = new Switch(5, 5, 'back lane', LaneSet);
+    sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
     sPop = new Switch(4, 7, 'pop', Bumper);
-    sUpperInlane = new Switch(7, 1, 'upper inlane', LaneSet);
+    sUpperInlane = new Switch(7, 1, 'upper inlane', [0, 100]);
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
@@ -902,7 +902,7 @@ export class Machine extends Tree<MachineOutputs> {
             upper2: false,
             upperEject: false,
             lockPost: () => this.lockDown,
-            upperMagnet: false,
+            catcher: false,
             leftMagnet: false,
             leftGate: false,
             rightGate: false,

@@ -9,10 +9,10 @@ import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { Rng } from '../rand';
 import { playVoice } from '../sound';
-import { State } from '../state';
+import { onChange, State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, SwitchEvent } from '../switch-matrix';
 import { time } from '../timer';
-import { comma, makeState, repeat } from '../util';
+import { comma, makeState, repeat, round } from '../util';
 import { ResetBank } from '../util-modes';
 import { Multiball } from './multiball';
 import { Player, SpinnerHit, SpinnerRip } from './player';
@@ -58,7 +58,7 @@ export class FullHouseMb extends Multiball {
             case Jackpot.RightTarget:
                 return 750000+this.base;
             case Jackpot.LeftLane:
-                return 600000+this.base;
+                return 750000+this.base;
             case Jackpot.LeftTarget:
                 return 500000+this.base;
             case Jackpot.Drop1:
@@ -91,7 +91,7 @@ export class FullHouseMb extends Multiball {
         }
     }
 
-    magnetOnUntil = 0;
+    catcherOnUntil = 0;
 
     protected constructor(
         player: Player,
@@ -104,7 +104,7 @@ export class FullHouseMb extends Multiball {
             machine.ballsLocked++;
         this.skillshotRng = player.rng();
         this.jpRng = player.rng();
-        State.declare<FullHouseMb>(this, ['state', 'magnetOnUntil']);
+        State.declare<FullHouseMb>(this, ['state', 'catcherOnUntil']);
         player.storeData<FullHouseMb>(this, ['jpRng', 'skillshotRng', 'base']);
         this.out = new Outputs(this, {
             rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
@@ -129,8 +129,8 @@ export class FullHouseMb extends Multiball {
             // magnetPost: () => (machine.sShooterUpper.wasClosedWithin(1000) || 
             //         (machine.sLeftOrbit.wasClosedWithin(2000) && !machine.sShooterUpper.wasClosedWithin(1000) && machine.cRightGate.actual))
             //         && !machine.sShooterLower.wasClosedWithin(750),
-            upperMagnet: () => time()<this.magnetOnUntil,
-            iSpinner: () =>  this.state._==='jackpotLit' && this.state.jp.startsWith('Left')? dImage('activate_magnet') : undefined,
+            catcher: () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left'), //time()<this.catcherOnUntil,
+            iSpinner: () =>  this.state._==='jackpotLit' && this.state.jp.startsWith('Left')? dImage('stop_h') : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
@@ -163,6 +163,8 @@ export class FullHouseMb extends Multiball {
             }
         });
 
+        // this.listen([onChange(this, 'state'), () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left')], () => this.catcherOnUntil = time() + 60000);
+
         this.listen([...onSwitchClose(machine.sBackLane), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane], 'jackpot');
         this.listen([...onSwitchClose(machine.sSidePopMini), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget], 'jackpot');
         this.listen([...onSwitchClose(machine.sUnderUpperFlipper), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget], 'jackpot');
@@ -170,11 +172,11 @@ export class FullHouseMb extends Multiball {
         this.listen([machine.upper3Bank.onTargetDown(1), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2], 'jackpot');
         this.listen([machine.upper3Bank.onTargetDown(2), () => this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3], 'jackpot');
 
-        this.listen([e => e instanceof SpinnerRip, () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left')], () => {
-            if (time() < this.magnetOnUntil + 2000) return;
-            this.magnetOnUntil = time() + 3000;
-        });
-        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet, ...machine.sUpperLanes), () => time()<this.magnetOnUntil], () => this.magnetOnUntil = 0);
+        // this.listen([e => e instanceof SpinnerRip, () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left')], () => {
+        //     if (time() < this.catcherOnUntil + 2000) return;
+        //     this.catcherOnUntil = time() + 60000;
+        // });
+        // this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet, ...machine.sUpperLanes), () => time()<this.catcherOnUntil], () => this.catcherOnUntil = 0);
 
         addToScreen(() => new FullHouseMbGfx(this));
     }
@@ -244,7 +246,7 @@ export class FullHouseMb extends Multiball {
         };
         group.sx.anim(anim).start();
         group.sy.anim(anim).start();
-        this.base += 250000;
+        this.base += round(this.value! * .2, 50000, 50000);
         this.state = Started();
     }
 
