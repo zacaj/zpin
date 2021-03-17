@@ -179,13 +179,17 @@ public class Sounds extends Thread {
 	
 	private Sounds() {
 		
+		
+	}
+	
+	public void init(boolean useDefault) {
 		DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, targetFormat);
 		
 		Mixer.Info[] infos = AudioSystem.getMixerInfo();
 		Mixer.Info bestInfo = null;
 		for (Mixer.Info info : infos) {
 			System.out.println("Mixer: " + info);
-			if (info.getName().toLowerCase().contains("device")) {
+			if (info.getName().toLowerCase().contains("device") && !useDefault) {
 				if (!AudioSystem.getMixer(info).isLineSupported(lineInfo))
 					System.out.println("skipping, line doesn't support requested format");
 				else {
@@ -274,6 +278,7 @@ public class Sounds extends Thread {
 			}
 		}
 		
+		this.start();
 	}
 	
 	public void run() {
@@ -346,7 +351,7 @@ public class Sounds extends Thread {
 		Track track = this.tracks[trackNum];
 		for (Channel c : track.channels) {
 			if (c.curPlay!=null && c.curPlay.playing)
-				if (new Date().getTime()-c.curPlay.startTime<50)
+				if (new Date().getTime()-c.curPlay.startTime<50)// || c.curPlay.wav == wav)
 					if (c.curPlay.wav.length > wav.length) {
 						System.out.println(""+(Play.playNum+1)+"|?| "+System.nanoTime()/1000000+": skipping for "+c.curPlay.wav.name);
 						return null;

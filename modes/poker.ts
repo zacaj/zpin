@@ -184,7 +184,8 @@ export class Poker extends Mode {
         async (e) => {
             // const done = await Events.waitPriority(1);
             this.closeShooter = e.sw === machine.sShooterLane;
-            await this.showCards();
+            if (e.sw !== machine.sOuthole || machine.ballsInPlay <= 1)
+                await this.showCards();
 
             // if (e.sw === machine.sShooterLane) {
             //     this.player.poker = new Poker(this.player);
@@ -346,28 +347,28 @@ export class Poker extends Mode {
         }
         for (const straight of straights) {
             // if (!this.newMbs.size) {
-            // if (!this.newMbs.has('StraightMb')) {
-            //     Log.info('game', 'qualified straight multiball');
-            //     alert('straight multiball qualified');
-            // }
-            // this.newMbs.set('StraightMb', straight);
+            if (!this.newMbs.has('StraightMb')) {
+                Log.info('game', 'qualified straight multiball');
+                alert('straight multiball qualified');
+            }
+            this.newMbs.set('StraightMb', straight);
             break;
         }
         if (flushes.length > 0) {
             // if (!this.newMbs.size) {
-            // if (!this.newMbs.has('FlushMb')) {
-            //     Log.info('game', 'qualified flush multiball');
-            //     alert('flush multiball qualified');
-            // }
-            // this.newMbs.set('StraightMb', flushes[0]);
+            if (!this.newMbs.has('FlushMb')) {
+                Log.info('game', 'qualified flush multiball');
+                alert('flush multiball qualified');
+            }
+            this.newMbs.set('StraightMb', flushes[0]);
         }
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house
             // if (!this.newMbs.size) {
-            // if (!this.newMbs.has('FullHouseMb')) {
-            //     Log.info('game', 'qualified full house multiball');
-            //     alert('full house multiball qualified');
-            // }
+            if (!this.newMbs.has('FullHouseMb')) {
+                Log.info('game', 'qualified full house multiball');
+                alert('full house multiball qualified');
+            }
             this.newMbs.set('FullHouseMb', [...pairs[0], ...pairs[1]]);
         }
     }
@@ -402,8 +403,8 @@ export class Poker extends Mode {
             }
             this.player.mbsQualified.set('HandMb', result.aCards);
         }
-        for (const [mb, hand] of this.newMbs)
-            await this.player.qualifyMb(mb, hand, 2000)[1];
+        // for (const [mb, hand] of this.newMbs)
+        //     await this.player.qualifyMb(mb, hand, 2000)[1];
         fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 

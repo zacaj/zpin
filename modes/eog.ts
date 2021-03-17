@@ -4,6 +4,7 @@ import { GameGfx } from '../gfx/game';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
+import { playSound } from '../sound';
 import { State } from '../state';
 import { comma, money, round, score } from '../util';
 import { Player } from './player';
@@ -39,7 +40,9 @@ export class EndOfGameBonus extends Mode {
         await gWait(500, 'bonus start');
         await this.addLine('BANKROLL:', money(this.player.store.Poker!.bank));
         await this.addLine('BUY-IN:', money(Poker.BankStart));
+        void playSound('push chips short');
         await this.addLine('PROFIT:', money(this.player.store.Poker!.bank - Poker.BankStart));
+        void playSound('ca ching');
         await this.addLine('CASH VALUE:', comma(this.player.store.Poker!.cashValue));
         await gWait(500, 'bonus x');
         this.total = (this.player.store.Poker!.bank - Poker.BankStart) * this.player.store.Poker!.cashValue;

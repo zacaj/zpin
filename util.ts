@@ -437,6 +437,6 @@ export function getFormattedTime() {
     return y + '-' + m + '-' + d + '_' + h + '-' + mi + '-' + s;
 }
 
-export function round(num: number, nearest: number) {
-    return Math.ceil(num/nearest)*nearest;
+export function round(num: number, nearest: number, lowest = 0) {
+    return Math.max(lowest, Math.ceil(num/nearest)*nearest);
 }

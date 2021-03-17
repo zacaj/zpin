@@ -8,8 +8,9 @@ import { machine } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
-import { stopMusic } from '../sound';
+import { playSound, stopMusic, stopSounds } from '../sound';
 import { State } from '../state';
+import { time } from '../timer';
 import { comma, round, score, short } from '../util';
 import { Ball } from './ball';
 
@@ -51,6 +52,7 @@ export class Bonus extends Mode {
     async run() {
         if (!this.ball.tilted) 
         // await gWait(500, 'bonus start');
+        await stopSounds();
         await this.addLine('Drops', 5000, this.ball.drops);
         await this.addLine('Banks', 10000, this.ball.banks);
         await this.addLine('Spins', 100, this.ball.spins);
@@ -64,26 +66,45 @@ export class Bonus extends Mode {
             const singleBonus = this.total;
             let x = 1;
             while (x < this.ball.bonusX) {
-                if (!this.ball.tilted) await gWait(750, 'bonus x');
+                if (!this.ball.tilted) void playSound('rattle thunk');
+                if (!this.ball.tilted) await gWait(600, 'bonus x');
                 x++;
                 this.total = singleBonus * x;
                 this.lines.pop();
                 this.lines.push([`BONUS X: ${x}`]);
             }
+            if (!this.ball.tilted) void playSound('rattle thunk');
+            await gWait(1000, 'bonus x');
             // if (!this.ball.tilted) 
-                await gWait(1000, 'bonus x');
         }
         const initialTotal = this.total;
         if (!this.ball.tilted) {
             this.lines.push([`Total: ${score(this.total)}`]);
+            if (!this.ball.tilted) void playSound('long rattle thunk');
+            await gWait(1000, 'bonus total');
 
             this.ball.player.recordScore(this.total, 'bonus');
             const start = new Date().getTime();
             const speed = 25;
             const maxTime = 4000;
             const rate = Math.max(500, round(Math.abs(this.total)/(maxTime/speed), 1000));
+            let dropTime = 500;
+            let lastDrop = 0;
+            let drops = 0;
+            let dropCount = 3;
             console.log('bonus raw rate', Math.abs(this.total)/(maxTime/speed));
             while (this.total > 0) {
+                if (time() - lastDrop > Math.min(350, dropTime)) {
+                    if (this.total/speed/rate > .300) {
+                        lastDrop = time();
+                        void playSound('chip drop');
+                        if (++drops === dropCount) {
+                            dropTime /= 2;
+                            drops = 0;
+                            dropCount *= 2;
+                        }
+                    }
+                }
                 const change = Math.min(this.total, rate);
                 this.total -= change;
                 this.ball.player.addScore(change, null);
@@ -104,6 +125,7 @@ export class Bonus extends Mode {
         const total = value * count;
         this.lines.push([left+`: ${comma(count, 3)}`, `* ${short(value)} = ${short(total, 4)}`]);
         this.total += total;
+        if (!this.ball.tilted) void playSound('thunk');
         // if (!this.ball.tilted)
             await gWait(wait, 'bonus');
     }

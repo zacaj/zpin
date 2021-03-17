@@ -12,6 +12,7 @@ import { fork } from '../promises';
 import { Player } from './player';
 import { assert, getCallerLoc } from '../util';
 import { Color } from '../light';
+import { stopMusic } from '../sound';
 
 export abstract class Multiball extends Mode {
     get nodes() {
@@ -97,6 +98,7 @@ export abstract class Multiball extends Mode {
     }
 
     async lastBallDrained() {
+        // void stopMusic();
         return this.end();
     }
 

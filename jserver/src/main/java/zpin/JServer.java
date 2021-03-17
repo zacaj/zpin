@@ -238,6 +238,7 @@ public class JServer extends Thread
 								error("usage: stop-track track");
 							int track = num(1);
 							sound.tracks[track].stop();
+							ack();
 							return true;
 						}
 						case "mute": {
@@ -443,10 +444,17 @@ public class JServer extends Thread
     public static void main( String[] args) throws Exception
     {
     	matrix.start();
-    	sound.start();
-//    	sound.playSound("card flops", 1, .50f).loops = -1;;
-//    	Thread.sleep(240);
-//    	sound.playSound("card flops b", 1, .50f).loops = -1;;
+    	sound.init(args.length>0 && args[0].equals("sim"));
+//    	int i = 14;
+//    	while (i-->0) {
+//    		sound.playSound("chip fall", 1, (float) (Math.random()*.2+.7));
+//    		long l = (long) (Math.random()*0+50+(i/5)*200);
+//			Thread.sleep(l);
+//			System.out.println(l);
+//    	}
+//    	sound.playSound("chip fall", 1, .50f).loops = -1;;
+//    	Thread.sleep(140);
+//    	sound.playSound("chip fall b", 1, .50f).loops = -1;;
 //    	try {
 //			sound.playSound("shoot the ball carefully", 1);
 //		} catch (Exception e) {

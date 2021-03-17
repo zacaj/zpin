@@ -19,7 +19,7 @@ import { EndOfGameBonus, EogGfx } from './eog';
 import { Poker } from './poker';
 import { Group } from 'aminogfx-gl';
 import { TreeEndEvent } from '../tree';
-import { playSound } from '../sound';
+import { playSound, stopSounds } from '../sound';
 
 export class Ball extends Mode {
 
@@ -72,6 +72,11 @@ export class Ball extends Mode {
         this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.lit() && !machine.lMiniReady.is(Color.Red)], () => {
             this.miniPf = new MiniPf(this);
             this.miniPf.started();
+        });
+
+        this.listen(onSwitchClose(machine.sOuthole), async () => {
+            await stopSounds();
+            await playSound('drop spin');
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {

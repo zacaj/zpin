@@ -77,6 +77,9 @@ export async function stopTrack(num: number) {
 export async function stopMusic() {
     return stopTrack(0);
 }
+export async function stopSounds() {
+    return stopTrack(1);
+}
 
 export async function muteMusic() {
     if (soundEnabled)

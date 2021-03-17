@@ -330,7 +330,10 @@ export class Player extends Mode {
             onAnySwitchClose(...machine.sLowerlanes),
             (e) => {
                 const i = machine.sLowerlanes.indexOf(e.sw);
-                if (!this.lowerLanes[i] || this.mult) return;
+                if (!this.lowerLanes[i] || this.mult) {
+                    void playSound('bop');
+                    return;
+                }
                 this.lowerLanes[i] = false;
                 if (this.lowerLanes.every(c => !c)) {
                     this.lowerLanes.fill(true);
