@@ -10,7 +10,7 @@ import { machine, MachineOutputs } from "../machine";
 import { Mode, Modes } from "../mode";
 import { Outputs } from "../outputs";
 import { fork } from "../promises";
-import { muteMusic, unmuteMusic } from "../sound";
+import { muteMusic, playSound, unmuteMusic } from "../sound";
 import { State } from "../state";
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { time, Timer, TimerQueueEntry } from "../timer";
@@ -224,12 +224,16 @@ export class Mystery extends Mode {
         addToScreen(() => new MysteryGfx(this));
 
         this.timer = Timer.setInterval(() => {
-            if (this.awards.length < 3) this.awards.push(chosenAwards.pop()!);
+            if (this.awards.length < 3) {
+                void playSound('countdown');
+                this.awards.push(chosenAwards.pop()!);
+            }
             else {
+                void playSound('countdown end');
                 Timer.cancel(this.timer);
                 this.done = true;
             }
-        }, 2000, 'mstery', 3000);
+        }, 1750, 'mstery', 3000);
     }
 
     static async start(player: Player): Promise<Mystery|false> {
