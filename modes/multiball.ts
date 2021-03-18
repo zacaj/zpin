@@ -7,7 +7,7 @@ import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { Log } from '../log';
 import { Outputs } from '../outputs';
 import { State } from '../state';
-import { wait } from '../timer';
+import { Time, time, wait } from '../timer';
 import { fork } from '../promises';
 import { Player } from './player';
 import { assert, getCallerLoc } from '../util';
@@ -28,6 +28,14 @@ export abstract class Multiball extends Mode {
 
     misc?: MiscAwards;
 
+    multiStartTime?: Time;
+    get saveFreq() {
+        if (!this.multiStartTime) return 0.25;
+        if (time() - this.multiStartTime < 15000) return .5;
+        if (time() - this.multiStartTime < 25000) return 1;
+        return 2;
+    }
+
     protected constructor(
         public player: Player,
         public isRestarted = false,
@@ -36,7 +44,7 @@ export abstract class Multiball extends Mode {
         super(Modes.Multiball);
         this.balls = ballsOnPf;
 
-        State.declare<Multiball>(this, ['lockPost']);
+        State.declare<Multiball>(this, ['lockPost', 'multiStartTime']);
 
         this.listen(onSwitchClose(machine.sOuthole), 'ballDrained');
 
@@ -47,13 +55,13 @@ export abstract class Multiball extends Mode {
             lMiniReady: [[Color.Gray, 'pl', .25, 1]],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
-            lPower1: () => [[Color.Gray, 'pl', .25]],
-            lPower2: () => [[Color.Gray, 'pl', .25, 1]],
-            lPower3: () => [[Color.Gray, 'pl', .25]],
-            lMagnet1: () => [[Color.Gray, 'pl', .25]],
-            lMagnet2: () => [[Color.Gray, 'pl', .25, 1]],
-            lMagnet3: () => [[Color.Gray, 'pl', .25]],
-            lPopperStatus: () => [[Color.Gray, 'pl', .25, 1]],
+            lPower1: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lPower2: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            lPower3: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lMagnet1: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lMagnet2: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            lMagnet3: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lPopperStatus: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
         }, true);
     }
 
@@ -80,6 +88,9 @@ export abstract class Multiball extends Mode {
         this.lockPost = false;
     }
     async releaseBallsFromLock() {
+        if (!this.multiStartTime)
+            this.multiStartTime = time();
+
         Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
         assert(machine.ballsLocked !== 0);
         this.lockPost = true;
