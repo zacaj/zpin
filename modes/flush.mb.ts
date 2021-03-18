@@ -35,6 +35,7 @@ export class FlushMb extends Multiball {
     jackpots = 0;
     skillshotRng!: Rng;
     countdown?: TimerQueueEntry;
+    total = 0;
 
     standupMult = 1;
     targetMult = 1;
@@ -42,6 +43,7 @@ export class FlushMb extends Multiball {
     standupSpeed = 1;
     targetSpeed = 1;
     shotSpeed = 1;
+    topTotal = 0;
 
     protected constructor(
         player: Player,
@@ -54,7 +56,7 @@ export class FlushMb extends Multiball {
             machine.ballsLocked++;
         this.skillshotRng = player.rng();
         State.declare<FlushMb>(this, ['state', 'lastJps']);
-        player.storeData<FlushMb>(this, ['skillshotRng', 'standupMult', 'targetMult', 'shotMult', 'standupSpeed', 'targetSpeed', 'shotSpeed']);
+        player.storeData<FlushMb>(this, ['skillshotRng', 'standupMult', 'targetMult', 'shotMult', 'standupSpeed', 'targetSpeed', 'shotSpeed', 'topTotal']);
 
         const outs: any  = {};
         // for (const light of machine.lights) {
@@ -121,7 +123,7 @@ export class FlushMb extends Multiball {
         addToScreen(() => new FlushMbGfx(this));
     }
 
-    static async start(player: Player, isRestarted = false, lastJps: any[] = []): Promise<FlushMb|false> {
+    static async start(player: Player, isRestarted = false, lastJps: any[] = [], total = 0): Promise<FlushMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
@@ -132,6 +134,7 @@ export class FlushMb extends Multiball {
             }
             const mb = new FlushMb(player, hand, isRestarted, lastJps);
             player.focus = mb;
+            mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Flush Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
@@ -162,6 +165,8 @@ export class FlushMb extends Multiball {
                 return FlushMb.start(this.player, true, this.lastJps);
             }));
         }
+        if (this.total > this.topTotal)
+            this.topTotal = this.total;
         finish();
         return ret;
     }
@@ -255,6 +260,7 @@ export class FlushMb extends Multiball {
 
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;
+        this.total += this.state.value;
         const anim: AnimParams = {
             from: 1,
             to: 2,

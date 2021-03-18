@@ -18,11 +18,14 @@ export class Bonus extends Mode {
     lines: [string, string?][] = [];
     total = 0;
 
+    topTotal = 0;
+
     constructor(
         public ball: Ball,
     ) {
         super(Modes.Bonus);
         State.declare<Bonus>(this, ['lines', 'total']);
+        ball.player.storeData<Bonus>(this, ['topTotal']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
@@ -78,6 +81,9 @@ export class Bonus extends Mode {
             // if (!this.ball.tilted) 
         }
         const initialTotal = this.total;
+        if (this.total > this.topTotal)
+            this.topTotal = this.total;
+            
         if (!this.ball.tilted) {
             this.lines.push([`Total: ${score(this.total)}`]);
             if (!this.ball.tilted) void playSound('long rattle thunk');

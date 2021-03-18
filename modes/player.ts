@@ -117,7 +117,7 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        // ['StraightMb', []],
+        ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
     ]);
@@ -240,6 +240,9 @@ export class Player extends Mode {
 
             this.mysteryNext = this.mysteryRng.randSelect(...Object.values(MysteryNext));
             this.mysteryLeft--;
+
+            if (this.mysteryLeft === 0)
+                alert('MYSTERY LIT');
         });
 
         this.listen(onSwitchClose(machine.sUpperEject), async () => {
@@ -755,11 +758,14 @@ export class Multiplier extends Tree<MachineOutputs> {
 
     lanes: boolean[] = [true, true, true, false];
 
+    topTotal = 0;
+
     constructor(
         public player: Player,
     ) {
         super();
         State.declare<Multiplier>(this, ['total', 'lanes']);
+        player.storeData<Multiplier>(this, ['topTotal']);
 
         this.out = new Outputs(this, {
             lLaneLower1: () => this.lanes[0]? [[Color.Red, 'pl', 2]] : [],
@@ -817,6 +823,8 @@ export class Multiplier extends Tree<MachineOutputs> {
             // this.player.gfx?.remove(this.text);
             this.text.remove();
         this.player.score += this.total;
+        if (this.topTotal < this.total)
+            this.topTotal = this.total;
         notify(`2X Total: ${score(this.total)}`, this.total>100000? 5000 : 2500);
         return ret;
     }

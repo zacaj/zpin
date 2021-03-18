@@ -1011,7 +1011,7 @@ export class Machine extends Tree<MachineOutputs> {
 
     pfIsInactive(): boolean {
         return [this.lastSwitchHit, this.sLeftFlipper, this.sShooterLane, this.sTroughFull, this.sRightFlipper, this.sPopperButton, this.sMagnetButton, this.sActionButton]
-            .truthy().every(sw => sw.noActivityFor(30000))
+            .truthy().every(sw => sw.noActivityFor(60000))
             ;
             // && (!SwitchEvent.last || SwitchEvent.last.sw===this.sRampDown || time() - SwitchEvent.last.when > 30000);
     }

@@ -70,6 +70,9 @@ export class Poker extends Mode {
     handsForMb = 1;
     wasQuit = false;
     cashValue = 150;
+    biggestWin = 0;
+    biggestLoss = 0;
+    topCashout = 0;
 
     newModes = new Set<number>();
     newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
@@ -92,7 +95,7 @@ export class Poker extends Mode {
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
         State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
-        player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit']);
+        player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit', 'biggestWin', 'biggestLoss', 'topCashout']);
         this.deal();
 
         this.bet = (this.bet+Poker.BetStart)/2;
@@ -392,7 +395,12 @@ export class Poker extends Mode {
         this.handsPlayed++;
         if (this.playerWins) {
             this.handsWon++;
+            if (this.pot > this.biggestWin)
+                this.biggestWin = this.pot;
         }
+        else
+            if (this.pot > this.biggestLoss)
+                this.biggestLoss = this.pot;
         await gWait(1500, 'showing cards');
         if (this.handsPlayed >= this.handsForMb) {
             this.handsForMb += this.handsPlayed<=1? 2 : 3;

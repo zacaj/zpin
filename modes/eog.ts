@@ -48,6 +48,8 @@ export class EndOfGameBonus extends Mode {
         this.total = (this.player.store.Poker!.bank - Poker.BankStart) * this.player.store.Poker!.cashValue;
         await gWait(2000, 'bonus x');
         this.player.recordScore(this.total, 'eog');
+        if (this.total > this.player.store.Poker!.topCashout)
+            this.player.store.Poker!.topCashout = this.total;
         const speed = 30;
         const maxTime = 4500;
         const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));

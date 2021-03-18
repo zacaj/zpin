@@ -54,8 +54,11 @@ export class HandMb extends Multiball {
     banks = 0;
     jackpotAwarded = false;
     redTargets = new Set<DropTarget|Standup>();
+    topTotal = 0;
 
     leftTilRed = 2;
+
+    total = 0;
 
     getArrowColor(): LightState {
         let color = Color.Green;
@@ -78,7 +81,7 @@ export class HandMb extends Multiball {
         this.skillshotRng = player.rng();
         this.targetRng = player.rng();
         State.declare<HandMb>(this, ['value', 'state', 'jackpotAwarded', 'redTargets']);
-        player.storeData<HandMb>(this, ['skillshotRng', 'targetRng']);
+        player.storeData<HandMb>(this, ['skillshotRng', 'targetRng', 'topTotal']);
         this.spinsPerJp = this.skillshotRng.randRange(40, 60);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
@@ -137,7 +140,7 @@ export class HandMb extends Multiball {
         addToScreen(() => new HandMbGfx(this));
     }
 
-    static async start(player: Player, isRestarted = false, value?: number, drops?: number, banks?: number): Promise<HandMb|false> {
+    static async start(player: Player, isRestarted = false, value?: number, drops?: number, banks?: number, total = 0): Promise<HandMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
@@ -151,6 +154,7 @@ export class HandMb extends Multiball {
             if (drops) mb.drops = drops;
             if (banks) mb.banks = banks;
             player.focus = mb;
+            mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Hand Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
@@ -166,16 +170,24 @@ export class HandMb extends Multiball {
         }
     }
 
-    async lastBallDrained() {
+    async lastBallDrained() {   
+        const finish = await Events.tryPriority(Priorities.EndMb);
+        if (!finish) {
+            debugger;
+            throw new Error();
+        }
         if (this.state._==='starting') {
             await this.releaseBallsFromLock();
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
             this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
-                return HandMb.start(this.player, true, this.value, this.drops, this.banks);
+                return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
             }));
         }
+        if (this.total > this.topTotal)
+            this.topTotal = this.total;
+        finish();
         return ret;
     }
 
@@ -192,6 +204,7 @@ export class HandMb extends Multiball {
                 this.value += 25000 + 10000*this.banks + 1500*this.drops;
                 this.drops++;
                 this.player.score += 5000;
+                this.total += 5000;
             }
             if (bank) {
                 this.banks++;
@@ -215,6 +228,7 @@ export class HandMb extends Multiball {
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.collected();
         this.player.score += this.value;
+        this.total += this.value;
         void playVoice(this.value > 500000? 'jackpot' : 'jackpot short');
         const anim: AnimParams = {
             from: 1,

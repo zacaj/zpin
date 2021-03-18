@@ -48,10 +48,13 @@ export class StraightMb extends Multiball {
 
     skillshotRng!: Rng;
     bankRng!: Rng;
+    topTotal = 0;
 
     jackpots = 0;
     drops = 0;
     lastBank?: DropBank;
+
+    total = 0;
 
     protected constructor(
         player: Player,
@@ -65,7 +68,7 @@ export class StraightMb extends Multiball {
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
         State.declare<StraightMb>(this, ['state']);
-        player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng']);
+        player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng', 'topTotal']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
@@ -126,7 +129,7 @@ export class StraightMb extends Multiball {
         addToScreen(() => new StraightMbGfx(this));
     }
 
-    static async start(player: Player, isRestarted = false, bank?: DropBank): Promise<StraightMb|false> {
+    static async start(player: Player, isRestarted = false, bank?: DropBank, total = 0): Promise<StraightMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
@@ -137,6 +140,7 @@ export class StraightMb extends Multiball {
             }
             const mb = new StraightMb(player, hand, isRestarted, bank);
             player.focus = mb;
+            mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             await alert('STRAIGHT Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
@@ -167,6 +171,8 @@ export class StraightMb extends Multiball {
                 return StraightMb.start(this.player, true, this.lastBank);
             }));
         }
+        if (this.total > this.topTotal)
+            this.topTotal = this.total;
         finish();
         return ret;
     }
@@ -195,6 +201,7 @@ export class StraightMb extends Multiball {
         this.state.awardingJp++;
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.player.score += this.value;
+        this.total += this.value;
         const anim: AnimParams = {
             from: 1,
             to: 2,

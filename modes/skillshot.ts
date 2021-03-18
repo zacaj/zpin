@@ -45,6 +45,7 @@ export class Skillshot extends Mode {
     finishDisplay?: () => void;
 
     rng!: Rng;
+    skillshotCount = 0;
 
     static isShootAgain?: Ball;
     static ballInPlay?: Ball;
@@ -58,7 +59,7 @@ export class Skillshot extends Mode {
         super(Modes.Skillshot);
         this.rng = player.rng();
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode']);
-        player.storeData<Skillshot>(this, ['rng']);
+        player.storeData<Skillshot>(this, ['rng', 'skillshotCount']);
 
         if (Skillshot.ballInPlay !== ball) 
             this.isFirstOfBall = true;
@@ -167,6 +168,7 @@ export class Skillshot extends Mode {
         if (i === this.curAward) {
             this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
+            this.skillshotCount++;
         }
         else {
             void playSound('wrong');

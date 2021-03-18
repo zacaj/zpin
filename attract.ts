@@ -10,14 +10,16 @@ import { machine } from './machine';
 import { Mode, Modes } from './mode';
 import { Outputs } from './outputs';
 import { fork } from './promises';
+import { State } from './state';
 import { onSwitchClose } from './switch-matrix';
-import { time } from './timer';
+import { Time, time } from './timer';
 import { money, score } from './util';
 import { ClearHoles } from './util-modes';
 
 export class AttractMode extends Mode {
 
     clearHoles = new ClearHoles();
+    startTime = time();
 
     get nodes() {
         return [this.clearHoles];
@@ -27,6 +29,7 @@ export class AttractMode extends Mode {
         public scores?: [number, number][],
     ) {
         super(Modes.AttractMode);
+        State.declare<AttractMode>(this, ['startTime']);
 
         this.out = new Outputs(this, {
             lPower1: [[Color.White, 'fl', 1, 1]],
@@ -90,7 +93,6 @@ export class AttractGfx extends ModeGroup {
     ) {
         super(a);
         this.z(a.gPriority);
-        const startTime = time();
 
         const slides: Group[] = [];
 
@@ -111,26 +113,63 @@ export class AttractGfx extends ModeGroup {
         slides.push(scores);
 
         const highscores = getHighscores();
+        let partialSlide: Group|undefined = undefined;
+        let partialI = 1;
+        let partialY = 0;
         for (const type of Object.keys(highscores) as (keyof Highscores)[]) {
-            const slide = gfx.createGroup();
-            slide.add(makeText(type, 100, 'center').y(-Screen.h*.35));
-            let y = -Screen.h * .15;
-            let i = 1;
-            for (const {name, score} of highscores[type].slice(0, 4)) {
-                slide.add(makeText(`${i}: ${name}`, 50, 'left').x(-Screen.w*.4).y(y));
-                slide.add(makeText(score, 50, 'right').x(Screen.w*.4).y(y));
-                y += 75;
-                i++;
+            if (highscores[type].length > 1) {
+                let y = -Screen.h * .15;
+                let i = 1;
+                const slide = gfx.createGroup();
+                slide.add(makeText(type, 100, 'center').y(-Screen.h*.35));
+                for (const {name, score} of highscores[type].slice(0, 4)) {
+                    slide.add(makeText(`${i}: ${name}`, 50, 'left').x(-Screen.w*.4).y(y));
+                    slide.add(makeText(score, 50, 'right').x(Screen.w*.4).y(y));
+                    y += 75;
+                    i++;
+                }
+                slides.push(slide);
             }
-            slides.push(slide);
+            else {
+                let y = -Screen.h * .41;
+                let i = 1;
+                let slide!: Group;
+                if (partialSlide) {
+                    y = partialY;
+                    i = partialI;
+                    slide = partialSlide;
+                }
+                else
+                    partialSlide = slide = gfx.createGroup();
+                slide.add(makeText(type, 60, 'center').y(y));
+                y += 0.1 * Screen.h+25;
+                const {name, score} = highscores[type][0];
+                slide.add(makeText(`${name}`, 50, 'left').x(-Screen.w*.3).y(y));
+                slide.add(makeText(score, 50, 'right').x(Screen.w*.3).y(y));
+                y += 110;
+
+                i++;
+                if (i > 3) {
+                    slides.push(slide);
+                    partialSlide = undefined;
+                }
+                else {
+                    partialY = y;
+                    partialI = i;
+                }
+            }
         }
+        if (partialSlide)
+            slides.push(partialSlide);
 
         for (const slide of slides)
             this.add(slide);
         a.watch(() => {
             slides.forEach((slide, i) => 
-                slide.visible((((time()-startTime)/4000%slides.length)|0) === i),
+                slide.visible(((Math.abs((time()-a.startTime)/4000)%slides.length)|0) === i),
             );
         });
+        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTime += 4000 as any);
+        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTime += -4000 as any);
     }
 }

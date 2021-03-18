@@ -42,8 +42,10 @@ export class FullHouseMb extends Multiball {
 
     skillshotRng!: Rng;
     jpRng!: Rng;
+    topTotal = 0;
 
     jackpots = 0;
+    total = 0;
 
     lastJp?: Jackpot;
 
@@ -105,7 +107,7 @@ export class FullHouseMb extends Multiball {
         this.skillshotRng = player.rng();
         this.jpRng = player.rng();
         State.declare<FullHouseMb>(this, ['state', 'catcherOnUntil']);
-        player.storeData<FullHouseMb>(this, ['jpRng', 'skillshotRng', 'base']);
+        player.storeData<FullHouseMb>(this, ['jpRng', 'skillshotRng', 'base', 'topTotal']);
         this.out = new Outputs(this, {
             rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
@@ -181,7 +183,7 @@ export class FullHouseMb extends Multiball {
         addToScreen(() => new FullHouseMbGfx(this));
     }
 
-    static async start(player: Player, isRestarted = false, jp?: Jackpot): Promise<FullHouseMb|false> {
+    static async start(player: Player, isRestarted = false, jp?: Jackpot, total = 0): Promise<FullHouseMb|false> {
         const finish = await Events.tryPriority(Priorities.StartMb);
         if (!finish) return false;
 
@@ -192,6 +194,7 @@ export class FullHouseMb extends Multiball {
             }
             const mb = new FullHouseMb(player, hand, isRestarted, jp);
             player.focus = mb;
+            mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             await alert('Full House Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
@@ -222,6 +225,8 @@ export class FullHouseMb extends Multiball {
                 return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined);
             }));
         }
+        if (this.total > this.topTotal)
+            this.topTotal = this.total;
         finish();
         return ret;
     }
@@ -237,6 +242,7 @@ export class FullHouseMb extends Multiball {
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;
+        this.total += this.value!;
         const anim: AnimParams = {
             from: 1,
             to: 2,
