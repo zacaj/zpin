@@ -160,7 +160,7 @@ export class FullHouseMb extends Multiball {
             } else {
                 if (this.state._ !== 'jackpotLit' || this.state.jp.startsWith('Left'))
                     this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => !j.startsWith('Left')) as Jackpot[]));
-                if (this.state.jp !== Jackpot.RightTarget)
+                if (this.state.jp !== Jackpot.RightTarget && machine.upper3Bank.targets.some(t => t.state))
                     fork(ResetBank(this, machine.upper3Bank));
             }
         });
@@ -237,8 +237,10 @@ export class FullHouseMb extends Multiball {
             return;
         }
         this.jackpots++;
-        this.lastJp = this.state.jp;
-        void playVoice('jackpot excited');
+        if (this.value! > 400000)
+            void playVoice('jackpot excited echo');
+        else
+            void playVoice('jackpot excited');
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;
@@ -252,7 +254,8 @@ export class FullHouseMb extends Multiball {
         };
         group.sx.anim(anim).start();
         group.sy.anim(anim).start();
-        this.base += round(this.value! * .2, 50000, 50000);
+        this.base += round(this.value! * ((this.state.jp.startsWith('Left')!==this.lastJp?.startsWith('Left'))? .3 : .15), 50000, 50000);
+        this.lastJp = this.state.jp;
         this.state = Started();
     }
 

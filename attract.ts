@@ -13,7 +13,7 @@ import { fork } from './promises';
 import { State } from './state';
 import { onSwitchClose } from './switch-matrix';
 import { Time, time } from './timer';
-import { money, score } from './util';
+import { money, round, roundDown, score, wrap } from './util';
 import { ClearHoles } from './util-modes';
 
 export class AttractMode extends Mode {
@@ -142,7 +142,7 @@ export class AttractGfx extends ModeGroup {
                 else
                     partialSlide = slide = gfx.createGroup();
                 slide.add(makeText(type, 60, 'center').y(y));
-                y += 0.1 * Screen.h+25;
+            y += 0.1 * Screen.h+25;
                 const {name, score} = highscores[type][0];
                 slide.add(makeText(`${name}`, 50, 'left').x(-Screen.w*.3).y(y));
                 slide.add(makeText(score, 50, 'right').x(Screen.w*.3).y(y));
@@ -166,10 +166,10 @@ export class AttractGfx extends ModeGroup {
             this.add(slide);
         a.watch(() => {
             slides.forEach((slide, i) => 
-                slide.visible(((Math.abs((time()-a.startTime)/4000)%slides.length)|0) === i),
+                slide.visible(wrap(((time()-a.startTime)/4000)|0, slides.length) === i),
             );
         });
-        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTime += 4000 as any);
-        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTime += -4000 as any);
+        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTime = (a.startTime-4000) as any);
+        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTime = (a.startTime+4000) as any);
     }
 }

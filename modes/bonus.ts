@@ -19,13 +19,14 @@ export class Bonus extends Mode {
     total = 0;
 
     topTotal = 0;
+    bottomTotal = 0;
 
     constructor(
         public ball: Ball,
     ) {
         super(Modes.Bonus);
         State.declare<Bonus>(this, ['lines', 'total']);
-        ball.player.storeData<Bonus>(this, ['topTotal']);
+        ball.player.storeData<Bonus>(this, ['topTotal', 'bottomTotal']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
@@ -81,9 +82,11 @@ export class Bonus extends Mode {
             // if (!this.ball.tilted) 
         }
         const initialTotal = this.total;
-        if (this.total > this.topTotal)
+        if (!this.ball.tilted && this.total > this.topTotal)
             this.topTotal = this.total;
-            
+        if (this.ball.tilted && this.total > this.bottomTotal)
+            this.bottomTotal = this.total;
+
         if (!this.ball.tilted) {
             this.lines.push([`Total: ${score(this.total)}`]);
             if (!this.ball.tilted) void playSound('long rattle thunk');
@@ -100,7 +103,7 @@ export class Bonus extends Mode {
             let dropCount = 3;
             console.log('bonus raw rate', Math.abs(this.total)/(maxTime/speed));
             while (this.total > 0) {
-                if (time() - lastDrop > Math.min(350, dropTime)) {
+                if (!this.ball.tilted && time() - lastDrop > Math.min(350, dropTime)) {
                     if (this.total/speed/rate > .300) {
                         lastDrop = time();
                         void playSound('chip drop');

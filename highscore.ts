@@ -13,18 +13,27 @@ export type Highscores = {
     'HIGH SCORES': Highscore[];
     'TOP EARNERS': Highscore[];
     'LOW SCORES': Highscore[];
-    'TOP CASHOUT': Highscore[];
+
     'STRAIGHT MB CHAMPION': Highscore[];
     'FLUSH MB CHAMPION': Highscore[];
     'FULL HOUSE MB CHAMPION': Highscore[];
+
     'HAND MB CHAMPION': Highscore[];
+    'SKILLSHOT CHAMPION': Highscore[];
+    'OUTLANE CHAMPION': Highscore[];
+
+    'TOP CASHOUT': Highscore[];
     'BIGGEST HAND WON': Highscore[];
     'BIGGEST HAND LOST': Highscore[];
+
     'MOST HANDS PLAYED': Highscore[];
     'MOST HANDS WON': Highscore[];
+    'MOST HANDS LOST': Highscore[];
+
     '2X CHAMPION': Highscore[];
     'BONUS CHAMPION': Highscore[];
-    'SKILLSHOT CHAMPION': Highscore[];
+    'BONUS LOST CHAMPION': Highscore[];
+
 };
 
 export function getHighscores(): Highscores {
@@ -89,12 +98,6 @@ export function getHighscores(): Highscores {
                     score: '0',
                 },
             ],
-            'TOP CASHOUT': [
-                {
-                    name: 'PNT',
-                    score: '500,000',
-                },
-            ],
             'STRAIGHT MB CHAMPION': [
                 {
                     name: 'KME',
@@ -116,6 +119,24 @@ export function getHighscores(): Highscores {
             'HAND MB CHAMPION': [
                 {
                     name: 'SUM',
+                    score: '500,000',
+                },
+            ],
+            'SKILLSHOT CHAMPION': [
+                {
+                    name: 'ARZ',
+                    score: '2',
+                },
+            ],
+            'OUTLANE CHAMPION': [
+                {
+                    name: 'RAY',
+                    score: '7',
+                },
+            ],
+            'TOP CASHOUT': [
+                {
+                    name: 'PNT',
                     score: '500,000',
                 },
             ],
@@ -143,6 +164,12 @@ export function getHighscores(): Highscores {
                     score: '3',
                 },
             ],
+            'MOST HANDS LOST': [
+                {
+                    name: 'ALK',
+                    score: '2',
+                },
+            ],
             '2X CHAMPION': [
                 {
                     name: 'S P',
@@ -155,10 +182,10 @@ export function getHighscores(): Highscores {
                     score: '50,000',
                 },
             ],
-            'SKILLSHOT CHAMPION': [
+            'BONUS LOST CHAMPION': [
                 {
-                    name: 'ARZ',
-                    score: '2',
+                    name: 'DSE',
+                    score: '100,000',
                 },
             ],
         };
@@ -189,18 +216,21 @@ export async function checkForScores(game: Game) {
             ['HIGH SCORES', comma(player.score), 1],
             ['TOP EARNERS', money(player.store.Poker!.bank), 1],
             ['LOW SCORES', comma(player.score), -1],
-            ['TOP CASHOUT', money(player.store.Poker!.topCashout), 1],
             ['STRAIGHT MB CHAMPION', comma(player.store.StraightMb?.topTotal ?? 0), 1],
             ['FLUSH MB CHAMPION', comma(player.store.FlushMb?.topTotal ?? 0), 1],
             ['FULL HOUSE MB CHAMPION', comma(player.store.FullHouseMb?.topTotal ?? 0), 1],
             ['HAND MB CHAMPION', comma(player.store.HandMb?.topTotal ?? 0), 1],
+            ['SKILLSHOT CHAMPION', comma(player.store.Skillshot?.skillshotCount ?? 0)+' MADE', 1],
+            ['OUTLANE CHAMPION', comma(player.outlanes)+' OUTLANES', 1],
+            ['TOP CASHOUT', comma(player.store.Poker!.topCashout), 1],
             ['BIGGEST HAND WON', money(player.store.Poker!.biggestWin), 1],
             ['BIGGEST HAND LOST', money(player.store.Poker!.biggestLoss), 1],
             ['MOST HANDS PLAYED', comma(player.store.Poker!.handsPlayed)+' HANDS', 1],
             ['MOST HANDS WON', comma(player.store.Poker!.handsWon)+' HANDS', 1],
+            ['MOST HANDS LOST', comma(player.store.Poker!.handsPlayed-player.store.Poker!.handsWon)+' HANDS', 1],
             ['2X CHAMPION', comma(player.store.Multiplier?.topTotal ?? 0), 1],
             ['BONUS CHAMPION', comma(player.store.Bonus?.topTotal ?? 0), 1],
-            ['SKILLSHOT CHAMPION', comma(player.store.Skillshot?.skillshotCount ?? 0)+' MADE', 1],
+            ['BONUS LOST CHAMPION', comma(player.store.Bonus?.bottomTotal ?? 0), 1],
         ];
 
         const highs = playerScores.flatMap(([type, value, mult]) => {

@@ -72,6 +72,8 @@ export class Player extends Mode {
     upperLanes = [true, true, true, true];
     lowerLanes = [true, true, true, true];
     chipsLit = [true, false, false, false, false];
+
+    outlanes = 0;
     
     get curMbMode(): Multiball|undefined {
         if (this.focus instanceof Multiball) return this.focus;
@@ -383,6 +385,8 @@ export class Player extends Mode {
             // void playSound('card flop', 50, false, 100);
         });
 
+        this.listen(onAnySwitchClose(machine.sLeftOutlane, machine.sRightOutlane), () => this.outlanes++);
+
         this.listen(onChange(this, 'focus'), e => {
             if (e.oldValue) {
                 e.oldValue.end();
@@ -475,20 +479,22 @@ export class Player extends Mode {
     async startBall() {
         await Ball.start(this);
     }
-    store: { [name: string]: any } = {
-        Poker: {},
-        StraightMb: {},
-        Skillshot: {},
-        HandMb: {},
-        NoMode: {},
-        MiscAwards: {},
-        FullHouseMb: {},
-        FlushMb: {},
+    store = {
+        Poker: {} as any,
+        StraightMb: {} as any,
+        Skillshot: {} as any,
+        HandMb: {} as any,
+        NoMode: {} as any,
+        MiscAwards: {} as any,
+        FullHouseMb: {} as any,
+        FlushMb: {} as any,
+        Bonus: {} as any,
+        Multiplier: {} as any,
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
 
-        const store = this.store[tree.name];
+        const store = (this.store as any)[tree.name as any];
         for (const prop of props) {
             if (!(prop in store))
                 store[prop] = tree[prop];

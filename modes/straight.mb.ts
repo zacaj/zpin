@@ -122,7 +122,7 @@ export class StraightMb extends Multiball {
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
             this.drops++;
             if (isFirstDown(e.target)) {
-                this.value += round(this.value * .2, 100000);
+                this.value += round(this.value * .2, 50000);
             }
         });
 
@@ -197,7 +197,7 @@ export class StraightMb extends Multiball {
             void playVoice('rowdy ramp round');
         } 
         else
-            void playVoice('jackpot');
+            void playVoice('jackpot excited echo');
         this.state.awardingJp++;
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
         this.player.score += this.value;
