@@ -17,7 +17,7 @@ import { Multiball } from './multiball';
 import { fork } from '../promises';
 import { PlayerGfx } from '../gfx/player';
 import { ClearHoles, Effect, KnockTarget, MiscAwards, ResetBank, ResetMechs } from '../util-modes';
-import { assert, comma, getCallerLine, getCallerLoc, money, score, seq, short } from '../util';
+import { assert, comma, getCallerLine, getCallerLoc, money, round, score, seq, short } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { GameMode } from './game-mode';
@@ -671,7 +671,7 @@ class Spinner extends Tree<MachineOutputs> {
         const countValue = [0, 100, 400, 1000, 3000, 6000, 20000];
         const best = down.find(([n, c]) => c > 0);
         if (best)
-            this.score = best[0] * countValue[best[1]];
+            this.score = best[0] * countValue[best[1]] * ((this.player.score/1000000+1)|0);
         else
             this.score = 10;
     }
@@ -684,41 +684,69 @@ export class SpinnerRip extends Event {
 }
 
 class LeftOrbit extends Tree<MachineOutputs> {
-    score = 20000;
+    get score() {
+        return round(this.player.score * (30/500), 10000, 30000);
+    }
     comboMult = 1;
 
-    rounds = 1;
-    maxRounds = 1;
+    // rounds = 1;
+    // maxRounds = 1;
+    state = 0;
+
+    get startReady() {
+        return machine.cRamp.actual &&
+            (
+                machine.sRightInlane.wasClosedWithin(2500) || machine.lastSwitchHit === machine.sRightInlane
+                || 
+                (machine.sShooterLower.wasClosedWithin(4000) && !machine.cShooterDiverter.actual)
+            );
+    }
 
     constructor(
         public player: Player,
     ) {
         super();
 
-        State.declare<LeftOrbit>(this, ['rounds', 'score', 'comboMult']);
+        State.declare<LeftOrbit>(this, ['state', 'comboMult']);
 
         this.out = new Outputs(this, {
-            rightGate: () => this.rounds > 0,
+            rightGate: () => this.state === 1? true : undefined,
+            iRamp: () => machine.cRamp.actual? dFitText(score(this.score*this.comboMult), 64, 'center') : undefined,
+            lRampArrow: () => this.state===0 && this.startReady? [Color.White] : this.state===1? [[Color.White, 'fl', 5]] : undefined,
+            rampUp: () => this.state===1? false : undefined,
+            lSpinnerArrow: () => this.state===2? [[Color.White, 'fl', 5]] : undefined,
         });
 
         this.listen(onSwitchClose(machine.sLeftOrbit), 'hit');
 
-        this.listen([
-            onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper),
-            () => (machine.sLeftOrbit.wasClosedWithin(2000) && machine.lastSwitchHit!==machine.sShooterUpper) || machine.lastSwitchHit === machine.sLeftOrbit],
-        () => {
-            if (this.rounds > 0)
-                this.rounds--;
-            this.comboMult+=3;
+        this.listen(e => e instanceof DropDownEvent, () => this.state = 0);
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.state = 0);
+
+        // this.listen([
+        //     onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper),
+        //     () => (machine.sLeftOrbit.wasClosedWithin(2000) && machine.lastSwitchHit!==machine.sShooterUpper) || machine.lastSwitchHit === machine.sLeftOrbit],
+        // () => {
+        //     if (this.rounds > 0)
+        //         this.rounds--;
+        //     this.comboMult+=3;
+        // });
+
+        this.listen(onSwitchClose(machine.sRampMade), () => {
+            if (this.state === 1) {
+                this.state = 2;
+                player.spinner.comboMult += 3;
+                if (player.spinner.score < 2000)
+                    player.spinner.score = 2000;
+            }
         });
 
-        this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
-            this.rounds = this.maxRounds;
-            this.maxRounds++;
-            this.score += 10000;
-            if (this.maxRounds > 3)
-                this.maxRounds = 3;
-        });
+        // this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0], () => {
+        //     this.rounds = this.maxRounds;
+        //     this.maxRounds++;
+        //     this.score += 10000;
+        //     if (this.maxRounds > 3)
+        //         this.maxRounds = 3;
+        // });
 
         this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.comboMult = 1);
     }
@@ -727,6 +755,9 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.player.score += this.score * this.comboMult;
         void playSound('orbit');
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
+        if (this.startReady || this.state===2)
+            this.state = 1;
+        this.comboMult += 2;
     }
 }
 
@@ -738,7 +769,7 @@ export class RampCombo extends Tree<MachineOutputs> {
 
         this.out = new Outputs(this, {
             rampUp: false,
-            lRampArrow: [[Color.Yellow, 'fl']],
+            lRampArrow: [[Color.Yellow, 'fl', 5]],
         });
 
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), 'end');
