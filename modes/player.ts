@@ -35,6 +35,13 @@ import { FlushMb } from './flush.mb';
 import { getMysteryAwards, Mystery, MysteryAward, MysteryNext } from './mystery.mode';
 const argv = require('yargs').argv;
 
+export enum Difficulty {
+    Beginner = 0,
+    Normal = 1,
+    Expert = 2,
+    Zac = 3,
+}
+
 export class Player extends Mode {
     chips = 3;
     _score = 0;
@@ -67,6 +74,39 @@ export class Player extends Mode {
         this.game.totals[source].average = this.game.totals[source].total / this.game.totals[source].times;
     }
     miniReady = true;
+
+    difficulty = Difficulty.Normal;
+    setDifficulty(difficulty: Difficulty) {
+        this.difficulty = difficulty;
+        if (difficulty<=Difficulty.Normal)
+            this.upperLaneChips = [true, true, true, true];
+        else
+            this.upperLaneChips = [true, false, false, false];
+
+        if (difficulty<=Difficulty.Normal)
+            this.chipsLit = [true, false, true, false, true];
+        else if (difficulty<=Difficulty.Expert)
+            this.chipsLit = [true, false, true, false, false];
+        else
+            this.chipsLit = [true, false, false, false, false];
+
+        this.chips = this.startingChips;
+        
+        if (difficulty<=Difficulty.Normal)
+            this.store.Poker.handsForMb = 1;
+        else
+            this.store.Poker.handsForMb = 2;
+
+        this.miniReady = difficulty <= Difficulty.Normal;
+    }
+    get startingChips() {
+        if (this.difficulty<=Difficulty.Normal)
+            return 3;
+        else if (this.difficulty===Difficulty.Zac)
+            return 1;
+        else
+            return 2;
+    }
 
     upperLaneChips = [true, false, false, false];
     upperLanes = [true, true, true, true];
@@ -181,7 +221,7 @@ export class Player extends Mode {
         this.rand = this.rng();
         this.mysteryRng = this.rng();
         this.mysteryAwards = getMysteryAwards(this);
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'difficulty', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
@@ -368,6 +408,13 @@ export class Player extends Mode {
             if (this.chips<0) this.chips = 0;
         });
         
+        this.listen([...onSwitchClose(machine.sMagnetButton), () => machine.sShooterLane.state && this.game.ballNum===1 && this.score===0], () => {
+            const diffs = Object.values(Difficulty).filter(x => !isNaN(x as any)) as Difficulty[];
+            let i = diffs.indexOf(this.difficulty);
+            i++;
+            if (i>=diffs.length) i=0;
+            this.setDifficulty(diffs[i]);
+        });
         this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
             if (!machine.lPower1.lit()) {
                 void playSound('wrong');
@@ -793,7 +840,7 @@ export class Multiplier extends Tree<MachineOutputs> {
     total = 0;
     text!: Group;
 
-    lanes: boolean[] = [true, true, true, false];
+    lanes!: boolean[];
 
     topTotal = 0;
 
@@ -803,6 +850,11 @@ export class Multiplier extends Tree<MachineOutputs> {
         super();
         State.declare<Multiplier>(this, ['total', 'lanes']);
         player.storeData<Multiplier>(this, ['topTotal']);
+
+        if (player.difficulty <= Difficulty.Normal)
+            this.lanes = [true, true, true, false];
+        else
+            this.lanes = [true, false, true, false];
 
         this.out = new Outputs(this, {
             lLaneLower1: () => this.lanes[0]? [[Color.Red, 'pl', 2]] : [],

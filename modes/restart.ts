@@ -10,6 +10,7 @@ import { playVoice } from '../sound';
 import { State } from '../state';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { Ball, BallEnding } from './ball';
+import { Difficulty } from './player';
 
 export class Restart extends Mode {
     text!: Group;
@@ -22,6 +23,11 @@ export class Restart extends Mode {
     ) {
         super(Modes.Restart);
         State.declare<Restart>(this, ['flips']);
+
+        if (ball.player.difficulty >= Difficulty.Expert)
+            flips = Math.min(flips, 12);
+        if (ball.player.difficulty >= Difficulty.Zac)
+            flips = Math.min(flips, 6);
 
         this.out = new Outputs(this, {
             lRampArrow: flash(true, Color.Yellow, 5),

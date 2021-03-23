@@ -9,7 +9,7 @@ import { Outputs } from '../outputs';
 import { State } from '../state';
 import { Time, time, wait } from '../timer';
 import { fork } from '../promises';
-import { Player } from './player';
+import { Difficulty, Player } from './player';
 import { assert, getCallerLoc } from '../util';
 import { Color } from '../light';
 import { stopMusic } from '../sound';
@@ -31,9 +31,19 @@ export abstract class Multiball extends Mode {
     multiStartTime?: Time;
     get saveFreq() {
         if (!this.multiStartTime) return 0.25;
-        if (time() - this.multiStartTime < 15000) return .5;
-        if (time() - this.multiStartTime < 25000) return 1;
+        if (time() - this.multiStartTime < this.saverTime-15000) return .5;
+        if (time() - this.multiStartTime < this.saverTime-5000) return 1;
         return 2;
+    }
+
+    get saverTime() {
+        if (this.player.difficulty===Difficulty.Zac)
+            return 0;
+        if (this.player.difficulty===Difficulty.Expert)
+            return 20000;
+        if (this.player.difficulty===Difficulty.Beginner)
+            return 2400000;
+        return 30000;
     }
 
     protected constructor(
@@ -55,13 +65,13 @@ export abstract class Multiball extends Mode {
             lMiniReady: [[Color.Gray, 'pl', .25, 1]],
             lockPost: () => this.lockPost,
             shooterDiverter: false,
-            lPower1: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
-            lPower2: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
-            lPower3: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
-            lMagnet1: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
-            lMagnet2: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
-            lMagnet3: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
-            lPopperStatus: () => !this.multiStartTime||time()-this.multiStartTime<30000? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            lPower1: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lPower2: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            lPower3: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lMagnet1: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lMagnet2: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            lMagnet3: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
+            lPopperStatus: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
         }, true);
     }
 

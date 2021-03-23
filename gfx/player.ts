@@ -5,16 +5,20 @@ import { onChange } from '../state';
 import { tryNum, comma, score, money } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
-import { Player } from '../modes/player';
+import { Difficulty, Player } from '../modes/player';
 import { GameGfx } from './game';
 import { Game } from '../game';
 import { Color } from '../light';
+import { time } from '../timer';
+import { Modes } from '../mode';
 
 export class PlayerGfx extends ModeGroup {
     instr = makeText('START HAND IN SHOOTER LANE', 40, 'center', 'bottom');
     score = makeText('00', 60, 'center', 'top').y(-Screen.h/2);
+    playerNum = makeText('PLAYER 1', 60, 'center', 'top').y(-Screen.h/2);
     bank = makeText('00', 40, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2);
     handsLeft = makeText('', 30, 'left', 'top').x(-Screen.w/2).y(-Screen.h/2+GameGfx.top);
+    diff = makeText('MAGNET:\nCHANGE DIFFICULTY', 25, 'left', 'bottom').x(-Screen.w/2).y(Screen.h/2).z(Modes.Poker-Modes.Player+.1).wrap('end').w(Screen.w/2);
 
     noMode!: Group;
     pokerOrNo!: Group;
@@ -50,6 +54,26 @@ export class PlayerGfx extends ModeGroup {
         this.add(this.score);
         player.watch(() => this.score.text(score(player.score)));
 
+        this.add(this.playerNum);
+        this.playerNum.text(`PLAYER ${player.number}`);
+        player.watch(() => {
+            if (!machine.lastSwitchHit?.wasClosedWithin(4000) && (!player.poker || player.ball?.skillshot)) {
+                this.playerNum.visible(player.game.players.length>1 && ((time()-(machine.lastSwitchHit?.lastChange??0))/2000|0)%3===2);
+                this.score.visible(player.game.players.length<=1 || ((time()-(machine.lastSwitchHit?.lastChange??0))/2000|0)%3!==2);
+            }
+            else {
+                this.playerNum.visible(false);
+                this.score.visible(true);
+            }
+        });
+
+        this.add(this.diff);
+        player.watch(() => {
+            this.diff.visible(player.game.ballNum===1 && player.score===0);
+            if (machine.sMagnetButton.lastClosed)
+                this.diff.text('DIFFICULTY: '+Difficulty[player.difficulty]);
+        });
+
         this.pokerOrNo.add(this.bank);
         player.watch(() => this.bank.text(''+money(player.store.Poker?.bank ?? 0)));
 
@@ -60,6 +84,8 @@ export class PlayerGfx extends ModeGroup {
         });
 
         this.add(this.status);
+
+        player.watch(() => this.visible(player === player.game.curPlayer));
     }
 }
 

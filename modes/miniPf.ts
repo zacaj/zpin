@@ -9,6 +9,7 @@ import { alert, notify } from '../gfx';
 import { score } from '../util';
 import { time } from '../timer';
 import { Color } from '../light';
+import { Difficulty } from './player';
 
 export class MiniPf extends Mode {
     waitingForSwitch = true;
@@ -23,13 +24,15 @@ export class MiniPf extends Mode {
         });
 
         if (machine.lMiniReady.is(Color.Green))
-            ball.player.miniReady = false;
+            if (ball.player.difficulty >= Difficulty.Normal)
+                ball.player.miniReady = false;
 
         this.listen(onAnyPfSwitchExcept(...machine.miniBank.switches), 'end');
 
         this.listen(onAnyPfSwitchExcept(machine.sLeftOutlane), () => this.waitingForSwitch = false);
         this.listen(e => e instanceof DropBankCompleteEvent && e.bank===machine.miniBank, () => {
-            ball.shootAgain = true;
+            if (machine.ballsInPlay<=1)
+                ball.shootAgain = true;
             ball.player.score += 500000;
             notify(score(500000), 5000);
         });

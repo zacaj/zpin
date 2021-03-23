@@ -4,7 +4,7 @@ import { Skillshot } from './skillshot';
 import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
 import { Event, Events, Priorities } from '../events';
-import { Player } from './player';
+import { Difficulty, Player } from './player';
 import { MPU } from '../mpu';
 import { addToScreen, gfx, ModeGroup, Screen, textBox } from '../gfx';
 import { fork } from '../promises';
@@ -149,7 +149,9 @@ export class Ball extends Mode {
         Events.fire(new BallStart(ball));
 
         // if (player.chips === 0)
-        player.chips = 3;
+        player.chips = player.startingChips;
+        if (player.difficulty <= Difficulty.Normal)
+            player.miniReady = true;
 
         return ball;
     }

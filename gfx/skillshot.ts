@@ -33,14 +33,14 @@ export class SkillShotGfx extends ModeGroup {
         this.y(-this.h()/2+GameGfx.top/2);
         this.add(gfx.createRect().w(this.w()).h(this.h()).fill('#444444').z(-.1));
 
-        this.add(makeText(`player ${ss.player.number}`, 30, 'center', 'middle').x(this.w()/2).y(this.h()*.05));
-        this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.15));
+        // this.add(makeText(`player ${ss.player.number}`, 30, 'center', 'middle').x(this.w()/2).y(this.h()*.05));
+        this.add(makeText('skillshot ready', 50, 'center', 'middle').x(this.w()/2).y(this.h()*.08));
         // this.add(makeText(ss.awards[6]?.award ?? '', 30, 'center', 'middle').x(this.w()/2).y(this.h()*.3));
         // this.add(this.instr = makeText('', 30, 'center', 'middle').x(this.w()/2).y(this.h()*.5));
         // this.add(this.award = makeText('', 43));
         // this.award.x(this.w()/2);
         // this.award.y(this.h()*.6);
-        this.add(makeText('SELECT SKILLSHOT WITH FLIPPERS:', 36, 'center', 'middle').x(this.w()/2).y(this.h()*.28));
+        this.add(makeText('SELECT SKILLSHOT WITH FLIPPERS:', 36, 'center', 'middle').x(this.w()/2).y(this.h()*.2));
 
         // ss.watch(() => {
         //     this.award.text(ss.awards[ss.curAward].award);
@@ -50,7 +50,7 @@ export class SkillShotGfx extends ModeGroup {
         this.add(this.highlight);
 
         for (let i=0; i<6; i++) {
-            const text = makeText('> XXXXX: award text here <', 35, 'left', 'baseline').x(this.w()*.03).y(this.h()*(.45+.1*i)).z(.1);
+            const text = makeText('> XXXXX: award text here <', 35, 'left', 'baseline').x(this.w()*.03).y(this.h()*(.4+.1*i)).z(.1);
             this.add(text);
             this.awards.push(text);
         }
@@ -60,7 +60,7 @@ export class SkillShotGfx extends ModeGroup {
                 this.awards[i].text((i===ss.curAward? '> ' : '  ')+`${switches[i]} ${ss.awards[i].award}`);
                 // this.awards[i].fill(ss.curAward===i? '#000000' : '#FFFFFF');
             }
-            this.highlight.y(this.h()*(.45+.1*ss.curAward-.07));
+            this.highlight.y(this.h()*(.4+.1*ss.curAward-.07));
         });
 
         ss.watch(() => this.visible(!machine.sRightFlipper._state || time() - machine.sRightFlipper.lastChange <= 300));

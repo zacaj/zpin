@@ -76,7 +76,7 @@ export class Skillshot extends Mode {
             this.displays.push(disp);
             outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = () => {
                 const d = i===this.curAward? 
-                    (((time()/1000%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
+                    (((time()/800%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
                   : {...disp};
                 if (d.images)
                     d.images = d.images.map(img => img+skillSuffix[i]);

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { Game } from './game';
 import { Log } from './log';
 import { HighscoreEntry } from './modes/highscore.mode';
+import { Difficulty } from './modes/player';
 import { comma, money, num } from './util';
 
 export type Highscore = {
@@ -212,6 +213,7 @@ export async function checkForScores(game: Game) {
     const highscores = getHighscores();
 
     for (const player of game.players) {
+        if (player.difficulty === Difficulty.Zac) continue;
         const playerScores: [keyof Highscores, string, number][] = [
             ['HIGH SCORES', comma(player.score), 1],
             ['TOP EARNERS', money(player.store.Poker!.bank), 1],
