@@ -244,10 +244,10 @@ export class StraightMb extends Multiball {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const selections: (string|DropBank)[] = [
             'random', 
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([2, machine.centerBank], [5, machine.leftBank],  [1, machine.upper3Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [1, machine.centerBank], [1, machine.upper2Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank],  [1, machine.upper3Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [4, machine.centerBank], [1, machine.upper2Bank]),
+            this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
             this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [1, machine.upper3Bank]),
         ];
         const verb = this.isRestarted? repeat('JACKPOT +50K', 6) : [

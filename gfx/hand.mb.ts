@@ -42,7 +42,7 @@ export class HandMbGfx extends ModeGroup {
         this.add(this.red);
 
         this.notInstructions.add(this.value);
-        mb.watch(() => this.value.text(`LEFT ORBIT: ${score(mb.value)}`));
+        mb.watch(() => this.value.text(`LEFT ORBIT: ${score(mb.value)}` + (mb.state._==='started'&&mb.state.doubled? ' *2' : '')));
 
         this.notInstructions.add(this.spinner);
         mb.watch(() => this.spinner.text(`SPINNER: ${score(mb.spinner)} PER SPIN`));

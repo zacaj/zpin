@@ -41,23 +41,23 @@ export function dFitText(text: string, y: number, vAlign: 'top'|'bottom'|'center
             x = 40;
             break;
         case 3:
-            size = 72;
-            x = 18;
+            size = 78;
+            x = 22;
             break;
         case 4:
-            size = 60;
+            size = 70;
             x = 13;
             break;
         case 5:
-            size = 52;
+            size = 62;
             x = 15;
             break;
         case 6: 
-            size = 40;
-            x = 20;
+            size = 60;
+            x = 7;
             break;
         case 7:
-            size = 40;
+            size = 55;
             x = 2;
             break;
         default:

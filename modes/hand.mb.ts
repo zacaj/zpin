@@ -11,7 +11,7 @@ import { onAnyPfSwitchExcept, onSwitchClose, SwitchEvent } from '../switch-matri
 import { StraightMbGfx } from '../gfx/straight.mb';
 import { light, Color, colorToHex, colorToArrow, flash, LightState } from '../light';
 import { Priorities, Events } from '../events';
-import { comma, and, assert, makeState, repeat, score, short } from '../util';
+import { comma, and, assert, makeState, repeat, score, short, round } from '../util';
 import { GateMode, Skillshot, SkillshotComplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card, Hand } from './poker';
@@ -25,7 +25,7 @@ const Starting = makeState('starting', {
     secondBallLocked: false,
     addABallReady: false,
 });
-const Started = makeState('started', {});
+const Started = makeState('started', { doubled: false });
 
 export class HandMb extends Multiball {
     readonly bankColors = new Map<DropBank, Color>([
@@ -62,9 +62,10 @@ export class HandMb extends Multiball {
 
     getArrowColor(): LightState {
         let color = Color.Green;
+        if (this.state._==='started' && this.state.doubled) return Color.Red;
         if (this.value > 200000) color = Color.Yellow;
         if (this.value > 500000) color = Color.Orange;
-        if (this.value > 1000000) color = Color.Red;
+        if (this.value > 1000000) color = Color.White;
         
         // if (this.jackpotAwarded) return [color, 'fl'];
         // else
@@ -101,13 +102,14 @@ export class HandMb extends Multiball {
             lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
             lRampArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.value>250000? 6 : 4]]:
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
-            iRamp: () => this.state._==='started'? dFitText(score(this.value), 64, 'center') : 
+            iRamp: () => this.state._==='started'? dFitText((this.state.doubled? `${short(round(this.value, 10000))} *2` : score(this.value)), 64, 'center') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             getSkillshot: () => this.state._==='starting'? (ss: any) => this.getSkillshot(ss) : undefined,            
             leftGate: () => this.state._==='started'? true : undefined,
             rightGate: () => this.state._==='started'? true : undefined,
             spinnerValue: () => this.spinner,
             lSpinnerArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.value>250000? 4 : 2]] : undefined,
+            iSS1: () => this.state._==='started' && !this.state.doubled? dImage('one_shot_double_jp') : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
         this.misc = undefined;
@@ -124,6 +126,11 @@ export class HandMb extends Multiball {
         });
 
         this.listen(onSwitchClose(machine.sLeftOrbit), 'jackpot');
+
+        this.listen([...onSwitchClose(machine.sShooterLower)], () => {
+            if (this.state._==='started' && !this.state.doubled)
+                this.state.doubled = true;
+        });
 
         // this.listen(e => e instanceof SpinnerRip, 'collected');
 
@@ -193,11 +200,13 @@ export class HandMb extends Multiball {
     }
 
     updateValue(target?: DropTarget|Standup, bank?: DropBank) {
+        if (this.state._==='starting') return;
         if (this.jackpotAwarded || this.redTargets.has(target!)) {
             this.value = this.baseValue + this.jackpots*20000;
             this.drops = 0;
             this.banks = 0;
             this.jackpotAwarded = false;
+            this.state.doubled = false;
             this.redTargets.clear();
         } else {
             const oldValue = this.value;
@@ -226,11 +235,15 @@ export class HandMb extends Multiball {
     }
 
     async jackpot() {
-        const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
+        if (this.state._==='starting') return;
+        const value = this.value * (this.state.doubled? 2 : 1);
+        const [group, promise] = alert('JACKPOT!', 4500, comma(value));
         this.collected();
-        this.player.score += this.value;
-        this.total += this.value;
-        void playVoice(this.value > 500000? 'jackpot' : 'jackpot short');
+        this.player.score += value;
+        this.total += value;
+        void playVoice(value > 500000? 'jackpot' : 'jackpot short');
+        if (this.state.doubled)
+            this.updateValue();
         const anim: AnimParams = {
             from: 1,
             to: 2,
