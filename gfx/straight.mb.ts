@@ -12,8 +12,11 @@ import { PokerHand } from './poker';
 export class StraightMbGfx extends ModeGroup {
     notInstructions = gfx.createGroup();
     lightJp = makeText('COMPLETE LIT BANK TO LIGHT JACKPOT', 40, 'center', 'bottom').y(Screen.h*.15);
-    getJp = makeText('SHOOT RAMP FOR JACKPOT', 60, 'center', 'bottom').y(Screen.h*.15);
-    value = makeText('100000', 35, 'center', 'bottom').y(Screen.h*.4);
+    getJp = makeText('SHOOT RAMP FOR JACKPOT', 65, 'center', 'bottom').y(Screen.h*-.05);
+    value = makeText('100000', 50, 'center', 'bottom').y(Screen.h*.1);
+    double = makeText('SHOOTER LANE COMBO: ONE SHOT 2X JACKPOT', 30, 'center', 'bottom').y(Screen.h*.45);
+    or = makeText('- or -', 20, 'center', 'bottom').y(Screen.h*.375);
+    spinner = makeText('SPINNER: +25% JACKPOT VALUE', 30, 'center', 'bottom').y(Screen.h*.31);
 
     hand!: PokerHand;
 
@@ -39,12 +42,18 @@ export class StraightMbGfx extends ModeGroup {
 
         this.add(this.lightJp);
         this.notInstructions.add(this.getJp);
+        this.notInstructions.add(this.double);
+        this.notInstructions.add(this.or);
+        this.notInstructions.add(this.spinner);
         mb.watch(() => {
             this.lightJp.visible(mb.state._ !== 'jackpotLit');
             this.getJp.visible(mb.state._ === 'jackpotLit');
+            this.double.visible(mb.state._ === 'jackpotLit' && !mb.state.doubled);
+            this.or.visible(mb.state._ === 'jackpotLit' && !mb.state.doubled);
+            this.spinner.visible(mb.state._ === 'jackpotLit' && !mb.state.doubled);
         });
 
         this.notInstructions.add(this.value);
-        mb.watch(() => this.value.text(`JACKPOT VALUE: ${score(mb.value)}`));
+        mb.watch(() => this.value.text(`JACKPOT: ${score(mb.value)}`));
     }
 }

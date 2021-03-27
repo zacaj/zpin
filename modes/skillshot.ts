@@ -36,7 +36,7 @@ export class Skillshot extends Mode {
 
     wasMade = false;
 
-    lastSw = 0;
+    lastSw = -1;
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
     startTime = time();
 
@@ -102,8 +102,10 @@ export class Skillshot extends Mode {
 
         this.listen(onAnySwitchClose(machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet), e => {
             const index = this.switches.indexOf(e.sw);
-            if (index >= this.lastSw)
+            if (index > this.lastSw)
                 this.lastSw = index;
+            else if (index >= this.lastSw-1)
+                return this.finish(e);
         });
         this.listen(onAnySwitchClose(...machine.sUpperLanes), (e) => this.made(3, e));
         this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
@@ -194,6 +196,8 @@ export class Skillshot extends Mode {
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
         } else if (!this.wasMade) {
+            if (this.lastSw === -1) // && e.sw === machine.sRightInlane)
+                this.lastSw = 0;
             this.made(this.lastSw, e);
         }
         return this.end();

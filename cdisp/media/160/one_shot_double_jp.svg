@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="160"
+   viewBox="0 0 33.866666 42.333335"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="one_shot_double_jp.svg"
+   inkscape:export-filename="A:\source\zpin\cdisp\media\160\bet.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="63.314755"
+     inkscape:cy="88.034129"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     units="px"
+     inkscape:snap-page="true"
+     inkscape:window-width="2497"
+     inkscape:window-height="1417"
+     inkscape:window-x="1975"
+     inkscape:window-y="1072"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#000000;stroke-width:0.262169"
+       id="rect10"
+       width="33.81942"
+       height="42.333332"
+       x="0.047247026"
+       y="7.4246165e-16" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.66417px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';fill:#ffffff;stroke-width:0.116605"
+       x="5.3894181"
+       y="4.4004931"
+       id="text14"><tspan
+         sodipodi:role="line"
+         x="5.3894181"
+         y="4.4004931"
+         style="fill:#ffffff;stroke-width:0.116605"
+         id="tspan1402">ONE SHOT</tspan><tspan
+         sodipodi:role="line"
+         x="5.3894181"
+         y="10.230705"
+         style="fill:#ffffff;stroke-width:0.116605"
+         id="tspan1406" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.68055px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.167014"
+       x="17.08885"
+       y="21.629862"
+       id="text1410"><tspan
+         sodipodi:role="line"
+         x="17.08885"
+         y="21.629862"
+         style="text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.167014"
+         id="tspan1412">JACKPOT</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:8.89591px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';fill:#ffffff;stroke-width:0.222398"
+       x="-0.29698136"
+       y="13.636504"
+       id="text1418"><tspan
+         sodipodi:role="line"
+         id="tspan1416"
+         x="-0.29698136"
+         y="13.636504"
+         style="fill:#ffffff;stroke-width:0.222398">DOUBLE</tspan></text>
+    <path
+       sodipodi:type="star"
+       style="fill:#ffff00;stroke-width:0.264691;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path42"
+       sodipodi:sides="3"
+       sodipodi:cx="26.125595"
+       sodipodi:cy="21.44838"
+       sodipodi:r1="19.444891"
+       sodipodi:r2="9.7224455"
+       sodipodi:arg1="1.5811052"
+       sodipodi:arg2="2.6283028"
+       inkscape:flatsided="true"
+       inkscape:rounded="0.04"
+       inkscape:randomized="0"
+       inkscape:transform-center-x="-0.028872472"
+       inkscape:transform-center-y="2.3874048"
+       transform="matrix(0.29516589,0,0,0.56860569,9.3011273,18.023441)"
+       d="M 25.925144,40.892237 C 24.578034,40.87835 8.7013639,12.712542 9.386946,11.552855 c 0.685582,-1.159688 33.016222,-0.826384 33.67775,0.347192 0.661527,1.173575 -15.792442,29.006078 -17.139552,28.99219 z" />
+  </g>
+</svg>

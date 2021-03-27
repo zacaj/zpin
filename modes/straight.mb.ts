@@ -2,7 +2,7 @@ import { Multiball } from './multiball';
 import { addToScreen, alert, gfx, pfx, screen } from '../gfx';
 import { fork } from '../promises';
 import { DropBank, DropBankCompleteEvent, DropDownEvent, DropTarget } from '../drop-bank';
-import { Player } from './player';
+import { Player, SpinnerRip } from './player';
 import { machine, SkillshotAward } from '../machine';
 import { State } from '../state';
 import { Outputs } from '../outputs';
@@ -17,7 +17,7 @@ import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
 import { dClear, dImage } from '../disp';
-import { time } from '../timer';
+import { Time, time } from '../timer';
 import { playVoice } from '../sound';
 
 
@@ -26,7 +26,7 @@ const Starting = makeState('starting', {
     addABallReady: false,
 });
 const BankLit = makeState('bankLit', (curBank: DropBank) => ({ curBank}));
-const JackpotLit = makeState('jackpotLit', { awardingJp: 0});
+const JackpotLit = makeState('jackpotLit', { awardingJp: 0, doubled: undefined as Time|undefined});
 
 function isFirstDown(target: DropTarget): boolean {
     const targetI = target.bank.targets.indexOf(target);
@@ -55,6 +55,10 @@ export class StraightMb extends Multiball {
     lastBank?: DropBank;
 
     total = 0;
+
+    get doubleComboActive() {
+        return this.state._ === 'jackpotLit' && this.state.doubled && time()-this.state.doubled<5000;
+    }
 
     protected constructor(
         player: Player,
@@ -90,11 +94,13 @@ export class StraightMb extends Multiball {
             ...outs,
             rampUp: () => this.state._==='bankLit' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? false,
-            lRampArrow: () => this.state._ === 'jackpotLit'? [[Color.Yellow, 'fl']] :
+            lRampArrow: () => this.state._ === 'jackpotLit'? [[this.doubleComboActive? Color.Red : Color.Yellow, 'fl', this.doubleComboActive? 7 : 4]] :
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='jackpotLit'? dImage("jackpot") : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
             getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
+            iSpinner: () => this.state._==='jackpotLit' && !this.state.doubled? dImage('jp_base_25') : undefined,
+            iSS1: () => this.state._==='jackpotLit' && !this.state.doubled? dImage('one_shot_double_jp') : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
@@ -110,6 +116,18 @@ export class StraightMb extends Multiball {
             else
                 return this.jackpot();
         });
+
+        this.listen([e => e instanceof SpinnerRip], () => {
+            if (this.state._==='jackpotLit' && !this.state.doubled) {
+                this.value *= 1.25;
+                this.state.doubled = 1 as Time;
+            }
+        });
+
+        this.listen([...onSwitchClose(machine.sShooterLower)], () => {
+            if (this.state._==='jackpotLit' && !this.state.doubled)
+                this.state.doubled = time();
+        });
         
 
         this.listen<DropBankCompleteEvent>([
@@ -122,7 +140,7 @@ export class StraightMb extends Multiball {
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
             this.drops++;
             if (isFirstDown(e.target)) {
-                this.value += round(this.value * .2, 50000);
+                this.value += round(this.value * .15, 50000);
             }
         });
 
@@ -199,9 +217,10 @@ export class StraightMb extends Multiball {
         else
             void playVoice('jackpot excited echo');
         this.state.awardingJp++;
-        const [group, promise] = alert('JACKPOT!', 4500, comma(this.value));
-        this.player.score += this.value;
-        this.total += this.value;
+        const value = this.value * (this.doubleComboActive? 2 : 1);
+        const [group, promise] = alert('JACKPOT!', 4500, comma(value));
+        this.player.score += value;
+        this.total += value;
         const anim: AnimParams = {
             from: 1,
             to: 2,

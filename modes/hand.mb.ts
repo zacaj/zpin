@@ -99,7 +99,7 @@ export class HandMb extends Multiball {
             ...outs,
             rampUp: () => this.state._==='started' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
-            lRampArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl']]:
+            lRampArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.value>250000? 6 : 4]]:
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='started'? dFitText(score(this.value), 64, 'center') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
@@ -107,6 +107,7 @@ export class HandMb extends Multiball {
             leftGate: () => this.state._==='started'? true : undefined,
             rightGate: () => this.state._==='started'? true : undefined,
             spinnerValue: () => this.spinner,
+            lSpinnerArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.value>250000? 4 : 2]] : undefined,
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
         this.misc = undefined;

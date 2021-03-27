@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="160"
+   height="128"
+   viewBox="0 0 42.333332 33.866668"
+   version="1.1"
+   id="svg18"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="jp_base_50.svg">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="104.02926"
+     inkscape:cy="71.318401"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     units="px"
+     gridtolerance="10"
+     inkscape:window-width="2497"
+     inkscape:window-height="1417"
+     inkscape:window-x="1975"
+     inkscape:window-y="1072"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       position="0,33.866667"
+       orientation="0,160"
+       id="guide20" />
+    <sodipodi:guide
+       position="42.333333,33.866667"
+       orientation="128,0"
+       id="guide22" />
+    <sodipodi:guide
+       position="42.333333,0"
+       orientation="0,-160"
+       id="guide24" />
+    <sodipodi:guide
+       position="0,0"
+       orientation="-128,0"
+       id="guide26" />
+    <inkscape:grid
+       type="xygrid"
+       id="grid28"
+       dotted="true"
+       empspacing="16" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata15">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#000000;stroke-width:0.264583;"
+       id="rect30"
+       width="42.333332"
+       height="33.866665"
+       x="0"
+       y="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.4472px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.1857"
+       x="-0.049442034"
+       y="5.8798752"
+       id="text34"><tspan
+         sodipodi:role="line"
+         id="tspan32"
+         x="-0.049442034"
+         y="5.8798752"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.4472px;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';fill:#ffffff;stroke-width:0.1857">JACKPOT BASE</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:16.8697px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';fill:#ffffff;stroke-width:0.421745"
+       x="-0.38975886"
+       y="26.478701"
+       id="text2005"><tspan
+         sodipodi:role="line"
+         id="tspan2003"
+         x="-0.38975886"
+         y="26.478701"
+         style="fill:#ffffff;stroke-width:0.421745">+50%</tspan></text>
+  </g>
+</svg>

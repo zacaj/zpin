@@ -36,7 +36,7 @@ import { getMysteryAwards, Mystery, MysteryAward, MysteryNext } from './mystery.
 const argv = require('yargs').argv;
 
 export enum Difficulty {
-    Beginner = 0,
+    Casual = 0,
     Normal = 1,
     Expert = 2,
     Zac = 3,
@@ -686,7 +686,8 @@ class Spinner extends Tree<MachineOutputs> {
         this.ripCount++;
         this.ripTotal += value;
         if (this.ripCount > 3) {
-            Events.fire(new SpinnerRip());
+            if (this.ripCount === 4)
+                Events.fire(new SpinnerRip());
             if (this.tb) {
                 if (!this.ripTimer) {
                     this.ripTimer = Timer.callIn(() => {
