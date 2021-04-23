@@ -27,6 +27,7 @@ export class EndOfGameBonus extends Mode {
             shooterDiverter: false,
             leftGate: false,
             rightGate: false,
+            music: null,
         });
 
         fork(this.run());

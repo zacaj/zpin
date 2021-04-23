@@ -120,6 +120,7 @@ public class Sounds extends Thread {
 		public String name;
 		public double length; // seconds
 		public Play curPlay = null;
+		public Play lastPlay = null;
 		public File file;
 		private AudioFormat format;
 		public short[] data;
@@ -147,11 +148,15 @@ public class Sounds extends Thread {
 		    this.length = this.data.length / format.getSampleRate();
 		}
 		
-		public Play play(Channel channel, float volume) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+		public Play play(Channel channel, float volume, boolean resume) throws LineUnavailableException, IOException, UnsupportedAudioFileException {
 			if (this.curPlay != null && !this.curPlay.finished) {
 				this.curPlay.stop();
 			}
-			return this.curPlay = new Play(this, channel, volume);
+			this.curPlay = new Play(this, channel, volume);
+			if (resume && this.lastPlay != null && !this.lastPlay.finished)
+				this.curPlay.position = this.lastPlay.position;
+			
+			return this.lastPlay = this.curPlay;
 		}
 	}
 	
@@ -247,6 +252,7 @@ public class Sounds extends Thread {
 				channels[ci++],
 		});
 		tracks[1].name = "effects";
+		tracks[1].duckVolume = 0.8f;
 		
 		tracks[2] = new Track(new Channel[] {
 				channels[ci++],
@@ -255,6 +261,9 @@ public class Sounds extends Thread {
 		tracks[2].volume = 0.9f;
 		
 		tracks[0].ducks = new Track[] {
+				tracks[2],
+		};
+		tracks[1].ducks = new Track[] {
 				tracks[2],
 		};
 		
@@ -300,8 +309,13 @@ public class Sounds extends Thread {
 						Wav wav = curPlay.wav;
 						short s = wav.data[curPlay.position++];
 						if (curPlay.position >= wav.data.length) {
-							if (curPlay.loops-- == 0)
+							if (curPlay.loops-- == 0) {
 								curPlay.completed();
+								if (curPlay.wav.name.equals("green grass slow with start") || curPlay.wav.name.equals("green grass slow loop"))
+									channel.curPlay = new Play(this.sounds.get("green grass slow loop").files.get(0), channel, curPlay.volume);
+								if (curPlay.wav.name.equals("green grass solo with start") || curPlay.wav.name.equals("green grass solo loop"))
+									channel.curPlay = new Play(this.sounds.get("green grass solo loop").files.get(0), channel, curPlay.volume);
+							}
 							else
 								curPlay.position = 0;
 						}
@@ -340,12 +354,20 @@ public class Sounds extends Thread {
 		}
 	}
 
-	public Play playSound(String name, int trackNum, float volume) throws Exception {
+	public Play playSound(String name, int trackNum, float volume, boolean resume) throws Exception {
 		long start = System.nanoTime();
-		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound '"+name+"' requested ");
+		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound '"+name+"' requested (resume="+resume+")");
 		Sound sound = this.sounds.get(name);
 		if (sound == null)
 			throw new Exception("sound '"+name+"' not found");
+		if (resume && name.endsWith("with start")) {
+			Sound loop = this.sounds.get(name.substring(0, name.length() - "with start".length())+"loop");
+			Wav loopWav = loop.files.get(0);
+			if (loopWav.curPlay != null && !loopWav.curPlay.finished) {
+				sound = loop;
+				System.out.println("swap for "+loop.name);
+			}
+		}
 		
 		Wav wav = sound.files.get((int) (Math.random()*sound.files.size()));
 		Track track = this.tracks[trackNum];
@@ -363,7 +385,9 @@ public class Sounds extends Thread {
 				
 		Channel channel = track.getFreeChannel();
 		if (channel == null) return null;
-		Play play = wav.play(channel, volume);
+		Play play = wav.play(channel, volume, resume);
+//		if (wav.name.equals("green grass slow with start"))
+//			play.position = wav.data.length*95/100;
 		System.out.println(""+play.num+"|"+play.channel.num+"| "+System.nanoTime()/1000000+": play sound '"+play.wav.name+"' on t "+trackNum+" c "+channel.num+" in "+(System.nanoTime()-start)/1000000);
 		return play;
 	}

@@ -72,6 +72,7 @@ export abstract class Multiball extends Mode {
             lMagnet2: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
             lMagnet3: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq]] : undefined,
             lPopperStatus: () => !this.multiStartTime||time()-this.multiStartTime<this.saverTime? [[Color.Gray, 'pl', this.saveFreq, 1]] : undefined,
+            music: () => this.multiStartTime? ['green grass solo with start', true] : null,
         }, true);
     }
 

@@ -1,7 +1,7 @@
 import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { Skillshot } from './skillshot';
-import { onAnySwitchClose, onSwitchClose } from '../switch-matrix';
+import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from '../switch-matrix';
 import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
 import { Event, Events, Priorities } from '../events';
 import { Difficulty, Player } from './player';
@@ -43,6 +43,7 @@ export class Ball extends Mode {
     tilted = false;
     drained = false;
     shootAgain = false;
+    validated = false;
 
     get nodes() {
         return [
@@ -59,11 +60,12 @@ export class Ball extends Mode {
         public player: Player,
     ) {
         super(Modes.Ball);
-        State.declare<Ball>(this, ['skillshot', 'tilted', 'drained', 'shootAgain']);
+        State.declare<Ball>(this, ['skillshot', 'tilted', 'drained', 'shootAgain', 'validated']);
         this.out = new Outputs(this, {
             miniFlipperEnable: () => !this.drained && !this.shootAgain,
             kickerEnable: () => !this.drained && !this.shootAgain,
             lShootAgain: () => flash(this.shootAgain, Color.Orange),
+            music: () => machine.sShooterLane.state || (machine.lastSwitchHit===machine.sOuthole && machine.ballsInPlay<1) || !this.validated? undefined : 'green grass slow with start', 
         });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
@@ -101,6 +103,10 @@ export class Ball extends Mode {
             }
             finish();
             return this.end();
+        });
+        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sRightOutlane), () => {
+            this.validated = true;
+            return 'remove';
         });
 
         this.listen(e => e instanceof DropDownEvent, () => this.drops++);

@@ -331,7 +331,7 @@ export function eq<T>(a: T, b: T): boolean {
         return a.length === b.length && a.every((v,i) => eq(v, b[i]));
     }
 
-    if (typeof a === 'object' && typeof b === 'object') {
+    if (typeof a === 'object' && typeof b === 'object' && a && b) {
         if ('hash' in a && 'hash' in b)
             return (a as any).hash === (b as any).hash;
     }

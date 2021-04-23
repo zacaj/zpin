@@ -1,5 +1,5 @@
 import { Mode, Modes } from '../mode';
-import { MachineOutputs, machine, SkillshotAward } from '../machine';
+import { MachineOutputs, machine, SkillshotAward, MusicType } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
@@ -52,13 +52,15 @@ export class Skillshot extends Mode {
 
     isFirstOfBall = false;
 
+    music?: MusicType = null;
+
     private constructor(
         public player: Player,
         public ball: Ball,
     ) {
         super(Modes.Skillshot);
         this.rng = player.rng();
-        State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode']);
+        State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode', 'music']);
         player.storeData<Skillshot>(this, ['rng', 'skillshotCount']);
 
         if (Skillshot.ballInPlay !== ball) 
@@ -84,6 +86,8 @@ export class Skillshot extends Mode {
             };
         }
 
+        const wasSilent = !machine.oMusic.actual;
+
         // if (player.game.ballNum === 1)
         //     this.gateMode = GateMode.Closed;
         // else
@@ -94,6 +98,7 @@ export class Skillshot extends Mode {
             leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTime) % 3000 > 1500 : (this.gateMode===GateMode.Open),
             rightGate: false,
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
+            music: (prev) => wasSilent? !this.music? prev? [typeof prev==='string'? prev:prev[0], false] : undefined : [this.music, false] : undefined,
         });
 
 
@@ -114,8 +119,8 @@ export class Skillshot extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftInlane), (e) => this.made(5, e));
 
         if (this.isFirstOfBall)
-            this.listen(onSwitchClose(machine.sShooterLane), () => playMusic('green grass intro a end'));
-            this.listen(onSwitchOpen(machine.sShooterLane), () => playMusic('green grass intro a'));
+            this.listen(onSwitchClose(machine.sShooterLane), () => this.music = 'green grass intro a end');
+        this.listen(onSwitchOpen(machine.sShooterLane), () => this.music = 'green grass intro a');
 
         this.listen<SwitchEvent>([onAny(
             onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
@@ -174,9 +179,9 @@ export class Skillshot extends Mode {
         Log.info('game', 'selected skillshot %i', i);
     }
 
-    made(i: number, e: SwitchEvent) { 
+    async made(i: number, e: SwitchEvent) { 
         Log.log('game', 'skillshot %i', i);
-        void stopMusic();
+        this.music = null;
         if (i === this.curAward) {
             this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
@@ -190,7 +195,10 @@ export class Skillshot extends Mode {
         this.wasMade = true;
         Events.fire(new SkillshotComplete(i, i === this.curAward));
 
-        void wait(1000).then(() => playMusic('green grass main'));
+        // void wait(1000).then(() => this.music('green grass main'));
+        await wait(1000);
+        this.music = undefined; // [machine.ballsInPlay>1? 'green grass solo with start' : 'green grass main', false];
+        await wait(50);
 
         if (this.curAward===1 && e.sw===machine.sSpinner) {
             fork(Combo(this.player, machine.sUpperEject, machine.lLeftArrow, 100000));
@@ -200,7 +208,7 @@ export class Skillshot extends Mode {
         }
     }
 
-    finish(e: SwitchEvent) {
+    async finish(e: SwitchEvent) {
         if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole].includes(e.sw)) {
             void playVoice(`wait you'll get that back`);
             this.ball.shootAgain = true;
@@ -208,7 +216,7 @@ export class Skillshot extends Mode {
         } else if (!this.wasMade) {
             if (this.lastSw === -1) // && e.sw === machine.sRightInlane)
                 this.lastSw = 0;
-            this.made(this.lastSw, e);
+            await this.made(this.lastSw, e);
         }
         return this.end();
     }

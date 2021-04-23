@@ -10,7 +10,7 @@ import { machine, MachineOutputs } from "../machine";
 import { Mode, Modes } from "../mode";
 import { Outputs } from "../outputs";
 import { fork } from "../promises";
-import { muteMusic, playSound, playVoice, unmuteMusic } from "../sound";
+import { playSound, playVoice } from "../sound";
 import { State } from "../state";
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { time, Timer, TimerQueueEntry, wait } from "../timer";
@@ -177,8 +177,8 @@ export class Mystery extends Mode {
             fork(ResetBank(this, machine.upper3Bank));
 
         void playVoice('mystery');
-        void muteMusic();
-        fork(wait(1000).then(() => void playVoice(['shoot carefully', 'plunge carefully', 'choose wisely'])));
+        // void muteMusic();
+        fork(wait(1200).then(() => void playVoice(['shoot carefully', 'plunge carefully', 'choose wisely'])));
 
         // const validAwards = allAwards.filter(a => !a.isValid || a.isValid(player));
         const chosenAwards: Award[] = [];
@@ -207,6 +207,7 @@ export class Mystery extends Mode {
             iUpper32: () => this.awards.length>=2? dImage('mystery_2') : ((time()/500%2)|0)!==0? dImage('mystery_q') : dClear(Color.Black),
             iUpper33: () => this.awards.length>=3? dImage('mystery_3') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
             upperEject: () => this.done && machine.sUpperEject.state,
+            music: null,
         });
 
         this.listen([...onAnyPfSwitchExcept(...machine.upper3Bank.targets.map(t => t.switch), machine.sUpperEject), () => time()-startTime>10000], 'end');
@@ -258,7 +259,7 @@ export class Mystery extends Mode {
         Timer.cancel(this.timer);
         this.player.mystery = undefined;
         this.player.mysteryLeft = this.player.mysteryRng.randRange(4, 7);
-        void unmuteMusic();
+        // void unmuteMusic();
         return super.end();
     }
 }

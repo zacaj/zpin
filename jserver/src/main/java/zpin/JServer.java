@@ -213,17 +213,19 @@ public class JServer extends Thread
 							return true;
 						case "sound": {
 							if (parts.length < 6)
-								error("usage: sound volume track solo loops name ");
+								error("usage: sound volume track solo loops resume name ");
 							int volume = num(1);
 							int track = num(2);
 							boolean solo = parts[3].equals("true");
 							int loops = num(4);
+							boolean resume = parts[5].equals("true");
 							if (solo)
 								sound.tracks[track].stop();
 							Sounds.Play play = sound.playSound(
-									String.join(" ", Arrays.asList(parts).subList(5, parts.length)), 
+									String.join(" ", Arrays.asList(parts).subList(6, parts.length)), 
 									track, 
-									((float)volume)/100
+									((float)volume)/100,
+									resume
 								);
 							if (play != null) {
 								play.loops = loops;
@@ -461,6 +463,7 @@ public class JServer extends Thread
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+//    	sound.playSound("green grass slow with start", 0, .5f, false);
         ServerSocket socket = null;
         try {
             socket = new ServerSocket(2908);

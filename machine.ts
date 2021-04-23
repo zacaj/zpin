@@ -15,6 +15,7 @@ import { MPU } from './mpu';
 import { Outputs, TreeOutputEvent } from './outputs';
 import { fork } from './promises';
 import { curRecording } from './recording';
+import { playMusic, stopMusic } from './sound';
 import { State } from './state';
 import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
@@ -467,6 +468,22 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
     }
 }
 
+class MusicOutput extends MachineOutput<MusicType> {
+    async init() {
+
+    }
+
+    async set(music: MusicType): Promise<boolean> {
+        if (!music)
+            await stopMusic();
+        else {
+            const file = typeof music==='string'? music : music[0];
+            await playMusic(file, undefined, undefined, typeof music==='string'? true : music[1]);
+        }
+        return true;
+    }
+}
+
 export type SkillshotAward = {
     switch: string;
     award: string;
@@ -477,10 +494,13 @@ export type SkillshotAward = {
     dontOverride?: boolean;
 };
 
+export type MusicType = string|[string, resume: boolean]|null;
+
 export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
     getSkillshot?: (skillshot: Skillshot) => Partial<SkillshotAward>[];
     ignoreSkillsot: Set<Switch>;
     spinnerValue?: number;
+    music: MusicType;
 };
 
 export type CoilOutputs = {
@@ -781,6 +801,8 @@ export class Machine extends Tree<MachineOutputs> {
     lSpinnerTarget = new Light('lSpinnerTarget', 33);
     lUpperLaneTarget = new Light('lUpperLaneTarget', 37);
 
+    oMusic = new MusicOutput(null, 'music');
+
     iSS1 = new Image('iSS1');
     iSS3 = new Image('iSS3');
     iSS4 = new Image('iSS4');
@@ -972,6 +994,7 @@ export class Machine extends Tree<MachineOutputs> {
             getSkillshot: undefined,
             ignoreSkillsot: new Set(),
             spinnerValue: undefined,
+            music: null,
         });
 
         this.listen(onSwitchClose(this.sTroughFull), () => {

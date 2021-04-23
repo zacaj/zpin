@@ -17,7 +17,7 @@ import { comma, seq, range, repeat, money, round } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
-import { muteMusic, playSound, playVoice, unmuteMusic } from '../sound';
+import { playSound, playVoice } from '../sound';
 import { Skillshot } from './skillshot';
 import { time, wait } from '../timer';
 import { dFitText, dHash, dImage, DisplayContent, dMany, dText } from '../disp';
@@ -123,6 +123,7 @@ export class Poker extends Mode {
             // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),
+            music: () => this.playerWins? null : undefined,
         });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
@@ -395,7 +396,7 @@ export class Poker extends Mode {
     async showCards(sw: Switch) {
         this.step++;
         this.finishShow = await Events.waitPriority(Priorities.ShowCards);
-        void muteMusic();
+        // void muteMusic();
         Log.info('game', 'showing hand');
         for (let i=0; i<7; i++) {
             if (this.dealerHand[i]?.flipped)
@@ -456,7 +457,7 @@ export class Poker extends Mode {
 
         await gWait(1500, 'showing cards');
 
-        void unmuteMusic();
+        // void unmuteMusic();
         
         this.end();
     }

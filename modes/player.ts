@@ -43,6 +43,40 @@ export enum Difficulty {
 }
 
 export class Player extends Mode {
+    store = {
+        Poker: {} as any,
+        StraightMb: {} as any,
+        Skillshot: {} as any,
+        HandMb: {} as any,
+        NoMode: {} as any,
+        MiscAwards: {} as any,
+        FullHouseMb: {} as any,
+        FlushMb: {} as any,
+        Bonus: {} as any,
+        Multiplier: {} as any,
+        Spinner: {} as any,
+    };
+    storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
+        assert(tree.name in this.store);
+
+        const store = (this.store as any)[tree.name as any];
+        for (const prop of props) {
+            if (!(prop in store))
+                store[prop] = tree[prop];
+            
+            Object.defineProperty(tree, prop, {
+                get() {
+                    return store[prop];
+                },
+                set(val) {
+                    store[prop] = val;
+                },
+            });
+        }
+
+        State.declare<T>(store, props);
+    }
+
     chips = 3;
     _score = 0;
     get score() {
@@ -159,7 +193,7 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        // ['StraightMb', []],
+        ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
     ]);
@@ -502,7 +536,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            await Poker.start(this);
+            // await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -527,39 +561,6 @@ export class Player extends Mode {
     
     async startBall() {
         await Ball.start(this);
-    }
-    store = {
-        Poker: {} as any,
-        StraightMb: {} as any,
-        Skillshot: {} as any,
-        HandMb: {} as any,
-        NoMode: {} as any,
-        MiscAwards: {} as any,
-        FullHouseMb: {} as any,
-        FlushMb: {} as any,
-        Bonus: {} as any,
-        Multiplier: {} as any,
-        Spinner: {} as any,
-    };
-    storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
-        assert(tree.name in this.store);
-
-        const store = (this.store as any)[tree.name as any];
-        for (const prop of props) {
-            if (!(prop in store))
-                store[prop] = tree[prop];
-            
-            Object.defineProperty(tree, prop, {
-                get() {
-                    return store[prop];
-                },
-                set(val) {
-                    store[prop] = val;
-                },
-            });
-        }
-
-        State.declare<T>(store, props);
     }
 
     addChip() {
@@ -901,7 +902,7 @@ export class Multiplier extends Tree<MachineOutputs> {
             this.lanes.rotate(1);
         });
 
-        void playVoice('2x');
+        void playVoice('2x', 25);
 
         this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
 

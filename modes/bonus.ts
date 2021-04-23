@@ -44,6 +44,7 @@ export class Bonus extends Mode {
             shooterDiverter: false,
             leftGate: false,
             rightGate: false,
+            music: null,
         });
 
         void stopMusic();
@@ -56,7 +57,7 @@ export class Bonus extends Mode {
     async run() {
         if (!this.ball.tilted) 
         // await gWait(500, 'bonus start');
-        await stopSounds();
+        // await stopSounds();
         await this.addLine('Drops', 2500, this.ball.drops);
         await this.addLine('Banks', 5000, this.ball.banks);
         await this.addLine('Slings', 100, this.ball.spins);

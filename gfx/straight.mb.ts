@@ -13,7 +13,7 @@ export class StraightMbGfx extends ModeGroup {
     notInstructions = gfx.createGroup();
     lightJp = makeText('COMPLETE LIT BANK TO LIGHT JACKPOT', 40, 'center', 'bottom').y(Screen.h*.15);
     getJp = makeText('SHOOT RAMP FOR JACKPOT', 65, 'center', 'bottom').y(Screen.h*-.05);
-    value = makeText('100000', 50, 'center', 'bottom').y(Screen.h*.1);
+    value = makeText('100000', 50, 'center', 'bottom').y(Screen.h*.05);
     double = makeText('SHOOTER LANE COMBO: ONE SHOT 2X JACKPOT', 30, 'center', 'bottom').y(Screen.h*.45);
     or = makeText('- or -', 20, 'center', 'bottom').y(Screen.h*.375);
     spinner = makeText('SPINNER: +25% JACKPOT VALUE', 30, 'center', 'bottom').y(Screen.h*.31);

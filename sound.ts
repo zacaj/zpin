@@ -1,4 +1,5 @@
 import { Log } from "./log";
+import { machine } from "./machine";
 import { MPU } from "./mpu";
 import { fork } from "./promises";
 import { arrayify, OrArray } from "./util";
@@ -39,7 +40,7 @@ export async function playSound(name: string, volume = 50, force = false, loops 
     const play = ++playNum;
 
     if (soundEnabled)
-        await fork(MPU.sendCommand(`sound ${volume} 1 ${force} ${loops} ${name}`));
+        await fork(MPU.sendCommand(`sound ${volume} 1 ${force} ${loops} false ${name}`));
     return {
         sound: new Sound(),
         ended: new Promise(resolve => {}),
@@ -52,20 +53,20 @@ export async function playVoice(name: OrArray<string>, volume = 50, force = fals
     name.shuffle();
 
     if (soundEnabled)
-        await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 ${name[0]}`));
+        await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 false ${name[0]}`));
     return {
         sound: new Sound(),
         ended: new Promise(resolve => {}),
     };
 }
 
-export async function playMusic(name: string, loops = 0, volume = 50, solo = true) {
+export async function playMusic(name: string, loops = 0, volume = 50, resume = false, solo = true) {
     const play = ++playNum;
 
     if (argv.music === false) volume = 0;
 
     if (soundEnabled)
-        await fork(MPU.sendCommand(`sound ${volume} 0 ${solo} ${loops} ${name}`));
+        await fork(MPU.sendCommand(`sound ${volume} 0 ${solo} ${loops} ${resume} ${name}`));
     return {
         sound: new Sound(),
         ended: new Promise(resolve => {}),
@@ -84,12 +85,12 @@ export async function stopSounds() {
     return stopTrack(1);
 }
 
-export async function muteMusic() {
-    if (soundEnabled)
-        await fork(MPU.sendCommand(`mute 0 true`));
-}
+// export async function muteMusic() {
+//     if (soundEnabled)
+//         await fork(MPU.sendCommand(`mute 0 true`));
+// }
 
-export async function unmuteMusic() {
-    if (soundEnabled)
-        await fork(MPU.sendCommand(`mute 0 false`));
-}
+// export async function unmuteMusic() {
+//     if (soundEnabled)
+//         await fork(MPU.sendCommand(`mute 0 false`));
+// }
