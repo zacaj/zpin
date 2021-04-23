@@ -32,7 +32,7 @@ export class StraightMbGfx extends ModeGroup {
         this.add(this.hand);
         this.add(this.notInstructions);
 
-        this.notInstructions.add(makeText('multiball!', 60).y(Screen.h*-.28).rz.anim({
+        this.notInstructions.add(makeText('STRAIGHT multiball!', 60).y(Screen.h*-.28).rz.anim({
             from: -5,
             to: 5,
             autoreverse: true,

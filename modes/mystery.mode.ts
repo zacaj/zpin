@@ -10,10 +10,10 @@ import { machine, MachineOutputs } from "../machine";
 import { Mode, Modes } from "../mode";
 import { Outputs } from "../outputs";
 import { fork } from "../promises";
-import { muteMusic, playSound, unmuteMusic } from "../sound";
+import { muteMusic, playSound, playVoice, unmuteMusic } from "../sound";
 import { State } from "../state";
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from "../switch-matrix";
-import { time, Timer, TimerQueueEntry } from "../timer";
+import { time, Timer, TimerQueueEntry, wait } from "../timer";
 import { Tree } from "../tree";
 import { money, round, score } from "../util";
 import { Effect, FireCoil, ResetBank } from "../util-modes";
@@ -147,10 +147,10 @@ const allAwards: Award[] = [
     // },
     {
         name(player) {
-            return `CASH OUT ${money(Math.max(round(player.store.Poker!.bank * (player.store.Poker!.bank/1000%3+1)*.25, 100), 500))} at 2X`;
+            return `CASH OUT ${money(Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500))} at 2X`;
         },
         giveAward(player) {
-            const value = Math.max(round(player.store.Poker!.bank * (player.store.Poker!.bank/1000%3+1)*.25, 100), 500);
+            const value = Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500);
             player.store.Poker!.bank -= value;
             player.addScore(value*player.store.Poker!.cashValue*2, 'cash out', true);
         },
@@ -176,7 +176,9 @@ export class Mystery extends Mode {
         if (machine.upper3Bank.targets.some(t => t.state))
             fork(ResetBank(this, machine.upper3Bank));
 
+        void playVoice('mystery');
         void muteMusic();
+        fork(wait(1000).then(() => void playVoice(['shoot carefully', 'plunge carefully', 'choose wisely'])));
 
         // const validAwards = allAwards.filter(a => !a.isValid || a.isValid(player));
         const chosenAwards: Award[] = [];
@@ -233,7 +235,7 @@ export class Mystery extends Mode {
                 Timer.cancel(this.timer);
                 this.done = true;
             }
-        }, 1750, 'mstery', 3000);
+        }, 1750, 'mystery', 3000);
     }
 
     static async start(player: Player): Promise<Mystery|false> {

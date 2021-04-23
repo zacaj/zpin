@@ -37,6 +37,7 @@ export class Ball extends Mode {
     targets = 0;
     ramps = 0;
     spins = 0;
+    slings = 0;
     lanes = 0;
 
     tilted = false;
@@ -109,6 +110,7 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sRampMade), () => void playSound('ramp'));
         this.listen(onAnySwitchClose(...machine.sStandups), () => this.targets++);
         this.listen(onAnySwitchClose(...machine.sLanes), () => this.lanes++);
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.slings++);
         // this.listen(onAnySwitchClose(...machine.sStandups), () =>
         //     void playSound('bop'));
         // this.listen(onAnySwitchClose(...machine.sLanes), () => 

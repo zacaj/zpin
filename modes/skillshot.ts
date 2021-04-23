@@ -106,6 +106,8 @@ export class Skillshot extends Mode {
                 this.lastSw = index;
             else if (index >= this.lastSw-1)
                 return this.finish(e);
+            if (this.curAward < index)
+                void playSound('wrong');
         });
         this.listen(onAnySwitchClose(...machine.sUpperLanes), (e) => this.made(3, e));
         this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
@@ -143,6 +145,14 @@ export class Skillshot extends Mode {
         assert(!ball.skillshot);
         if (Skillshot.isShootAgain === ball) {
             void playVoice('shoot the ball carefully');
+        }
+        else if (ball.player.game.ballNum === 1 && skillshot.isFirstOfBall)
+            void playVoice('choose your skillshot');
+        else {
+            const options = ['shoot carefully', 'plunge carefully', 'choose wisely'];
+            if (!skillshot.isFirstOfBall)
+                options.push('this shot requires skill');
+            void playVoice(options);
         }
         Skillshot.isShootAgain = undefined;
         Skillshot.ballInPlay = ball;

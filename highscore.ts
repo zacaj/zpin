@@ -29,7 +29,8 @@ export type Highscores = {
 
     'MOST HANDS PLAYED': Highscore[];
     'MOST HANDS WON': Highscore[];
-    'MOST HANDS LOST': Highscore[];
+    // 'MOST HANDS LOST': Highscore[];
+    'SPINNER CHAMPION': Highscore[];
 
     '2X CHAMPION': Highscore[];
     'BONUS CHAMPION': Highscore[];
@@ -38,158 +39,166 @@ export type Highscores = {
 };
 
 export function getHighscores(): Highscores {
+    const defaults = {
+        'HIGH SCORES': [
+            {
+                name: 'ZAC',
+                score: '2,000,000',
+            },
+            {
+                name: 'JCA',
+                score: '1,000,000',
+            },
+            {
+                name: 'RON',
+                score: '500,000',
+            },
+            {
+                name: 'STP',
+                score: '10',
+            },
+        ],
+        'TOP EARNERS': [
+            {
+                name: 'ZAC',
+                score: '$10,000',
+            },
+            {
+                name: 'BEN',
+                score: '$7,500',
+            },
+            {
+                name: 'NES',
+                score: '$5,000',
+            },
+            {
+                name: 'SXM',
+                score: '$1',
+            },
+        ],
+        'LOW SCORES': [
+            {
+                name: 'RON',
+                score: '-2,000,000',
+            },
+            {
+                name: 'STP',
+                score: '-1,000,000',
+            },
+            {
+                name: 'SAG',
+                score: '-500,000',
+            },
+            {
+                name: 'YYZ',
+                score: '0',
+            },
+        ],
+        'STRAIGHT MB CHAMPION': [
+            {
+                name: 'KME',
+                score: '500,000',
+            },
+        ],
+        'FLUSH MB CHAMPION': [
+            {
+                name: 'KED',
+                score: '500,000',
+            },
+        ],
+        'FULL HOUSE MB CHAMPION': [
+            {
+                name: 'D F',
+                score: '500,000',
+            },
+        ],
+        'HAND MB CHAMPION': [
+            {
+                name: 'SUM',
+                score: '500,000',
+            },
+        ],
+        'SKILLSHOT CHAMPION': [
+            {
+                name: 'ARZ',
+                score: '2',
+            },
+        ],
+        'OUTLANE CHAMPION': [
+            {
+                name: 'RAY',
+                score: '7',
+            },
+        ],
+        'TOP CASHOUT': [
+            {
+                name: 'PNT',
+                score: '500,000',
+            },
+        ],
+        'BIGGEST HAND WON': [
+            {
+                name: 'MJR',
+                score: '$1,000',
+            },
+        ],
+        'BIGGEST HAND LOST': [
+            {
+                name: 'B P',
+                score: '$1,000',
+            },
+        ],
+        'MOST HANDS PLAYED': [
+            {
+                name: 'NJM',
+                score: '3',
+            },
+        ],
+        'MOST HANDS WON': [
+            {
+                name: 'NKY',
+                score: '3',
+            },
+        ],
+        // 'MOST HANDS LOST': [
+        //     {
+        //         name: 'ALK',
+        //         score: '2',
+        //     },
+        // ],
+        'SPINNER CHAMPION': [
+            {
+                name: 'D F',
+                score: '30',
+            },
+        ],
+        '2X CHAMPION': [
+            {
+                name: 'S P',
+                score: '100,000',
+            },
+        ],
+        'BONUS CHAMPION': [
+            {
+                name: 'FRE',
+                score: '50,000',
+            },
+        ],
+        'BONUS LOST CHAMPION': [
+            {
+                name: 'DSE',
+                score: '100,000',
+            },
+        ],
+    };
+
     try {
         const json = fs.readFileSync('highscores.json', 'utf8');
         const s = JSON.parse(json) as Highscores; 
-        return s;
+        return {...defaults, ...s};
     } catch (e) {
         Log.log('console', 'no highscores found, using defaults');
-        return {
-            'HIGH SCORES': [
-                {
-                    name: 'ZAC',
-                    score: '2,000,000',
-                },
-                {
-                    name: 'RON',
-                    score: '1,000,000',
-                },
-                {
-                    name: 'SAG',
-                    score: '500,000',
-                },
-                {
-                    name: 'STP',
-                    score: '10',
-                },
-            ],
-            'TOP EARNERS': [
-                {
-                    name: 'ZAC',
-                    score: '$10,000',
-                },
-                {
-                    name: 'BEN',
-                    score: '$7,500',
-                },
-                {
-                    name: 'NES',
-                    score: '$5,000',
-                },
-                {
-                    name: 'SXM',
-                    score: '$1',
-                },
-            ],
-            'LOW SCORES': [
-                {
-                    name: 'RON',
-                    score: '-2,000,000',
-                },
-                {
-                    name: 'STP',
-                    score: '-1,000,000',
-                },
-                {
-                    name: 'SAG',
-                    score: '-500,000',
-                },
-                {
-                    name: 'YYZ',
-                    score: '0',
-                },
-            ],
-            'STRAIGHT MB CHAMPION': [
-                {
-                    name: 'KME',
-                    score: '500,000',
-                },
-            ],
-            'FLUSH MB CHAMPION': [
-                {
-                    name: 'KED',
-                    score: '500,000',
-                },
-            ],
-            'FULL HOUSE MB CHAMPION': [
-                {
-                    name: 'D F',
-                    score: '500,000',
-                },
-            ],
-            'HAND MB CHAMPION': [
-                {
-                    name: 'SUM',
-                    score: '500,000',
-                },
-            ],
-            'SKILLSHOT CHAMPION': [
-                {
-                    name: 'ARZ',
-                    score: '2',
-                },
-            ],
-            'OUTLANE CHAMPION': [
-                {
-                    name: 'RAY',
-                    score: '7',
-                },
-            ],
-            'TOP CASHOUT': [
-                {
-                    name: 'PNT',
-                    score: '500,000',
-                },
-            ],
-            'BIGGEST HAND WON': [
-                {
-                    name: 'MJR',
-                    score: '$1,000',
-                },
-            ],
-            'BIGGEST HAND LOST': [
-                {
-                    name: 'B P',
-                    score: '$1,000',
-                },
-            ],
-            'MOST HANDS PLAYED': [
-                {
-                    name: 'NJM',
-                    score: '3',
-                },
-            ],
-            'MOST HANDS WON': [
-                {
-                    name: 'NKY',
-                    score: '3',
-                },
-            ],
-            'MOST HANDS LOST': [
-                {
-                    name: 'ALK',
-                    score: '2',
-                },
-            ],
-            '2X CHAMPION': [
-                {
-                    name: 'S P',
-                    score: '100,000',
-                },
-            ],
-            'BONUS CHAMPION': [
-                {
-                    name: 'FRE',
-                    score: '50,000',
-                },
-            ],
-            'BONUS LOST CHAMPION': [
-                {
-                    name: 'DSE',
-                    score: '100,000',
-                },
-            ],
-        };
+        return defaults;
     }
 }
 
@@ -229,7 +238,8 @@ export async function checkForScores(game: Game) {
             ['BIGGEST HAND LOST', money(player.store.Poker!.biggestLoss), 1],
             ['MOST HANDS PLAYED', comma(player.store.Poker!.handsPlayed)+' HANDS', 1],
             ['MOST HANDS WON', comma(player.store.Poker!.handsWon)+' HANDS', 1],
-            ['MOST HANDS LOST', comma(player.store.Poker!.handsPlayed-player.store.Poker!.handsWon)+' HANDS', 1],
+            // ['MOST HANDS LOST', comma(player.store.Poker!.handsPlayed-player.store.Poker!.handsWon)+' HANDS', 1],
+            ['SPINNER CHAMPION', comma(player.store.Spinner?.maxRip)+' SPINS', 1],
             ['2X CHAMPION', comma(player.store.Multiplier?.topTotal ?? 0), 1],
             ['BONUS CHAMPION', comma(player.store.Bonus?.topTotal ?? 0), 1],
             ['BONUS LOST CHAMPION', comma(player.store.Bonus?.bottomTotal ?? 0), 1],
@@ -237,6 +247,10 @@ export async function checkForScores(game: Game) {
 
         const highs = playerScores.flatMap(([type, value, mult]) => {
             const scores = highscores[type];
+            if (!scores) {
+                Log.error('game', 'missing highscore ', type);
+                return [];
+            }
             const score: Highscore = {
                 name: '?',
                 score: value,

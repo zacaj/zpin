@@ -159,7 +159,7 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        ['StraightMb', []],
+        // ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
     ]);
@@ -283,8 +283,10 @@ export class Player extends Mode {
             this.mysteryNext = this.mysteryRng.randSelect(...Object.values(MysteryNext));
             this.mysteryLeft--;
 
-            if (this.mysteryLeft === 0)
+            if (this.mysteryLeft === 0) {
                 alert('MYSTERY LIT');
+                void playVoice('mystery is lit');
+            }
         });
 
         this.listen(onSwitchClose(machine.sUpperEject), async () => {
@@ -537,6 +539,7 @@ export class Player extends Mode {
         FlushMb: {} as any,
         Bonus: {} as any,
         Multiplier: {} as any,
+        Spinner: {} as any,
     };
     storeData<T extends Tree<any>>(tree: T, props: ((keyof Omit<T, keyof Tree<any>>)&string)[]) {
         assert(tree.name in this.store);
@@ -585,12 +588,16 @@ export class Player extends Mode {
         this.mbsQualified.set(mb, hand);
         switch (mb) {
             case 'FlushMb':
+                void playVoice('flush mb is lit');
                 return alert('flush multiball qualified', ms);
             case 'StraightMb':
+                void playVoice('straight mb is lit');
                 return alert('straight multiball qualified', ms);
             case 'FullHouseMb':
+                void playVoice('fullhouse mb is lit');
                 return alert('full house multiball qualified', ms);
             case 'HandMb':
+                void playVoice('hand mb is lit');
                 return alert('hand multiball qualified', ms);
         }
     }
@@ -622,6 +629,7 @@ class Spinner extends Tree<MachineOutputs> {
     tb?: Group;
     ripTimer?: TimerQueueEntry;
 
+    maxRip = 0;
 
     constructor(
         public player: Player,
@@ -629,6 +637,7 @@ class Spinner extends Tree<MachineOutputs> {
         super();
 
         State.declare<Spinner>(this, ['rounds', 'score', 'comboMult', 'displayText']);
+        player.storeData<Spinner>(this, ['maxRip']);
 
         this.out = new Outputs(this, {
             leftGate: () => this.rounds > 0,
@@ -700,6 +709,9 @@ class Spinner extends Tree<MachineOutputs> {
                 (this.tb.children[2] as Text).text(`${this.ripCount} SPINS`);
                 this.ripTimer.time = time() + 750 as Time;
             }
+
+            if (this.ripCount > this.maxRip)
+                this.maxRip = this.ripCount;
 
             if (this.ripCount === 69)
                 void playVoice('nice');
@@ -888,6 +900,8 @@ export class Multiplier extends Tree<MachineOutputs> {
         e => {
             this.lanes.rotate(1);
         });
+
+        void playVoice('2x');
 
         this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
 

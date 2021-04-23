@@ -41,7 +41,7 @@ export abstract class Multiball extends Mode {
             return 0;
         if (this.player.difficulty===Difficulty.Expert)
             return 20000;
-        if (this.player.difficulty===Difficulty.Beginner)
+        if (this.player.difficulty<=Difficulty.Casual)
             return 2400000;
         return 30000;
     }

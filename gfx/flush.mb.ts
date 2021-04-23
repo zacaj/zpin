@@ -29,7 +29,7 @@ export class FlushMbGfx extends ModeGroup {
         };
         this.add(this.notInstructions);
 
-        this.notInstructions.add(makeText('multiball!', 60).y(Screen.h*-.28).x.anim(anim).start());
+        this.notInstructions.add(makeText('FLUSH multiball!', 60).y(Screen.h*-.28).x.anim(anim).start());
 
         this.add(this.light);
         this.add(this.jp);

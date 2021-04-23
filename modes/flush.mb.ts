@@ -111,6 +111,7 @@ export class FlushMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
+                void playVoice('ball added');
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -136,6 +137,7 @@ export class FlushMb extends Multiball {
             player.focus = mb;
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
+            void playVoice('flush mb');
             await alert('Flush Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {

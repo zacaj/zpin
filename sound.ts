@@ -1,6 +1,7 @@
 import { Log } from "./log";
 import { MPU } from "./mpu";
 import { fork } from "./promises";
+import { arrayify, OrArray } from "./util";
 const argv = require('yargs').argv;
 
 let soundEnabled = false;
@@ -45,11 +46,13 @@ export async function playSound(name: string, volume = 50, force = false, loops 
     };
 }
 
-export async function playVoice(name: string, volume = 50, force = false) {
+export async function playVoice(name: OrArray<string>, volume = 50, force = false) {
     const play = ++playNum;
+    name = arrayify(name);
+    name.shuffle();
 
     if (soundEnabled)
-        await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 ${name}`));
+        await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 ${name[0]}`));
     return {
         sound: new Sound(),
         ended: new Promise(resolve => {}),

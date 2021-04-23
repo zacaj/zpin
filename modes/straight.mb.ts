@@ -110,6 +110,7 @@ export class StraightMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
+                void playVoice('ball added');
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -134,7 +135,8 @@ export class StraightMb extends Multiball {
             e => e instanceof DropBankCompleteEvent, e => this.state._==='bankLit' && e.bank === this.state.curBank], 
         () => {
             this.state = JackpotLit();
-            void playVoice('shoot the ramp');
+            // void playVoice('shoot the ramp');
+            void playVoice('jackpot is lit');
         });
 
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent && this.state._==='bankLit' && e.target.bank === this.state.curBank, (e) => {
@@ -160,6 +162,7 @@ export class StraightMb extends Multiball {
             player.focus = mb;
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
+            void playVoice('straight mb');
             await alert('STRAIGHT Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {

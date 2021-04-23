@@ -5,6 +5,7 @@ import { Highscores } from "../highscore";
 import { light, Color } from "../light";
 import { machine, MachineOutputs } from "../machine";
 import { Outputs } from "../outputs";
+import { playVoice } from "../sound";
 import { State } from "../state";
 import { onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { time } from "../timer";
@@ -25,6 +26,8 @@ export class HighscoreEntry extends Tree<MachineOutputs> {
     ) {
         super();
         State.declare<HighscoreEntry>(this, ['initials']);
+
+        void playVoice('highscore');
 
         const group = gfx.createGroup();
         game.gfx!.add(group);

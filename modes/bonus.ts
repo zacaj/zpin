@@ -57,11 +57,11 @@ export class Bonus extends Mode {
         if (!this.ball.tilted) 
         // await gWait(500, 'bonus start');
         await stopSounds();
-        await this.addLine('Drops', 5000, this.ball.drops);
-        await this.addLine('Banks', 10000, this.ball.banks);
-        await this.addLine('Spins', 100, this.ball.spins);
+        await this.addLine('Drops', 2500, this.ball.drops);
+        await this.addLine('Banks', 5000, this.ball.banks);
+        await this.addLine('Slings', 100, this.ball.spins);
         await this.addLine('Lanes', 2500, this.ball.lanes);
-        await this.addLine('Ramps', 15000, this.ball.ramps);
+        await this.addLine('Ramps', 10000, this.ball.ramps);
         // await this.addLine('Targets', 2500, this.ball.targets);
         if (this.ball.bonusX>1) {
             // if (!this.ball.tilted) 

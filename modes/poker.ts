@@ -4,7 +4,7 @@ import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
 import { Outputs } from '../outputs';
 import { DropDownEvent, DropBankCompleteEvent, DropBankResetEvent } from '../drop-bank';
-import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
+import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, Switch } from '../switch-matrix';
 import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
@@ -147,6 +147,19 @@ export class Poker extends Mode {
                 // this.qualifyModes();
 
                 if (this.step === 7) {
+                    this.handsPlayed++;
+                    if (this.handsPlayed >= this.handsForMb) {
+                        this.handsForMb += this.handsPlayed<=1? 2 : 3;
+                            
+                        if (!this.player.mbsQualified.size) {
+                            Log.info('game', 'qualified hands multiball');
+                            alert('hand multiball qualified', 3000, `${this.handsPlayed} hands played`);
+                            void playVoice('hand mb is lit');
+                        }
+                        this.player.mbsQualified.set('HandMb', this.playerHand.slice(0, 5).truthy());
+                    }
+                    if (this.player.mbsQualified.size || this.newMbs.size)
+                        void playVoice('multiball is lit');
                     // this.misc.addTargets(7 - this.misc.targets.size);
                     fork(ResetDropBanks(this, machine.rightBank).then(() => {
                         for (let i=0; i<3; i++) {
@@ -188,7 +201,7 @@ export class Poker extends Mode {
             // const done = await Events.waitPriority(1);
             this.closeShooter = e.sw === machine.sShooterLane;
             if (e.sw !== machine.sOuthole || machine.ballsInPlay <= 1)
-                await this.showCards();
+                await this.showCards(e.sw);
 
             // if (e.sw === machine.sShooterLane) {
             //     this.player.poker = new Poker(this.player);
@@ -210,7 +223,10 @@ export class Poker extends Mode {
         this.listen(onSwitchClose(machine.sActionButton), () => {
             if (this.player.game.ballNum===1 && this.player.score===0) return;
             if (machine.sShooterLane.state) {
-                void playVoice('folded');
+                if (this.player.number > 4)
+                    void playVoice('folded');
+                else
+                    void playVoice(`player ${this.player.number} folds`);
                 this.wasQuit = true;
                 player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
                     this.wasQuit = false;
@@ -376,7 +392,7 @@ export class Poker extends Mode {
         }
     }
 
-    async showCards() {
+    async showCards(sw: Switch) {
         this.step++;
         this.finishShow = await Events.waitPriority(Priorities.ShowCards);
         void muteMusic();
@@ -392,7 +408,6 @@ export class Poker extends Mode {
             fork(wait(1000).then(() => playVoice("player win")));
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
-        this.handsPlayed++;
         if (this.playerWins) {
             this.handsWon++;
             if (this.pot > this.biggestWin)
@@ -402,17 +417,8 @@ export class Poker extends Mode {
             if (this.pot > this.biggestLoss)
                 this.biggestLoss = this.pot;
         await gWait(1500, 'showing cards');
-        if (this.handsPlayed >= this.handsForMb) {
-            this.handsForMb += this.handsPlayed<=1? 2 : 3;
-                
-            if (!this.player.mbsQualified.size) {
-                Log.info('game', 'qualified hands multiball');
-                await alert('hand multiball qualified', 2000, `${this.handsPlayed} hands played`)[1];
-            }
-            this.player.mbsQualified.set('HandMb', result.aCards);
-        }
-        // for (const [mb, hand] of this.newMbs)
-        //     await this.player.qualifyMb(mb, hand, 2000)[1];
+        for (const [mb, hand] of this.newMbs)
+            await this.player.qualifyMb(mb, hand, 2000)[1];
         fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 

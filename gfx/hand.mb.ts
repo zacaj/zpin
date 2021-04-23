@@ -35,7 +35,7 @@ export class HandMbGfx extends ModeGroup {
         };
         this.add(this.notInstructions);
 
-        this.notInstructions.add(makeText('multiball!', 60).y(Screen.h*-.28).sx.anim(anim).start().sy.anim(anim).start());
+        this.notInstructions.add(makeText('HAND Multiball!', 60).y(Screen.h*-.28).sx.anim(anim).start().sy.anim(anim).start());
 
         this.add(this.drops);
         this.add(this.banks);

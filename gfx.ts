@@ -993,7 +993,7 @@ export async function gWait(ms: number, context: string) {
 }
 
 const popups: Node[] = [];
-export async function popup(node: Node, ms = 3500) {
+export async function popup(node: Node, ms = 3500, hidePrevious = false) {
     // if (!pfx) return;
     // node.x(Screen.w/2);
     // node.y(Screen.h/2);
@@ -1042,7 +1042,7 @@ export function alert(text: string, ms?: number, subtext?: string): [Group, Prom
         g = new FakeGroup() as any;
     }
 
-    return [g, popup(g, ms)]; 
+    return [g, popup(g, ms, true)]; 
 }
 
 export function notify(text: string, ms = 2000): [Group, Promise<void>] {

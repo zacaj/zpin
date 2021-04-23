@@ -146,11 +146,13 @@ export class FullHouseMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
+                void playVoice('ball added');
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
             else {
                 this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => j.startsWith('Left')) as Jackpot[]));
+                void playVoice('jackpot is lit');
                 await this.releaseBallsFromLock();
             }
         });
@@ -158,7 +160,7 @@ export class FullHouseMb extends Multiball {
             if (machine.sUpperInlane.wasClosedWithin(1500) && this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane) {
                 return this.jackpot();
             } else {
-                if (this.state._ !== 'jackpotLit' || this.state.jp.startsWith('Left'))
+                if (this.state._ !== 'jackpotLit' || this.state.jp.startsWith('Left')) 
                     this.state = JackpotLit(this.jpRng.randSelect(...Object.values(Jackpot).filter(j => !j.startsWith('Left')) as Jackpot[]));
                 if (this.state.jp !== Jackpot.RightTarget && machine.upper3Bank.targets.some(t => t.state))
                     fork(ResetBank(this, machine.upper3Bank));
@@ -196,6 +198,7 @@ export class FullHouseMb extends Multiball {
             player.focus = mb;
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
+            void playVoice('full house mb');
             await alert('Full House Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {

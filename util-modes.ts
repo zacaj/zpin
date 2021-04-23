@@ -16,6 +16,7 @@ import { Player } from './modes/player';
 import { Rng } from './rand';
 import { State } from './state';
 import { dImage } from './disp';
+import { playVoice } from './sound';
 
 
 
@@ -181,6 +182,7 @@ export async function AddABall(parent: Tree<MachineOutputs>) {
 
     parent.addTemp(node);
     alert('BALL ADDED');
+    void playVoice('ball added');
     await ReleaseBall(parent);
 
     await parent.await(node.onEnd());

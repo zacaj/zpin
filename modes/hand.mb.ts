@@ -120,6 +120,7 @@ export class HandMb extends Multiball {
                     machine.ballsLocked++;
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
+                void playVoice('ball added');
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -164,6 +165,7 @@ export class HandMb extends Multiball {
             player.focus = mb;
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
+            void playVoice('hand mb');
             await alert('Hand Multiball!', 3000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
