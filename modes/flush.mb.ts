@@ -35,7 +35,6 @@ export class FlushMb extends Multiball {
     jackpots = 0;
     skillshotRng!: Rng;
     countdown?: TimerQueueEntry;
-    total = 0;
 
     standupMult = 1;
     targetMult = 1;
@@ -138,7 +137,7 @@ export class FlushMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('flush mb');
-            await alert('Flush Multiball!', 3000)[1];
+            await alert('Flush Multiball!', 6000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -164,7 +163,7 @@ export class FlushMb extends Multiball {
         const ret = this.end();
         if (this.jackpots < 6 && !this.isRestarted) {
             this.player.noMode?.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
-                return FlushMb.start(this.player, true, this.lastJps);
+                return FlushMb.start(this.player, true, this.lastJps, this.total);
             }));
         }
         if (this.total > this.topTotal)

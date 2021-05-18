@@ -58,8 +58,6 @@ export class HandMb extends Multiball {
 
     leftTilRed = 2;
 
-    total = 0;
-
     getArrowColor(): LightState {
         let color = Color.Green;
         if (this.state._==='started' && this.state.doubled) return Color.Red;
@@ -166,7 +164,7 @@ export class HandMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('hand mb');
-            await alert('Hand Multiball!', 3000)[1];
+            await alert('Hand Multiball!', 6000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -223,6 +221,11 @@ export class HandMb extends Multiball {
                 this.value += 10000 * bank.targets.length;
             }
 
+            if ([200000, 400000, 600000, 800000, 1000000].some(v => this.value > v && oldValue < v)) {
+                for (const target of this.targetRng.randSelect(...machine.dropBanks.filter(b => !b.targets.every(t => this.redTargets.has(t)))).targets) {
+                    this.redTargets.add(target);
+                }
+            }
             if ([250000, 600000, 1000000].some(v => this.value > v && oldValue < v)) {
                 void playVoice(Math.random()>.5? 'under the ramp' : 'shoot the spinner'); 
             }

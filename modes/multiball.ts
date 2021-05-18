@@ -1,7 +1,7 @@
 import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { MPU } from '../mpu';
-import { gfx } from '../gfx';
+import { alert, gfx } from '../gfx';
 import { ResetMechs, ReleaseBall, MiscAwards } from '../util-modes';
 import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { Log } from '../log';
@@ -10,7 +10,7 @@ import { State } from '../state';
 import { Time, time, wait } from '../timer';
 import { fork } from '../promises';
 import { Difficulty, Player } from './player';
-import { assert, getCallerLoc } from '../util';
+import { assert, getCallerLoc, score } from '../util';
 import { Color } from '../light';
 import { stopMusic } from '../sound';
 
@@ -27,6 +27,8 @@ export abstract class Multiball extends Mode {
     lockPost? = false;
 
     misc?: MiscAwards;
+
+    total = 0;
 
     multiStartTime?: Time;
     get saveFreq() {
@@ -122,6 +124,11 @@ export abstract class Multiball extends Mode {
     async lastBallDrained() {
         // void stopMusic();
         return this.end();
+    }
+
+    end() {
+        alert(`TOTAL: ${score(this.total)}`, 8000);
+        return super.end();
     }
 
     async ballDrained() {

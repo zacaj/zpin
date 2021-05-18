@@ -45,7 +45,6 @@ export class FullHouseMb extends Multiball {
     topTotal = 0;
 
     jackpots = 0;
-    total = 0;
 
     lastJp?: Jackpot;
 
@@ -199,7 +198,7 @@ export class FullHouseMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('full house mb');
-            await alert('Full House Multiball!', 3000)[1];
+            await alert('Full House Multiball!', 6000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -225,7 +224,7 @@ export class FullHouseMb extends Multiball {
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
             this.player.noMode?.addTemp(new Restart(this.player.ball!, 14, () => {
-                return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined);
+                return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined, this.total);
             }));
         }
         if (this.total > this.topTotal)

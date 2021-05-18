@@ -44,7 +44,7 @@ export class StraightMb extends Multiball {
 
     state: ReturnType<typeof Starting>|ReturnType<typeof BankLit>|ReturnType<typeof JackpotLit> = Starting();
 
-    value = 500000;
+    value = 400000;
 
     skillshotRng!: Rng;
     bankRng!: Rng;
@@ -53,8 +53,6 @@ export class StraightMb extends Multiball {
     jackpots = 0;
     drops = 0;
     lastBank?: DropBank;
-
-    total = 0;
 
     get doubleComboActive() {
         return this.state._ === 'jackpotLit' && this.state.doubled && time()-this.state.doubled<5000;
@@ -163,7 +161,7 @@ export class StraightMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('straight mb');
-            await alert('STRAIGHT Multiball!', 3000)[1];
+            await alert('STRAIGHT Multiball!', 6000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -189,7 +187,7 @@ export class StraightMb extends Multiball {
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
             this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(25 - this.drops * 4, 9), () => {
-                return StraightMb.start(this.player, true, this.lastBank);
+                return StraightMb.start(this.player, true, this.lastBank, this.total);
             }));
         }
         if (this.total > this.topTotal)
@@ -237,7 +235,7 @@ export class StraightMb extends Multiball {
         this.state.awardingJp--;
         if (this.state.awardingJp === 0) {
             fork(this.releaseBallFromLock());
-            this.value += 250000;
+            this.value += round(this.value * .15, 100000);
             this.selectBank();
         }
     }
