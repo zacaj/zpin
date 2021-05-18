@@ -1000,7 +1000,8 @@ export async function popup(node: Node, ms = 3500, hidePrevious = false) {
     if (gfx) {
         node.z(100);
         screen.add(node);
-        popups.forEach(n => n.visible(false));
+        if (hidePrevious)
+            popups.forEach(n => n.visible(false));
     }
     popups.push(node);
     if (ms)

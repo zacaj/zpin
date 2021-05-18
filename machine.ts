@@ -494,7 +494,7 @@ export type SkillshotAward = {
     dontOverride?: boolean;
 };
 
-export type MusicType = string|[string, resume: boolean]|null;
+export type MusicType = string|[file: string, resume: boolean]|null;
 
 export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
     getSkillshot?: (skillshot: Skillshot) => Partial<SkillshotAward>[];
@@ -632,7 +632,7 @@ export class Machine extends Tree<MachineOutputs> {
     sRightInlane = new Switch(0, 5, 'right inlane', LaneSet);
     sRightOutlane = new Switch(0, 4, 'right outlane', LaneSet);
     sMiniOut = new Switch(0, 3, 'mini out', Drain);
-    sOuthole = new Switch(0, 2, 'outhole', Drain);
+    sOuthole = new Switch(0, 2, 'outhole', [250, 50]);
     sTroughFull = new Switch(0, 1, 'trough full', Drain);
     sLeftSling = new Switch(1, 0, 'left sling', Bumper);
     sRightSling = new Switch(0, 7, 'right sling', Bumper);
@@ -670,7 +670,7 @@ export class Machine extends Tree<MachineOutputs> {
     sSidePopMini = new Switch(6, 0, 'side pop mini', StandupSet);
     sShooterUpper = new Switch(2, 6, 'shooter upper', LaneSet);
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', LaneSet);
-    sShooterLane = new Switch(0, 0, 'shooter lane', 100, 50);
+    sShooterLane = new Switch(0, 0, 'shooter lane', 100, 10);
     sShooterLower = new Switch(2, 0, 'shooter lower', LaneSet);
     sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
     sPop = new Switch(4, 7, 'pop', Bumper);

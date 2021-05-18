@@ -108,7 +108,7 @@ export function getHighscores(): Highscores {
         ],
         'FULL HOUSE MB CHAMPION': [
             {
-                name: 'D F',
+                name: 'ALK',
                 score: '500,000',
             },
         ],
@@ -256,8 +256,9 @@ export async function checkForScores(game: Game) {
                 score: value,
             };
             const pos = scores.insert(score, ({score}) => parse(value)*mult > parse(score)*mult);
+            Log.info('game', "category %s, player %i, score %s, pos %i", type, player.number, value, pos);
             scores.splice(scores.length-1, 1);
-            if (pos < scores.length-1) return [type];
+            if (pos <= scores.length-1) return [type];
             return [];
         });
 

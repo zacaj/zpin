@@ -70,7 +70,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -109,7 +109,7 @@
          style="fill:#ffffff;stroke-width:0.264583">#</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:9.27783px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';text-align:center;text-anchor:middle;fill:#ff00ff;stroke-width:0.231946"
+       style="font-size:9.27783px;line-height:1.25;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';text-align:center;text-anchor:middle;fill:#ff6cff;stroke-width:0.231946;fill-opacity:1;"
        x="26.895729"
        y="32.72575"
        id="text33"><tspan
@@ -117,7 +117,7 @@
          id="tspan31"
          x="26.895729"
          y="32.72575"
-         style="text-align:center;text-anchor:middle;fill:#ff00ff;stroke-width:0.231946">SLING</tspan></text>
+         style="text-align:center;text-anchor:middle;fill:#ff6cff;stroke-width:0.231946;fill-opacity:1;">SLING</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:5.07338px;line-height:0;font-family:'Card Characters';-inkscape-font-specification:'Card Characters';text-align:end;text-anchor:end;fill:#ffffff;stroke-width:0.126835"

@@ -70,7 +70,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -109,7 +109,7 @@
          style="fill:#808080;stroke-width:0.20344;">?</tspan></text>
     <path
        sodipodi:type="star"
-       style="fill:#ff00ff;stroke-width:0.264583"
+       style="fill:#ff6cff;stroke-width:0.264583;fill-opacity:1"
        id="path44"
        sodipodi:sides="3"
        sodipodi:cx="31.513763"

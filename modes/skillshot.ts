@@ -54,6 +54,8 @@ export class Skillshot extends Mode {
 
     music?: MusicType = null;
 
+    wrong = false;
+
     private constructor(
         public player: Player,
         public ball: Ball,
@@ -111,8 +113,10 @@ export class Skillshot extends Mode {
                 this.lastSw = index;
             else if (index >= this.lastSw-1)
                 return this.finish(e);
-            if (this.curAward < index)
+            if (this.curAward < index && !this.wrong) {
                 void playSound('wrong');
+                this.wrong = true;
+            }
         });
         this.listen(onAnySwitchClose(...machine.sUpperLanes), (e) => this.made(3, e));
         this.listen(onAnySwitchClose(machine.sUpperEject), (e) => this.made(4, e));
@@ -187,8 +191,9 @@ export class Skillshot extends Mode {
             alert('SKILLSHOT!', undefined, this.awards[i].award);
             this.skillshotCount++;
         }
-        else {
+        else if (!this.wrong) {
             void playSound('wrong');
+            this.wrong = true;
         }
         if (this.awards[i].collect)
             this.awards[i].collect!(e);

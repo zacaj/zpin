@@ -238,8 +238,8 @@ public class Sounds extends Thread {
 				channels[ci++],
 		});
 		tracks[0].name = "music";
-		tracks[0].volume = 0.25f;
-		tracks[0].duckVolume = 0.15f;
+		tracks[0].volume = 0.15f;
+		tracks[0].duckVolume = 0.1f;
 		
 		tracks[1] = new Track(new Channel[] {
 				channels[ci++],
@@ -258,7 +258,7 @@ public class Sounds extends Thread {
 				channels[ci++],
 		});
 		tracks[2].name = "voice";
-		tracks[2].volume = 0.9f;
+		tracks[2].volume = 1.0f;
 		
 		tracks[0].ducks = new Track[] {
 				tracks[2],

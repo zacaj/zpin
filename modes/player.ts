@@ -193,7 +193,7 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        ['StraightMb', []],
+        // ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
     ]);
@@ -263,7 +263,7 @@ export class Player extends Mode {
             iSS1: () => this.pokerEndingOrDone? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             iSS4: () => dImage(`lanes_`+[machine.cLeftGate.actual, machine.cRightGate.actual].map(b => b? "go" : 'stop').join('_')),
-            iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery') : undefined,
+            iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery_lit') : undefined,
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
             iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
@@ -536,7 +536,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            // await Poker.start(this);
+            await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -746,7 +746,7 @@ export class SpinnerRip extends Event {
 
 class LeftOrbit extends Tree<MachineOutputs> {
     get score() {
-        return round(this.player.score * (30/500), 10000, 30000);
+        return Math.min(100000, round(this.player.score * (30/500), 10000, 30000));
     }
     comboMult = 1;
 
@@ -818,7 +818,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
         if (this.startReady || this.state===2)
             this.state = 1;
-        this.comboMult += 2;
+        this.comboMult += 1;
     }
 }
 
@@ -919,6 +919,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         }
 
         this.listen(e => e instanceof BonusEnd, 'end');
+        this.listen([e => e instanceof BallEnding, () => ![machine.sLeftOutlane, machine.sRightOutlane, machine.sMiniOut].includes(machine.lastSwitchHit!)], 'end');
     }
 
     end() {
