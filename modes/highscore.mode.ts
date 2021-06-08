@@ -10,10 +10,10 @@ import { State } from "../state";
 import { onAnySwitchClose, onSwitchClose } from "../switch-matrix";
 import { time } from "../timer";
 import { Tree } from "../tree";
-import { score } from "../util";
+import { objectMap, score } from "../util";
 import { Player } from "./player";
 
-const chars = 'abcdefghijklmnopqrstuvqxyz ';
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ< ';
 
 export class HighscoreEntry extends Tree<MachineOutputs> {
     initials: string[] = ['_', '_', '_'];
@@ -29,6 +29,14 @@ export class HighscoreEntry extends Tree<MachineOutputs> {
 
         void playVoice('highscore');
 
+        const recents = [
+            ...Object.values(highscores).flat().filter(s => s.date && s.name!=='?').sort((a, b) => b.date! > a.date!? 1 : -1).map(s => s.name),
+            'RAY',
+            'SAG',
+            'RON',
+            'ZAC',
+        ].unique().slice(0, 5);
+
         const group = gfx.createGroup();
         game.gfx!.add(group);
         group.z(20);
@@ -41,6 +49,8 @@ export class HighscoreEntry extends Tree<MachineOutputs> {
         this.watch(() => newScore.text(`NEW ${highs[(time()/1500%highs.length)|0].replace(/S$/, '')}`));
 
         group.add(makeText(`PLAYER ${player.number}, ENTER YOUR INITIALS`, 35, 'center').y(Screen.h*-.2));
+
+        group.add(makeText('MAGNET: RECENT', 20, 'left', 'bottom').x(Screen.w*-.5).y(Screen.h*.5));
 
         let i=0;
         const init = makeText('', 130, 'center').y(Screen.h*.1);
@@ -59,6 +69,12 @@ export class HighscoreEntry extends Tree<MachineOutputs> {
         }).start();
 
         this.listen(onAnySwitchClose(machine.sStartButton, machine.sActionButton), () => {
+            if (this.initials[i] === '<') {
+                this.initials[i] = '_';
+                arrow.x(arrow.x()-Screen.w*.137);
+                i--;
+                return;
+            }
             if (i===2) {
                 for (const type of highs) {
                     for (const score of highscores[type]) {
@@ -74,12 +90,26 @@ export class HighscoreEntry extends Tree<MachineOutputs> {
         });
 
         this.listen(onAnySwitchClose(machine.sLeftFlipper, machine.sRightFlipper), e => {
-            let ind = chars.indexOf(this.initials[i]);
-            if (ind === -1) ind = chars.length-1;
+            const ch = i? chars : chars.split('').filter(c => c!=='<').join('');
+            let ind = ch.indexOf(this.initials[i]);
+            if (ind === -1) ind = ch.length-1;
             if (e.sw === machine.sLeftFlipper) ind--; else ind++;
-            if (ind < 0) ind += chars.length;
-            if (ind >= chars.length) ind -= chars.length;
-            this.initials[i] = chars.charAt(ind);
+            if (ind < 0) ind += ch.length;
+            if (ind >= ch.length) ind -= ch.length;
+            this.initials[i] = ch.charAt(ind);
+        });
+
+        this.listen(onAnySwitchClose(machine.sMagnetButton, machine.sPopperButton), e => {
+            let ind = recents.indexOf(this.initials.join(''));
+            if (ind === -1) ind = recents.length-1;
+            if (e.sw === machine.sMagnetButton) ind--; else ind++;
+            if (ind < 0) ind += recents.length;
+            if (ind >= recents.length) ind -= recents.length;
+            this.initials = recents[ind].split('');
+            while (i < 2) {
+                arrow.x(arrow.x()+Screen.w*.137);
+                i++;
+            }
         });
     }
-};
+}

@@ -380,7 +380,7 @@ export class Poker extends Mode {
                 Log.info('game', 'qualified flush multiball');
                 alert('flush multiball qualified');
             }
-            this.newMbs.set('StraightMb', flushes[0]);
+            this.newMbs.set('FlushMb', flushes[0]);
         }
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house

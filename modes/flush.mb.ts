@@ -86,7 +86,7 @@ export class FlushMb extends Multiball {
         this.out = new Outputs(this, {
             ...outs,
             rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0) 
-                || (this.state._==='jackpotLit' && this.state.jp===machine.orbitShot)),
+                || (this.state._!=='starting')),
             lockPost: () => this.lockPost ?? false,
             lRampArrow: () => 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady))?  [[Color.Green, 'fl']] :
@@ -321,18 +321,19 @@ export class FlushMb extends Multiball {
                 made: (e: SwitchEvent) => {
                     switch (verb[i]) {
                         case 'ONE-SHOT ADD-A-BALL': 
-                            if (this.state._==='starting') {
+                            if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
                                 this.listen(onAnyPfSwitchExcept(), (ev) => {
-                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000)) return;
+                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
                                     if (ev.sw !== machine.sRampMade) {
                                         this.state = Started();
                                         fork(this.releaseBallsFromLock());
                                     }
                                     return 'remove';
                                 });
+                                return;
                             }
-                        break;
+                            break;
                         case '2X TARGETS': this.targetMult++; break;
                         case '2X STANDUPS': this.standupMult++; break;
                         case '2X SHOTS': this.shotMult++; break;

@@ -22,6 +22,7 @@ export const CPU = {
 
     timeout: 10,
     connecting: false,
+    firstConnect: true,
 
     async init(ip?: string) {
         // this.ip = '192.168.2.11';
@@ -84,6 +85,11 @@ export const CPU = {
             this.connecting = false;
             this.timeout = 10;
             Log.log(['cpu', 'console'], 'connected to CPU');
+
+            if (this.firstConnect) {
+                await this.sendCommand('init');
+                this.firstConnect = false;
+            }
 
             for (const key of Object.keys(machine)) {
                 const obj = (machine as any)[key];

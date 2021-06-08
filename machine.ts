@@ -923,7 +923,7 @@ export class Machine extends Tree<MachineOutputs> {
             centerBank: false,
             upper2: false,
             upperEject: false,
-            lockPost: () => this.lockDown,
+            lockPost: () => this.lockDown,//this.sRampMade.wasClosedWithin(50),
             catcher: false,
             leftMagnet: false,
             leftGate: false,

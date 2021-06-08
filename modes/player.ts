@@ -267,7 +267,7 @@ export class Player extends Mode {
             iSS6: dImage("add_cash_value_target"),
             lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
             iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
-            lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode && !this.mystery, [Color.Pink, 'pl']),
+            lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode && !this.mystery, [Color.Purple, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
@@ -345,11 +345,13 @@ export class Player extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftFlipper),
             e => {
                 this.upperLanes.rotate(-1);
+                this.upperLaneChips.rotate(-1);
                 this.lowerLanes.rotate(-1);
             });
         this.listen(onAnySwitchClose(machine.sRightFlipper),
             e => {
                 this.upperLanes.rotate(1);
+                this.upperLaneChips.rotate(1);
                 this.lowerLanes.rotate(1);
             });
 
@@ -746,7 +748,8 @@ export class SpinnerRip extends Event {
 
 class LeftOrbit extends Tree<MachineOutputs> {
     get score() {
-        return Math.min(100000, round(this.player.score * (30/500), 10000, 30000));
+        return 35000;
+        // return Math.min(100000, round(this.player.score * (30/500), 10000, 30000));
     }
     comboMult = 1;
 
@@ -755,7 +758,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
     state = 0;
 
     get startReady() {
-        return machine.cRamp.actual &&
+        return machine.cRamp.actual && !this.player.curMbMode &&
             (
                 machine.sRightInlane.wasClosedWithin(2500) || machine.lastSwitchHit === machine.sRightInlane
                 || 
@@ -773,7 +776,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.out = new Outputs(this, {
             rightGate: () => this.state === 1? true : undefined,
             iRamp: () => machine.cRamp.actual? dFitText(score(this.score*this.comboMult), 64, 'center') : undefined,
-            lRampArrow: () => this.state===0 && this.startReady? [Color.White] : this.state===1? [[Color.White, 'fl', 5]] : undefined,
+            lRampArrow: () => this.state===0 && this.startReady? [[Color.White, 'fl', 3]] : this.state===1? [[Color.White, 'fl', 5]] : undefined,
             rampUp: () => this.state===1? false : undefined,
             lSpinnerArrow: () => this.state===2? [[Color.White, 'fl', 5]] : undefined,
         });

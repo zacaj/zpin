@@ -311,6 +311,9 @@ int main() {
                 if (parts[0] == "q") {
                     printf("  end session\n");
                     break;
+                } else if (parts[0] == "init") {
+                    printf("  init displays\n");
+                    manager.initAll();
                 } else if (parts[0] == "clear") {
                     int disp = stoi(parts[1]);
                     Color color = toColor(parts[2].c_str());

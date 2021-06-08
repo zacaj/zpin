@@ -290,7 +290,7 @@ export class Skillshot extends Mode {
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
                     }],
-                    [i===4 && machine.ballsInPlay<=1? 15 : 0, {
+                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<=1? 15 : 0, {
                         switch: gen.switch,
                         award: 'ADD A BALL',
                         made: () => AddABall(this.player.overrides),

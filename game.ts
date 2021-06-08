@@ -75,8 +75,16 @@ export class Game extends Mode {
             if (this.ballNum > this.ballCount) {
                 // alert('GAME OVER', 5000);
                 await checkForScores(this);
+                const totals = Object.keys(this.totals).map(source => ({
+                    ...this.totals[source],
+                    source,
+                }));
+                totals.sort((a, b) => b.total - a.total);
 
-                fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify(this.totals, undefined, 2));
+                fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify({
+                    players: this.players.map(p => ({ number: p.number, score: p.score })),
+                    totals,
+                }, undefined, 2));
                 if (require.main === module) {
                     debugger;
                     process.exit(0);

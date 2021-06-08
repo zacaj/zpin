@@ -8,6 +8,7 @@ import { comma, money, num } from './util';
 export type Highscore = {
     name: string;
     score: string;
+    date?: string;
 };
 
 export type Highscores = {
@@ -254,6 +255,7 @@ export async function checkForScores(game: Game) {
             const score: Highscore = {
                 name: '?',
                 score: value,
+                date: new Date().toISOString(),
             };
             const pos = scores.insert(score, ({score}) => parse(value)*mult > parse(score)*mult);
             Log.info('game', "category %s, player %i, score %s, pos %i", type, player.number, value, pos);

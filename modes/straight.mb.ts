@@ -275,10 +275,10 @@ export class StraightMb extends Multiball {
                 made: (e: SwitchEvent) => {
                     switch (verb[i]) {
                         case 'ONE-SHOT ADD-A-BALL': 
-                            if (this.state._==='starting') {
+                            if (this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
                                 this.listen(onAnyPfSwitchExcept(), (ev) => {
-                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000)) return;
+                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
                                     if (ev.sw !== machine.sRampMade) {
                                         this.selectBank(undefined);
                                         fork(this.releaseBallsFromLock());

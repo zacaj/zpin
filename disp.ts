@@ -50,10 +50,10 @@ export function dFitText(text: string, y: number, vAlign: 'top'|'bottom'|'center
             break;
         case 5:
             size = 62;
-            x = 15;
+            x = 5;
             break;
         case 6: 
-            size = 60;
+            size = 55;
             x = 7;
             break;
         case 7:

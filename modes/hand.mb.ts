@@ -40,7 +40,7 @@ export class HandMb extends Multiball {
 
     baseValue = 30000;
     value = 100000;
-    spinsPerJp = 30;
+    spinsPerJp = 25;
 
     get spinner() {
         return Math.ceil((this.value / this.spinsPerJp) / 100) * 100;
@@ -210,15 +210,17 @@ export class HandMb extends Multiball {
             this.redTargets.clear();
         } else {
             const oldValue = this.value;
-            if (typeof target === 'object') {
-                this.value += 25000 + 10000*this.banks + 1500*this.drops;
-                this.drops++;
-                this.player.score += 5000;
-                this.total += 5000;
-            }
-            if (bank) {
-                this.banks++;
-                this.value += 10000 * bank.targets.length;
+            if (oldValue < 300000) {
+                if (typeof target === 'object') {
+                    this.value += 15000 + 10000*this.banks + 1500*this.drops;
+                    this.drops++;
+                    this.player.score += 1000;
+                    this.total += 1000;
+                }
+                if (bank) {
+                    this.banks++;
+                    this.value += 10000 * bank.targets.length;
+                }
             }
 
             if ([200000, 400000, 600000, 800000, 1000000].some(v => this.value > v && oldValue < v)) {
@@ -306,7 +308,7 @@ export class HandMb extends Multiball {
                     if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                         this.state.addABallReady = true; 
                         this.listen(onAnyPfSwitchExcept(), (ev) => {
-                            if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000)) return;
+                            if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
                             if (ev.sw !== machine.sRampMade) {
                                 this.state = Started();
                                 fork(this.releaseBallsFromLock());
