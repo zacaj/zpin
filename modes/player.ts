@@ -168,9 +168,7 @@ export class Player extends Mode {
 
     clearHoles = new ClearHoles();
     spinner = new Spinner(this);
-    leftOrbit = new LeftOrbit(this);
     overrides = new PlayerOverrides(this);
-    rampCombo?: RampCombo;
     ball?: Ball;
     mult?: Multiplier;
     mystery?: Mystery;
@@ -179,9 +177,7 @@ export class Player extends Mode {
         return [
             this.clearHoles,
             this.ball,
-            this.rampCombo,
             this.spinner,
-            this.leftOrbit,
             this.focus,
             this.mult,
             this.mystery,
@@ -265,7 +261,7 @@ export class Player extends Mode {
             iSS4: () => dImage(`lanes_`+[machine.cLeftGate.actual, machine.cRightGate.actual].map(b => b? "go" : 'stop').join('_')),
             iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery_lit') : undefined,
             iSS6: dImage("add_cash_value_target"),
-            lRampArrow: add(() => this.mbReady, () => [this.mbColor(), 'fl']),
+            lRampArrow: add(() => this.mbReady && !machine.cRamp.actual, () => [this.mbColor(), 'fl']),
             iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
             lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode && !this.mystery, [Color.Purple, 'pl']),
             lPower1: () => light(this.chips>=1, Color.Orange),
@@ -287,8 +283,8 @@ export class Player extends Mode {
             lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3], Color.Orange),
             lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4], Color.Orange),
             lMainTargetArrow: many(() => ({
-                [this.mbColor(this.nextMb)]: this.mbsReady.size>1 && !!this.noMode,
-                [Color.Orange]: !this.curMbMode && this.chipsLit[1],
+                [this.mbColor(this.nextMb)]: this.mbsReady.size>1 && !this.curMbMode,
+                [Color.Orange]: this.chipsLit[1],
             })),
 
         });
@@ -538,7 +534,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            // await Poker.start(this);
+            await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -607,10 +603,19 @@ export class Player extends Mode {
 }
 
 class NoMode extends MiscAwards {
+    leftOrbit!: LeftOrbit;
+    get nodes() {
+        return [
+            this.leftOrbit,
+        ].truthy();
+    }
+
     constructor(
         player: Player,
     ) {
         super(player);
+
+        this.leftOrbit = new LeftOrbit(player);
 
         this.randomizeTargets();
     }
@@ -746,6 +751,11 @@ export class SpinnerRip extends Event {
     
 }
 
+enum LeftOrbitState {
+    Ready = 0,
+    RampDown = 1,
+    Spinner = 2,
+}
 class LeftOrbit extends Tree<MachineOutputs> {
     get score() {
         return 35000;
@@ -755,10 +765,10 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
     // rounds = 1;
     // maxRounds = 1;
-    state = 0;
+    state = LeftOrbitState.Ready;
 
     get startReady() {
-        return machine.cRamp.actual && !this.player.curMbMode &&
+        return machine.cRamp.actual &&
             (
                 machine.sRightInlane.wasClosedWithin(2500) || machine.lastSwitchHit === machine.sRightInlane
                 || 
@@ -774,17 +784,18 @@ class LeftOrbit extends Tree<MachineOutputs> {
         State.declare<LeftOrbit>(this, ['state', 'comboMult']);
 
         this.out = new Outputs(this, {
-            rightGate: () => this.state === 1? true : undefined,
-            iRamp: () => machine.cRamp.actual? dFitText(score(this.score*this.comboMult), 64, 'center') : undefined,
-            lRampArrow: () => this.state===0 && this.startReady? [[Color.White, 'fl', 3]] : this.state===1? [[Color.White, 'fl', 5]] : undefined,
-            rampUp: () => this.state===1? false : undefined,
-            lSpinnerArrow: () => this.state===2? [[Color.White, 'fl', 5]] : undefined,
+            rightGate: () => this.state <= LeftOrbitState.RampDown? true : undefined,
+            leftGate: () => this.state === LeftOrbitState.Spinner? true : undefined,
+            iRamp: () => this.startReady || this.state > LeftOrbitState.Ready? dFitText(score(this.score*this.comboMult), 64, 'center') : undefined,
+            lRampArrow: () => this.state===LeftOrbitState.Ready && this.startReady? [[Color.White, 'fl', 3]] : this.state===LeftOrbitState.RampDown? [[Color.White, 'fl', 7]] : undefined,
+            rampUp: () => this.state===LeftOrbitState.RampDown? false : undefined,
+            lSpinnerArrow: () => this.state===LeftOrbitState.Spinner? [[Color.White, 'fl', 7]] : undefined,
         });
 
         this.listen(onSwitchClose(machine.sLeftOrbit), 'hit');
 
-        this.listen(e => e instanceof DropDownEvent, () => this.state = 0);
-        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.state = 0);
+        this.listen(e => e instanceof DropDownEvent, () => this.state = LeftOrbitState.Ready);
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.state = LeftOrbitState.Ready);
 
         // this.listen([
         //     onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper),
@@ -795,9 +806,9 @@ class LeftOrbit extends Tree<MachineOutputs> {
         //     this.comboMult+=3;
         // });
 
-        this.listen(onSwitchClose(machine.sRampMade), () => {
-            if (this.state === 1) {
-                this.state = 2;
+        this.listen([...onSwitchClose(machine.sRampMade), () => !this.player.curMbMode], () => {
+            if (this.state === LeftOrbitState.RampDown) {
+                this.state = LeftOrbitState.Spinner;
                 player.spinner.comboMult += 3;
                 if (player.spinner.score < 2000)
                     player.spinner.score = 2000;
@@ -819,36 +830,10 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.player.score += this.score * this.comboMult;
         void playSound('orbit');
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
-        if (this.startReady || this.state===2)
-            this.state = 1;
-        this.comboMult += 1;
-    }
-}
-
-export class RampCombo extends Tree<MachineOutputs> {
-    constructor(
-        public player: Player,
-    ) {
-        super();
-
-        this.out = new Outputs(this, {
-            rampUp: false,
-            lRampArrow: [[Color.Yellow, 'fl', 5]],
-        });
-
-        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), 'end');
-        this.listen(e => e instanceof DropDownEvent, 'end');
-
-        this.listen(onSwitchClose(machine.sRampMade), () => {
-            player.score += 35000;
-            notify(score(35000));
-            return this.end();
-        });
-    }
-
-    end() {
-        this.player.rampCombo = undefined;
-        return super.end();
+        if (this.startReady || this.state===LeftOrbitState.Spinner) {
+            this.state = LeftOrbitState.RampDown;
+            this.comboMult += 1;
+        }
     }
 }
 

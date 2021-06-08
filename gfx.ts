@@ -785,7 +785,7 @@ export const gfxLights: { [name in keyof LightOutputs]: {
     lUpperLaneArrow:  { x: 12.2625, y: 36.3375, a: 1.5, r: -45 },
     lUpperTargetArrow:  { x: 15.1875, y: 36.50625, a: 1, r: -45 },
     lSpinnerArrow:  { x: 15.862499999999999, y: 31.78125, a: 1.5, r: -25 },
-    lLeftArrow:  { x: 2.025, y: 27.225, a: 1, r: 20 },
+    lLeftArrow:  { x: 2.025, y: 27.225, a: 1, r: -20 },
     lSideTargetArrow:  { x: 8.268749999999999, y: 30.31875, a: 1, r: 90 },
     lRampMini: { x: 2.9812499999999997, y: 27.337500000000002, d: 5/8 },
     lMainTargetArrow:  { x: 6.69375, y: 27.675, a: 1, r: 27 },
