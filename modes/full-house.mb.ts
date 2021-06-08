@@ -311,7 +311,7 @@ export class FullHouseMb extends Multiball {
                             if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
                                 this.listen(onAnyPfSwitchExcept(), (ev) => {
-                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
+                                    if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
                                     if (ev.sw !== machine.sRampMade) {
                                         this.state = Started();
                                         fork(this.releaseBallsFromLock());

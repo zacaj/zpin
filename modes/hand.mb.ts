@@ -60,7 +60,7 @@ export class HandMb extends Multiball {
 
     getArrowColor(): LightState {
         let color = Color.Green;
-        if (this.state._==='started' && this.state.doubled) return Color.Red;
+        if (this.redTargets.size>10) return Color.Red;
         if (this.value > 200000) color = Color.Yellow;
         if (this.value > 500000) color = Color.Orange;
         if (this.value > 1000000) color = Color.White;
@@ -98,7 +98,7 @@ export class HandMb extends Multiball {
             ...outs,
             rampUp: () => this.state._==='started' || (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
             lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
-            lRampArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.value>250000? 6 : 4]]:
+            lRampArrow: () => this.state._ === 'started'?  [[this.getArrowColor(), 'fl', this.state.doubled? 6 : 3]]:
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)?  [[Color.Green, 'fl']] : undefined),
             iRamp: () => this.state._==='started'? dFitText((this.state.doubled? `${short(round(this.value, 10000))} *2` : score(this.value)), 64, 'center') : 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady)? dImage('add_a_ball') : undefined),
@@ -164,7 +164,7 @@ export class HandMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('hand mb');
-            await alert('Hand Multiball!', 6000)[1];
+            await alert('Hand Multiball!', 4500)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -248,9 +248,9 @@ export class HandMb extends Multiball {
         this.collected();
         this.player.score += value;
         this.total += value;
-        void playVoice(value > 500000? 'jackpot' : 'jackpot short');
-        if (this.state.doubled)
-            this.updateValue();
+        void playVoice(value > 250000? 'jackpot' : 'jackpot short');
+        if (this.state.doubled || this.redTargets.size>10)
+            this.updateValue(); // undouble it
         const anim: AnimParams = {
             from: 1,
             to: 2,
@@ -308,7 +308,7 @@ export class HandMb extends Multiball {
                     if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                         this.state.addABallReady = true; 
                         this.listen(onAnyPfSwitchExcept(), (ev) => {
-                            if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
+                            if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
                             if (ev.sw !== machine.sRampMade) {
                                 this.state = Started();
                                 fork(this.releaseBallsFromLock());

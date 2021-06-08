@@ -64,7 +64,7 @@ export class FlushMb extends Multiball {
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
             outs[target.image.name] = () => this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===target.bank&&!target.state? dImage('yellowArrow') : 
-                                            this.state._==='started'&&!this.lastJps?.includes(target.bank)? dImage('blueArrow') : dClear(Color.Black);
+                                            this.state._==='started'&&this.lastJps?.includes(target.bank)? dImage("x") : dClear(Color.Black);
         }
         // for (const lane of machine.upperLanes) {
         //     const {sw,light} = lane;
@@ -173,6 +173,7 @@ export class FlushMb extends Multiball {
     }
 
     checkSwitch(sw: Switch, jp: Jp) {
+        if (this.state._==='starting') return;
         if (this.state._==='jackpotLit') {
             if ('bank' in this.state.jp && this.state.jp.bank === (jp as DropTarget).bank)
                 return this.jackpot();
@@ -316,6 +317,7 @@ export class FlushMb extends Multiball {
                                 this.shotSpeed *= .5;
                                 break;
                         }
+                    this.state = Started();
                     fork(this.releaseBallsFromLock());
                 },
                 made: (e: SwitchEvent) => {
@@ -324,7 +326,7 @@ export class FlushMb extends Multiball {
                             if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
                                 this.listen(onAnyPfSwitchExcept(), (ev) => {
-                                    if (e === ev || (ev.sw === e.sw && ev.when - e.when < 3000) || e.sw === machine.sRightInlane) return;
+                                    if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
                                     if (ev.sw !== machine.sRampMade) {
                                         this.state = Started();
                                         fork(this.releaseBallsFromLock());

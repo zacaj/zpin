@@ -658,7 +658,7 @@ export class Machine extends Tree<MachineOutputs> {
     sUpper3Right = new Switch(5, 0, 'upper 3 right', Drop);
     sUpper2Left = new Switch(6, 4, 'upper 2 left', Drop);
     sUpper2Right = new Switch(6, 3, 'upper 2 right', Drop);
-    sSingleStandup = new Switch(7, 3, 'single standup', StandupSet);
+    sSingleStandup = new Switch(7, 3, 'single standup', [0, 100]);
     sRampMini = new Switch(3, 7, 'ramp mini', StandupSet);
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', StandupSet);
     sRampDown = new Switch(7, 4, 'ramp down');

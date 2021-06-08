@@ -195,7 +195,7 @@ export class Player extends Mode {
         // ['HandMb', []],
         // ['StraightMb', []],
         // ['FullHouseMb', []],
-        // ['FlushMb', []],
+        ['FlushMb', []],
     ]);
 
     selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
@@ -538,7 +538,7 @@ export class Player extends Mode {
         });
 
         this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
-            await Poker.start(this);
+            // await Poker.start(this);
         });
 
         this.watch((e) => {
@@ -868,10 +868,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         State.declare<Multiplier>(this, ['total', 'lanes']);
         player.storeData<Multiplier>(this, ['topTotal']);
 
-        if (player.difficulty <= Difficulty.Normal)
-            this.lanes = [true, true, true, false];
-        else
-            this.lanes = [true, false, true, false];
+        this.lanes = [true, true, false, false];
 
         this.out = new Outputs(this, {
             lLaneLower1: () => this.lanes[0]? [[Color.Red, 'pl', 2]] : [],
@@ -907,7 +904,12 @@ export class Multiplier extends Tree<MachineOutputs> {
 
         void playVoice('2x', 25);
 
-        this.listen(onChange(player, '_score'), e => this.total += e.value - e.oldValue);
+        this.listen(onChange(player, '_score'), e => {
+            const oldTotal = this.total;
+            this.total += e.value - e.oldValue;
+            if (this.total > 100000 && oldTotal <= 100000) 
+                this.lanes[this.lanes.findIndex(x => !x)] = true;
+        });
 
         this.text = textBox({maxWidth: 0.8}, 
             ['2X SCORING', 60, 20],
