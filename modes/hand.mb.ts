@@ -210,16 +210,16 @@ export class HandMb extends Multiball {
             this.redTargets.clear();
         } else {
             const oldValue = this.value;
-            if (oldValue < 300000) {
+            if (oldValue < 200000) {
                 if (typeof target === 'object') {
-                    this.value += 15000 + 10000*this.banks + 1500*this.drops;
+                    this.value += 10000 + 5000*this.banks + 1000*this.drops;
                     this.drops++;
-                    this.player.score += 1000;
-                    this.total += 1000;
+                    // this.player.score += 1000;
+                    // this.total += 1000;
                 }
                 if (bank) {
                     this.banks++;
-                    this.value += 10000 * bank.targets.length;
+                    this.value += 5000 * bank.targets.length;
                 }
             }
 
@@ -248,7 +248,7 @@ export class HandMb extends Multiball {
         this.collected();
         this.player.score += value;
         this.total += value;
-        void playVoice(value > 250000? 'jackpot' : 'jackpot short');
+        void playVoice(value > 200000? 'jackpot' : 'jackpot short');
         if (this.state.doubled || this.redTargets.size>10)
             this.updateValue(); // undouble it
         const anim: AnimParams = {

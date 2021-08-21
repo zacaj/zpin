@@ -36,19 +36,23 @@ export class PlayerGfx extends ModeGroup {
         this.add(this.pokerOrNo = gfx.createGroup());
         player.watch(() => this.pokerOrNo.visible(!!player.noMode || !!player.poker));
 
-        this.noMode.add(this.instr.y(Screen.h*.49));
-        player.watch(() => this.instr.visible(!player.curMode));
-        player.watch(() => this.instr.text([
-            player.shooterStartHand? 'START HAND IN SHOOTER LANE' : undefined,
-            // machine.lEjectStartMode.lit()? 'START MODE aT EJECT HOLE' : undefined,
-            player.mbReady? 'START MULTIBALL aT RAMP' : undefined,
-        ].filter(x => !!x).join('\n')));
+        // this.noMode.add(this.instr.y(Screen.h*.49));
+        // player.watch(() => this.instr.visible(!player.curMode));
+        // player.watch(() => this.instr.text([
+        //     player.shooterStartHand? 'START HAND IN SHOOTER LANE' : undefined,
+        //     // machine.lEjectStartMode.lit()? 'START MODE aT EJECT HOLE' : undefined,
+        //     player.mbReady? 'START MULTIBALL aT RAMP' : undefined,
+        // ].filter(x => !!x).join('\n')));
 
         this.noMode.add(leftAlign(
-            makeText(': SPINNER VALUE => 4000', 40, 'left', 'bottom', gfx, Color.Blue).y(-Screen.h*.25),
-            makeText(': $ VALUE +25', 40, 'left', 'bottom', gfx, Color.Green).y(-Screen.h*.15),
-            makeText(': Add Chip', 40, 'left', 'bottom', gfx, Color.Orange).y(-Screen.h*.05),
-            makeText(': $ VALUE -25', 40, 'left', 'bottom', gfx, Color.Red).y(-Screen.h*-.05),
+            makeText('START HAND IN SHOOTER LANE', 40, 'left', 'bottom', gfx).y(-Screen.h*.25).visible(player.canStartHand),
+            makeText('START MULTIBALL AT RAMP', 40, 'left', 'bottom', gfx).y(-Screen.h*.15).visible(player.mbReady),
+            makeText('LEFT INLANE: START COMBO', 40, 'left', 'bottom', gfx).y(-Screen.h*-.05),
+            makeText('TARGETS: BUILD SPINNER VALUE', 40, 'left', 'bottom', gfx).y(-Screen.h*-.15),
+            // makeText(': SPINNER VALUE => 4000', 40, 'left', 'bottom', gfx, Color.Blue).y(-Screen.h*.25),
+            // makeText(': $ VALUE +25', 40, 'left', 'bottom', gfx, Color.Green).y(-Screen.h*.15),
+            // makeText(': Add Chip', 40, 'left', 'bottom', gfx, Color.Orange).y(-Screen.h*.05),
+            // makeText(': $ VALUE -25', 40, 'left', 'bottom', gfx, Color.Red).y(-Screen.h*-.05),
         ).y(Screen.h*.15));
 
         this.add(this.score);
@@ -81,6 +85,7 @@ export class PlayerGfx extends ModeGroup {
         player.watch(() => {
             const left = player.store.Poker?.handsForMb-player.store.Poker?.handsPlayed;
             this.handsLeft.text(`${left} hand${left>1?'s':''} for MB`);
+            this.handsLeft.visible(!player.handMbQualified);
         });
 
         this.add(this.status);

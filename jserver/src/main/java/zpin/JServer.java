@@ -11,6 +11,7 @@ import java.util.Arrays;
 import zpin.LedManager.LedMode;
 import zpin.LedManager.LedState;
 import zpin.Sounds.Channel;
+import zpin.SwitchMatrix.Switch;
 
 
 /**
@@ -200,14 +201,16 @@ public class JServer extends Thread
 							resp(response);
 							return true;
 						case "sw-config":
-							if (parts.length != 5)
-								error("usage: sw-config row col minOnTime minOffTime");
+							if (parts.length != 6)
+								error("usage: sw-config row col minOnTime minOffTime inverted");
 							int row = num(1);
 							int col = num(2);
 							int minOnTime = num(3);
 							int minOffTime = num(4);
+							boolean inverted = parts[5].equals("true");
 							matrix.switches[row*matrix.Width+col].minOnTime = minOnTime;
 							matrix.switches[row*matrix.Width+col].minOffTime = minOffTime;
+							matrix.switches[row*matrix.Width+col].inverted = inverted;
 							System.out.println("Configure switch "+row+","+col);
 							ack();
 							return true;
@@ -329,6 +332,38 @@ public class JServer extends Thread
 									else 
 										error("usage: fire <num> [fire time]");
 									resp("fired solenoid "+byt(1));
+									return true;
+			    				case "set-trigger":
+									if (parts.length != 4)
+										error("usage: set-trigger <num> row col");
+									else {
+										byte num = byt(1);
+										int row = num(2);
+										int col = num(3);
+										Switch sw = matrix.switches[row*matrix.Width+col];
+										if (sw == null)
+											error("no switch configured for row "+row+" col "+col);
+										else {
+											sw.triggerBoard = board;
+											sw.triggerNum = num;
+											resp("set solenoid "+byt(1)+" to trigger from "+sw.name);
+										}
+									}
+									return true;
+			    				case "disable-trigger":
+									if (parts.length != 3)
+										error("usage: disable-trigger row col");
+									else {
+										int row = num(1);
+										int col = num(2);
+										Switch sw = matrix.switches[row*matrix.Width+col];
+										if (sw == null)
+											error("no switch configured for row "+row+" col "+col);
+										else {
+											sw.triggerBoard = null;
+											resp("disabled trigger for switch "+sw.name);
+										}
+									}
 									return true;
 			    				case "on":
 									if (parts.length == 2)
@@ -476,6 +511,7 @@ public class JServer extends Thread
         } finally {
         	System.out.println("No longer listening");
             socket.close();
+            System.exit(0);
         }
     }
 }

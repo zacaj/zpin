@@ -12,11 +12,14 @@ export class Solenoid16 {
     init() {
         Log.info(['mpu', 'solenoid'], 'init board %i as s16', this.board);
         if (!MPU.isLive) return;
-        return MPU.sendCommand(`i ${this.board} s16`);
+        return MPU.sendCommand(`i ${this.board} s16`).catch(e => {
+            Log.error('console', 'error initializing boards', e);
+            process.exit(1);
+        });
     }
 
-    send(cmd: string) {
-        if (!MPU.isLive) return;
+    send(cmd: string, force = false) {
+        if (!MPU.isLive && !force) return;
         return MPU.sendCommand(`${this.board}: ${cmd}`);
     }
 

@@ -1,5 +1,7 @@
 #!/bin/sh
 
 ./sjstart
-sleep 1
+echo "MPU loading...... (10 seconds)"
+sleep 8
 ./sastart
+cat sgame.log

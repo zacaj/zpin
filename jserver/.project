@@ -3,6 +3,7 @@
 	<name>jserver</name>
 	<comment></comment>
 	<projects>
+		<project>pi-ws2812</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

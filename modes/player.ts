@@ -165,6 +165,7 @@ export class Player extends Mode {
         return this.poker ?? this.curMbMode;
     }
     focus?: Poker|Multiball|NoMode;
+    backupPoker?: Poker;
 
     clearHoles = new ClearHoles();
     spinner = new Spinner(this);
@@ -191,7 +192,7 @@ export class Player extends Mode {
         // ['HandMb', []],
         // ['StraightMb', []],
         // ['FullHouseMb', []],
-        ['FlushMb', []],
+        // ['FlushMb', []],
     ]);
 
     selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
@@ -200,7 +201,7 @@ export class Player extends Mode {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
     }
     get mbsReady() {
-        return new Map([...this.mbsQualified, ...(this.poker?.newMbs ?? [])]);
+        return new Map([...this.mbsQualified, ...((this.poker?.step??0)>=7? this.poker?.newMbs ?? [] : [])]);
     }
     rand!: Rng;
     mysteryRng!: Rng;
@@ -222,10 +223,14 @@ export class Player extends Mode {
     }
 
     get mbReady(): boolean {
-        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (this.poker?.step??7) >= 7 && (machine.ballsInPlay==='unknown'||machine.ballsInPlay<=1);
+        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (machine.ballsInPlay==='unknown'||machine.ballsInPlay<=1);
     }
 
-    get shooterStartHand(): boolean {
+    get handMbQualified(): boolean {
+        return this.mbsReady.has('HandMb');
+    }
+
+    get canStartHand(): boolean {
         return (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7;
     }
 
@@ -238,9 +243,6 @@ export class Player extends Mode {
            return mbs[cur+1];
     }
 
-    get pokerEndingOrDone() {
-        return (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7;
-    }
 
     constructor(
         public game: Game,
@@ -256,7 +258,7 @@ export class Player extends Mode {
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
             rampUp: () => !this.mbReady,
-            iSS1: () => this.pokerEndingOrDone? dImage("start_hand_shooter") : undefined,
+            iSS1: () => this.canStartHand? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             iSS4: () => dImage(`lanes_`+[machine.cLeftGate.actual, machine.cRightGate.actual].map(b => b? "go" : 'stop').join('_')),
             iSS5: () => this.mysteryLeft>0? dMany(dImage(`mystery_next_${this.mysteryNext}`), dText(this.mysteryLeft.toFixed(0), 3, -10, 'top', 100)) : !this.curMbMode? dImage('mystery_lit') : undefined,
@@ -269,24 +271,27 @@ export class Player extends Mode {
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () =>  (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : undefined,
-            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0]? Color.Orange : Color.Green] : [],
-            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1]? Color.Orange : Color.Green] : [],
-            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2]? Color.Orange : Color.Green] : [],
-            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3]? Color.Orange : Color.Green] : [],
+            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0] && this.chips<3? Color.Orange : Color.Green] : [],
+            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1] && this.chips<3? Color.Orange : Color.Green] : [],
+            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Green] : [],
+            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3] && this.chips<3? Color.Orange : Color.Green] : [],
             lLaneLower1: () => light(this.lowerLanes[0], Color.Blue),
-            lLaneLower2: () => light(this.lowerLanes[1], Color.Blue),
+            lLaneLower2: many(() => ({
+                [Color.Blue]: this.lowerLanes[1],
+                [Color.Green]: this.miniReady,
+            })),
             lLaneLower3: () => light(this.lowerLanes[2], Color.Blue),
             lLaneLower4: () => light(this.lowerLanes[3], Color.Blue),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
-            lRampMini: add(() => !this.curMbMode && this.chipsLit[0], Color.Orange),
-            lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2], Color.Orange),
-            lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3], Color.Orange),
-            lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4], Color.Orange),
+            lRampMini: add(() => !this.curMbMode && this.chipsLit[0] && this.chips<3, Color.Orange),
+            lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2] && this.chips<3, Color.Orange),
+            lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3] && this.chips<3, Color.Orange),
+            lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4] && this.chips<3, Color.Orange),
             lMainTargetArrow: many(() => ({
                 [this.mbColor(this.nextMb)]: this.mbsReady.size>1 && !this.curMbMode,
                 [Color.Orange]: this.chipsLit[1],
             })),
-
+            popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
         });
 
         // mystery
@@ -402,7 +407,7 @@ export class Player extends Mode {
                 }
             });
 
-        this.listen(onAnySwitchClose(...machine.sUpperLanes, machine.sLeftSling, machine.sRightSling), () => this.chipsLit.rotate(1));
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.chipsLit.rotate(1));
         
         // lower lanes
         this.listen(
@@ -434,8 +439,8 @@ export class Player extends Mode {
                 void playSound('wrong');
                 return;
             }
-            await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
-            if (time() - (machine.cPopper.lastFired??time()) > 100) return;
+            // await machine.cPopper.board.fireSolenoid(machine.cPopper.num);
+            // if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             
             if (machine.lPopperStatus.is(Color.Green))
                 this.chips-=1;
@@ -469,7 +474,7 @@ export class Player extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftOutlane, machine.sRightOutlane), () => this.outlanes++);
 
         this.listen(onChange(this, 'focus'), e => {
-            if (e.oldValue) {
+            if (e.oldValue && e.oldValue !== this.backupPoker) {
                 e.oldValue.end();
             }
             if (e.value) {
@@ -479,6 +484,9 @@ export class Player extends Mode {
                         this.focus = undefined;
                     return 'remove';
                 });
+            } else if (this.backupPoker && e.oldValue!==this.backupPoker) {
+                this.focus = this.backupPoker;
+                this.backupPoker = undefined;
             } else {
                 this.focus = new NoMode(this);
             }
@@ -493,7 +501,7 @@ export class Player extends Mode {
         // this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
         
         // allow orbits to loop
-        this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet)], () => this.closeShooter = true);
+        this.listen([onAnySwitchClose(machine.sShooterUpper)], () => this.closeShooter = true);
         this.listen([...onSwitchClose(machine.sLeftOrbit), () => machine.cRightGate.actual], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower, machine.sLeftOrbit), () => this.closeShooter = false);
 
@@ -518,6 +526,10 @@ export class Player extends Mode {
 
 
         this.listen([...onSwitchClose(machine.sRampMade), () => this.mbReady], () => {
+            if (this.poker && !this.poker.showCardsReady) {
+                this.backupPoker = this.poker;
+                this.focus = undefined;
+            }
             switch (this.selectedMb) {
                 case 'HandMb':
                     return HandMb.start(this);
@@ -533,7 +545,7 @@ export class Player extends Mode {
             }
         });
 
-        this.listen([...onSwitchClose(machine.sShooterLane), () => this.shooterStartHand], async () => {
+        this.listen([...onSwitchClose(machine.sShooterLane), () => this.canStartHand], async () => {
             await Poker.start(this);
         });
 
@@ -566,10 +578,10 @@ export class Player extends Mode {
             this.chips++;
             void playSound('single chip fall chip deep');
         }
-        else {
-            this.store.Poker.bank += 50;
-            void playSound('cash');
-        }
+        // else {
+        //     this.store.Poker.bank += 50;
+        //     void playSound('cash');
+        // }
     }
     changeValue(value: number, showAlert = true) {
         if (value > 0)
@@ -607,6 +619,7 @@ class NoMode extends MiscAwards {
     get nodes() {
         return [
             this.leftOrbit,
+            ...this.tempNodes,
         ].truthy();
     }
 
@@ -754,13 +767,17 @@ export class SpinnerRip extends Event {
 enum LeftOrbitState {
     Ready = 0,
     RampDown = 1,
-    Spinner = 2,
+    Spinner1 = 2,
+    Spinner2 = 3,
+    SpinnerStop = 4,
+    Lane = 5,
 }
 class LeftOrbit extends Tree<MachineOutputs> {
-    get score() {
-        return 35000;
-        // return Math.min(100000, round(this.player.score * (30/500), 10000, 30000));
-    }
+    // get score() {
+    //     return 35000;
+    //     // return Math.min(100000, round(this.player.score * (30/500), 10000, 30000));
+    // }
+    score = 25000;
     comboMult = 1;
 
     // rounds = 1;
@@ -785,17 +802,26 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
         this.out = new Outputs(this, {
             rightGate: () => this.state <= LeftOrbitState.RampDown? true : undefined,
-            leftGate: () => this.state === LeftOrbitState.Spinner? true : undefined,
+            leftGate: () => this.state>=LeftOrbitState.Spinner1 && this.state<=LeftOrbitState.Spinner2? true : undefined,
             iRamp: () => this.startReady || this.state > LeftOrbitState.Ready? dFitText(score(this.score*this.comboMult), 64, 'center') : undefined,
-            lRampArrow: () => this.state===LeftOrbitState.Ready && this.startReady? [[Color.White, 'fl', 3]] : this.state===LeftOrbitState.RampDown? [[Color.White, 'fl', 7]] : undefined,
+            lRampArrow: mix(() => this.state===LeftOrbitState.Ready && this.startReady? [Color.White, 'fl', 3] : this.state===LeftOrbitState.RampDown? [Color.White, 'fl', 7] : undefined),
             rampUp: () => this.state===LeftOrbitState.RampDown? false : undefined,
-            lSpinnerArrow: () => this.state===LeftOrbitState.Spinner? [[Color.White, 'fl', 7]] : undefined,
+            lSpinnerArrow: mix(() => this.state>=LeftOrbitState.Spinner1 && this.state<=LeftOrbitState.Spinner2? [Color.White, 'fl', 7] : undefined),
+            catcher: () => this.state === LeftOrbitState.SpinnerStop? true : undefined,
+            lSideShotArrow: mix(() => this.state===LeftOrbitState.SpinnerStop? [Color.White, 'fl', 7] : undefined),
+            lUpperLaneArrow: mix(() => this.state===LeftOrbitState.Lane? [Color.White, 'fl', 7] : undefined),
         });
 
         this.listen(onSwitchClose(machine.sLeftOrbit), 'hit');
 
-        this.listen(e => e instanceof DropDownEvent, () => this.state = LeftOrbitState.Ready);
-        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.state = LeftOrbitState.Ready);
+        this.listen(e => e instanceof DropDownEvent, () => {
+            this.state = LeftOrbitState.Ready;
+            this.comboMult = 1;
+        });
+        this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => () => {
+            this.state = LeftOrbitState.Ready;
+            this.comboMult = 1;
+        });
 
         // this.listen([
         //     onAnySwitchClose(machine.sShooterMagnet, machine.sShooterUpper),
@@ -808,10 +834,43 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
         this.listen([...onSwitchClose(machine.sRampMade), () => !this.player.curMbMode], () => {
             if (this.state === LeftOrbitState.RampDown) {
-                this.state = LeftOrbitState.Spinner;
+                this.player.score += this.score * this.comboMult;
+                this.score += 5000;
+                this.comboMult += 1;
+                this.state = LeftOrbitState.Spinner1;
                 player.spinner.comboMult += 3;
+                void playSound("ts wow 3");
                 if (player.spinner.score < 2000)
                     player.spinner.score = 2000;
+            }
+        });
+
+        this.listen(e => e instanceof SpinnerHit, () => {
+            if (this.state === LeftOrbitState.Spinner1) {
+                void playSound("ts wow 4");
+                this.state = LeftOrbitState.Spinner2;
+                this.addScore();
+            }
+            if (this.state === LeftOrbitState.Spinner2) {
+                void playSound("ts wow 5");
+                this.state = LeftOrbitState.SpinnerStop;
+                this.addScore();
+            }
+        });
+
+        this.listen(onAnySwitchClose(machine.sUpperInlane, machine.sUpperEject), () => {
+            if (this.state === LeftOrbitState.SpinnerStop) {
+                void playSound("ts wow 6");
+                this.state = LeftOrbitState.Lane;
+                this.addScore();
+            }
+        });
+
+        this.listen(onAnySwitchClose(machine.sBackLane), () => {
+            if (this.state === LeftOrbitState.Lane) {
+                void playSound("ts wow 7");
+                this.state = LeftOrbitState.Ready;
+                this.addScore();
             }
         });
 
@@ -828,12 +887,20 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
     hit() {
         this.player.score += this.score * this.comboMult;
+        this.score += 5000;
         void playSound('orbit');
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
-        if (this.startReady || this.state===LeftOrbitState.Spinner) {
+        if (this.startReady || this.state===LeftOrbitState.Spinner1) {
             this.state = LeftOrbitState.RampDown;
             this.comboMult += 1;
         }
+    }
+
+    addScore() {
+        this.player.score += this.score * this.comboMult;
+        notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
+        this.score += 5000;
+        this.comboMult += 1;
     }
 }
 

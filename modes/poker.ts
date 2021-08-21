@@ -9,11 +9,11 @@ import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
 import { KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
-import { add, Color, light } from '../light';
+import { add, Color, light, many } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
 import { fork } from '../promises';
-import { comma, seq, range, repeat, money, round } from '../util';
+import { comma, seq, range, repeat, money, round, score } from '../util';
 import { Rng } from '../rand';
 import { MPU } from '../mpu';
 import { Tree } from '../tree';
@@ -21,6 +21,8 @@ import { playSound, playVoice } from '../sound';
 import { Skillshot } from './skillshot';
 import { time, wait } from '../timer';
 import { dFitText, dHash, dImage, DisplayContent, dMany, dText } from '../disp';
+import { FlushMb } from './flush.mb';
+import { FullHouseMb } from './full-house.mb';
 
 function dAdjustBet(amount: number): DisplayContent {
     return dMany(
@@ -49,6 +51,7 @@ export class Poker extends Mode {
 
     readonly slots: (Card|null)[] = [];
 
+    allowMbStart = true;
     pot = 0;
     bet = Poker.BetStart;
     playerWins?: boolean;
@@ -94,11 +97,11 @@ export class Poker extends Mode {
         super(Modes.Poker);
         this.cardRng = player.rng();
         this.skillshotRng = player.rng();
-        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
+        State.declare<Poker>(this, ['playerHand', 'dealerHand', 'slots', 'allowMbStart', 'pot', 'dealerHandDesc', 'playerWins', 'adjustSide', 'playerCardsUsed', 'playerHandDesc', 'dealerCardsUsed', 'step', 'closeShooter', 'newMbs', 'newModes']);
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit', 'biggestWin', 'biggestLoss', 'topCashout']);
         this.deal();
 
-        this.bet = (this.bet+Poker.BetStart)/2;
+        this.bet = (this.bet+Poker.BetStart+Poker.BetStart)/3;
 
         this.misc = new MiscAwards(player);
 
@@ -109,14 +112,16 @@ export class Poker extends Mode {
         }
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => this.showCardsReady? false : undefined,
+            rampUp: () => this.showCardsReady || (this.player.mbReady && this.allowMbStart)? false : undefined,
             lockPost: () => this.showCardsReady? false : undefined,
             upperEject: () => this.showCardsReady? false : undefined,
             shooterDiverter: () => !this.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             iRamp: (prev) => {
-                if (this.step<7) return dAdjustBet(-this.betAdjust*this.adjustSide);
-                return ((time()/1500%2)|0)===0? dImage("finish_hand_ramp") : undefined;
+                // const mbReady = this.player.mbReady && this.allowMbStart;
+                if (prev && ((time()/1500%2)|0)===0) return undefined;
+                if (this.step >= 7) return dImage("finish_hand_ramp");
+                return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
             iSS5: () => this.step>=7? dImage("finish_hand_eject") : undefined,
             iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
@@ -124,7 +129,18 @@ export class Poker extends Mode {
             lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),
             music: () => this.playerWins? null : undefined,
+            // lMainTargetArrow: many(() => ({
+            //     prev: true,
+            //     [this.player.mbColor()]: !this.allowMbStart,
+            //     [Color.Red]: this.allowMbStart,
+            // })),
+            // lLeftArrow: () => player.mbReady? (this.allowMbStart? [[Color.Red]] : [this.player.mbColor()]) : undefined,
         });
+        
+        // this.listen(onSwitchClose(machine.sRampMiniOuter), () => {
+        //     if (!player.mbReady) return;
+        //     this.allowMbStart = !this.allowMbStart;
+        // });
 
         this.listen(e => e instanceof DropDownEvent, (e: DropDownEvent) => {
             if (player.mystery) return;
@@ -149,7 +165,9 @@ export class Poker extends Mode {
 
                 if (this.step === 7) {
                     this.handsPlayed++;
-                    if (this.handsPlayed >= this.handsForMb) {
+                    if (player.handMbQualified)
+                        this.handsForMb++;
+                    else if (this.handsPlayed >= this.handsForMb) {
                         this.handsForMb += this.handsPlayed<=1? 2 : 3;
                             
                         if (!this.player.mbsQualified.size) {
@@ -242,8 +260,10 @@ export class Poker extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.adjustSide *= -1);
 
         this.listen(onAnySwitchClose(machine.sLeftOrbit, machine.sRampMade), () => {
-            if (this.step < 7)
+            if (this.step < 7) {
                 this.bet -= this.betAdjust*this.adjustSide;
+                notify(`BET ${money(this.betAdjust*this.adjustSide, 0, '+')}`);
+            }
         });
         // this.listen(e => e instanceof SpinnerHit, () => {
         //     if (this.step < 7)
@@ -367,7 +387,7 @@ export class Poker extends Mode {
         }
         for (const straight of straights) {
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('StraightMb')) {
+            if (!this.newMbs.has('StraightMb') && !this.player.mbsQualified.has('StraightMb')) {
                 Log.info('game', 'qualified straight multiball');
                 alert('straight multiball qualified');
             }
@@ -376,7 +396,7 @@ export class Poker extends Mode {
         }
         if (flushes.length > 0) {
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FlushMb')) {
+            if (!this.newMbs.has('FlushMb') && !this.player.mbsQualified.has('FlushMb')) {
                 Log.info('game', 'qualified flush multiball');
                 alert('flush multiball qualified');
             }
@@ -385,7 +405,7 @@ export class Poker extends Mode {
         if (pairs.length >= 2 && pairs[0].length > 2) {
             // full house
             // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FullHouseMb')) {
+            if (!this.newMbs.has('FullHouseMb') && !this.player.mbsQualified.has('FullHouseMb')) {
                 Log.info('game', 'qualified full house multiball');
                 alert('full house multiball qualified');
             }
@@ -393,6 +413,7 @@ export class Poker extends Mode {
         }
     }
 
+    // eslint-disable-next-line complexity
     async showCards(sw: Switch) {
         this.step++;
         this.finishShow = await Events.waitPriority(Priorities.ShowCards);
@@ -418,8 +439,42 @@ export class Poker extends Mode {
             if (this.pot > this.biggestLoss)
                 this.biggestLoss = this.pot;
         await gWait(1500, 'showing cards');
-        for (const [mb, hand] of this.newMbs)
-            await this.player.qualifyMb(mb, hand, 2000)[1];
+        for (const [mb, hand] of this.newMbs) {
+            const [g, prom] =  this.player.qualifyMb(mb, hand, 2000);
+            await prom;
+            if (!g) {
+                // mb already qualified
+                switch (mb) {
+                    case 'StraightMb':
+                        if (!this.player.store.StraightMb.value)
+                            this.player.store.StraightMb.value = StraightMb.startValue;
+                        this.player.store.StraightMb.value *= 2;
+                        await alert(`STRAIGHT MB VALUE INCREASED`, 3000)[1];
+                        break;
+                    case 'FlushMb':
+                        if (!this.player.store.FlushMb.standupMult)
+                            this.player.store.FlushMb.standupMult = 2;
+                        else
+                            this.player.store.FlushMb.standupMult++;
+                        if (!this.player.store.FlushMb.targetMult)
+                            this.player.store.FlushMb.targetMult = 2;
+                        else
+                            this.player.store.FlushMb.targetMult++;
+                        if (!this.player.store.FlushMb.standupMult)
+                            this.player.store.FlushMb.shotMult = 2;
+                        else
+                            this.player.store.FlushMb.shotMult++;
+                        await alert(`FLUSH MB VALUE INCREASED`, 3000)[1];
+                        break;
+                    case 'FullHouseMb':
+                        if (!this.player.store.FullHouseMb.base)
+                            this.player.store.FullHouseMb.base = FullHouseMb.startValue;
+                        this.player.store.FullHouseMb.base += FullHouseMb.startValue;
+                        await alert(`FULL HOUSE MB VALUE INCREASED`, 3000)[1];
+                        break;
+                }
+            }
+        }
         fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 
@@ -621,7 +676,12 @@ export class Poker extends Mode {
     }
 
     getSkillshot(ss: Skillshot): Partial<SkillshotAward>[] {
-        const base = ss.isFirstOfBall? 10 : 25;
+        const base = ss.isFirstOfBall? 8 : 20;
+
+        const availSpots = [7, 8, 13, 6, 5, 9, 15, 4].filter(i => this.slots[i]);
+        const nSpots = this.step<7? this.skillshotRng.weightedSelect([30, 0], [30, 1], [20, 2], [10, 3]) : 0;
+        const spotInds = seq(nSpots).map(() => this.skillshotRng.randRange(0, 5));
+
         const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
             this.step<=2? [[1, 0]] : [[3, -8, -2], [4, 1, 5], [1, -10, -5]],
@@ -640,11 +700,24 @@ export class Poker extends Mode {
             [7, 109, 'baseline', 48],
         ];
         return [...switches.map((sw, i) => {
+            let award: Partial<SkillshotAward> = {};
+            if (spotInds.includes(i)) {
+                const slot = availSpots.shift()!;
+                const card = this.slots[slot]!;
+                const name = Rank[card.num] + " of " + Object.entries(Suit).find(s => s[1] === card.suit)![0];
+                award = {
+                    award: name,
+                    made: () => {
+                        Events.fire(new DropDownEvent(machine.dropTargets.find(t => t.num === slot)!));
+                    },
+                };
+            }
             const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
-            let change = round(percent, 10);
+            let change = round(percent, 10, -1000);
             if (this.bet + change < 0) change = 10;
             const newBet = this.bet + change;
             return {
+                ...award,
                 switch: sw,
                 display: change? dMany(
                     dImage('bet'+(i===1? '_2' : '')),
@@ -694,8 +767,24 @@ function getRank(card: Card) {
     return num;
 }
 
+export enum Rank {
+    Ace = 1,
+    Two = 2,
+    Three = 3,
+    Four = 4,
+    Five = 5,
+    Six = 6,
+    Seven = 7,
+    Eight = 8,
+    Nine = 9,
+    Ten = 10,
+    Jack = 11,
+    Queen = 12,
+    King = 13,
+}
+
 export interface Card {
-    readonly num: number;
+    readonly num: Rank;
     readonly suit: Suit; 
     readonly flipped?: boolean;
 }

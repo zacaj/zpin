@@ -12,7 +12,7 @@ import { Rng } from '../rand';
 import { playVoice } from '../sound';
 import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, Switch, SwitchEvent } from '../switch-matrix';
-import { time, Timer, TimerQueueEntry } from '../timer';
+import { Time, time, Timer, TimerQueueEntry } from '../timer';
 import { comma, makeState, repeat } from '../util';
 import { ResetBank } from '../util-modes';
 import { Multiball } from './multiball';
@@ -27,7 +27,7 @@ const Starting = makeState('starting', {
     addABallReady: false,
 });
 const Started = makeState('started', {});
-const JackpotLit = makeState('jackpotLit', (jp: Jp, value: number) => ({ jp, value }));
+const JackpotLit = makeState('jackpotLit', (jp: Jp, value: number, startTime = time()) => ({ jp, value, startTime }));
 
 export class FlushMb extends Multiball {
 
@@ -161,7 +161,7 @@ export class FlushMb extends Multiball {
             await this.releaseBallsFromLock();
         }
         const ret = this.end();
-        if (this.jackpots < 6 && !this.isRestarted) {
+        if (this.jackpots < 6 && this.total < 250000 && !this.isRestarted) {
             this.player.noMode?.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
                 return FlushMb.start(this.player, true, this.lastJps, this.total);
             }));
@@ -175,6 +175,7 @@ export class FlushMb extends Multiball {
     checkSwitch(sw: Switch, jp: Jp) {
         if (this.state._==='starting') return;
         if (this.state._==='jackpotLit') {
+            if (time() - this.state.startTime < 250) return;
             if ('bank' in this.state.jp && this.state.jp.bank === (jp as DropTarget).bank)
                 return this.jackpot();
             if ('isShot' in this.state.jp && this.state.jp.sw === sw)
@@ -186,24 +187,27 @@ export class FlushMb extends Multiball {
         if (this.lastJps?.includes(jp) || ('bank' in jp && this.lastJps?.includes(jp.bank)))
             return;
 
-        this.state = JackpotLit(jp, this.calcValue(jp));
+        const startValue = this.calcValue(jp);
+        this.state = JackpotLit(jp, startValue);
         if (jp === machine.rampShot)
             void playVoice('shoot the ramp');
         if (jp === machine.spinnerShot)
             void playVoice('shoot the spinner');
 
-        this.countdown = Timer.setInterval(() => {
+        this.countdown = Timer.setInterval((entry) => {
             if (this.state._ !== 'jackpotLit') return;
-            const newValue = this.state.value - 1110 * ('bank' in this.state.jp? this.targetMult*this.targetSpeed : 'isShot' in this.state.jp? this.shotMult*this.shotSpeed : this.standupMult*this.standupSpeed);
+            const newValue = this.state.value - 770 * ('bank' in this.state.jp? this.targetMult*this.targetSpeed : 'isShot' in this.state.jp? this.shotMult*this.shotSpeed : this.standupMult*this.standupSpeed);
             if (newValue > 0)
-                this.state = JackpotLit(this.state.jp, newValue);
+                this.state = JackpotLit(this.state.jp, newValue, this.state.startTime);
             else 
                 this.state = Started();
-        }, 50, 'flush countdown', 1000);
+            if (newValue <= startValue/2 && entry.repeat === 100)
+                entry.repeat = 50 as Time;
+        }, 100, 'flush countdown', 1000);
     }
 
     calcValue(jp: Jp): number {
-        const s = 1000;
+        const s = 750;
         if ('bank' in jp) {
             if (jp.bank === machine.upper2Bank)
                 return 500*s*this.standupMult;

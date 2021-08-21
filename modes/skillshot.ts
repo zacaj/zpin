@@ -144,6 +144,7 @@ export class Skillshot extends Mode {
 
     static async start(ball: Ball) {
         // return;
+        if (machine.getChildren().find(x => 'isAddABall' in x)) return;
         const finish = await Events.tryPriority(Priorities.Skillshot);
         if (!finish) return false;
 
@@ -190,6 +191,13 @@ export class Skillshot extends Mode {
             this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
             this.skillshotCount++;
+
+            if (this.curAward===1 && e.sw===machine.sSpinner) {
+                fork(Combo(this.player, machine.sUpperEject, machine.lLeftArrow, 100000));
+            }
+            if (this.curAward===4) {
+                fork(Combo(this.player, machine.sBackLane, machine.lUpperLaneArrow, 100000));
+            }
         }
         else if (!this.wrong) {
             void playSound('wrong');
@@ -204,13 +212,6 @@ export class Skillshot extends Mode {
         await wait(1000);
         this.music = undefined; // [machine.ballsInPlay>1? 'green grass solo with start' : 'green grass main', false];
         await wait(50);
-
-        if (this.curAward===1 && e.sw===machine.sSpinner) {
-            fork(Combo(this.player, machine.sUpperEject, machine.lLeftArrow, 100000));
-        }
-        if (this.curAward===4) {
-            fork(Combo(this.player, machine.sBackLane, machine.lUpperLaneArrow, 100000));
-        }
     }
 
     async finish(e: SwitchEvent) {
@@ -290,7 +291,7 @@ export class Skillshot extends Mode {
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
                     }],
-                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<=1? 15 : 0, {
+                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<1? 15 : 0, {
                         switch: gen.switch,
                         award: 'ADD A BALL',
                         made: () => AddABall(this.player.overrides),

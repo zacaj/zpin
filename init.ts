@@ -16,8 +16,11 @@ import { LPU } from './light';
 
 const argv = require('yargs').argv;
 
+export let initialized = false;
+
 export async function initMachine(mpu = true, gfx = false, game = false, trace = true, recording?: string, toPoint?: string) {
     try {
+        initialized = false;
         if (argv.mpu !== undefined) mpu = argv.mpu;
         if (argv.gfx !== undefined) gfx = argv.gfx;
         if (argv.game !== undefined) game = argv.game;
@@ -49,6 +52,7 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
             await initGfx();
         if (lights)
             await LPU.init(argv.lightIp);
+        initialized = true;
         if (game)
             Game.start();
         else

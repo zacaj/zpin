@@ -169,6 +169,7 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
 export async function AddABall(parent: Tree<MachineOutputs>) {
 
     const node = new class extends Tree<MachineOutputs> {
+        isAddABall = true;
         constructor() {
             super();
             this.out = new Outputs(this, {

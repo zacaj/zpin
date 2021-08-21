@@ -174,11 +174,15 @@ export class Mystery extends Mode {
         State.declare<Mystery>(this, ['awards', 'done']);
         const startTime = time();
         if (machine.upper3Bank.targets.some(t => t.state))
-            fork(ResetBank(this, machine.upper3Bank));
+            fork(
+                ResetBank(this, machine.upper3Bank)
+                .then(() => {
+                }),
+            );
 
         void playVoice('mystery');
         // void muteMusic();
-        fork(wait(1200).then(() => void playVoice(['shoot carefully', 'plunge carefully', 'choose wisely'])));
+        fork(wait(1200).then(() => void playVoice(['shoot carefully', 'choose wisely'])));
 
         // const validAwards = allAwards.filter(a => !a.isValid || a.isValid(player));
         const chosenAwards: Award[] = [];

@@ -31,7 +31,7 @@ export const MPU = {
         try {
             await new Promise((resolve, reject) => {
                 // await socket.connect(2908, 'localhost');
-                socket.setTimeout(1000);
+                socket.setTimeout(20000);
                 socket.setNoDelay(true);
                 socket.on('error', err => {
                     Log.error(['mpu', 'console'],'socket error: ', err);

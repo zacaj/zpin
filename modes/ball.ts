@@ -89,9 +89,10 @@ export class Ball extends Mode {
                 return;
             }
 
+            const finish = await Events.tryPriority(Priorities.EndBall);
+            if (!finish) return;
             Events.fire(new BallEnding(this));
             this.gfx?.clear();
-            const finish = await Events.waitPriority(Priorities.EndBall);
     
             this.bonus = new Bonus(this);
             this.bonus.started();

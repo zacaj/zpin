@@ -6,7 +6,7 @@ import { Outputs } from '../outputs';
 import { onSwitchClose, onAnyPfSwitchExcept } from '../switch-matrix';
 import { DropBankCompleteEvent } from '../drop-bank';
 import { alert, notify } from '../gfx';
-import { score } from '../util';
+import { round, score } from '../util';
 import { time } from '../timer';
 import { Color } from '../light';
 import { Difficulty } from './player';
@@ -33,8 +33,9 @@ export class MiniPf extends Mode {
         this.listen(e => e instanceof DropBankCompleteEvent && e.bank===machine.miniBank, () => {
             if (machine.ballsInPlay<=1)
                 ball.shootAgain = true;
-            ball.player.score += 500000;
-            notify(score(500000), 5000);
+            const amount = round(ball.player.score*.2, 10);
+            ball.player.score += amount;
+            notify(score(amount), 8000);
         });
     }
 

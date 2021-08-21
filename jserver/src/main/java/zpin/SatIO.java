@@ -108,7 +108,7 @@ public class SatIO {
 	public void spiWrite(byte ...data) {
 		checkLock();
 
-		System.out.println("write bytes "+Arrays.toString(data));
+//		System.out.println("write bytes "+Arrays.toString(data));
 		try {
 			spi.write(data);
 		} catch (IOException e) {
@@ -120,7 +120,7 @@ public class SatIO {
 		byte[] data;
 		try {
 			data = spi.write(new byte[bytes]);
-			System.out.println("read bytes "+Arrays.toString(data));
+//			System.out.println("read bytes "+Arrays.toString(data));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -174,12 +174,12 @@ public class SatIO {
 		spiWrite(out);
 		long end = System.nanoTime();
 		System.out.println("Send command in "+(((float)(end-start))/1000000.0)+" ms");
-		System.out.println("begin wait for ready signal");
+//		System.out.println("begin wait for ready signal");
 		byte ready = 0;
 		//clk.low();
 		Date waitStart = new Date();
 		while ((ready&0xFF) != 'R') {
-			System.out.print("w");
+//			System.out.print("w");
 //			clk.high();
 //			int in = miso.isState(PinState.HIGH)? 1:0;
 //			ready = (byte) ((ready<<1) | in);
@@ -190,7 +190,7 @@ public class SatIO {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-			System.out.print("r "+Integer.toBinaryString((ready&0xFF))+".  ");
+//			System.out.print("r "+Integer.toBinaryString((ready&0xFF))+".  ");
 			if ((ready&0xFF) == 'L') {
 				throw new Error("sent wrong length command ("+bytes.length+"), board wanted "+spiRead(1)[0]);
 			}
@@ -200,7 +200,7 @@ public class SatIO {
 			if (new Date().getTime() - waitStart.getTime() > 200)
 				throw new Error("timeout waiting for board");
 		}
-		System.out.println("\ngot ready signal");
+//		System.out.println("\ngot ready signal");
 		byte numInputBytes = spiRead(1)[0];
 		if (numInputBytes > 0) {
 			byte[] input = spiRead(numInputBytes+1);

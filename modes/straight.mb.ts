@@ -43,8 +43,9 @@ export class StraightMb extends Multiball {
     ]);
 
     state: ReturnType<typeof Starting>|ReturnType<typeof BankLit>|ReturnType<typeof JackpotLit> = Starting();
-
-    value = 400000;
+    
+    static startValue = 400000;
+    value = StraightMb.startValue;
 
     skillshotRng!: Rng;
     bankRng!: Rng;

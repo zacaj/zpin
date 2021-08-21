@@ -5,6 +5,7 @@ import { State } from './state';
 import { Time, time, safeSetInterval } from './timer';
 import { Log } from './log';
 import { machine } from './machine';
+import { initialized } from './init';
 
 export const Standup = [0,100];
 export const Drop = [25, 250];
@@ -40,6 +41,7 @@ export class Switch {
         public readonly name = `${row},${column}`,
         minOnTime: number[]|number = 1,
         public minOffTime = 1,
+        public inverted = false,
         force = false,
     ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
@@ -60,7 +62,7 @@ export class Switch {
         if (this.column === 15) return;
         if (this.minOffTime !== 1 || this.minOnTime !== 1) {
             Log.info('switch', 'set %s settle to %i/%i', this.name, this.minOnTime, this.minOffTime);
-            await MPU.sendCommand(`sw-config ${this.row} ${this.column} ${this.minOnTime} ${this.minOffTime}`);
+            await MPU.sendCommand(`sw-config ${this.row} ${this.column} ${this.minOnTime} ${this.minOffTime} ${this.inverted}`);
         }
     }
 
@@ -173,7 +175,7 @@ let lastEventCheck = Number.NEGATIVE_INFINITY;
 let lastSwitchEvent = Number.NEGATIVE_INFINITY;
 let lastRawCheck = Number.NEGATIVE_INFINITY;
 safeSetInterval(async () => {
-    if (!MPU.isLive) return;
+    if (!MPU.isLive || !initialized) return;
 
     const events = await getSwitchEvents();
     const start = time();

@@ -218,6 +218,28 @@ export class IncreaseSolenoid extends MomentarySolenoid {
     }
 }
 
+export class TriggerSolenoid extends MomentarySolenoid {
+    constructor(
+        name: keyof MachineOutputs,
+        num: number,
+        board: Solenoid16,
+        public sw: Switch,
+        public readonly ms = 25, // fire time
+        public wait = 1000, // min time between fire attempts
+        public fake?: () => void,
+    ) {
+        super(name, num, board, ms, wait, fake);
+    }
+
+    async set(enabled: boolean): Promise<boolean|number> {
+        if (enabled) 
+            await this.board.send(`set-trigger ${this.num} ${this.sw.row} ${this.sw.column}`);
+        else
+            await this.board.send(`disable-trigger ${this.sw.row} ${this.sw.column}`);
+        return true;
+    }
+}
+
 export class OnOffSolenoid extends Solenoid {
     constructor(
         name: keyof CoilOutputs,
@@ -532,6 +554,7 @@ export type CoilOutputs = {
     right4: boolean;
     right5: boolean;
     miniFlipperEnable: boolean;
+    popperEnabled: boolean;
 };
 
 export type LightOutputs = {
@@ -594,39 +617,6 @@ export type ImageOutputs = {
 
 
 export class Machine extends Tree<MachineOutputs> {
-    solenoidBank1 = new Solenoid16(0);
-    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 55, 75, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
-    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
-    cPopper = new MomentarySolenoid('popper', 2, this.solenoidBank1, 70, 1000);
-    cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
-    cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
-    // cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
-    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
-    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
-    cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
-    cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
-    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 10, on => this.sRampDown.state = !on);
-    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
-    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
-    cMiniFlipper = new OnOffSolenoid('miniFlipperEnable', 15, this.solenoidBank1);
-
-    solenoidBank2 = new Solenoid16(2);
-    cUpper2 = new IncreaseSolenoid('upper2', 13, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
-    cUpper3 = new IncreaseSolenoid('upper3', 12, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
-    cUpperEject = new IncreaseSolenoid('upperEject', 11, this.solenoidBank2, 9, 20, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
-    cLeftGate = new OnOffSolenoid('leftGate', 8, this.solenoidBank2, 25, 50, 8);
-    cRightGate = new OnOffSolenoid('rightGate', 9, this.solenoidBank2);
-    cRealRightBank = new IncreaseSolenoid('realRightBank', 6, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.changeState(false, 'fake')));
-    cRightBank = new MomentarySolenoid('rightBank', -1, this.solenoidBank2);
-    cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight1.changeState(true, 'fake'));
-    cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight2.changeState(true, 'fake'));
-    cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight3.changeState(true, 'fake'));
-    cRightDown4 = new IncreaseSolenoid('right4', 4, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight4.changeState(true, 'fake'));
-    cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight5.changeState(true, 'fake'));
-    cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
-    cKickerEnable = new OnOffSolenoid('kickerEnable', 14, this.solenoidBank2);
-    cCatcher = new OnOffSolenoid('catcher', 7, this.solenoidBank2, 100, 30, 10);
-
     sLeftInlane = new Switch(1, 2, 'left inlane', LaneSet);
     sLeftOutlane = new Switch(1, 1, 'left outlane', LaneSet);
     sRightInlane = new Switch(0, 5, 'right inlane', LaneSet);
@@ -671,10 +661,10 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterUpper = new Switch(2, 6, 'shooter upper', LaneSet);
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', LaneSet);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 10);
-    sShooterLower = new Switch(2, 0, 'shooter lower', LaneSet);
+    sShooterLower = new Switch(2, 0, 'shooter lower', 0, 50, true);
     sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
     sPop = new Switch(4, 7, 'pop', Bumper);
-    sUpperInlane = new Switch(7, 1, 'upper inlane', [0, 100]);
+    sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 100, true);
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
@@ -687,9 +677,43 @@ export class Machine extends Tree<MachineOutputs> {
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
-    sActionButton = this.sStartButton; //new Switch(0, 8, 'action button', 1, 50, true);
+    sActionButton = new Switch(3, 8, 'action button', 1, 50);
     sBothFlippers = new Switch(0, 15, 'both flippers', 1, 50);
     sTilt = new Switch(2, 8, 'tilt');
+
+
+    solenoidBank1 = new Solenoid16(0);
+    cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 55, 75, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
+    cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
+    cPopper = new TriggerSolenoid('popper', 2, this.solenoidBank1, this.sPopperButton, 70, 1000);
+    cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
+    cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
+    // cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
+    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
+    cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
+    cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
+    cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
+    cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 10, on => this.sRampDown.state = !on);
+    cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
+    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
+    cMiniFlipper = new OnOffSolenoid('miniFlipperEnable', 15, this.solenoidBank1);
+
+    solenoidBank2 = new Solenoid16(2);
+    cUpper2 = new IncreaseSolenoid('upper2', 13, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
+    cUpper3 = new IncreaseSolenoid('upper3', 12, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
+    cUpperEject = new IncreaseSolenoid('upperEject', 11, this.solenoidBank2, 8, 20, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
+    cLeftGate = new OnOffSolenoid('leftGate', 8, this.solenoidBank2, 25, 50, 8);
+    cRightGate = new OnOffSolenoid('rightGate', 9, this.solenoidBank2);
+    cRealRightBank = new IncreaseSolenoid('realRightBank', 6, this.solenoidBank2, 30, 100, undefined, undefined, undefined, () => [this.sRight1, this.sRight2, this.sRight3, this.sRight4, this.sRight5].forEach(t => t.changeState(false, 'fake')));
+    cRightBank = new MomentarySolenoid('rightBank', -1, this.solenoidBank2);
+    cRightDown1 = new IncreaseSolenoid('right1', 0, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight1.changeState(true, 'fake'));
+    cRightDown2 = new IncreaseSolenoid('right2', 1, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight2.changeState(true, 'fake'));
+    cRightDown3 = new IncreaseSolenoid('right3', 2, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight3.changeState(true, 'fake'));
+    cRightDown4 = new IncreaseSolenoid('right4', 4, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight4.changeState(true, 'fake'));
+    cRightDown5 = new IncreaseSolenoid('right5', 5, this.solenoidBank2, 35, 60, 3, 500, undefined, () => this.sRight5.changeState(true, 'fake'));
+    cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
+    cKickerEnable = new OnOffSolenoid('kickerEnable', 14, this.solenoidBank2);
+    cCatcher = new OnOffSolenoid('catcher', 7, this.solenoidBank2, 100, 30, 10);
 
     pfSwitches = [
         this.sMiniOut,
@@ -936,6 +960,7 @@ export class Machine extends Tree<MachineOutputs> {
             right3: false,
             right4: false,
             right5: false,
+            popperEnabled: false,
             // magnetPost: false,
             // temp: () => 0,
             lMiniReady: [Color.Red],

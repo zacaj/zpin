@@ -48,30 +48,32 @@ export class FullHouseMb extends Multiball {
 
     lastJp?: Jackpot;
 
+    static startValue = 1000000;
+
     get value(): number|undefined {
         if (this.state._ !== 'jackpotLit') return undefined;
         switch (this.state.jp) {
             case Jackpot.RightLane:
                 if (machine.upper3Bank.targets[2].state)
-                    return 300000+this.base;
+                    return 300000/FullHouseMb.startValue*this.base;
                 else
-                    return 600000+this.base;
+                    return 600000/FullHouseMb.startValue*this.base;
             case Jackpot.RightTarget:
-                return 750000+this.base;
+                return 750000/FullHouseMb.startValue*this.base;
             case Jackpot.LeftLane:
-                return 750000+this.base;
+                return 750000/FullHouseMb.startValue*this.base;
             case Jackpot.LeftTarget:
-                return 500000+this.base;
+                return 500000/FullHouseMb.startValue*this.base;
             case Jackpot.Drop1:
             case Jackpot.Drop2:
             case Jackpot.Drop3:
-                return 200000+this.base;
+                return 200000/FullHouseMb.startValue*this.base;
             default:
                 throw new Error();
         }
     }
 
-    base = 0;
+    base = FullHouseMb.startValue;
 
     jpColor(jp?: Jackpot): Color {
         // if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
@@ -280,7 +282,7 @@ export class FullHouseMb extends Multiball {
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500KE']),
+            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
             this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
@@ -321,7 +323,7 @@ export class FullHouseMb extends Multiball {
                                 return;
                             }
                         break;
-                        case 'JACKPOT +500K': this.base += 250000; break;
+                        case 'JACKPOT +500K': this.base += 500000; break;
                         case 'JACKPOT +250K': this.base += 250000; break;
                         case '100K points': this.player.score += 100000; break;
                         case '10K POINTS': this.player.score += 10000; break;

@@ -31,11 +31,55 @@ public class SwitchMatrix extends Thread {
 	class Switch {
 		boolean state = false;
 		boolean rawState = false;
+		boolean inverted = false;
 		double minOnTime = 1;
 		double minOffTime = 1;
 		double rawLastOnAt = 0;
 		double rawLastOffAt = 0;
 		String name = null;
+		Solenoid16 triggerBoard = null;
+		byte triggerNum = 0;
+		
+
+		public void update(int row, boolean on) throws InterruptedException {
+			Switch sw = this;
+			double ms = ms();
+			boolean fastReact = (sw.rawState && !sw.state && sw.minOnTime == 0);
+			if (on != sw.rawState && !fastReact) {
+				sw.rawState = on;
+				if (on) sw.rawLastOnAt = ms;
+				else sw.rawLastOffAt = ms;
+				System.out.println("  raw switch change "+row+","+curCol+"->"+(sw.rawState? "true ":"false")+" @"+ms+(sw.name!=null? "     "+sw.name:""));
+			} else if ((sw.rawState != sw.state && ((sw.rawState && ms-sw.rawLastOnAt>=sw.minOnTime) || (!sw.rawState && ms-sw.rawLastOffAt>=sw.minOffTime)))
+					|| fastReact) {
+				Event e = new Event();
+				e.col = curCol;
+				e.row = row;
+				e.when = ms;
+				e.state = sw.rawState;
+				e.name = sw.name;
+				events.add(e);
+				
+				sw.state = sw.rawState;
+				
+				System.out.println("NEW   switch event: "+e);
+				
+				if (e.state && sw.triggerBoard!=null) {
+					if (SatIO.waitLock(1)) {
+						try {
+							System.out.println("      trigger solenoid");
+							sw.triggerBoard.fireSolenoid(sw.triggerNum);
+						} 
+						finally {
+							SatIO.unlock();
+						}
+					}
+					else {
+						System.out.println("ERR   couldn't lock IO for trigger");
+					}
+				}
+			}
+		}
 	}
 	
 	Switch[] switches = new Switch[Width*Height];
@@ -127,35 +171,17 @@ public class SwitchMatrix extends Thread {
 				serOut.setState(curCol != 0);
 				serClk.high();
 				serLatch.high();
-				Thread.sleep(0, 5);
+				Thread.sleep(0, 2);
 				for (int row = 0; row<Height; row++) {
-					boolean on = returns[row].isState(PinState.LOW);
-					double ms = ms();
 					Switch sw = switches[row*Width+curCol];
-					if (on != sw.rawState) {
-						sw.rawState = on;
-						if (on) sw.rawLastOnAt = ms;
-						else sw.rawLastOffAt = ms;
-						System.out.println("  raw switch change "+row+","+curCol+"->"+(sw.rawState? "true ":"false")+" @"+ms+(sw.name!=null? "     "+sw.name:""));
-					} else if (sw.rawState != sw.state && ((sw.rawState && ms-sw.rawLastOnAt>=sw.minOnTime) || (!sw.rawState && ms-sw.rawLastOffAt>=sw.minOffTime))) {
-						Event e = new Event();
-						e.col = curCol;
-						e.row = row;
-						e.when = ms;
-						e.state = sw.rawState;
-						e.name = sw.name;
-						events.add(e);
-						
-						sw.state = sw.rawState;
-						
-						System.out.println("NEW   switch event: "+e);
-					}
+					boolean on = returns[row].isState(PinState.LOW) ^ sw.inverted;
+					sw.update(row, on);
 				}
 				
 				curCol++;
 				if (curCol >= 9) {
 					curCol = 0;
-					Thread.sleep(0, 5);
+//					Thread.sleep(0, 7);
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -248,5 +274,6 @@ public class SwitchMatrix extends Thread {
 		nameSwitch(6, 8, "left magnet");
 		nameSwitch(5, 8, "right magnet ");
 		nameSwitch(2, 8, "tilt");
+		nameSwitch(3, 8, "actionButton");
 	}
 }
