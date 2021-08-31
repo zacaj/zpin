@@ -123,11 +123,11 @@ export class Poker extends Mode {
                 if (this.step >= 7) return dImage("finish_hand_ramp");
                 return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
-            iSS5: () => this.step>=7? dImage("finish_hand_eject") : undefined,
+            iSS5: () => this.step===7? dImage("finish_hand_eject") : undefined,
             iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
             // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
-            lRampArrow: add(() => this.step>=7, [Color.White, 'fl']),
-            lEjectArrow: add(() => this.step>=7, [Color.White, 'fl']),
+            lRampArrow: add(() => this.step===7, [Color.White, 'fl']),
+            lEjectArrow: add(() => this.step===7, [Color.White, 'fl']),
             music: () => this.playerWins? null : undefined,
             // lMainTargetArrow: many(() => ({
             //     prev: true,
@@ -426,8 +426,7 @@ export class Poker extends Mode {
         const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
         this.playerWins = result.aWon;
         Log.info('game', 'poker results: %o', result);
-        if (this.playerWins)
-            fork(wait(1000).then(() => playVoice("player win")));
+        fork(wait(1000).then(() => playVoice(this.playerWins? "player win" : "crowd groan")));
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         if (this.playerWins) {
@@ -489,6 +488,9 @@ export class Poker extends Mode {
             case Hand.TwoPair:
                 change = 10;
                 break;
+            case Hand.RoyalFlush:
+                change = 75;
+                break;
             // case Hand.Pair:
             //     change = 10;
             //     break;
@@ -502,7 +504,20 @@ export class Poker extends Mode {
             const speed = 30;
             const maxTime = 2000;
             const rate = Math.max(20, round(Math.abs(this.pot)/(maxTime/speed), 10));
+            let dropTime = 500;
+            let lastDrop = 0;
+            let drops = 0;
+            let dropCount = 3;
             while (this.pot !== 0) {
+                if (this.pot/speed/rate > .300) {
+                    lastDrop = time();
+                    void playSound('chip drop');
+                    if (++drops === dropCount) {
+                        dropTime /= 2;
+                        drops = 0;
+                        dropCount *= 2;
+                    }
+                }
                 const change = Math.min(this.pot, rate) * (this.playerWins? 1:-1) * Math.sign(this.pot);
                 this.bank += change;
                 this.pot -= Math.abs(change);
@@ -510,7 +525,7 @@ export class Poker extends Mode {
             }
         }
 
-        await gWait(1500, 'showing cards');
+        await gWait(750, 'showing cards');
 
         // void unmuteMusic();
         

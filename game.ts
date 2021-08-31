@@ -12,9 +12,10 @@ import { Mode, Modes } from './mode';
 import { Player } from './modes/player';
 import { MPU } from './mpu';
 import { Outputs } from './outputs';
+import { playSound } from './sound';
 import { State } from './state';
 import { onClose, onSwitchClose, Switch } from './switch-matrix';
-import { time } from './timer';
+import { time, Timer } from './timer';
 import { TreeChangeEvent } from './tree';
 import { assert, getFormattedTime } from './util';
 import { ClearHoles } from './util-modes';
@@ -35,6 +36,8 @@ export class Game extends Mode {
     get ball() {
         return this.curPlayer.ball;
     }
+
+    startTime = getFormattedTime();
 
     totals: {[source: string]: {times: number; total: number; average: number}} = {};
     
@@ -67,6 +70,7 @@ export class Game extends Mode {
 
     async onBallEnd() {
         const lastPlayer = this.curPlayer;
+
         if (this.playerUp+1 < this.players.length)
             this.playerUp++;
         else {
@@ -81,7 +85,7 @@ export class Game extends Mode {
                 }));
                 totals.sort((a, b) => b.total - a.total);
 
-                fs.writeFileSync(`./scores/game-${getFormattedTime()}.json`, JSON.stringify({
+                fs.writeFileSync(`./scores/game-${this.startTime}.json`, JSON.stringify({
                     players: this.players.map(p => ({ number: p.number, score: p.score })),
                     totals,
                 }, undefined, 2));
@@ -137,6 +141,7 @@ export class Game extends Mode {
         if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer.score>0) return;
         this.players.push(new Player(this, this.players.length+1, this.seed));
         alert(`PLAYER ${this.players.length} ADDED`);
+        if (this.players.length <= 4) void playSound(`player ${this.players.length}`);
     }
 
     scores = new Map<Switch, number>([

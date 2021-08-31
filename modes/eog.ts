@@ -6,6 +6,7 @@ import { Outputs } from '../outputs';
 import { fork } from '../promises';
 import { playSound } from '../sound';
 import { State } from '../state';
+import { time } from '../timer';
 import { comma, money, round, score } from '../util';
 import { Player } from './player';
 import { Poker } from './poker';
@@ -39,7 +40,9 @@ export class EndOfGameBonus extends Mode {
         if (this.player.poker)
             this.player.store.Poker!.bank += this.player.poker.pot / 2;
         await gWait(500, 'bonus start');
+        void playSound('thunk');
         await this.addLine('BANKROLL:', money(this.player.store.Poker!.bank));
+        void playSound('thunk');
         await this.addLine('BUY-IN:', money(Poker.BankStart));
         void playSound('push chips short');
         await this.addLine('PROFIT:', money(this.player.store.Poker!.bank - Poker.BankStart));
@@ -54,7 +57,20 @@ export class EndOfGameBonus extends Mode {
         const speed = 30;
         const maxTime = 4500;
         const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
+        let dropTime = 500;
+        let lastDrop = 0;
+        let drops = 0;
+        let dropCount = 3;
         while (this.total !== 0) {
+            if (this.total/speed/rate > .300) {
+                lastDrop = time();
+                void playSound('chip drop');
+                if (++drops === dropCount) {
+                    dropTime /= 2;
+                    drops = 0;
+                    dropCount *= 2;
+                }
+            }
             const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);
             this.total -= change;
             // this.player.score += change;

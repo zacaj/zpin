@@ -127,11 +127,14 @@ export class Skillshot extends Mode {
         this.listen(onSwitchOpen(machine.sShooterLane), () => this.music = 'green grass intro a');
 
         this.listen<SwitchEvent>([onAny(
-            onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
+            onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sLeftOrbit, machine.sSingleStandup, machine.sRampMade, machine.sShooterUpper, machine.sShooterMagnet),
             onSwitchClose(machine.sSpinner),
         ),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
-        ], 'finish');
+        ], e => {
+            Log.info('game', 'skillshot ended by playfield switch %s', e.name);
+            return this.finish(e);
+        });
 
         this.listen(onSwitchClose(machine.sOuthole), 'end');
 
@@ -286,7 +289,7 @@ export class Skillshot extends Mode {
                         award: 'UNDO TWO CARDS',
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
-                    [rangeSelect(this.player.mbsQualified.size, [1, 15] ,[-1, 0]), {
+                    [this.player.mbsQualified.size===0 && !this.player.curMbMode? 10 : 0, {
                         switch: gen.switch,
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),

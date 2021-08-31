@@ -20,10 +20,10 @@ export enum Modes {
     Multiball,
     Poker,
 
+    Restart,
     Mystery,
     Skillshot,
     NoMode,
-    Restart,
 
     Bonus,
 

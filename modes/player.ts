@@ -502,6 +502,7 @@ export class Player extends Mode {
         
         // allow orbits to loop
         this.listen([onAnySwitchClose(machine.sShooterUpper)], () => this.closeShooter = true);
+        this.listen([onAnySwitchClose(machine.sShooterMagnet), () => machine.sSpinner.wasClosedWithin(1000)], () => this.closeShooter = true);
         this.listen([...onSwitchClose(machine.sLeftOrbit), () => machine.cRightGate.actual], () => this.closeShooter = true);
         this.listen(onAnyPfSwitchExcept(machine.sShooterUpper, machine.sShooterMagnet, machine.sShooterLower, machine.sLeftOrbit), () => this.closeShooter = false);
 
@@ -749,7 +750,7 @@ class Spinner extends Tree<MachineOutputs> {
 
     calcScore() {
         const down = [4, 3, 2, 1].map(num => ([num, machine.dropBanks.filter(bank => bank.targets.filter(t => t.state).length === num).length]));
-        const countValue = [0, 100, 400, 1000, 3000, 6000, 20000];
+        const countValue = [0, 100, 1000, 2000, 6000, 8000, 20000];
         const best = down.find(([n, c]) => c > 0);
         if (best)
             this.score = best[0] * countValue[best[1]] * ((this.player.score/1000000+1)|0);

@@ -1,3 +1,4 @@
+import { Log } from "./log";
 
 const stateAccessRecorders: (<T extends {}>(obj: T, key: (keyof T)&string) => void)[] = [];
 export function pushStateAccessRecorder(cb: <T extends {}>(obj: T, key: (keyof T)&string) => void) {
@@ -257,10 +258,11 @@ export function selectiveClone<T>(obj: T, ...props: (keyof T)[]): Partial<T> {
 
 export function assert(cond: any, message = 'assertion failed') {
     if (!cond) {
-        let throwError = false;
-        throwError = !debugging();
-        debugger;
-        if (throwError) throw new Error(message);
+    //     let throwError = false;
+    //     throwError = !debugging();
+    //     debugger;
+    //     if (throwError) throw new Error(message);
+        Log.error('console', 'assertion failed: %s', message);
     }
 }
 

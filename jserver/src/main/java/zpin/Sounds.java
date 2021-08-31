@@ -268,6 +268,7 @@ public class Sounds extends Thread {
 		};
 		
 		String mediaDir = "./media";
+		System.out.println("Loading sound files...");
 		File[] files = new File(mediaDir).listFiles();
 		for (File file : files) {
 			if (file.isFile() && file.getName().endsWith(".wav")) {
@@ -278,8 +279,8 @@ public class Sounds extends Thread {
 					if (!sounds.containsKey(parts[0]))
 						sounds.put(name, new Sound(name));
 					sounds.get(name).files.add(wav);
-					System.out.println("Sound file '"+file.getName()+"' loaded successfully");
-					System.out.println("seconds: "+wav.length+" bits: "+wav.format.getSampleSizeInBits()+" hz: "+wav.format.getSampleRate()+" encoding: "+wav.format.getEncoding());
+//					System.out.println("Sound file '"+file.getName()+"' loaded successfully");
+//					System.out.println("seconds: "+wav.length+" bits: "+wav.format.getSampleSizeInBits()+" hz: "+wav.format.getSampleRate()+" encoding: "+wav.format.getEncoding());
 				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 					System.out.println("ERROR loading sound file '"+file.getName());
 					e.printStackTrace();
