@@ -51,7 +51,8 @@ export class Timer {
         return entry;
     }
 
-    static cancel(entry: TimerQueueEntry) {
+    static cancel(entry?: TimerQueueEntry) {
+        if (!entry) return;
         Timer.queue.remove(entry);
     }
 

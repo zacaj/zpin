@@ -1,14 +1,14 @@
 import { Mode, Modes } from './mode';
-import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light } from './machine';
+import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light, Solenoid } from './machine';
 import { OutputFuncsOrValues, Outputs, toggle } from './outputs';
 import { getTypeIn, assert, score, eq } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent, DropDownEvent, DropTarget } from './drop-bank';
 import { Log } from './log';
 import { Events, onType } from './events';
 import { Tree } from './tree';
-import { onAnySwitchClose, onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
+import { onAnySwitchClose, onSwitchClose, onSwitchOpen, Switch, SwitchEvent } from './switch-matrix';
 import { MPU } from './mpu';
-import { Time, wait } from './timer';
+import { Time, Timer, TimerQueueEntry, wait } from './timer';
 import { fork } from './promises';
 import { alert, notify } from './gfx';
 import { Color, colorToArrow } from './light';
@@ -21,7 +21,6 @@ import { playVoice } from './sound';
 
 
 export class ClearHoles extends Tree<MachineOutputs> {
-
     constructor() {
         super();
 
@@ -31,6 +30,7 @@ export class ClearHoles extends Tree<MachineOutputs> {
             upperEject: () => machine.sUpperEject.onFor(500),
             miniEject: () => machine.sMiniOut.state,
         });
+
     }
 }
 
@@ -74,14 +74,14 @@ export async function ResetMechs(parent: Tree<MachineOutputs>, ...except: DropBa
     await parent.await(node.onEnd());
 }
 
-export async function FireCoil(parent: Tree<MachineOutputs>, coil: MomentarySolenoid) {
+export async function FireCoil(parent: Tree<MachineOutputs>, coil: Solenoid, time?: number, state = true) {
     const outs: any  = {};
     const node = new class extends Tree<MachineOutputs> {
         constructor() {
             super();
 
             this.out = new Outputs(this, {
-                [coil.name]: true,
+                [coil.name]: state,
             });
 
             this.listen(e => e instanceof SolenoidFireEvent && e.coil === coil, () => this.end());
@@ -90,7 +90,13 @@ export async function FireCoil(parent: Tree<MachineOutputs>, coil: MomentarySole
 
     parent.addTemp(node);
 
-    await parent.await(node.onEnd());
+    if (time) {
+        await wait(time);
+        node.end();
+    }
+    else {
+        await parent.await(node.onEnd());
+    }
 }
 
 export async function ResetBank(parent: Tree<MachineOutputs>, bank: DropBank) {

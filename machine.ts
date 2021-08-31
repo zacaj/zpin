@@ -6,7 +6,7 @@ import { DisplayContent } from './disp';
 import { DropBank, DropTarget, Standup, Lane, Shot } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
-import { gfx, gfxImages, gfxLights, screen } from './gfx';
+import { alert, gfx, gfxImages, gfxLights, screen } from './gfx';
 import { Color, colorToHex, light, LightState, LPU, normalizeLight } from './light';
 import { Log } from './log';
 import { Mode, Modes } from './mode';
@@ -17,10 +17,11 @@ import { fork } from './promises';
 import { curRecording } from './recording';
 import { playMusic, stopMusic } from './sound';
 import { State } from './state';
-import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, onSwitchOpen, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
+import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onClose, onOpen, onSwitch, onSwitchClose, onSwitchOpen, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { Tree } from './tree';
 import { arrayify, assert, eq as eq, getTypeIn, OrArray, then } from './util';
+import { FireCoil } from './util-modes';
 
 abstract class MachineOutput<T, Outs = MachineOutputs> {
     static id = 1;
@@ -68,7 +69,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         if (eq(this.val, this.actual)) {
             return undefined;
         }
-        if (!machine.sDetect3.state) {
+        if (MPU.isLive && !machine.sDetect3.state) {
             this.timer = Timer.callIn(() => this.trySet(), 100, `delayed no-power retry set ${this.name} to ${this.val}`);
             return undefined;
         }
@@ -1137,9 +1138,11 @@ export function expectMachineOutputs(...names: (keyof MachineOutputs)[]): jest.S
 
 class MachineOverrides extends Mode {
     eosPulse = new EosPulse(this.machine.cRamp, this.machine.sRampDown);
+    searchTimer?: TimerQueueEntry;
+    curBallSearch?: number;
 
     get nodes() {
-        return [this.eosPulse];
+        return [this.eosPulse, ...this.tempNodes];
     }
 
     constructor(public machine: Machine) {
@@ -1167,6 +1170,61 @@ class MachineOverrides extends Mode {
         });
         
         this.listen(e => e instanceof SolenoidFireEvent && e.coil === machine.cRealRightBank, () => Events.fire(new SolenoidFireEvent(machine.cRightBank)));
+
+        
+
+        const ballSearchTime = 30000;
+
+        this.listen(onOpen(), () => {
+            const traps = [
+                machine.sLeftFlipper,
+                machine.sRightFlipper,
+                machine.sOuthole,
+                machine.sMiniOut,
+                machine.sTroughFull,
+                machine.sShooterLane,
+                machine.sUpperEject,
+            ];
+            if (this.searchTimer) {
+                Timer.cancel(this.searchTimer);
+                this.searchTimer = undefined;
+            }
+            
+            if (!traps.some(sw => sw.state) && !this.curBallSearch) {
+                this.searchTimer = Timer.callIn(async () => {
+                    const ballSearchNum = this.curBallSearch = Math.random();
+
+                    for (let i=0; i<3; i++) {
+                        alert(`BALL SEARCH ${i+1}`);
+                        fork(FireCoil(this, machine.cKickerEnable, 3000));
+                        await FireCoil(this, machine.cShooterDiverter, 500, false);
+                        if (machine.ballsLocked==='unknown' || machine.ballsLocked<1)
+                            await FireCoil(this, machine.cLockPost, 500);
+                        await wait(1500);
+                        if (this.curBallSearch !== ballSearchNum) return;
+                        await FireCoil(this, machine.cMiniDiverter, 500);
+                        await FireCoil(this, machine.cUpperEject);
+                        await FireCoil(this, machine.cMiniEject);
+                        await FireCoil(this, machine.cOuthole);
+                        await wait(2000);
+                        if (this.curBallSearch !== ballSearchNum) return;
+                        for (const bank of machine.dropBanks) {
+                            await FireCoil(this, bank.coil, 50);
+                            await wait(100);
+                        }
+                        await wait(3000);
+                        if (this.curBallSearch !== ballSearchNum) return;
+                    }
+                }, ballSearchTime, 'ball search ready');
+            }
+        });
+
+        this.listen(onClose(), () => this.curBallSearch = undefined);
+    }
+
+    end() {
+        Timer.cancel(this.searchTimer);
+        return super.end();
     }
 }
 

@@ -72,9 +72,9 @@ export class Switch {
         Log.info('switch', 'switch \'%s\' state -> %s (%i,%i) at %i via %s', this.name, val, this.column, this.row, when, source);
         this.lastChange = when;
         if (val)
-            this.lastClosed = time();
+            this.lastClosed = when;
         else
-            this.lastOpened = time();
+            this.lastOpened = when;
         this._state = val;
         const event = new SwitchEvent(this, when);
         Events.fire(event);

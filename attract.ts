@@ -19,7 +19,7 @@ import { ClearHoles } from './util-modes';
 export class AttractMode extends Mode {
 
     clearHoles = new ClearHoles();
-    startTime = time();
+    startTimestamp = time();
 
     get nodes() {
         return [this.clearHoles];
@@ -166,10 +166,10 @@ export class AttractGfx extends ModeGroup {
             this.add(slide);
         a.watch(() => {
             slides.forEach((slide, i) => 
-                slide.visible(wrap(((time()-a.startTime)/4000)|0, slides.length) === i),
+                slide.visible(wrap(((time()-a.startTimestamp)/4000)|0, slides.length) === i),
             );
         });
-        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTime = (a.startTime-4000) as any);
-        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTime = (a.startTime+4000) as any);
+        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTimestamp = (a.startTimestamp-4000) as any);
+        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTimestamp = (a.startTimestamp+4000) as any);
     }
 }

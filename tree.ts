@@ -5,7 +5,7 @@ import { Log } from './log';
 import { State } from './state';
 import { fork } from './promises';
 import { machine } from './machine';
-import { Timer } from './timer';
+import { time, Timer } from './timer';
 
 export abstract class Tree<Outs extends {} = {}> {
     tempNodes: Tree<Outs>[] = [];
@@ -49,6 +49,8 @@ export abstract class Tree<Outs extends {} = {}> {
     get aTimer() {
         return Timer;
     }
+
+    startTime = time();
 
     constructor(
         public readonly gPriority?: number,

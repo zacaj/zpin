@@ -240,7 +240,7 @@ export class Mystery extends Mode {
                 Timer.cancel(this.timer);
                 this.done = true;
             }
-        }, 1750, 'mystery', 3000);
+        }, 1500, 'mystery', 3000);
     }
 
     static async start(player: Player): Promise<Mystery|false> {
