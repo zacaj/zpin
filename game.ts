@@ -14,7 +14,7 @@ import { MPU } from './mpu';
 import { Outputs } from './outputs';
 import { playSound } from './sound';
 import { State } from './state';
-import { onClose, onSwitchClose, Switch } from './switch-matrix';
+import { onClose, onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { time, Timer } from './timer';
 import { TreeChangeEvent } from './tree';
 import { assert, getFormattedTime } from './util';
@@ -37,7 +37,7 @@ export class Game extends Mode {
         return this.curPlayer.ball;
     }
 
-    startTime = getFormattedTime();
+    startTimestamp = getFormattedTime();
 
     totals: {[source: string]: {times: number; total: number; average: number}} = {};
     
@@ -57,7 +57,13 @@ export class Game extends Mode {
             // upperMagnet: () => machine.sShooterUpper.wasClosedWithin(3000) && !machine.sShooterLower.wasClosedWithin(750) && !machine.sSpinner.wasClosedWithin(750),
         });
 
-        this.listen(onSwitchClose(machine.sStartButton), 'addPlayer');
+        this.listen(onSwitchClose(machine.sStartButton), e => Timer.callIn(() => {
+            if (machine.sStartButton.state && machine.sStartButton.lastClosed === e.when) {
+                Log.log(['game', 'console'], 'game force-ended');
+                this.end();
+            }
+        }, 2000, 'start button hold'));
+        this.listen([...onSwitchOpen(machine.sStartButton), () => time()-machine.sStartButton.lastClosed! < 500 && machine.sStartButton.lastClosed! > this.startTime], 'addPlayer');
         
 
         // this.listen(onSwitchClose(machine.sLeftInlane),
@@ -85,7 +91,7 @@ export class Game extends Mode {
                 }));
                 totals.sort((a, b) => b.total - a.total);
 
-                fs.writeFileSync(`./scores/game-${this.startTime}.json`, JSON.stringify({
+                fs.writeFileSync(`./scores/game-${this.startTimestamp}.json`, JSON.stringify({
                     players: this.players.map(p => ({ number: p.number, score: p.score })),
                     totals,
                 }, undefined, 2));
