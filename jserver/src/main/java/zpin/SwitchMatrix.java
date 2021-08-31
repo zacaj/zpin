@@ -21,6 +21,7 @@ public class SwitchMatrix extends Thread {
 	GpioPinDigitalOutput serOut = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_25, PinState.LOW);
 	GpioPinDigitalOutput serClk = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, PinState.HIGH); // 11
 	GpioPinDigitalOutput serLatch = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_06, PinState.LOW); // 12
+	GpioPinDigitalInput detect3 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_23, PinPullResistance.PULL_UP); // 33
 	
 	static long startTime = 0;
 	
@@ -41,7 +42,7 @@ public class SwitchMatrix extends Thread {
 		byte triggerNum = 0;
 		
 
-		public void update(int row, boolean on) throws InterruptedException {
+		public void update(int row, int col, boolean on) throws InterruptedException {
 			Switch sw = this;
 			double ms = ms();
 			boolean fastReact = (sw.rawState && !sw.state && sw.minOnTime == 0);
@@ -49,11 +50,11 @@ public class SwitchMatrix extends Thread {
 				sw.rawState = on;
 				if (on) sw.rawLastOnAt = ms;
 				else sw.rawLastOffAt = ms;
-				System.out.println("  raw switch change "+row+","+curCol+"->"+(sw.rawState? "true ":"false")+" @"+ms+(sw.name!=null? "     "+sw.name:""));
+				System.out.println("  raw switch change "+row+","+col+"->"+(sw.rawState? "true ":"false")+" @"+ms+(sw.name!=null? "     "+sw.name:""));
 			} else if ((sw.rawState != sw.state && ((sw.rawState && ms-sw.rawLastOnAt>=sw.minOnTime) || (!sw.rawState && ms-sw.rawLastOffAt>=sw.minOffTime)))
 					|| fastReact) {
 				Event e = new Event();
-				e.col = curCol;
+				e.col = col;
 				e.row = row;
 				e.when = ms;
 				e.state = sw.rawState;
@@ -156,6 +157,7 @@ public class SwitchMatrix extends Thread {
 		lock();
 		setCol(-1);
 		unlock();
+		boolean power = detect3.isHigh();
 		while(true) {
 			try {
 				lock();
@@ -171,17 +173,22 @@ public class SwitchMatrix extends Thread {
 				serOut.setState(curCol != 0);
 				serClk.high();
 				serLatch.high();
-				Thread.sleep(0, 2);
+				Thread.sleep(0, curCol<=2? 12 : 2);
 				for (int row = 0; row<Height; row++) {
+					if (!power) break;
 					Switch sw = switches[row*Width+curCol];
 					boolean on = returns[row].isState(PinState.LOW) ^ sw.inverted;
-					sw.update(row, on);
+					sw.update(row, curCol, on);
 				}
 				
 				curCol++;
 				if (curCol >= 9) {
 					curCol = 0;
 //					Thread.sleep(0, 7);
+					
+					power = detect3.isHigh();
+//					System.out.println("power: "+power);
+					switches[15].update(0, 15, power);
 				}
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -275,5 +282,6 @@ public class SwitchMatrix extends Thread {
 		nameSwitch(5, 8, "right magnet ");
 		nameSwitch(2, 8, "tilt");
 		nameSwitch(3, 8, "actionButton");
+		nameSwitch(0, 15, "detect power");
 	}
 }

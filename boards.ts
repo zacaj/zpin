@@ -1,5 +1,6 @@
 import { MPU } from './mpu';
 import { Log } from './log';
+import { machine } from './machine';
 
 export class Solenoid16 {
     
@@ -10,6 +11,10 @@ export class Solenoid16 {
     }
 
     init() {
+        if (!machine.sDetect3.state) {
+            Log.log(['mpu', 'solenoid'], 'skip initializing board %i, no power', this.board);
+            return;
+        }
         Log.info(['mpu', 'solenoid'], 'init board %i as s16', this.board);
         if (!MPU.isLive) return;
         return MPU.sendCommand(`i ${this.board} s16`).catch(e => {

@@ -86,21 +86,22 @@ export const CPU = {
             this.timeout = 10;
             Log.log(['cpu', 'console'], 'connected to CPU');
 
-            if (this.firstConnect) {
-                await this.sendCommand('init');
-                this.firstConnect = false;
-            }
 
-            for (const key of Object.keys(machine)) {
-                const obj = (machine as any)[key];
-                if (obj instanceof Image)
-                    await obj.syncDisp();
-            }
-            for (const t of machine.dropTargets) {
-                if (t.image)
-                    await t.image.syncDisp();
-            }
+            await this.syncDisplays();
         });
+    },
+
+    async syncDisplays() {
+        
+        for (const key of Object.keys(machine)) {
+            const obj = (machine as any)[key];
+            if (obj instanceof Image)
+                await obj.syncDisp();
+        }
+        for (const t of machine.dropTargets) {
+            if (t.image)
+                await t.image.syncDisp();
+        }
     },
 
 

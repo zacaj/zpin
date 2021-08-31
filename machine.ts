@@ -17,7 +17,7 @@ import { fork } from './promises';
 import { curRecording } from './recording';
 import { playMusic, stopMusic } from './sound';
 import { State } from './state';
-import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
+import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onSwitch, onSwitchClose, onSwitchOpen, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { Tree } from './tree';
 import { arrayify, assert, eq as eq, getTypeIn, OrArray, then } from './util';
@@ -66,6 +66,10 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     trySet(): Promise<void>|void {
         this.stopRetry();
         if (eq(this.val, this.actual)) {
+            return undefined;
+        }
+        if (!machine.sDetect3.state) {
+            this.timer = Timer.callIn(() => this.trySet(), 100, `delayed no-power retry set ${this.name} to ${this.val}`);
             return undefined;
         }
         Log[this instanceof Solenoid? 'log':'trace'](['machine'], 'try set %s to ', this.name, this.val);
@@ -135,6 +139,10 @@ export class MomentarySolenoid extends Solenoid {
 
     async init() {
         if (this.num < 0) return;
+        if (!machine.sDetect3.state) {
+            Log.log(['mpu', 'solenoid'], 'skip initializing solenoid %s, no power', this.name);
+            return;
+        }
         Log.info(['machine', 'solenoid'], 'init %s as momentary, pulse %i', this.name, this.ms);
         await this.board.initMomentary(this.num, this.ms);
     }
@@ -253,6 +261,10 @@ export class OnOffSolenoid extends Solenoid {
         super(name, num, board);
     }
     async init() {
+        if (!machine.sDetect3.state) {
+            Log.log(['mpu', 'solenoid'], 'skip initializing solenoid %s, no power', this.name);
+            return;
+        }
         Log.info(['machine', 'solenoid'], 'init %s as on off, max %i %i', this.name, this.maxOnTime, this.pulseOffTime);
         await this.board.initOnOff(this.num, this.maxOnTime, this.pulseOffTime, this.pulseOnTime);
     }
@@ -664,22 +676,23 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterLower = new Switch(2, 0, 'shooter lower', 0, 50, true);
     sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
     sPop = new Switch(4, 7, 'pop', Bumper);
-    sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 100, true);
+    sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 50); // disabled
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
-    sUpperLane2 = new Switch(6, 5, 'upper lane 2', LaneSet);
-    sUpperLane3 = new Switch(5, 7, 'upper lane 3', LaneSet);
-    sUpperLane4 = new Switch(5, 3, 'upper lane 4', LaneSet);
+    sUpperLane2 = new Switch(6, 5, 'upper lane 2', 1, 50);
+    sUpperLane3 = new Switch(5, 7, 'upper lane 3', 1, 50);
+    sUpperLane4 = new Switch(5, 3, 'upper lane 4', 1, 50);
     sRampMade = new Switch(7, 0, 'ramp made', [0, 100]);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
-    sActionButton = new Switch(3, 8, 'action button', 1, 50);
-    sBothFlippers = new Switch(0, 15, 'both flippers', 1, 50);
+    sActionButton = new Switch(3, 8, 'action button', 50, 50);
+    sBothFlippers = new Switch(1, 15, 'both flippers', 1, 50, false, false, true);
     sTilt = new Switch(2, 8, 'tilt');
+    sDetect3 = new Switch(0, 15, '3v detect', 100, 100);
 
 
     solenoidBank1 = new Solenoid16(0);
@@ -1055,6 +1068,31 @@ export class Machine extends Tree<MachineOutputs> {
         this.overrides = new MachineOverrides(this);
         
         this.watch(() => screen?.circle.x(time()%1000-500));
+
+        this.listen(onSwitchClose(this.sDetect3), async () => {
+            Log.log(['console', 'machine'], 'power detected, initializing boards...');
+            await Promise.all([
+                (async () => {
+                    if (CPU.isConnected) {
+                        await CPU.sendCommand("init");
+                        await CPU.syncDisplays();
+                        Log.log(['console', 'machine'], 'displays initialized');
+                    }
+                })(),
+                (async () => {
+                    for (const board of this.boards) {
+                        await board.init();
+                    }
+                    for (const s of this.coils) {
+                        await s.init();
+                        await s.set(s.val);
+                    }
+                    Log.log(['console', 'machine'], 'drivers initialized');
+                })(),
+            ]);
+            Log.log(['console', 'machine'], 'init complete');
+        });
+        this.listen(onSwitchOpen(this.sDetect3), () => Log.log(['console', 'machine'], 'power lost'));
     }
 
     pfIsInactive(): boolean {
@@ -1066,6 +1104,14 @@ export class Machine extends Tree<MachineOutputs> {
 
     get lights(): Light[] {
         return Object.keys(this).map(key => (this as any)[key]).filter(o => o instanceof Light);
+    }
+
+    get boards(): Solenoid16[] {
+        return Object.keys(this).map(key => (this as any)[key]).filter(o => o instanceof Solenoid16);
+    }
+
+    get coils(): Solenoid[] {
+        return Object.keys(this).map(key => (this as any)[key]).filter(o => o instanceof Solenoid);
     }
 }
 

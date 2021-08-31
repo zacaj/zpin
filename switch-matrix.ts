@@ -43,6 +43,7 @@ export class Switch {
         public minOffTime = 1,
         public inverted = false,
         force = false,
+        public skipScan = false,
     ) {
         State.declare<Switch>(this, ['_state', 'lastChange', 'lastClosed', 'lastOpened']);
         if (Array.isArray(minOnTime)) {
@@ -198,7 +199,7 @@ safeSetInterval(async () => {
     if (time() - lastRawCheck > 1000) {
         const newState = await getSwitchState();
         forRC((r,c,sw) => {
-            if (c>=15) return;
+            if (c>15 || sw.skipScan) return;
             // assert(sw.state === newState[r][c]);
             sw.changeState(newState[r][c], 'sweep');
         });
