@@ -21,6 +21,7 @@ export class MiniPf extends Mode {
         State.declare<MiniPf>(this, ['waitingForSwitch']);
         this.out = new Outputs(this, {
             miniDiverter: () => this.waitingForSwitch || time()-startTime<1500,
+            lMiniBank: [[Color.White, 'fl']],
         });
 
         if (machine.lMiniReady.is(Color.Green))

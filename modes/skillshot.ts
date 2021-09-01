@@ -38,7 +38,7 @@ export class Skillshot extends Mode {
 
     lastSw = -1;
     switches = [machine.sShooterLower, machine.sShooterMagnet, machine.sShooterUpper];
-    startTime = time();
+    startTimestamp = time();
 
     gateMode!: GateMode;
 
@@ -97,7 +97,7 @@ export class Skillshot extends Mode {
         this.out = new Outputs(this, {
             ...outs,
             shooterDiverter: () => this.shooterOpen,
-            leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTime) % 3000 > 1500 : (this.gateMode===GateMode.Open),
+            leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTimestamp) % 3000 > 1500 : (this.gateMode===GateMode.Open),
             rightGate: false,
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
             music: (prev) => wasSilent? !this.music? prev? [typeof prev==='string'? prev:prev[0], false] : undefined : [this.music, false] : undefined,
@@ -131,6 +131,7 @@ export class Skillshot extends Mode {
             onSwitchClose(machine.sSpinner),
         ),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
+            () => !machine.sShooterLane.state,
         ], e => {
             Log.info('game', 'skillshot ended by playfield switch %s', e.name);
             return this.finish(e);

@@ -600,6 +600,10 @@ export type LightOutputs = {
     lLaneLower4: LightState[];
     lSpinnerTarget: LightState[];
     lUpperLaneTarget: LightState[];
+    lMiniBank: LightState[];
+    lStraightStatus: LightState[];
+    lFlushStatus: LightState[];
+    lFullHouseStatus: LightState[];
 };
 export type ImageOutputs = {
     iCenter1: ImageType;
@@ -810,6 +814,10 @@ export class Machine extends Tree<MachineOutputs> {
     lastSwitchHit?: Switch;
 
     lMiniReady = new Light('lMiniReady');
+    lMiniBank = new Light('lMiniBank');
+    lStraightStatus = new Light('lStraightStatus');
+    lFlushStatus = new Light('lFlushStatus');
+    lFullHouseStatus = new Light('lFullHouseStatus');
     lRampArrow = new Light('lRampArrow', [62, 61]);
     lPower1 = new Light('lPower1', 100);
     lPower2 = new Light('lPower2', 102);
@@ -978,6 +986,10 @@ export class Machine extends Tree<MachineOutputs> {
             // magnetPost: false,
             // temp: () => 0,
             lMiniReady: [Color.Red],
+            lMiniBank: [],
+            lStraightStatus: [],
+            lFlushStatus: [],
+            lFullHouseStatus: [],
             lRampArrow: [],
             lPower1: [],
             lPower2: [],
