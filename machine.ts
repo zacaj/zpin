@@ -1056,7 +1056,7 @@ export class Machine extends Tree<MachineOutputs> {
             if (this.ballsInTrough !== 'unknown')
                 this.ballsInTrough--;
         });
-        this.listen(this.cOuthole.onFire, () => {
+        this.listen([this.cOuthole.onFire, () => this.sOuthole.state], () => {
             if (this.ballsInTrough !== 'unknown')
                 this.ballsInTrough++;
         });
@@ -1202,11 +1202,11 @@ class MachineOverrides extends Mode {
                 this.searchTimer = undefined;
             }
             
-            if (!traps.some(sw => sw.state) && !this.curBallSearch) {
+            if (!traps.some(sw => sw.state) && !this.curBallSearch && MPU.isLive) {
+                const ballSearchNum = this.curBallSearch = Math.random();
                 this.searchTimer = Timer.callIn(async () => {
-                    const ballSearchNum = this.curBallSearch = Math.random();
-
                     for (let i=0; i<3; i++) {
+                        if (this.curBallSearch !== ballSearchNum) return;
                         alert(`BALL SEARCH ${i+1}`);
                         fork(FireCoil(this, machine.cKickerEnable, 3000));
                         await FireCoil(this, machine.cShooterDiverter, 500, false);

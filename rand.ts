@@ -4,7 +4,7 @@ export class Rng {
 
     private rng!: seedrandom.prng;
     constructor(
-        seed = 'pinball',
+        seed = Math.random().toString(),
     ) {
         this.rng = seedrandom(seed);
     }
