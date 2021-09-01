@@ -1,3 +1,4 @@
 #!/bin/sh
 
+rm -rf sjserver.log
 screen -L -Logfile sjserver.log -S jserver -d -m ./jstart

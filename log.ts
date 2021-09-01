@@ -78,15 +78,12 @@ export class Log {
         }
     }
 
-    private static lastTrace: number;
     static trace(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
         if (!Log.files.trace) return;
         params = Log.cleanParams(params);
         // Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
         Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
-        if (new Date().getTime() - Log.lastTrace > 5*60*60*1000)
-            truncate(['trace.log'], {lines: 50000});
     }
 
     static info(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
@@ -111,17 +108,23 @@ export class Log {
         fs.writeSync(fil, message+'\n');
     }
 
-    static init(trace = true) {
-        Log.lastTrace = new Date().getTime();
+    static init(trace = true, append = false) {
         for (const f of files) {
-            Log.files[f] = fs.openSync(f+'.log', 'w');
+            Log.files[f] = fs.openSync(f+'.log', append? 'a+' : 'w');
             Log.write(Log.files[f], `${new Date()}`);
         }
-        Log.files.all= fs.openSync('all.log', 'w');
+        Log.files.all= fs.openSync('all.log', append? 'a+' : 'w');
         Log.write(Log.files.all, `${new Date()}`);
         if (trace) {
-            Log.files.trace= fs.openSync('trace.log', 'w');
+            Log.files.trace= fs.openSync('trace.log', append? 'a+' : 'w');
             Log.write(Log.files.trace, `${new Date()}`);
         }
+    }
+
+    static closeFiles() {
+        for (const file of Object.keys(Log.files)) {
+            fs.closeSync(Log.files[file]);
+        }
+        Log.files = {};
     }
 }

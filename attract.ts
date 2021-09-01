@@ -19,17 +19,18 @@ import { ClearHoles } from './util-modes';
 export class AttractMode extends Mode {
 
     clearHoles = new ClearHoles();
-    startTimestamp = time();
 
     get nodes() {
         return [this.clearHoles];
     }
 
+    start = time();
+
     constructor(
         public scores?: [number, number][],
     ) {
         super(Modes.AttractMode);
-        State.declare<AttractMode>(this, ['startTime']);
+        State.declare<AttractMode>(this, ['start']);
 
         this.out = new Outputs(this, {
             lPower1: [[Color.White, 'fl', 1, 1]],
@@ -166,10 +167,10 @@ export class AttractGfx extends ModeGroup {
             this.add(slide);
         a.watch(() => {
             slides.forEach((slide, i) => 
-                slide.visible(wrap(((time()-a.startTimestamp)/4000)|0, slides.length) === i),
+                slide.visible(wrap(((time()-a.start)/4000)|0, slides.length) === i),
             );
         });
-        a.listen(onSwitchClose(machine.sRightFlipper), () => a.startTimestamp = (a.startTimestamp-4000) as any);
-        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.startTimestamp = (a.startTimestamp+4000) as any);
+        a.listen(onSwitchClose(machine.sRightFlipper), () => a.start = (a.start-4000) as any);
+        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.start = (a.start+4000) as any);
     }
 }
