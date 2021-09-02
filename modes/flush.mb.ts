@@ -168,6 +168,8 @@ export class FlushMb extends Multiball {
         }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
+        this.player.flushMbStatus += this.total;
+        
         finish();
         return ret;
     }
@@ -193,6 +195,8 @@ export class FlushMb extends Multiball {
             void playVoice('shoot the ramp');
         if (jp === machine.spinnerShot)
             void playVoice('shoot the spinner');
+        this.total += 1000;
+        this.player.score += 1000;
 
         this.countdown = Timer.setInterval((entry) => {
             if (this.state._ !== 'jackpotLit') return;

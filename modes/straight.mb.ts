@@ -143,6 +143,8 @@ export class StraightMb extends Multiball {
             if (isFirstDown(e.target)) {
                 this.value += round(this.value * .15, 50000);
             }
+            this.total += 10000;
+            this.player.score += 10000;
         });
 
         addToScreen(() => new StraightMbGfx(this));
@@ -193,6 +195,7 @@ export class StraightMb extends Multiball {
         }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
+        this.player.straightMbStatus += this.total;
         finish();
         return ret;
     }

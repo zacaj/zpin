@@ -211,6 +211,13 @@ export class Player extends Mode {
 
     closeShooter = false;
 
+    straightMbStatus = 0;
+    fullHouseMbStatus = 100000;
+    flushMbStatus = 1000000;
+    get royalFlushReady() {
+        return this.straightMbStatus>0 && this.fullHouseMbStatus>0 && this.flushMbStatus>0;
+    }
+
     mbColor(mb?: string): Color {
         if (!mb) mb = this.selectedMb;
         if (mb === 'HandMb')
@@ -253,7 +260,10 @@ export class Player extends Mode {
         this.rand = this.rng();
         this.mysteryRng = this.rng();
         this.mysteryAwards = getMysteryAwards(this);
-        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'difficulty', 'chips', 'modesQualified', 'selectedMb', 'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit']);
+        State.declare<Player>(this, ['miniReady', '_score', 'ball', 'difficulty', 'chips', 'modesQualified', 'selectedMb', 
+            'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit',
+            'straightMbStatus', 'flushMbStatus', 'fullHouseMbStatus',
+        ]);
         State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
@@ -292,6 +302,9 @@ export class Player extends Mode {
                 [Color.Orange]: this.chipsLit[1],
             })),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
+            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
+            lFullHouseStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
+            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
         });
 
         // mystery
@@ -893,6 +906,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
         if (this.startReady || this.state===LeftOrbitState.Spinner1) {
             this.state = LeftOrbitState.RampDown;
+            this.score = Math.min(this.score, 50000);
             this.comboMult += 1;
         }
     }
@@ -971,8 +985,9 @@ export class Multiplier extends Tree<MachineOutputs> {
         );
         if (screen) {
             player.gfx?.add(this.text);
-            this.text.z(80);
+            this.text.z(70);
             this.text.y(0);
+            this.text.x(-Screen.w/4);
             this.watch(() => (this.text.children[3] as Text).text(score(this.total)));
         }
 

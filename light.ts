@@ -27,7 +27,7 @@ export type LightState = Color|{
     pulsing: true;
     freq: Frequency;
     phase: number;
-}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse', Frequency?, number?];
+}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse'|false, Frequency?, number?];
 const defaultFlashFreq: Frequency = 3;
 const defaultPulseFreq: Frequency = 1;
 export function normalizeLight(state: LightState): {
@@ -46,8 +46,8 @@ export function normalizeLight(state: LightState): {
     if (Array.isArray(state)) 
         return {
             color: state[0],
-            type: state[1].startsWith('f')? 'flashing' : 'pulsing',
-            freq: state[2] ?? (state[1].startsWith('f')? defaultFlashFreq : defaultPulseFreq),
+            type: typeof state[1]==='string'? (state[1].startsWith('f')? 'flashing' : 'pulsing') : 'solid',
+            freq: state[2] ?? (typeof state[1]==='string'&&state[1]?.startsWith('f')? defaultFlashFreq : defaultPulseFreq),
             phase: state[3] ?? 0,
         };
     return {

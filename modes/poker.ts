@@ -312,7 +312,45 @@ export class Poker extends Mode {
         this.playerHand.clear();
         this.dealerHand.clear();
         this.slots.clear();
+        
         this.deck = Poker.makeDeck(this.cardRng);
+        
+        if (this.player.royalFlushReady) {
+            const rng = new Rng();
+            const suit = rng.randSelect(...Object.values(Suit));
+            const cards = [
+                {
+                    num: Rank.Queen,
+                    suit,
+                },
+                {
+                    num: Rank.Ten,
+                    suit,
+                },
+                {
+                    num: Rank.Jack,
+                    suit,
+                },
+                {
+                    num: Rank.Ace,
+                    suit,
+                },
+                {
+                    num: Rank.King,
+                    suit,
+                },
+            ].shuffle();
+            const counts = [3, 5,4,2,3].reverse();
+            let j = 0;
+            for (const count of counts) {
+                for (let i=0; i<count; i++) {
+                    this.deck.unshift({...cards[j]});
+                }
+                j++;
+            }
+            this.deck.unshift({...rng.randSelect(...cards)});
+            this.deck.unshift({...rng.randSelect(...cards)});
+        }
         this.step = 2;
 
         const totals = {
@@ -489,7 +527,12 @@ export class Poker extends Mode {
                 change = 10;
                 break;
             case Hand.RoyalFlush:
-                change = 75;
+                this.player.addScore(1000000, 'royal flush', true);
+                if (this.player.royalFlushReady) {
+                    this.player.straightMbStatus = 0;
+                    this.player.fullHouseMbStatus = 0;
+                    this.player.flushMbStatus = 0;
+                }
                 break;
             // case Hand.Pair:
             //     change = 10;
