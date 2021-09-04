@@ -2,7 +2,7 @@ import { Node } from 'aminogfx-gl';
 import { AttractMode } from './attract';
 import { Solenoid16 } from './boards';
 import { CPU } from './cpu';
-import { DisplayContent } from './disp';
+import { dInvert, DisplayContent, dMany } from './disp';
 import { DropBank, DropTarget, Standup, Lane, Shot } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
@@ -460,7 +460,7 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
 
     async set(state: ImageType): Promise<boolean> {
         if (!gfx) return true;
-        await this.syncDisp();
+        await this.syncDisp(this.actual);
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
         let ret = true;
@@ -471,11 +471,13 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
         return ret;
     }
 
-    async syncDisp() {
+    async syncDisp(old?: DisplayContent) {
         const l = gfxImages?.[this.name];
         const state = this.val;
+
         if (CPU.isConnected) {
             const cmds: string[] = [];
+            let inverted = state?.inverted;
             if (state) {
                 if (state.color)
                     cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
@@ -492,12 +494,25 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
                         cmds.push(`text ${this.num} ${x} ${y} ${size} ${vAlign} ${text}`);
                     }
                 }
+                if (old) { 
+                    const oldState = dMany(old, dInvert(false));
+                    const newState = dMany(state, dInvert(false));
+                    if (eq(oldState, newState)) {
+                        cmds.set([]);
+                    }
+                    if (old.inverted && !state.inverted)
+                        inverted = false;
+                }
             }
             else
                 cmds.push(`clear ${this.num} ${colorToHex(Color.Black)!.slice(1)}`);
+                // cmds.push(`power ${this.num} false`);
 
             for (const cmd of cmds) {
                 await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
+            }
+            if (inverted !== undefined) {
+                await CPU.sendCommand(`invert ${this.num} ${inverted}`);
             }
         }
     }

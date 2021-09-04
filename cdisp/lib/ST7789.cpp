@@ -28,6 +28,7 @@ static void LCD_WriteData_Word(UWORD data)
 
 typedef enum {
     SWRESET = 0x01,
+    SLPIN = 0x10,
     SLPOUT = 0x11,
     INVOFF = 0x20,
     INVON = 0x21,
@@ -35,6 +36,7 @@ typedef enum {
     NVGAMCTRL = 0xE1,
     COLMOD = 0x3A,
     MADCTL = 0x36,
+    DISPOFF = 0x28,
     DISPON = 0x29,
     CASET = 0x2A,
     RASET = 0x2B,
@@ -139,7 +141,8 @@ void ST7789::init() {
 	LCD_WriteData_Byte(0x14);
 	LCD_WriteData_Byte(0x2F);
 	LCD_WriteData_Byte(0x31);
-	LCD_Write_Command(INVON);
+	// LCD_Write_Command(INVON);
+	invert(1);
 
 	LCD_Write_Command(SLPOUT);
 
@@ -163,6 +166,9 @@ void ST7789::update()
 
 void ST7789::setWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD  Yend)
 { 
+	if (!on)
+		power(1);
+
 	Xstart = Xstart + XOFFSET;
 	Xend = Xend + XOFFSET;
 	Ystart = Ystart + YOFFSET;
@@ -181,4 +187,15 @@ void ST7789::setWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD  Yend)
 	LCD_WriteData_Byte(Yend & 0xff);
 
 	LCD_Write_Command(0x2C);
+}
+
+void ST7789::power(u8 on) {
+	LCD_Write_Command(on? DISPON : DISPOFF);
+	// DEV_Delay_ms (120);
+	Display::power(on);
+}
+
+void ST7789::invert(u8 on) {
+	LCD_Write_Command(on? INVOFF : INVON);
+	Display::invert(on);
 }

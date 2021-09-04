@@ -11,6 +11,8 @@ public:
 
     virtual void init();
     virtual void update();
+    virtual void power(u8 on);
+    virtual void invert(u8 on);
 
     void setWindow(u16 Xstart, u16 Ystart, u16 Xend, u16 Yend);
 

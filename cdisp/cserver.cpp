@@ -70,6 +70,7 @@ void clearAll(Color color) {
 
 u8 power = 0;
 void checkPower() {
+    return;
     u8 now = DEV_Digital_Read(DEV_3V_PIN);
     // printf("power: %i\n", now);
     if (now && !power) {
@@ -320,6 +321,18 @@ int main() {
                     printf("  clear disp %i to 0x%x\n", disp, color);
                     manager.displays[disp]->clear(color);
                     if (parts.back() != "&") manager.updateDisplay(disp);
+                } else if (parts[0] == "power") {
+                    int disp = stoi(parts[1]);
+                    u8 on = parts[2] == "true";
+                    printf("  power disp %i to %i\n", disp, on);
+                    manager.selectDisplay(disp);
+                    manager.displays[disp]->power(on);
+                } else if (parts[0] == "invert") {
+                    int disp = stoi(parts[1]);
+                    u8 on = parts[2] == "true";
+                    printf("  invert disp %i to %i\n", disp, on);
+                    manager.selectDisplay(disp);
+                    manager.displays[disp]->invert(on);
                 } else if (parts[0] == "file") {
                     int disp = stoi(parts[1]);
                     string path = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);

@@ -20,7 +20,7 @@ import { Tree } from '../tree';
 import { playSound, playVoice } from '../sound';
 import { Skillshot } from './skillshot';
 import { time, wait } from '../timer';
-import { dFitText, dHash, dImage, DisplayContent, dMany, dText } from '../disp';
+import { dFitText, dHash, dImage, dInvert, DisplayContent, dMany, dText } from '../disp';
 import { FlushMb } from './flush.mb';
 import { FullHouseMb } from './full-house.mb';
 
@@ -123,7 +123,7 @@ export class Poker extends Mode {
                 if (this.step >= 7) return dImage("finish_hand_ramp");
                 return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
-            iSS5: () => this.step===7? dImage("finish_hand_eject") : undefined,
+            iSS5: () => this.step===7? dInvert(time()%600>400, dImage("finish_hand_eject")) : undefined,
             iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
             // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step===7, [Color.White, 'fl']),

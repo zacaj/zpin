@@ -1,5 +1,5 @@
 import { Group, Text } from "aminogfx-gl";
-import { dClear, dImage } from "../disp";
+import { dClear, dImage, dInvert } from "../disp";
 import { Events, Priorities } from "../events";
 import { Game } from "../game";
 import { addToScreen, alert, gfx, makeText, ModeGroup, notify, Screen } from "../gfx";
@@ -207,9 +207,9 @@ export class Mystery extends Mode {
         }
         this.out = new Outputs(this, {
             ...outs,
-            iUpper31: () => this.awards.length>=1? dImage('mystery_1') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
-            iUpper32: () => this.awards.length>=2? dImage('mystery_2') : ((time()/500%2)|0)!==0? dImage('mystery_q') : dClear(Color.Black),
-            iUpper33: () => this.awards.length>=3? dImage('mystery_3') : ((time()/500%2)|0)===0? dImage('mystery_q') : dClear(Color.Black),
+            iUpper31: () => this.awards.length>=1? dImage('mystery_1') : dInvert(time()%400>200, dImage('mystery_q')),
+            iUpper32: () => this.awards.length>=2? dImage('mystery_2') : dInvert(time()%400<200, dImage('mystery_q')),
+            iUpper33: () => this.awards.length>=3? dImage('mystery_3') : dInvert(time()%400>200, dImage('mystery_q')),
             upperEject: () => this.done && machine.sUpperEject.state,
             music: null,
         });

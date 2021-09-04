@@ -16,7 +16,7 @@ import { Ball } from './ball';
 import { Rng } from '../rand';
 import { playMusic, playSound, playVoice, stopMusic } from '../sound';
 import { AddABall, Combo } from '../util-modes';
-import { dClear, dImage, DisplayContent, dMany } from '../disp';
+import { dClear, dImage, dInvert, DisplayContent, dMany } from '../disp';
 import { Color } from '../light';
 
 export enum GateMode {
@@ -32,7 +32,6 @@ export class Skillshot extends Mode {
 
     awards!: SkillshotAward[];
     curAward = 0;
-    displays: DisplayContent[] = [];
 
     wasMade = false;
 
@@ -74,13 +73,15 @@ export class Skillshot extends Mode {
         this.setAward(this.rng.randRange(0, 5));//(Math.random()*this.awards.length)|0);  
 
         const outs = {} as any;
+        let displays = 0;
         for (const a of this.awards) {
-            const disp = a.display ?? dClear(Color.Black);
-            const i = this.displays.length;
-            this.displays.push(disp);
+            const i = displays;
+            displays++;
             outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = () => {
+                const disp = a.display ?? (i===this.curAward? dImage('skill_plunge'+(i===1?'_2':'')) : dClear(Color.Black));
                 const d = i===this.curAward? 
-                    (((time()/800%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
+                    dInvert(time()%600>400, dMany(disp, dImage("skill_selected")))
+                    // (((time()/800%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
                   : {...disp};
                 if (d.images)
                     d.images = d.images.map(img => img+skillSuffix[i]);

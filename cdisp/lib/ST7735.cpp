@@ -27,8 +27,10 @@ static void LCD_WriteData_Word(UWORD data)
 
 typedef enum {
     SWRESET = 0x01,
+    SLPIN = 0x10,
     SLPOUT = 0x11,
     INVOFF = 0x20,
+    INVON = 0x21,
     FRMCTR1 = 0xB1, // frame rate control
     FRMCTR2 = 0xB2, // frame rate control
     FRMCTR3 = 0xB3, // frame rate control
@@ -43,6 +45,7 @@ typedef enum {
     GMCTRN1 = 0xE1,
     COLMOD = 0x3A,
     MADCTL = 0x36,
+    DISPOFF = 0x28,
     DISPON = 0x29,
     CASET = 0x2A,
     RASET = 0x2B,
@@ -63,7 +66,8 @@ void ST7735::init() {
 
 	LCD_Write_Command(SLPOUT);//Sleep exit 
 	DEV_Delay_ms (120);
-	LCD_Write_Command(INVOFF); 
+	// LCD_Write_Command(INVOFF); 
+	invert(0);
 
 	LCD_Write_Command(FRMCTR1); // default frame rate
 	LCD_WriteData_Byte(0x05);
@@ -230,6 +234,8 @@ void ST7735::update()
 
 void ST7735::setWindow(UWORD Xstart, UWORD Ystart, UWORD Xend, UWORD  Yend)
 { 
+	if (!on)
+		power(1);
 	Xstart = Xstart + xOffset;
 	Xend = Xend + xOffset;
 	Ystart = Ystart + yOffset;
@@ -260,4 +266,15 @@ void ST7735::clearDisp(Color color) {
 	for (int j=0; j<pixHeight; j++) {
         DEV_SPI_Write_nByte((uint8_t *)row, pixWidth*2);
 	}
+}
+
+void ST7735::power(u8 on) {
+	LCD_Write_Command(on? DISPON : DISPOFF);
+	// DEV_Delay_ms (120);
+	Display::power(on);
+}
+
+void ST7735::invert(u8 on) {
+	LCD_Write_Command(!on? INVOFF : INVON);
+	Display::invert(on);
 }

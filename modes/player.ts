@@ -28,7 +28,7 @@ import { FullHouseMb } from './full-house.mb';
 import { playSound, playVoice } from '../sound';
 import { Log } from '../log';
 import { BonusEnd } from './bonus';
-import { dFitText, dHash, dImage, dMany, dText } from '../disp';
+import { dFitText, dHash, dImage, dInvert, dMany, dText } from '../disp';
 import { HighscoreEntry } from './highscore.mode';
 import { getHighscores } from '../highscore';
 import { FlushMb } from './flush.mb';
@@ -190,7 +190,7 @@ export class Player extends Mode {
     modesQualified = new Set<(number)>();
     mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
         // ['HandMb', []],
-        // ['StraightMb', []],
+        ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
     ]);
@@ -250,6 +250,34 @@ export class Player extends Mode {
            return mbs[cur+1];
     }
 
+// flush broken x
+// ball search
+// lock?
+// mb wizardmode
+// all mbs lit award?
+// stAR MB INSTR ??
+// srtraihgt skill colros ??
+// top ejeft add a ball 2 ??!!!! x
+// fast react
+// right orbit gatge sw x
+// ramp sticking
+// fans x
+// ejevt start han
+// right inlane guide
+// spot card x
+// raise bet enmgativ e x
+// add a ball skillshtol x
+// poker frinish hand screen before hand done whe n mb lit x
+// mystery wait for bank reset
+// trough double hit crash x
+// lower top eject srtrength x
+// make bets not rise quite as fast x
+// divert litrer light
+// upper lane sound
+// ramp down before mb actually colelcted x
+// ball save not working
+// add a bal skillshot during mb ends with wrong number of balls? x
+// up mb value on relight
 
     constructor(
         public game: Game,
@@ -673,7 +701,7 @@ class Spinner extends Tree<MachineOutputs> {
 
         this.out = new Outputs(this, {
             leftGate: () => this.rounds > 0,
-            iSpinner: () => dHash({
+            iSpinner: () => dInvert(this.score>=4000 && time()%600>400, {
                 ...dImage("per_spin"),
                 ...dFitText(this.displayText, 57, 'baseline'),
             }),

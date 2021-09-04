@@ -43,6 +43,8 @@ protected:
 public:
     int number;
     int width, height;
+    u8 on;
+    u8 inverted;
 
     u16 pixWidth, pixHeight;
     u16* pixels; // always stored RG, GB
@@ -54,6 +56,10 @@ public:
     virtual void init() = 0;
 
     virtual void update() = 0;
+
+    virtual void power(u8 on);
+
+    virtual void invert(u8 on);
 
     void clear(Color color);
 

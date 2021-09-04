@@ -6,6 +6,7 @@ export type DisplayContent = {
     hash: string;
     images?: string[];
     color?: Color;
+    inverted?: boolean;
     text?: {
         text: string;
         vAlign: 'top'|'bottom'|'center'|'baseline';
@@ -80,6 +81,13 @@ export function dClear(color: Color): DisplayContent {
         hash: `clear ${color}`,
         color,
     };
+}
+
+export function dInvert(inverted: boolean, disp?: DisplayContent): DisplayContent {
+    return dHash({
+        ...disp,
+        inverted,
+    });
 }
 
 export function dHash(d: Partial<DisplayContent>): DisplayContent {

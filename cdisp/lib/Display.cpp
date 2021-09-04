@@ -9,7 +9,7 @@
 stbtt_fontinfo font;
 
 Display::Display(int number, int width, int height, LCD_SCAN_DIR scanDir, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror)
-: number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate) {
+: number(number), pixWidth(width), pixHeight(height), scanDir(scanDir), mirror(mirror), rotate(rotate), on(1), inverted(0) {
     pixels = new u16[width*height];
 
     if (rotate == ROTATE_0 || rotate == ROTATE_180) {
@@ -256,4 +256,12 @@ void Display::savePng(const char* path) {
 
     stbi_write_png(path, pixWidth, pixHeight, 3, image, 0);
     delete[] image;
+}
+
+void Display::power(u8 on) {
+	this->on = on;
+}
+
+void Display::invert(u8 on) {
+	this->inverted = on;
 }

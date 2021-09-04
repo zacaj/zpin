@@ -86,6 +86,9 @@ export const CPU = {
             this.timeout = 10;
             Log.log(['cpu', 'console'], 'connected to CPU');
 
+            if (machine.sDetect3.state)
+                await CPU.sendCommand("init");
+
 
             await this.syncDisplays();
         });

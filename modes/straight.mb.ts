@@ -16,7 +16,7 @@ import { SkillshotComplete as SkillshotComplete } from './skillshot';
 import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
-import { dClear, dImage } from '../disp';
+import { dClear, dImage, dInvert } from '../disp';
 import { Time, time } from '../timer';
 import { playVoice } from '../sound';
 
@@ -81,7 +81,8 @@ export class StraightMb extends Multiball {
                         return colorToArrow(this.bankColors.get(target.bank));
                     case 'bankLit':
                         if (target.bank === this.state.curBank)
-                            return (((time()/500%2)|0)===0 || !isFirstDown(target)) && !target.state? colorToArrow(this.bankColors.get(this.state.curBank)) : undefined;
+                            // return (((time()/500%2)|0)===0 || !isFirstDown(target)) && !target.state? colorToArrow(this.bankColors.get(this.state.curBank)) : undefined;
+                            return !target.state? dInvert(time()%500>350 && isFirstDown(target), colorToArrow(this.bankColors.get(this.state.curBank))) : undefined;
                         return undefined;
                     case 'jackpotLit':
                     default:
