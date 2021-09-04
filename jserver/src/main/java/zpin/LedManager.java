@@ -33,11 +33,11 @@ public class LedManager extends Thread {
 		}
 	}
 	
-	public LedState[][] leds = new LedState[128][];
+	public LedState[][] leds = new LedState[150][];
 	
 	public void init() {
 		if (this.strip != null) return;
-		strip = new Ws281xLedStrip(128, 18, 800000, 10, 255, 0, false, LedStripType.WS2811_STRIP_GRB, true);
+		strip = new Ws281xLedStrip(150, 18, 800000, 10, 255, 0, false, LedStripType.WS2811_STRIP_GRB, true);
 		strip.setStrip(0, 0, 0);
 		strip.setPixel(109, 0, 255,0);
 		strip.render();

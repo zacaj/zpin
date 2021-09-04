@@ -678,7 +678,7 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterUpper = new Switch(2, 6, 'shooter upper', LaneSet);
     sShooterMagnet = new Switch(2, 7, 'shooter magnet', LaneSet);
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 10);
-    sShooterLower = new Switch(2, 0, 'shooter lower', 0, 50, true);
+    sShooterLower = new Switch(2, 0, 'shooter lower', 0, 50);
     sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
     sPop = new Switch(4, 7, 'pop', Bumper);
     sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 50); // disabled
@@ -813,11 +813,11 @@ export class Machine extends Tree<MachineOutputs> {
 
     lastSwitchHit?: Switch;
 
-    lMiniReady = new Light('lMiniReady');
-    lMiniBank = new Light('lMiniBank');
-    lStraightStatus = new Light('lStraightStatus');
-    lFlushStatus = new Light('lFlushStatus');
-    lFullHouseStatus = new Light('lFullHouseStatus');
+    lMiniReady = new Light('lMiniReady', 148);
+    lMiniBank = new Light('lMiniBank', 145);
+    lStraightStatus = new Light('lStraightStatus', 132);
+    lFlushStatus = new Light('lFlushStatus', 128);
+    lFullHouseStatus = new Light('lFullHouseStatus', 130);
     lRampArrow = new Light('lRampArrow', [62, 61]);
     lPower1 = new Light('lPower1', 100);
     lPower2 = new Light('lPower2', 102);
@@ -1185,7 +1185,7 @@ class MachineOverrides extends Mode {
 
         
 
-        const ballSearchTime = 30000;
+        const ballSearchTime = 15000;
 
         this.listen(onOpen(), () => {
             const traps = [
@@ -1207,10 +1207,10 @@ class MachineOverrides extends Mode {
                 this.searchTimer = Timer.callIn(async () => {
                     for (let i=0; i<3; i++) {
                         if (this.curBallSearch !== ballSearchNum) return;
-                        alert(`BALL SEARCH ${i+1}`);
+                        alert(`BALL SEARCH ${i+1}/3`);
                         fork(FireCoil(this, machine.cKickerEnable, 3000));
                         await FireCoil(this, machine.cShooterDiverter, 500, false);
-                        if (machine.ballsLocked==='unknown' || machine.ballsLocked<1)
+                        if (machine.ballsLocked==='unknown' || machine.ballsLocked<1 || i===2)
                             await FireCoil(this, machine.cLockPost, 500);
                         await wait(1500);
                         if (this.curBallSearch !== ballSearchNum) return;

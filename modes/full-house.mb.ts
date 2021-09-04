@@ -33,6 +33,7 @@ const jackpots: Jackpot[] = [
     Jackpot.RightLane,
     Jackpot.RightTarget,
     Jackpot.LeftTarget,
+    Jackpot.LeftLane,
 ];
 
 const Starting = makeState('starting', { 

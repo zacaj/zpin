@@ -36,15 +36,15 @@ function isFirstDown(target: DropTarget): boolean {
 export class StraightMb extends Multiball {
     readonly bankColors = new Map<DropBank, Color>([
         [machine.centerBank, Color.Orange],
-        [machine.upper2Bank, Color.Purple],
+        [machine.upper2Bank, Color.White],
         [machine.rightBank, Color.Yellow],
         [machine.leftBank, Color.Green],
-        [machine.upper3Bank, Color.Blue],
+        [machine.upper3Bank, Color.Pink],
     ]);
 
     state: ReturnType<typeof Starting>|ReturnType<typeof BankLit>|ReturnType<typeof JackpotLit> = Starting();
     
-    static startValue = 400000;
+    static startValue = 500000;
     value = StraightMb.startValue;
 
     skillshotRng!: Rng;

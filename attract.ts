@@ -1,5 +1,6 @@
 import { Group } from 'aminogfx-gl';
 import { argv } from 'yargs';
+import { dImage, dInvert, dMany } from './disp';
 import { Game } from './game';
 import { addToScreen, gfx, makeText, ModeGroup, Screen } from './gfx';
 import { getHighscores, Highscores } from './highscore';
@@ -61,6 +62,11 @@ export class AttractMode extends Mode {
             lLaneUpper2: [[Color.Orange, 'fl', 1, 1]],
             lLaneUpper3: [[Color.Orange, 'fl', 1, 0]],
             lLaneUpper4: [[Color.Orange, 'fl', 1, 1]],                        
+            lStraightStatus: [[Color.Blue, 'fl', 1, 0]],
+            lFullHouseStatus: [[Color.Yellow, 'fl', 1, 1]],  
+            lFlushStatus: [[Color.Pink, 'fl', 1, 0]],                      
+            lMiniBank: [[Color.Yellow, 'fl', 1, 0]],
+            lMiniReady: [[Color.Green, 'fl', 1, 1]],                 
         });
 
         addToScreen(() => new AttractGfx(this));

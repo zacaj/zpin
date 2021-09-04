@@ -286,10 +286,7 @@ export class Player extends Mode {
             lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Green] : [],
             lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3] && this.chips<3? Color.Orange : Color.Green] : [],
             lLaneLower1: () => light(this.lowerLanes[0], Color.Blue),
-            lLaneLower2: many(() => ({
-                [Color.Blue]: this.lowerLanes[1],
-                [Color.Green]: this.miniReady,
-            })),
+            lLaneLower2: () => light(this.lowerLanes[1], Color.Blue),
             lLaneLower3: () => light(this.lowerLanes[2], Color.Blue),
             lLaneLower4: () => light(this.lowerLanes[3], Color.Blue),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],

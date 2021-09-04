@@ -772,8 +772,8 @@ export const gfxLights: { [name in keyof LightOutputs]: {
 })} = {
     lMiniBank: { x: 3.7125, y: 9.168750000000003, d: 5/8 },
     lStraightStatus: { x: 6.75, y: 15.525, d: 5/8 },
-    lFlushStatus: { x: 8.775, y: 15.525, d: 5/8 },
-    lFullHouseStatus: { x: 10.40625, y: 15.525, d: 5/8 },
+    lFlushStatus: { x: 10.406255, y: 15.525, d: 5/8 },
+    lFullHouseStatus: { x: 8.77, y: 15.525, d: 5/8 },
     lMiniReady: { x: 2.53125, y: 11.25, d: 5/8 },
     lRampArrow:  { x: 4.10625, y: 27.95625, a: 1.5, r: 20 },
     lPower1: { x: 7.199999999999999, y: 10.575000000000003, d: 5/8 },
