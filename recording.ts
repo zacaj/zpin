@@ -61,6 +61,7 @@ export async function playRecording(toPoint?: string) {
 
         matrix[parseInt(colS, 10)][parseInt(rowS, 10)]!.changeState(stateS === 'true', 'recording '+curRecording);
         await settleForks();
+        await settleForks();
     }
     await settleForks();
 

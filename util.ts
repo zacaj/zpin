@@ -262,7 +262,7 @@ export function assert(cond: any, message = 'assertion failed') {
     //     throwError = !debugging();
     //     debugger;
     //     if (throwError) throw new Error(message);
-        Log.error('console', 'assertion failed: %s', message);
+        Log.error(['console', 'assert'], 'assertion failed: %s', message, new Error().stack);
     }
 }
 

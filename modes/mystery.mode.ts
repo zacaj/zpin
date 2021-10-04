@@ -36,129 +36,137 @@ type Award = {
 
 export type MysteryAward = Award;
 
-const allAwards: Award[] = [
-    {
-        name(player) {
-            return score(Math.min(Math.max(round(player.score * player.mysteryRng.randRange(0.1, 0.25), 10000), 25000), 250000))+' POINTS';
-        },
-        giveAward(player) {
-            player.addScore(Math.min(Math.max(round(player.score * player.mysteryRng.randRange(0.1, 0.25), 10000), 25000), 250000), 'big points', true);
-        },
-        chance: 10,
+const allAwards: ((player: Player) => Award)[] = [
+    (player) => {
+        const amount = Math.min(Math.max(round(player.score * player.mysteryRng.randRange(0.1, 0.25), 10000), 25000), 250000);
+        return {
+            name() {
+                return score(amount)+' POINTS';
+            },
+            giveAward() {
+                player.addScore(amount, 'mystery points', true);
+            },
+            chance: 10,
+        };
     },
     // {
-    //     name(player) {
+    //     name() {
     //         return score(Math.max(round(player.score * player.mysteryRng.randRange(0.04, 0.17), 10000), 25000))+' POINTS';
     //     },
-    //     giveAward(player) {
+    //     giveAward() {
     //         player.addScore(Math.max(round(player.score * player.mysteryRng.randRange(0.04, 0.17), 10000), 25000), 'big points', true);
     //     },
     //     chance: 10,
     // },
-    {
+    (player) => ({
         name: 'BIG POINTS',
-        giveAward(player) {
-            player.addScore(10000, 'big points', true);
+        giveAward() {
+            player.addScore(player.mysteryRng.randSelect(10000, 100000), 'big points', true);
         },
         chance: 3,
-    },
-    {
-        name: 'LIGHT MUTLIBALL',
-        giveAward(player) {
+    }),
+    (player) => ({
+        name: 'LIGHT MUlTIBALL',
+        giveAward() {
             const mb = player.mysteryRng.randSelect(...['StraightMb', 'FullHouseMb', 'FlushMb'].filter(m => !player.mbsQualified.has(m as any)) as any)
             player.qualifyMb(mb);
         },
         chance: 8,
-        isValid(player) {
+        isValid() {
             return player.mbsQualified.size <= 1;
         },
-    },
-    {
+    }),
+    (player) => ({
         name: '$500',
-        giveAward(player) {
+        giveAward() {
             player.store.Poker!.bank += 500;
             alert('+ $500');
         },
         chance: 6,
-    },
-    {
+    }),
+    (player) => ({
         name: 'LOSE $250',
-        giveAward(player) {
+        giveAward() {
             player.store.Poker!.bank -= 250;
             alert('- $250');
         },
         chance: 6,
-    },
-    {
+    }),
+    (player) => ({
         name: '$ VALUE +50',
-        giveAward(player) {
+        giveAward() {
             player.changeValue(50);
         },
         chance: 6,
-    },
-    {
+    }),
+    (player) => ({
         name: '$ VALUE -25',
-        giveAward(player) {
+        giveAward() {
             player.changeValue(-25);
         },
         chance: 6,
-    },
-    {
+    }),
+    (player) => ({
         name: 'BONUS X + 2',
-        giveAward(player) {
+        giveAward() {
             player.ball!.bonusX+=2;
             alert(`bonus ${player.ball!.bonusX}X`);
         },
         chance: 6,
+    }),
+    (player) => {
+        const amount = Math.max(round(player.score * player.mysteryRng.randRange(0.01, 0.1), 10000), 5000);
+        return {
+            name() {
+                return 'lose '+score(amount)+' POINTS';
+            },
+            giveAward() {
+                player.addScore(-amount, 'lose points', true);
+            },
+            chance: 6,
+        };
     },
-    {
-        name(player) {
-            return 'lose '+score(Math.max(round(player.score * player.mysteryRng.randRange(0.01, 0.1), 10000), 5000))+' POINTS';
-        },
-        giveAward(player) {
-            player.addScore(-Math.max(round(player.score * player.mysteryRng.randRange(0.01, 0.1), 10000), 5000), 'lose points', true);
-        },
-        chance: 6,
-    },
-    {
+    (player) => ({
         name: '2X scoring',
-        giveAward(player) {
+        giveAward() {
             player.mult = new Multiplier(player);
             player.mult.started();
         },
-        isValid(player) {
+        isValid() {
             return !player.mult;
         },
         chance: 3,
-    },
-    {
+    }),
+    (player) => ({
         name: 'MAX cheats',
-        giveAward(player) {
+        giveAward() {
             player.chips = 3;
             alert('CHEATS filled');
         },
         chance: 4,
-    },
+    }),
     // {
     //     name: 'NOTHING!',
-    //     giveAward(player) {
+    //     giveAward() {
     //     },
     //     chance: 4,
     // },
-    {
-        name(player) {
-            return `CASH OUT ${money(Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500))} at 2X`;
-        },
-        giveAward(player) {
-            const value = Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500);
-            player.store.Poker!.bank -= value;
-            player.addScore(value*player.store.Poker!.cashValue*2, 'cash out', true);
-        },
-        chance: 2,
+    (player) => {
+        const value = Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500);
+        return {
+            name() {
+                return `CASH OUT ${money(value)} at 2X`;
+            },
+            giveAward() {
+                player.store.Poker!.bank -= value;
+                player.addScore(value*player.store.Poker!.cashValue*2, 'cash out', true);
+            },
+            chance: 2,
+        };
     },
 ];
 export function getMysteryAwards(player: Player) {
-    const awards = [...allAwards].shuffle(() => player.mysteryRng.rand());
+    const awards = allAwards.map(a => a(player)).shuffle(() => player.mysteryRng.rand());
     return awards;
 }
 
@@ -249,6 +257,8 @@ export class Mystery extends Mode {
         if (!finish) return false;
 
         if (!player.curMbMode && !player.mystery && player.mysteryLeft === 0) {
+            const aab = machine.allChildren.find(c => 'isAddABall' in c);
+            if (aab) await aab.parent!.await(aab.onEnd());
             const mystery = new Mystery(player);
             player.mystery = mystery;
             finish();

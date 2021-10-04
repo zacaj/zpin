@@ -19,6 +19,7 @@ export type LogCategory =
     'machine' |
     'gfx' |
     'game' |
+    'assert' |
     'sound';
 const files = [
     'console',
@@ -30,6 +31,7 @@ const files = [
     'machine',
     'gfx',
     'game',
+    'assert',
     'sound',
 ];
 

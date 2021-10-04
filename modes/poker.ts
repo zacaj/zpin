@@ -101,7 +101,7 @@ export class Poker extends Mode {
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit', 'biggestWin', 'biggestLoss', 'topCashout']);
         this.deal();
 
-        this.bet = (this.bet+Poker.BetStart+Poker.BetStart)/3;
+        this.bet = (this.bet+Poker.BetStart+Poker.BetStart+Poker.BetStart)/4;
 
         this.misc = new MiscAwards(player);
 
@@ -115,7 +115,7 @@ export class Poker extends Mode {
             rampUp: () => this.showCardsReady || (this.player.mbReady && this.allowMbStart)? false : undefined,
             lockPost: () => this.showCardsReady? false : undefined,
             upperEject: () => this.showCardsReady? false : undefined,
-            shooterDiverter: () => !this.closeShooter,
+            shooterDiverter: () => !this.closeShooter && !player.closeShooter,
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             iRamp: (prev) => {
                 // const mbReady = this.player.mbReady && this.allowMbStart;
@@ -124,7 +124,7 @@ export class Poker extends Mode {
                 return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
             iSS5: () => this.step===7? dInvert(time()%600>400, dImage("finish_hand_eject")) : undefined,
-            iSS1: () => this.step<7? dImage('change_bet') : ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter'),
+            iSS1: () => this.step<7? dImage('change_bet') : dInvert(time()%500>400, ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter')),
             // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step===7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step===7, [Color.White, 'fl']),
@@ -240,7 +240,6 @@ export class Poker extends Mode {
         // });
 
         this.listen(onSwitchClose(machine.sActionButton), () => {
-            if (this.player.game.ballNum===1 && this.player.score===0) return;
             if (machine.sShooterLane.state) {
                 if (this.player.number > 4)
                     void playVoice('folded');
@@ -484,7 +483,6 @@ export class Poker extends Mode {
     async showCards(sw: Switch) {
         this.step++;
         this.finishShow = await Events.waitPriority(Priorities.ShowCards);
-        // void muteMusic();
         Log.info('game', 'showing hand');
         for (let i=0; i<7; i++) {
             if (this.dealerHand[i]?.flipped)
@@ -765,11 +763,13 @@ export class Poker extends Mode {
     }
 
     getSkillshot(ss: Skillshot): Partial<SkillshotAward>[] {
-        const base = ss.isFirstOfBall? 8 : 20;
+        const base = ss.isFirstOfBall? 4 : 10;
 
         const availSpots = [7, 8, 13, 6, 5, 9, 15, 4].filter(i => this.slots[i]);
         const nSpots = this.step<7? this.skillshotRng.weightedSelect([30, 0], [30, 1], [20, 2], [10, 3]) : 0;
         const spotInds = seq(nSpots).map(() => this.skillshotRng.randRange(0, 5));
+        const nBets = !this.player.royalFlushReady? this.skillshotRng.weightedSelect([25, 1], [50, 2], [25, 3]) : 0;
+        const betInds = seq(nBets).map(() => this.skillshotRng.randRange(0, 5));
 
         const switches = ['first switch','second switch','third switch', 'upper lanes','upper eject hole','left inlane'];
         const mults = [
@@ -788,6 +788,7 @@ export class Poker extends Mode {
             [13, 110, 'baseline', 58],
             [7, 109, 'baseline', 48],
         ];
+        let betSign = 1;
         return [...switches.map((sw, i) => {
             let award: Partial<SkillshotAward> = {};
             if (spotInds.includes(i)) {
@@ -801,6 +802,20 @@ export class Poker extends Mode {
                     },
                 };
             }
+            if (betInds.includes(i)) {
+                const amount = round(this.bet * this.skillshotRng.randSelect(.4, .5, .6, .7) * betSign, 10, -1000);
+                betSign *= -1;
+                award = {
+                    award: 'BET ' + money(amount, 0, '+'),
+                    made: () => {
+                        this.bet += amount;
+                        notify(`BET ${money(amount, 0, '+')}`);
+                        Log.log('game', 'skillshot increase bet by %i to %i', amount, this.bet);
+                    },
+                    dontOverride: true,
+                };
+            }
+
             const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
             let change = round(percent, 10, -1000);
             if (this.bet + change < 0) change = 10;

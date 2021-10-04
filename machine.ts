@@ -16,7 +16,7 @@ import { Outputs, TreeOutputEvent } from './outputs';
 import { fork } from './promises';
 import { curRecording } from './recording';
 import { playMusic, stopMusic } from './sound';
-import { State } from './state';
+import { onChange, State } from './state';
 import { Bumper, Drain, Drop, Hole, Lane as LaneSet, onAnyPfSwitchExcept, onAnySwitchClose, onClose, onOpen, onSwitch, onSwitchClose, onSwitchOpen, Standup as StandupSet, Switch, SwitchEvent } from './switch-matrix';
 import { Time, time, Timer, TimerQueueEntry, wait } from './timer';
 import { Tree } from './tree';
@@ -651,8 +651,8 @@ export type ImageOutputs = {
 
 
 export class Machine extends Tree<MachineOutputs> {
-    sLeftInlane = new Switch(1, 2, 'left inlane', LaneSet);
-    sLeftOutlane = new Switch(1, 1, 'left outlane', LaneSet);
+    sLeftInlane = new Switch(1, 2, 'left inlane', 0, 100);
+    sLeftOutlane = new Switch(1, 1, 'left outlane', 0, 100);
     sRightInlane = new Switch(0, 5, 'right inlane', LaneSet);
     sRightOutlane = new Switch(0, 4, 'right outlane', LaneSet);
     sMiniOut = new Switch(0, 3, 'mini out', Drain);
@@ -687,7 +687,7 @@ export class Machine extends Tree<MachineOutputs> {
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', StandupSet);
     sRampDown = new Switch(7, 4, 'ramp down');
     sUnderRamp = new Switch(7, 7, 'under ramp');
-    sLeftOrbit = new Switch(7, 2, 'left orbit', 0, 100);
+    sLeftOrbit = new Switch(7, 2, 'left orbit', 0, 300);
     sSpinner = new Switch(6, 6, 'spinner', 0, 1);
     sSpinnerMini = new Switch(6, 2, 'spinner mini', StandupSet);
     sUpperPopMini = new Switch(6, 7, 'upper pop mini', StandupSet);
@@ -711,7 +711,7 @@ export class Machine extends Tree<MachineOutputs> {
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
-    sActionButton = new Switch(3, 8, 'action button', 50, 50);
+    sActionButton = new Switch(3, 8, 'action button', 100, 250);
     sBothFlippers = new Switch(1, 15, 'both flippers', 1, 50, false, false, true);
     sTilt = new Switch(2, 8, 'tilt');
     sDetect3 = new Switch(0, 15, '3v detect', 100, 100);
@@ -1102,7 +1102,9 @@ export class Machine extends Tree<MachineOutputs> {
         this.watch(() => screen?.circle.x(time()%1000-500));
 
         this.listen(onSwitchClose(this.sDetect3), async () => {
+            if (!MPU.isLive) return;
             Log.log(['console', 'machine'], 'power detected, initializing boards...');
+            alert('Initializing...', 3000);
             await Promise.all([
                 (async () => {
                     if (CPU.isConnected) {
@@ -1118,11 +1120,13 @@ export class Machine extends Tree<MachineOutputs> {
                     for (const s of this.coils) {
                         await s.init();
                         await s.set(s.val);
+                        await wait(150);
                     }
                     Log.log(['console', 'machine'], 'drivers initialized');
                 })(),
             ]);
             Log.log(['console', 'machine'], 'init complete');
+            alert('Done!', 1000);
         });
         this.listen(onSwitchOpen(this.sDetect3), () => Log.log(['console', 'machine'], 'power lost'));
     }

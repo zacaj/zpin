@@ -196,8 +196,8 @@ export class Skillshot extends Mode {
         Log.log('game', 'skillshot %i', i);
         this.music = null;
         if (i === this.curAward) {
-            this.awards[i].made(e);
             alert('SKILLSHOT!', undefined, this.awards[i].award);
+            this.awards[i].made(e);
             this.skillshotCount++;
 
             if (this.curAward===1 && e.sw===machine.sSpinner) {
@@ -335,7 +335,7 @@ export class Skillshot extends Mode {
     }
 
     getGenericAwards(): SkillshotAward[] {
-        const base = 10000;
+        const base = 10000 + Math.floor(this.player.score/1000000)*5000;
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
         const mults = [
             [[1, 1]],

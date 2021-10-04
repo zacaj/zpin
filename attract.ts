@@ -66,7 +66,8 @@ export class AttractMode extends Mode {
             lFullHouseStatus: [[Color.Yellow, 'fl', 1, 1]],  
             lFlushStatus: [[Color.Pink, 'fl', 1, 0]],                      
             lMiniBank: [[Color.Yellow, 'fl', 1, 0]],
-            lMiniReady: [[Color.Green, 'fl', 1, 1]],                 
+            lMiniReady: [[Color.Green, 'fl', 1, 1]],      
+            shooterDiverter: () => machine.sShooterLane.wasClosedWithin(2000),           
         });
 
         addToScreen(() => new AttractGfx(this));

@@ -805,10 +805,10 @@ class Spinner extends Tree<MachineOutputs> {
 
     calcScore() {
         const down = [4, 3, 2, 1].map(num => ([num, machine.dropBanks.filter(bank => bank.targets.filter(t => t.state).length === num).length]));
-        const countValue = [0, 100, 1000, 2000, 6000, 8000, 20000];
+        const countValue = [0, 100, 1000, 2000, 4000, 8000, 20000];
         const best = down.find(([n, c]) => c > 0);
         if (best)
-            this.score = best[0] * countValue[best[1]] * ((this.player.score/1000000+1)|0);
+            this.score = best[0] * countValue[best[1]];
         else
             this.score = 10;
     }
@@ -983,7 +983,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         State.declare<Multiplier>(this, ['total', 'lanes']);
         player.storeData<Multiplier>(this, ['topTotal']);
 
-        this.lanes = [true, true, false, false];
+        this.lanes = [true, false, false, false];
 
         this.out = new Outputs(this, {
             lLaneLower1: () => this.lanes[0]? [[Color.Red, 'pl', 2]] : [],
@@ -1022,7 +1022,11 @@ export class Multiplier extends Tree<MachineOutputs> {
         this.listen(onChange(player, '_score'), e => {
             const oldTotal = this.total;
             this.total += e.value - e.oldValue;
+            if (this.total > 50000 && oldTotal <= 50000) 
+                this.lanes[this.lanes.findIndex(x => !x)] = true;
             if (this.total > 100000 && oldTotal <= 100000) 
+                this.lanes[this.lanes.findIndex(x => !x)] = true;
+            if (this.total > 150000 && oldTotal <= 150000) 
                 this.lanes[this.lanes.findIndex(x => !x)] = true;
         });
 
