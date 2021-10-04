@@ -37,6 +37,9 @@ export type Highscores = {
     'BONUS CHAMPION': Highscore[];
     'BONUS LOST CHAMPION': Highscore[];
 
+    'ROYAL FLUSH CHAMPION': Highscore[];
+    '20% COLLECT CHAMPION': Highscore[];
+    'COMBO CHAMPION': Highscore[];
 };
 
 export function getHighscores(): Highscores {
@@ -191,6 +194,24 @@ export function getHighscores(): Highscores {
                 score: '100,000',
             },
         ],
+        'ROYAL FLUSH CHAMPION': [
+            {
+                name: 'ABC',
+                score: '100,000',
+            },
+        ],
+        '20% COLLECT CHAMPION': [
+            {
+                name: 'REG',
+                score: '150,000',
+            },
+        ],
+        'COMBO CHAMPION': [
+            {
+                name: 'AJP',
+                score: '2',
+            },
+        ],
     };
 
     try {
@@ -244,6 +265,9 @@ export async function checkForScores(game: Game) {
             ['2X CHAMPION', comma(player.store.Multiplier?.topTotal ?? 0), 1],
             ['BONUS CHAMPION', comma(player.store.Bonus?.topTotal ?? 0), 1],
             ['BONUS LOST CHAMPION', comma(player.store.Bonus?.bottomTotal ?? 0), 1],
+            ['ROYAL FLUSH CHAMPION', comma(player.store.RoyalFlushMb?.topTotal ?? 0), 1],
+            ['20% COLLECT CHAMPION', comma(player.top20), 1],
+            ['COMBO CHAMPION', comma(player.bestCombo), 1],
         ];
 
         const highs = playerScores.flatMap(([type, value, mult]) => {

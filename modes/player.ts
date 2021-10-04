@@ -33,6 +33,7 @@ import { HighscoreEntry } from './highscore.mode';
 import { getHighscores } from '../highscore';
 import { FlushMb } from './flush.mb';
 import { getMysteryAwards, Mystery, MysteryAward, MysteryNext } from './mystery.mode';
+import { RoyalFlushMb } from './royal-flush.mb';
 const argv = require('yargs').argv;
 
 export enum Difficulty {
@@ -52,6 +53,7 @@ export class Player extends Mode {
         MiscAwards: {} as any,
         FullHouseMb: {} as any,
         FlushMb: {} as any,
+        RoyalFlushMb: {} as any,
         Bonus: {} as any,
         Multiplier: {} as any,
         Spinner: {} as any,
@@ -188,14 +190,15 @@ export class Player extends Mode {
     }
 
     modesQualified = new Set<(number)>();
-    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', Card[]>([
+    mbsQualified = new Map<'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb'|'RoyalFlushMb', Card[]>([
         // ['HandMb', []],
-        ['StraightMb', []],
+        // ['StraightMb', []],
         // ['FullHouseMb', []],
         // ['FlushMb', []],
+        // ['RoyalFlushMb', []],
     ]);
 
-    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb';
+    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb'|'RoyalFlushMb';
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
@@ -212,21 +215,27 @@ export class Player extends Mode {
     closeShooter = false;
 
     straightMbStatus = 0;
-    fullHouseMbStatus = 100000;
-    flushMbStatus = 1000000;
-    get royalFlushReady() {
-        return this.straightMbStatus>0 && this.fullHouseMbStatus>0 && this.flushMbStatus>0;
-    }
+    fullHouseMbStatus = 0;
+    flushMbStatus = 0;
+    // straightMbStatus = 100000;
+    // fullHouseMbStatus = 1;
+    // flushMbStatus = 1000000;
+    royalFlushReady: boolean|'missed' = false;
+
+    bestCombo = 0;
+    top20 = 0;
 
     mbColor(mb?: string): Color {
         if (!mb) mb = this.selectedMb;
-        if (mb === 'HandMb')
-            return Color.Green;
+        if (mb === 'StraightMb')
+            return Color.Blue;
         if (mb === 'FullHouseMb')
             return Color.Yellow;
         if (mb === 'FlushMb')
             return Color.Pink;
-        else return Color.Blue;
+        if (mb === 'RoyalFlushMb')
+            return Color.Purple;
+        else return Color.Green;
     }
 
     get mbReady(): boolean {
@@ -292,7 +301,7 @@ export class Player extends Mode {
             'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit',
             'straightMbStatus', 'flushMbStatus', 'fullHouseMbStatus',
         ]);
-        State.declare<Player['store']>(this.store, ['Poker', 'StraightMb', 'Skillshot']);
+        State.declare<Player['store']>(this.store, ['Poker', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
             rampUp: () => !this.mbReady,
@@ -308,7 +317,9 @@ export class Player extends Mode {
             lPower2: () => light(this.chips>=2, Color.Orange),
             lPower3: () => light(this.chips>=3, Color.Orange),
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
-            shooterDiverter: () =>  (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : undefined,
+            shooterDiverter: () => this.closeShooter||this.ball?.tilted? false :
+                                   (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : 
+                                   undefined,
             lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0] && this.chips<3? Color.Orange : Color.Green] : [],
             lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1] && this.chips<3? Color.Orange : Color.Green] : [],
             lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Green] : [],
@@ -328,7 +339,7 @@ export class Player extends Mode {
             })),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
             lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
-            lFullHouseStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
+            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
             lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
         });
 
@@ -578,6 +589,8 @@ export class Player extends Mode {
                     return FlushMb.start(this);
                 case 'StraightMb':
                     return StraightMb.start(this);
+                case 'RoyalFlushMb':
+                    return RoyalFlushMb.start(this);
                 default:
                     debugger;
                     return;
@@ -633,9 +646,10 @@ export class Player extends Mode {
             alert(`CASH VALUE ${value>0? '+':'-'} ${comma(Math.abs(value))}`, undefined, `NOW ${comma(this.store.Poker!.cashValue)}`);
     }
 
-    qualifyMb(mb: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb', hand: Card[] = [], ms?: number) {
+    qualifyMb(mb: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb'|'RoyalFlushMb', hand: Card[] = [], ms?: number) {
         if (this.mbsQualified.has(mb)) return [undefined, Promise.resolve()];
         this.mbsQualified.set(mb, hand);
+        this.selectedMb = mb;
         switch (mb) {
             case 'FlushMb':
                 void playVoice('flush mb is lit');
@@ -649,6 +663,9 @@ export class Player extends Mode {
             case 'HandMb':
                 void playVoice('hand mb is lit');
                 return alert('hand multiball qualified', ms);
+            case 'RoyalFlushMb':
+                // todo voice
+                return alert('royal flush qualified', ms);
         }
     }
 }
@@ -716,7 +733,7 @@ class Spinner extends Tree<MachineOutputs> {
         () => {
             if (this.rounds > 0)
                 this.rounds--;
-            this.comboMult+=2;
+            this.comboMult+=1;
         });
 
         this.listen([onAnySwitchClose(...machine.sUpperLanes), () => this.rounds === 0, () => !machine.out!.treeValues.spinnerValue], () => {
@@ -879,6 +896,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
                 this.state = LeftOrbitState.Spinner1;
                 player.spinner.comboMult += 3;
                 void playSound("ts wow 3");
+                if (this.player.bestCombo < 3) this.player.bestCombo = 3;
                 if (player.spinner.score < 2000)
                     player.spinner.score = 2000;
             }
@@ -887,11 +905,13 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.listen(e => e instanceof SpinnerHit, () => {
             if (this.state === LeftOrbitState.Spinner1) {
                 void playSound("ts wow 4");
+                if (this.player.bestCombo < 4) this.player.bestCombo = 4;
                 this.state = LeftOrbitState.Spinner2;
                 this.addScore();
             }
             if (this.state === LeftOrbitState.Spinner2) {
                 void playSound("ts wow 5");
+                if (this.player.bestCombo < 5) this.player.bestCombo = 5;
                 this.state = LeftOrbitState.SpinnerStop;
                 this.addScore();
             }
@@ -900,6 +920,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.listen(onAnySwitchClose(machine.sUpperInlane, machine.sUpperEject), () => {
             if (this.state === LeftOrbitState.SpinnerStop) {
                 void playSound("ts wow 6");
+                if (this.player.bestCombo < 6) this.player.bestCombo = 6;
                 this.state = LeftOrbitState.Lane;
                 this.addScore();
             }
@@ -908,6 +929,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         this.listen(onAnySwitchClose(machine.sBackLane), () => {
             if (this.state === LeftOrbitState.Lane) {
                 void playSound("ts wow 7");
+                if (this.player.bestCombo < 7) this.player.bestCombo = 7;
                 this.state = LeftOrbitState.Ready;
                 this.addScore();
             }
@@ -930,6 +952,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
         void playSound('orbit');
         notify(score(this.score)+(this.comboMult>1? '*'+this.comboMult : ''));
         if (this.startReady || this.state===LeftOrbitState.Spinner1) {
+            if (this.player.bestCombo < 2) this.player.bestCombo = 2;
             this.state = LeftOrbitState.RampDown;
             this.score = Math.min(this.score, 50000);
             this.comboMult += 1;
@@ -1039,7 +1062,6 @@ class PlayerOverrides extends Mode {
     constructor(public player: Player) {
         super(Modes.PlayerOverrides);
         this.out = new Outputs(this, {
-            shooterDiverter: () => player.closeShooter||player.ball?.tilted? false : undefined,
             leftGate: () => machine.lastSwitchHit === machine.sLeftOrbit? false : undefined,
             rightGate: () => machine.lastSwitchHit === machine.sSpinner? false : undefined,
             kickerEnable: () => player.ball?.tilted? false : undefined,

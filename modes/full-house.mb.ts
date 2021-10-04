@@ -130,10 +130,11 @@ export class FullHouseMb extends Multiball {
             lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget), 4),
             lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget), 4),
             lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane), 4),
-            iUpper31: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1))? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
-            iUpper32: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2))? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
-            iUpper33: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3))? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
-                        (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state)? dImage('x') : undefined,
+            // iUpper31: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1))? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
+            // iUpper32: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2))? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
+            // iUpper33: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3))? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
+            //             (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state)? dImage('x') : undefined,
+            iUpper33: () => (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane && !machine.upper3Bank.targets[2].state)? dImage('x') : undefined,
             rightGate: true,
             leftGate: true,
             catcher: () => this.state._==='jackpotLit' && this.state.jp.startsWith('Left'), //time()<this.catcherOnUntil,
@@ -156,8 +157,10 @@ export class FullHouseMb extends Multiball {
                 await this.releaseBallFromTrough();
             }
             else {
-                this.state = JackpotLit(this.jpRng.randSelect(...jackpots.filter(j => j.startsWith('Left')) as Jackpot[]));
-                void playVoice('jackpot is lit');
+                if  (this.state._!=='jackpotLit' || !this.state.jp.startsWith('Left')) {
+                    this.state = JackpotLit(this.jpRng.randSelect(...jackpots.filter(j => j.startsWith('Left')) as Jackpot[]));
+                    void playVoice('jackpot is lit');
+                }
                 await this.releaseBallsFromLock();
                 this.total += 10000;
                 this.player.score += 10000;
@@ -166,7 +169,7 @@ export class FullHouseMb extends Multiball {
         this.listen([...onSwitchClose(machine.sUpperEject)], () => {
             if (machine.sUpperInlane.wasClosedWithin(1500) && this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane) {
                 return this.jackpot();
-            } else {
+            } else if (!machine.sUpperInlane.wasClosedWithin(1000)) {
                 if (this.state._ !== 'jackpotLit' || this.state.jp.startsWith('Left')) {
                     this.state = JackpotLit(this.jpRng.randSelect(...jackpots.filter(j => !j.startsWith('Left')) as Jackpot[]));
                     this.total += 10000;
@@ -241,6 +244,8 @@ export class FullHouseMb extends Multiball {
         if (this.total > this.topTotal)
             this.topTotal = this.total;
         this.player.fullHouseMbStatus += this.total;
+        if (this.player.straightMbStatus && this.player.flushMbStatus && this.player.fullHouseMbStatus)
+            this.player.royalFlushReady = true;
         finish();
         return ret;
     }

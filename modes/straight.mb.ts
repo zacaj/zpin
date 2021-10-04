@@ -197,6 +197,8 @@ export class StraightMb extends Multiball {
         if (this.total > this.topTotal)
             this.topTotal = this.total;
         this.player.straightMbStatus += this.total;
+        if (this.player.straightMbStatus && this.player.flushMbStatus && this.player.fullHouseMbStatus)
+            this.player.royalFlushReady = true;
         finish();
         return ret;
     }

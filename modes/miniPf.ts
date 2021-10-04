@@ -36,6 +36,8 @@ export class MiniPf extends Mode {
                 ball.shootAgain = true;
             const amount = round(ball.player.score*.2, 10);
             ball.player.score += amount;
+            if (amount > ball.player.top20)
+                ball.player.top20 = amount;
             notify(score(amount), 8000);
         });
     }

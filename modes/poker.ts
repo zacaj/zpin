@@ -78,7 +78,7 @@ export class Poker extends Mode {
     topCashout = 0;
 
     newModes = new Set<number>();
-    newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb', Card[]>();
+    newMbs = new Map<'StraightMb'|'FlushMb'|'FullHouseMb'|'RoyalFlushMb', Card[]>();
 
     get betAdjust(): number {
         return Math.max(20, round(this.bet * .15, 10));
@@ -317,39 +317,51 @@ export class Poker extends Mode {
         
         if (this.player.royalFlushReady) {
             const rng = new Rng();
-            const suit = rng.randSelect(...Object.values(Suit));
-            const cards = [
-                {
-                    num: Rank.Queen,
+            if (this.player.royalFlushReady === 'missed')
+            { // dealer's cards
+                const suit = rng.randSelect(...Object.values(Suit));
+                const cards = seq(7).map(_ => ({
+                    num: rng.randSelect(Rank.Ten, Rank.Jack, Rank.Queen, Rank.King, Rank.Ace),
                     suit,
-                },
-                {
-                    num: Rank.Ten,
-                    suit,
-                },
-                {
-                    num: Rank.Jack,
-                    suit,
-                },
-                {
-                    num: Rank.Ace,
-                    suit,
-                },
-                {
-                    num: Rank.King,
-                    suit,
-                },
-            ].shuffle();
-            const counts = [3, 5,4,2,3].reverse();
-            let j = 0;
-            for (const count of counts) {
-                for (let i=0; i<count; i++) {
-                    this.deck.unshift({...cards[j]});
-                }
-                j++;
+                }));
+                this.deck.splice(0, 0, ...cards);
             }
-            this.deck.unshift({...rng.randSelect(...cards)});
-            this.deck.unshift({...rng.randSelect(...cards)});
+
+            { // player's
+                const suit = rng.randSelect(...Object.values(Suit).remove(this.deck[0].suit));
+                const cards = [
+                    {
+                        num: Rank.Queen,
+                        suit,
+                    },
+                    {
+                        num: Rank.Ten,
+                        suit,
+                    },
+                    {
+                        num: Rank.Jack,
+                        suit,
+                    },
+                    {
+                        num: Rank.Ace,
+                        suit,
+                    },
+                    {
+                        num: Rank.King,
+                        suit,
+                    },
+                ].shuffle();
+                const counts = [3, 5,4,2,3].reverse();
+                let j = 0;
+                for (const count of counts) {
+                    for (let i=0; i<count; i++) {
+                        this.deck.unshift({...cards[j]});
+                    }
+                    j++;
+                }
+                this.deck.unshift({...rng.randSelect(...cards)});
+                this.deck.unshift({...rng.randSelect(...cards)});
+            }
         }
         this.step = 2;
 
@@ -387,6 +399,7 @@ export class Poker extends Mode {
         // console.profileEnd();
     }
 
+    // eslint-disable-next-line complexity
     qualifyModes() {
         const cards = this.playerHand.filter(c => !!c) as Card[];
         const [_, hand] = bestHand(cards, 5);
@@ -411,43 +424,59 @@ export class Poker extends Mode {
                 case Hand.Flush:
                     void playVoice('thats-a flush');
                     break;
+                case Hand.RoyalFlush:
+                    void playVoice('a royal flush');
+                    break;
             }
         }
-        const flushes = findFlushes(cards);
-        const straights = findStraights(cards);
-        const pairs = findPairs(cards);
-        for (const pair of pairs) {
-            if (!this.newModes.has(pair[0].num)) {
-                Log.info('game', 'qualified mode %i', pair[0].num);
-                // this.newModes.add(pair[0].num);
-                // alert(`${getRank(pair[0])} mode qualified`);
+
+        if (!this.player.royalFlushReady) {
+            const flushes = findFlushes(cards);
+            const straights = findStraights(cards);
+            const pairs = findPairs(cards);
+            for (const pair of pairs) {
+                if (!this.newModes.has(pair[0].num)) {
+                    Log.info('game', 'qualified mode %i', pair[0].num);
+                    // this.newModes.add(pair[0].num);
+                    // alert(`${getRank(pair[0])} mode qualified`);
+                }
+            }
+            for (const straight of straights) {
+                // if (!this.newMbs.size) {
+                if (!this.newMbs.has('StraightMb') && !this.player.mbsQualified.has('StraightMb')) {
+                    Log.info('game', 'qualified straight multiball');
+                    alert('straight multiball qualified');
+                }
+                this.newMbs.set('StraightMb', straight);
+                break;
+            }
+            if (flushes.length > 0) {
+                // if (!this.newMbs.size) {
+                if (!this.newMbs.has('FlushMb') && !this.player.mbsQualified.has('FlushMb')) {
+                    Log.info('game', 'qualified flush multiball');
+                    alert('flush multiball qualified');
+                }
+                this.newMbs.set('FlushMb', flushes[0]);
+            }
+            if (pairs.length >= 2 && pairs[0].length > 2) {
+                // full house
+                // if (!this.newMbs.size) {
+                if (!this.newMbs.has('FullHouseMb') && !this.player.mbsQualified.has('FullHouseMb')) {
+                    Log.info('game', 'qualified full house multiball');
+                    alert('full house multiball qualified');
+                }
+                this.newMbs.set('FullHouseMb', [...pairs[0], ...pairs[1]]);
             }
         }
-        for (const straight of straights) {
-            // if (!this.newMbs.size) {
-            if (!this.newMbs.has('StraightMb') && !this.player.mbsQualified.has('StraightMb')) {
-                Log.info('game', 'qualified straight multiball');
-                alert('straight multiball qualified');
+        else {
+            const hand = bestHand(this.playerHand.truthy());
+            if (hand[1] === Hand.RoyalFlush) {
+                if (!this.newMbs.has('RoyalFlushMb') && !this.player.mbsQualified.has('RoyalFlushMb')) {
+                    Log.info('game', 'qualified royal flush multiball');
+                    alert('royal flush qualified');
+                }
+                this.newMbs.set('RoyalFlushMb', hand[0]);
             }
-            this.newMbs.set('StraightMb', straight);
-            break;
-        }
-        if (flushes.length > 0) {
-            // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FlushMb') && !this.player.mbsQualified.has('FlushMb')) {
-                Log.info('game', 'qualified flush multiball');
-                alert('flush multiball qualified');
-            }
-            this.newMbs.set('FlushMb', flushes[0]);
-        }
-        if (pairs.length >= 2 && pairs[0].length > 2) {
-            // full house
-            // if (!this.newMbs.size) {
-            if (!this.newMbs.has('FullHouseMb') && !this.player.mbsQualified.has('FullHouseMb')) {
-                Log.info('game', 'qualified full house multiball');
-                alert('full house multiball qualified');
-            }
-            this.newMbs.set('FullHouseMb', [...pairs[0], ...pairs[1]]);
         }
     }
 
@@ -515,6 +544,9 @@ export class Poker extends Mode {
         fork(ResetDropBanks(this));
         await gWait(2000, 'showing cards');
 
+        if (this.player.royalFlushReady)
+            this.player.royalFlushReady = 'missed';
+
         let change: number|undefined = undefined;
         switch (result.aHand) {
             case Hand.FourOfAKind:
@@ -527,11 +559,10 @@ export class Poker extends Mode {
                 change = 10;
                 break;
             case Hand.RoyalFlush:
-                this.player.addScore(1000000, 'royal flush', true);
+                // this.player.addScore(1000000, 'royal flush', true);
                 if (this.player.royalFlushReady) {
-                    this.player.straightMbStatus = 0;
-                    this.player.fullHouseMbStatus = 0;
-                    this.player.flushMbStatus = 0;
+                    this.player.royalFlushReady = false;
+                    // this.player.qualifyMb('RoyalFlushMb');
                 }
                 break;
             // case Hand.Pair:

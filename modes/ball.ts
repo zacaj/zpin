@@ -20,6 +20,7 @@ import { Poker } from './poker';
 import { Group } from 'aminogfx-gl';
 import { TreeEndEvent } from '../tree';
 import { playSound, stopSounds } from '../sound';
+import { HighscoreEntry } from './highscore.mode';
 
 export class Ball extends Mode {
 
@@ -62,8 +63,8 @@ export class Ball extends Mode {
         super(Modes.Ball);
         State.declare<Ball>(this, ['skillshot', 'tilted', 'drained', 'shootAgain', 'validated']);
         this.out = new Outputs(this, {
-            miniFlipperEnable: () => !this.drained && !this.shootAgain,
-            kickerEnable: () => !this.drained && !this.shootAgain,
+            miniFlipperEnable: () => !this.drained && !this.shootAgain && !this.tilted,
+            kickerEnable: () => !this.drained && !this.shootAgain && !this.tilted,
             lShootAgain: () => flash(this.shootAgain, Color.Orange),
             music: () => machine.sShooterLane.state || (machine.lastSwitchHit===machine.sOuthole && machine.ballsInPlay<1) || !this.validated? undefined : 'green grass slow with start', 
         });
@@ -72,7 +73,7 @@ export class Ball extends Mode {
             fork(Skillshot.start(this));
         });
 
-        this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.lit() && !machine.lMiniReady.is(Color.Red)], () => {
+        this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMiniReady.lit() && !machine.lMiniReady.is(Color.Red) && !this.shootAgain], () => {
             this.miniPf = new MiniPf(this);
             this.miniPf.started();
         });
@@ -83,9 +84,13 @@ export class Ball extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
-            if (this.shootAgain) {
+            if (this.shootAgain || machine.out!.treeValues.ballSave) {
+                Events.fire(new BallSaved(this));
                 await ReleaseBall(this);
                 this.shootAgain = false;
+                this.drained = false;
+                this.validated = false;
+                this.tilted = false;
                 return;
             }
 
@@ -105,7 +110,7 @@ export class Ball extends Mode {
             finish();
             return this.end();
         });
-        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sRightOutlane), () => {
+        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sRightOutlane, machine.sLeftOutlane, machine.sOuthole, machine.sMiniOut), () => {
             this.validated = true;
             return 'remove';
         });
@@ -188,6 +193,14 @@ export class BallEnd extends Event {
 }
 
 export class BallEnding extends Event {
+    constructor(
+        public ball: Ball,
+    ) {
+        super();
+    }
+}
+
+export class BallSaved extends Event {
     constructor(
         public ball: Ball,
     ) {

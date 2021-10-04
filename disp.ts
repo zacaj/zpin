@@ -1,6 +1,7 @@
 import { Group, Node } from "aminogfx-gl";
 import { Display, makeText, pfx } from "./gfx";
 import { Color } from "./light";
+import { time } from "./timer";
 
 export type DisplayContent = {
     hash: string;
@@ -29,7 +30,7 @@ export function dText(text: string, x: number, y: number, vAlign: 'top'|'bottom'
     };
 }
 
-export function dFitText(text: string, y: number, vAlign: 'top'|'bottom'|'center'|'baseline'): DisplayContent {
+export function dFitText(text: string, y: number = 64, vAlign: 'top'|'bottom'|'center'|'baseline' = 'center'): DisplayContent {
     let size: number;
     let x: number;
     switch (text.length) {
@@ -76,7 +77,7 @@ export function dImage(name: string): DisplayContent {
     };
 }
 
-export function dClear(color: Color): DisplayContent {
+export function dClear(color: Color = Color.Black): DisplayContent {
     return {
         hash: `clear ${color}`,
         color,
@@ -88,6 +89,10 @@ export function dInvert(inverted: boolean, disp?: DisplayContent): DisplayConten
         ...disp,
         inverted,
     });
+}
+
+export function dFlash(disp: DisplayContent, on = 200, off = 200) {
+    return dInvert(time()%(on+off)>on, disp);
 }
 
 export function dHash(d: Partial<DisplayContent>): DisplayContent {

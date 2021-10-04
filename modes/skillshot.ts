@@ -55,6 +55,8 @@ export class Skillshot extends Mode {
 
     wrong = false;
 
+    timesTried = [0, 0, 0, 0, 0, 0];
+
     private constructor(
         public player: Player,
         public ball: Ball,
@@ -62,7 +64,7 @@ export class Skillshot extends Mode {
         super(Modes.Skillshot);
         this.rng = player.rng();
         State.declare<Skillshot>(this, ['shooterOpen', 'curAward', 'gateMode', 'music']);
-        player.storeData<Skillshot>(this, ['rng', 'skillshotCount']);
+        player.storeData<Skillshot>(this, ['rng', 'skillshotCount', 'timesTried']);
 
         if (Skillshot.ballInPlay !== ball) 
             this.isFirstOfBall = true;
@@ -128,7 +130,7 @@ export class Skillshot extends Mode {
         this.listen(onSwitchOpen(machine.sShooterLane), () => this.music = 'green grass intro a');
 
         this.listen<SwitchEvent>([onAny(
-            onAnyPfSwitchExcept(machine.sOuthole, machine.sShooterLane, machine.sShooterLower, machine.sLeftOrbit, machine.sSingleStandup, machine.sRampMade, machine.sShooterUpper, machine.sShooterMagnet),
+            onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sLeftOrbit, machine.sSingleStandup, machine.sRampMade, machine.sShooterUpper, machine.sShooterMagnet),
             onSwitchClose(machine.sSpinner),
         ),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
@@ -138,7 +140,7 @@ export class Skillshot extends Mode {
             return this.finish(e);
         });
 
-        this.listen(onSwitchClose(machine.sOuthole), 'end');
+        // this.listen(onSwitchClose(machine.sOuthole), 'end');
 
         this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
         this.listen([...onSwitchClose(machine.sLeftFlipper), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));
@@ -148,6 +150,7 @@ export class Skillshot extends Mode {
     }
 
     static async start(ball: Ball) {
+        if (!machine.out!.treeValues.enableSkillshot) return false;
         // return;
         if (machine.getChildren().find(x => 'isAddABall' in x)) return;
         const finish = await Events.tryPriority(Priorities.Skillshot);
@@ -220,7 +223,8 @@ export class Skillshot extends Mode {
     }
 
     async finish(e: SwitchEvent) {
-        if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole].includes(e.sw)) {
+        this.timesTried[this.curAward]++;
+        if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole, machine.sMiniOut].includes(e.sw)) {
             void playVoice(`wait you'll get that back`);
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
@@ -306,6 +310,7 @@ export class Skillshot extends Mode {
             awards.push({
                 ...gen ?? {},
                 ...cur ?? {},
+                award: cur?.award ?? gen?.award ?? 'NOTHING',
                 collect: (e) => {
                     if (cur?.collect)
                         cur.collect!(e);

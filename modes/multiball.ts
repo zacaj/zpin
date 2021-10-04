@@ -28,7 +28,7 @@ export abstract class Multiball extends Mode {
 
     misc?: MiscAwards;
 
-    total = 0;
+    total = 1;
 
     multiStartTime?: Time;
     get saveFreq() {
@@ -97,7 +97,7 @@ export abstract class Multiball extends Mode {
         if (machine.ballsLocked !== 'unknown')
             machine.ballsLocked--;
         this.lockPost = true;
-        await wait(75, 'release lock');
+        await wait(250, 'release lock');
         this.lockPost = false;
     }
     async releaseBallsFromLock() {
@@ -107,7 +107,7 @@ export abstract class Multiball extends Mode {
         Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
         assert(machine.ballsLocked !== 0);
         this.lockPost = true;
-        await wait(75, 'release lock');
+        await wait(85, 'release lock');
         this.lockPost = false;
 
         await wait(250, 'release locks');
@@ -132,9 +132,7 @@ export abstract class Multiball extends Mode {
     }
 
     async ballDrained() {
-        if (this.player.ball?.shootAgain) {
-            await ReleaseBall(this);
-            this.player.ball.shootAgain = false;
+        if (machine.out!.treeValues.ballSave) {
             return;
         }
 

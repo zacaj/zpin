@@ -358,6 +358,12 @@ public class Sounds extends Thread {
 	public Play playSound(String name, int trackNum, float volume, boolean resume) throws Exception {
 		long start = System.nanoTime();
 		System.out.println(""+(Play.playNum+1)+"|?| "+start/1000000+": sound '"+name+"' requested (resume="+resume+")");
+		int index = -1;
+		if (name.contains("_")) {
+			String[] parts = name.split("_");
+			name = parts[0];
+			index = Integer.parseInt(parts[1]);
+		}
 		Sound sound = this.sounds.get(name);
 		if (sound == null)
 			throw new Exception("sound '"+name+"' not found");
@@ -370,7 +376,9 @@ public class Sounds extends Thread {
 			}
 		}
 		
-		Wav wav = sound.files.get((int) (Math.random()*sound.files.size()));
+		if (index == -1)
+			index = (int) (Math.random()*sound.files.size());
+		Wav wav = sound.files.get(index);
 		Track track = this.tracks[trackNum];
 		for (Channel c : track.channels) {
 			if (c.curPlay!=null && c.curPlay.playing)

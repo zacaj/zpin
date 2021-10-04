@@ -477,7 +477,7 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
 
         if (CPU.isConnected) {
             const cmds: string[] = [];
-            let inverted = state?.inverted;
+            let inverted = state?.inverted ?? false;
             if (state) {
                 if (state.color)
                     cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
@@ -551,6 +551,8 @@ export type MachineOutputs = CoilOutputs&LightOutputs&ImageOutputs&{
     ignoreSkillsot: Set<Switch>;
     spinnerValue?: number;
     music: MusicType;
+    ballSave: boolean;
+    enableSkillshot: boolean;
 };
 
 export type CoilOutputs = {
@@ -1061,6 +1063,8 @@ export class Machine extends Tree<MachineOutputs> {
             ignoreSkillsot: new Set(),
             spinnerValue: undefined,
             music: null,
+            ballSave: false,
+            enableSkillshot: true,
         });
 
         this.listen(onSwitchClose(this.sTroughFull), () => {
@@ -1085,7 +1089,7 @@ export class Machine extends Tree<MachineOutputs> {
         });
         this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
-        this.listen(onAny(onAnyPfSwitchExcept(), onSwitchClose(this.sSpinner)), e => this.lastSwitchHit = e.sw);
+        this.listen<SwitchEvent>([onAny(onAnyPfSwitchExcept(), onSwitchClose(this.sSpinner)), e => e.sw!==machine.sOuthole] , e => this.lastSwitchHit = e.sw);
 
         this.listen(onAny(onSwitch(this.sLeftFlipper), onSwitch(this.sRightFlipper)), () => {
             this.sBothFlippers.changeState(this.sLeftFlipper.state && this.sRightFlipper.state, 'sim', Math.max(this.sLeftFlipper.lastChange, this.sRightFlipper.lastChange) as Time);
@@ -1200,53 +1204,61 @@ class MachineOverrides extends Mode {
 
         
 
-        const ballSearchTime = 15000;
 
-        this.listen(onOpen(), () => {
-            const traps = [
-                machine.sLeftFlipper,
-                machine.sRightFlipper,
-                machine.sOuthole,
-                machine.sMiniOut,
-                machine.sTroughFull,
-                machine.sShooterLane,
-                machine.sUpperEject,
-            ];
-            if (this.searchTimer) {
-                Timer.cancel(this.searchTimer);
-                this.searchTimer = undefined;
-            }
-            
-            if (!traps.some(sw => sw.state) && !this.curBallSearch && MPU.isLive) {
-                const ballSearchNum = this.curBallSearch = Math.random();
-                this.searchTimer = Timer.callIn(async () => {
-                    for (let i=0; i<3; i++) {
-                        if (this.curBallSearch !== ballSearchNum) return;
-                        alert(`BALL SEARCH ${i+1}/3`);
-                        fork(FireCoil(this, machine.cKickerEnable, 3000));
-                        await FireCoil(this, machine.cShooterDiverter, 500, false);
-                        if (machine.ballsLocked==='unknown' || machine.ballsLocked<1 || i===2)
-                            await FireCoil(this, machine.cLockPost, 500);
-                        await wait(1500);
-                        if (this.curBallSearch !== ballSearchNum) return;
-                        await FireCoil(this, machine.cMiniDiverter, 500);
-                        await FireCoil(this, machine.cUpperEject);
-                        await FireCoil(this, machine.cMiniEject);
-                        await FireCoil(this, machine.cOuthole);
-                        await wait(2000);
-                        if (this.curBallSearch !== ballSearchNum) return;
-                        for (const bank of machine.dropBanks) {
-                            await FireCoil(this, bank.coil, 50);
-                            await wait(100);
-                        }
-                        await wait(3000);
-                        if (this.curBallSearch !== ballSearchNum) return;
+        this.listen(e => e instanceof SwitchEvent, 'updateBallSearch');
+        this.listen(onChange(machine, 'ballsLocked'), 'updateBallSearch');
+    }
+
+    updateBallSearch() {
+        const ballSearchTime = 10000;
+        
+        this.curBallSearch = undefined;
+
+        const traps = [
+            machine.sLeftFlipper,
+            machine.sRightFlipper,
+            machine.sOuthole,
+            machine.sMiniOut,
+            machine.sTroughFull,
+            machine.sShooterLane,
+            machine.sUpperEject,
+        ];
+        if (this.searchTimer) {
+            Timer.cancel(this.searchTimer);
+            this.searchTimer = undefined;
+        }
+        
+        if (!traps.some(sw => sw.state) && !this.curBallSearch && MPU.isLive && machine.ballsLocked===0) {
+            const ballSearchNum = this.curBallSearch = Math.random();
+            this.searchTimer = Timer.callIn(async () => {
+                for (let i=0; i<3; i++) {
+                    if (this.curBallSearch !== ballSearchNum) return;
+                    alert(`BALL SEARCH ${i+1}/3`);
+                    fork(FireCoil(this, machine.cKickerEnable, 3000));
+                    await FireCoil(this, machine.cShooterDiverter, 500, false);
+                    if (machine.ballsLocked==='unknown' || machine.ballsLocked<1 || i===2)
+                        await FireCoil(this, machine.cLockPost, 500);
+                    fork(FireCoil(this, machine.cLockPost, 500, false));
+                    await wait(1000);
+                    if (this.curBallSearch !== ballSearchNum) return;
+                    await FireCoil(this, machine.cMiniDiverter, 500);
+                    fork(FireCoil(this, machine.cMiniDiverter, 500, false));
+                    await FireCoil(this, machine.cRamp, 500);
+                    fork(FireCoil(this, machine.cRamp, 500, false));
+                    await FireCoil(this, machine.cUpperEject);
+                    await FireCoil(this, machine.cMiniEject);
+                    await FireCoil(this, machine.cOuthole); 
+                    await wait(1000);
+                    if (this.curBallSearch !== ballSearchNum) return;
+                    for (const bank of machine.dropBanks) {
+                        await FireCoil(this, bank.coil, 50);
+                        await wait(100);
                     }
-                }, ballSearchTime, 'ball search ready');
-            }
-        });
-
-        this.listen(onClose(), () => this.curBallSearch = undefined);
+                    await wait(2000);
+                    if (this.curBallSearch !== ballSearchNum) return;
+                }
+            }, ballSearchTime, 'ball search ready');
+        }
     }
 
     end() {
