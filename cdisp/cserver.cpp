@@ -307,78 +307,114 @@ int main() {
                     cmd = cmd.substr(1+seq.length());
                 } 
 
-                vector<string> parts = split(cmd, " ");
+                vector<string> halfs = split(cmd, " | ");
+                vector<string> nums = split(halfs[0], " ");
+                string command = nums[0];
+                
 
-                if (parts[0] == "q") {
+                if (command == "q") {
                     printf("  end session\n");
                     break;
-                } else if (parts[0] == "init") {
+                } else if (command == "init") {
                     printf("  init displays\n");
                     manager.initAll();
-                } else if (parts[0] == "clear") {
-                    int disp = stoi(parts[1]);
-                    Color color = toColor(parts[2].c_str());
-                    printf("  clear disp %i to 0x%x\n", disp, color);
-                    manager.displays[disp]->clear(color);
-                    if (parts.back() != "&") manager.updateDisplay(disp);
-                } else if (parts[0] == "power") {
-                    int disp = stoi(parts[1]);
-                    u8 on = parts[2] == "true";
-                    printf("  power disp %i to %i\n", disp, on);
-                    manager.selectDisplay(disp);
-                    manager.displays[disp]->power(on);
-                } else if (parts[0] == "invert") {
-                    int disp = stoi(parts[1]);
-                    u8 on = parts[2] == "true";
-                    printf("  invert disp %i to %i\n", disp, on);
-                    manager.selectDisplay(disp);
-                    manager.displays[disp]->invert(on);
-                } else if (parts[0] == "file") {
-                    int disp = stoi(parts[1]);
-                    string path = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
-                    printf("  blit image '%s' to disp %i\n", path.c_str(), disp);
-                    manager.displays[disp]->drawImage(getImage(path));
-                    if (parts.back() != "&") manager.updateDisplay(disp);
-                } else if (parts[0] == "image") {
-                    int disp = stoi(parts[1]);
-                    string name = cmd.substr(cmd.find(parts[1])+parts[1].length()+1);
-                    size_t endPos = name.find_last_not_of("& ");
-                    if (endPos != string::npos)
-                        name = name.substr(0, endPos+1);
-                    char path[1000];
-                    sprintf(path, "media/%i/%s.png", max(manager.displays[disp]->width, manager.displays[disp]->height), name.c_str());
-                    printf("  blit image '%s' to disp %i\n", path, disp);
-                    manager.displays[disp]->drawImage(getImage(string(path)));
-                    if (parts.back() != "&") manager.updateDisplay(disp);
-                } else if (parts[0] == "text") {
-                    int disp = stoi(parts[1]);
-                    int x = stoi(parts[2]);
-                    int y = stoi(parts[3]);
-                    int size = stoi(parts[4]);
-                    string vAlignStr = parts[5];
-                    string text = cmd.substr(cmd.find(parts[5])+parts[5].length()+1);
-                    size_t endPos = text.find_last_not_of("& ");
-                    if (endPos != string::npos)
-                        text = text.substr(0, endPos+1);
-                    VALIGN vAlign;
-                    if (vAlignStr == "bottom") vAlign = BOTTOM;
-                    if (vAlignStr == "top") vAlign = TOP;
-                    if (vAlignStr == "center") vAlign = CENTER_ASC;
-                    if (vAlignStr == "baseline") vAlign = BASELINE;
-                    printf("  write text '%s' (vAlign=%s) to disp %i\n", text.c_str(), vAlignStr.c_str(), disp);
-                    manager.displays[disp]->drawText(text.c_str(), x, y, size, vAlign);
-                    if (parts.back() != "&") manager.updateDisplay(disp);
-                } else if (parts[0] == "rand") {
-                    for (int i=0; i<manager.numDisplays; i++) {
-                        if (!manager.displays[i]) continue;
-                        manager.displays[i]->clear(rand());
+                } else {
+                    u8* disps = new u8[manager.numDisplays];
+                    for (int i=0; i<manager.numDisplays; i++)
+                        disps[i] = 0;
+                    if (halfs.size() != 2) {
+                        resp = "malformed command";
+                        continue;
                     }
-                    clock_t start = clock();
-                    manager.updateAll();
-                    printf("  rand all took %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
-                }
-                else {
-                    resp = "400 unknown command '"+parts[0]+"'";
+                    int disp0 = -1;
+                    for (int i=1; i<nums.size(); i++) {
+                        int disp = stoi(nums[i]);
+                        disps[disp] = 1;
+                        if (disp0 == -1) 
+                            disp0 = disp;
+                    }
+
+                    vector<string> parts = split(halfs[1], " ");
+                    if (command == "clear") {
+                        Color color = toColor(parts[0].c_str());
+                        for (int disp=0; disp<manager.numDisplays; disp++) {
+                            if (!disps[disp]) continue;
+                            manager.displays[disp]->clear(color);
+                            printf("  clear disp %i to %i\n", disp, color);
+                        }
+                        if (parts.back() != "&") manager.updateDisplays(disps, disp0);
+                    } else if (command == "power") {
+                        u8 on = parts[0] == "true";
+                        for (int disp=0; disp<manager.numDisplays; disp++) {
+                            if (!disps[disp]) continue;
+                            manager.displays[disp]->on = on;
+                            printf("  power disp %i to %i\n", disp, on);
+                        }
+                        manager.selectDisplays(disps);
+                        manager.displays[disp0]->power(on);
+                    } else if (command == "invert") {
+                        u8 on = parts[0] == "true";
+                        for (int disp=0; disp<manager.numDisplays; disp++) {
+                            if (!disps[disp]) continue;
+                            manager.displays[disp]->inverted = on;
+                            printf("  invert disp %i to %i\n", disp, on);
+                        }
+                        manager.selectDisplays(disps);
+                        manager.displays[disp0]->invert(on);
+                    // } else if (command == "file") {
+                    //     int disp = stoi(parts[0]);
+                    //     string path = cmd.substr(cmd.find(parts[0])+parts[0].length()+1);
+                    //     printf("  blit image '%s' to disp %i\n", path.c_str(), disp);
+                    //     manager.displays[disp]->drawImage(getImage(path));
+                    //     if (parts.back() != "&") manager.updateDisplay(disp);
+                    } else if (command == "image") {
+                        string name = cmd.substr(cmd.find("| ")+2);
+                        size_t endPos = name.find_last_not_of("& ");
+                        if (endPos != string::npos)
+                            name = name.substr(0, endPos+1);
+                        char path[1000];
+                        sprintf(path, "media/%i/%s.png", max(manager.displays[disp0]->width, manager.displays[disp0]->height), name.c_str());
+                        
+                        for (int disp=0; disp<manager.numDisplays; disp++) {
+                            if (!disps[disp]) continue;
+                            printf("  blit image '%s' to disp %i\n", path, disp);
+                            manager.displays[disp]->drawImage(getImage(string(path)));
+                        }
+                        if (parts.back() != "&") manager.updateDisplays(disps, disp0);
+                    } else if (command == "text") {
+                        int x = stoi(parts[0]);
+                        int y = stoi(parts[1]);
+                        int size = stoi(parts[2]);
+                        string vAlignStr = parts[3];
+                        string text = cmd.substr(cmd.find(parts[3])+parts[3].length()+1);
+                        size_t endPos = text.find_last_not_of("& ");
+                        if (endPos != string::npos)
+                            text = text.substr(0, endPos+1);
+                        VALIGN vAlign;
+                        if (vAlignStr == "bottom") vAlign = BOTTOM;
+                        if (vAlignStr == "top") vAlign = TOP;
+                        if (vAlignStr == "center") vAlign = CENTER_ASC;
+                        if (vAlignStr == "baseline") vAlign = BASELINE;
+                        for (int disp=0; disp<manager.numDisplays; disp++) {
+                            if (!disps[disp]) continue;
+                            printf("  write text '%s' (vAlign=%s) to disp %i\n", text.c_str(), vAlignStr.c_str(), disp);
+                            manager.displays[disp]->drawText(text.c_str(), x, y, size, vAlign);
+                        }
+                        if (parts.back() != "&") manager.updateDisplays(disps, disp0);
+                    } else if (command == "rand") {
+                        for (int i=0; i<manager.numDisplays; i++) {
+                            if (!manager.displays[i]) continue;
+                            manager.displays[i]->clear(rand());
+                        }
+                        clock_t start = clock();
+                        manager.updateAll();
+                        printf("  rand all took %.3f sec\n", (double)(clock()-start)/(CLOCKS_PER_SEC)*10);
+                    }
+                    else {
+                        resp = "400 unknown command '"+command+"'";
+                    }
+
+                    delete[] disps;
                 }
             } catch (...) {
                 printf("error\n");
@@ -390,7 +426,7 @@ int main() {
                 }
                 catch(const std::exception& e) //it would not work if you pass by value
                 {
-                    std::cout << e.what();
+                    std::cout << e.what() << endl;
                 }
                 resp = "500 internal server error\n";
             }

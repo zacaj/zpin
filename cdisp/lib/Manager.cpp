@@ -22,6 +22,17 @@ void Manager::updateDisplay(int num) {
     printf(" flip display %i\n", num);
 }
 
+void Manager::updateDisplays(u8* on, int num) {
+    selectDisplays(on);
+    displays[num]->update();
+    for (int i=0; i<numDisplays; i++) {
+        if (!on[i]) continue;
+        displays[i]->clear(BLACK);
+
+        printf(" flip display %i\n", i);
+    }
+}
+
 void Manager::updateAll() {
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     //DEV_Delay_ms(10);
@@ -100,31 +111,61 @@ void Manager::initAll() {
 }
 
 void Manager::selectDisplay(int num) {
+    // DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // //DEV_Delay_ms(10);
+    // DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
+    // //DEV_Delay_ms(10);
+    // for (int i=0; i<numDisplays+2; i++) {   
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
+    //     //DEV_Delay_ms(10);
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // }
+
+    // DEV_Digital_Write(DEV_CS_DAT_PIN, 0);
+    // DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
+    // //DEV_Delay_ms(10);
+
+    // DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
+    // DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // //DEV_Delay_ms(10);
+
+    // for (int i=0; i<=num; i++) {   
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
+    //     //DEV_Delay_ms(10);
+    //     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+    // }
+    // ///DEV_Delay_ms(100);
+
+
+
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
-    //DEV_Delay_ms(10);
-    DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
-    //DEV_Delay_ms(10);
-    for (int i=0; i<numDisplays+2; i++) {   
+
+    for (int i=numDisplays; i>=0; i--) {
+        DEV_Digital_Write(DEV_CS_DAT_PIN, i!=num);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-        //DEV_Delay_ms(10);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     }
 
-    DEV_Digital_Write(DEV_CS_DAT_PIN, 0);
     DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-    //DEV_Delay_ms(10);
-
-    DEV_Digital_Write(DEV_CS_DAT_PIN, 1);
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
-    //DEV_Delay_ms(10);
 
-    for (int i=0; i<=num; i++) {   
+
+
+}
+
+void Manager::selectDisplays(u8* on) {
+    DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
+
+    for (int i=numDisplays-1; i>=0; i--) {
+        DEV_Digital_Write(DEV_CS_DAT_PIN, !on[i]);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
-        //DEV_Delay_ms(10);
         DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     }
-    ///DEV_Delay_ms(100);
+
+    DEV_Digital_Write(DEV_CS_CLK_PIN, 1);
+    DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
 }
+
 void Manager::selectAll() {
     DEV_Digital_Write(DEV_CS_CLK_PIN, 0);
     //DEV_Delay_ms(10);

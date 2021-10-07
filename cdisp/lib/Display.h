@@ -3,6 +3,11 @@
 class Image;
 
 typedef enum {
+    ST7735,
+    ST7789,
+} DisplayType;
+
+typedef enum {
     MIRROR_NONE  = 0x00,
     MIRROR_HORIZONTAL = 0x01,
     MIRROR_VERTICAL = 0x02,
@@ -51,6 +56,8 @@ public:
     MIRROR_IMAGE mirror = MIRROR_NONE;
     ROTATE_IMAGE rotate = ROTATE_0;
     LCD_SCAN_DIR scanDir;
+
+    DisplayType type;
 
     
     virtual void init() = 0;

@@ -43,13 +43,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 
         this.actual = val;
         this.pending = val;
-        Events.listen<TreeOutputEvent<any>>(ev => {
-            this.changeAttempts++;
-            const pendingChangeAttempt = this.changeAttempts;
-            this.lastPendingChange = time();
-            this.pending = ev.value;
-            Timer.callIn(() => this.settle(pendingChangeAttempt), this.debounce, `try set ${this.name} to ${this.pending}`);
-        }, 
+        Events.listen<TreeOutputEvent<any>>(ev => this.changeDetected(ev), 
             ev => ev instanceof TreeOutputEvent && ev.tree === machine && ev.prop === name);
     }
 
@@ -61,7 +55,19 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         this.val = this.pending;
         this.lastValChange = time();
         Log.trace('machine', 'output %s settled on ', this.name, this.val);
-        return fork(this.trySet());
+        return this.trySet();
+    }
+
+    changeDetected(ev: TreeOutputEvent<any>) {
+        if (this instanceof Image)
+            Log.info('machine', 'tree change for disp %i', this.num);
+        this.changeAttempts++;
+        const pendingChangeAttempt = this.changeAttempts;
+        this.lastPendingChange = time();
+        this.pending = ev.value;
+        if (this.debounce)
+            Timer.callIn(() => this.settle(pendingChangeAttempt), this.debounce, `try set ${this.name} to ${this.pending}`);
+        else return this.settle(pendingChangeAttempt);
     }
 
     trySet(): Promise<void>|void {
@@ -111,6 +117,52 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     abstract set(val: T): Promise<boolean|number>|boolean|number;
 }
 
+abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = MachineOutputs> extends MachineOutput<T, Outs> {
+    static outs: { [value: string]: BatchedOutput<any>[] } = {};
+    constructor(
+        val: T,
+        name: keyof Outs,
+        public type: string,
+    ) {
+        super(val, name, 10);
+        (BatchedOutput.outs[this.hash()] ??= []).push(this as any);
+    }
+
+    hash(): string {
+        return this.type+"_"+(this.pending)?.hash;
+    }
+
+    changeDetected(ev: TreeOutputEvent<any>) {
+        (BatchedOutput.outs[this.hash()] ??= []).remove(this as any);
+        this.pending = ev.value;
+        (BatchedOutput.outs[this.hash()] ??= []).push(this as any);
+        return super.changeDetected(ev);
+    }
+
+    settle(changeAttempt: number) {
+        if (changeAttempt !== this.changeAttempts)
+            return undefined;
+        if (eq(this.val, this.pending))
+            return undefined;
+        
+        const hash = this.hash();
+        const batch = BatchedOutput.outs[hash] ?? [];
+        delete BatchedOutput.outs[hash];
+        for (const out of batch) {
+            out.val = out.pending;
+            out.lastValChange = time();
+        }
+        BatchedOutput.outs[this.hash()] ??= batch;
+        Log.trace('machine', 'output %s settled on ', batch.map(o => o.name).join(','), this.val);
+        return this.trySet();
+    }
+
+    abstract batchSet(val: T, outs: this[]): Promise<boolean|number>|boolean|number;
+
+    set(val: T): Promise<boolean|number>|boolean|number {
+        return this.batchSet(val, BatchedOutput.outs[this.hash()] as any);
+    }
+}
 export abstract class Solenoid extends MachineOutput<boolean> {
 
     static firingUntil?: Time;
@@ -443,11 +495,11 @@ const dispNumbers: { [T in keyof ImageOutputs]: number} = {
 };
 
 export type ImageType = DisplayContent|undefined;
-export class Image extends MachineOutput<ImageType, ImageOutputs> {
+export class Image extends BatchedOutput<ImageType, ImageOutputs> {
     constructor(
         name: keyof ImageOutputs,
     ) {
-        super(undefined, name);
+        super(dInvert(false), name, 'Image');
     }
 
     async init() {
@@ -458,9 +510,21 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
         return dispNumbers[this.name];
     }
 
-    async set(state: ImageType): Promise<boolean> {
+    async batchSet(state: ImageType, outs: Image[]) {
+        let success = true;
+        Log.info('machine', 'batch set %s to %s', outs.map(o => o.name).join(','), state?.hash);
+        for (const out of outs) {
+            success &&= out.setGfx(state);
+        }
+
+        await Image.syncDisps(outs.map(o => o.num), state, this.actual);
+
+        return success;
+    }
+
+    setGfx(state: ImageType): boolean {
         if (!gfx) return true;
-        await this.syncDisp(this.actual);
+        // await this.syncDisp(this.actual);
         if (!gfxImages) return false;
         const l = gfxImages[this.name];
         let ret = true;
@@ -471,27 +535,34 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
         return ret;
     }
 
-    async syncDisp(old?: DisplayContent) {
-        const l = gfxImages?.[this.name];
-        const state = this.val;
+    syncDisp() {
+        return Image.syncDisps([this.num], this.actual);
+    }
+
+    static async syncDisps(nums: number[], state?: DisplayContent, old?: DisplayContent) {
+        // Log.info('machine', 'sync disp %i', this.num);
+        // return;
+        // const l = gfxImages?.[this.name];
+
+        const numStr = nums.join(' ')+' |';
 
         if (CPU.isConnected) {
             const cmds: string[] = [];
             let inverted = state?.inverted ?? false;
             if (state) {
                 if (state.color)
-                    cmds.push(`clear ${this.num} ${colorToHex(state.color!)!.slice(1)}`);
+                    cmds.push(`clear ${numStr} ${colorToHex(state.color!)!.slice(1)}`);
                 else
-                    cmds.push(`clear ${this.num} ${colorToHex(Color.Black)!.slice(1)}`);
+                    cmds.push(`clear ${numStr} ${colorToHex(Color.Black)!.slice(1)}`);
                 
                 if (state.images) {
                     for (const img of state.images) {
-                        cmds.push(`image ${this.num} ${img}`);
+                        cmds.push(`image ${numStr} ${img}`);
                     }
                 }
                 if (state.text) {
                     for (const {x, y, size, text, vAlign} of state.text) {
-                        cmds.push(`text ${this.num} ${x} ${y} ${size} ${vAlign} ${text}`);
+                        cmds.push(`text ${numStr} ${x} ${y} ${size} ${vAlign} ${text}`);
                     }
                 }
                 if (old) { 
@@ -505,14 +576,14 @@ export class Image extends MachineOutput<ImageType, ImageOutputs> {
                 }
             }
             else
-                cmds.push(`clear ${this.num} ${colorToHex(Color.Black)!.slice(1)}`);
+                cmds.push(`clear ${numStr} ${colorToHex(Color.Black)!.slice(1)}`);
                 // cmds.push(`power ${this.num} false`);
 
             for (const cmd of cmds) {
                 await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
             }
             if (inverted !== undefined) {
-                await CPU.sendCommand(`invert ${this.num} ${inverted}`);
+                await CPU.sendCommand(`invert ${numStr} ${inverted}`);
             }
         }
     }

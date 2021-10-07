@@ -4,6 +4,7 @@
 ST7735::ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, u8 rgbOrder, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror): 
     Display(number, width, height, scanDir, rotate, mirror) {
 	this->rgbOrder = rgbOrder;
+	type = ST7735;
 }
 
 static void LCD_Write_Command(UBYTE data)	 

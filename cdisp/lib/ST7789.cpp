@@ -3,7 +3,7 @@
 
 ST7789::ST7789(int number, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror):
     Display(number, 320, 240, L2R_U2D, rotate, mirror) {
-        
+	type = ST7789;
 }
 
 static void LCD_Write_Command(UBYTE data)	 
