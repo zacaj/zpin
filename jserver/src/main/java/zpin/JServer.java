@@ -323,6 +323,11 @@ public class JServer extends Thread
 			    			if (curBoard != -1 && boards[curBoard] != null && boards[curBoard].type.equals(Board.Type.Solenoid16)) {
 			    				Solenoid16 board = (Solenoid16)boards[curBoard];
 			    				switch (parts[0]) {
+			    				case "hb":
+			    				case "heartbeat":
+			    					int hb = board.heartbeat();
+			    					resp(hb);
+			    					return true;
 			    				case "f":
 			    				case "fire":
 									if (parts.length > 2)

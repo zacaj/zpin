@@ -3,7 +3,7 @@ package zpin;
 import zpin.SatIO.Error;
 
 public class Solenoid16 extends Board {
-	final int apiRev = 2;
+	final int apiRev = 3;
 	boolean[] state = new boolean[16];
 	
 	enum SolenoidMode {

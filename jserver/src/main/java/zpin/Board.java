@@ -27,7 +27,7 @@ public class Board {
 	public void identify() throws Error {
 		io.selectAnd(boardNum, () -> {
 			byte[] id = io.sendCommandExpect(2, 0b11111110);
-			int type = id[0] & 0b11111;
+			int type = id[0] & 0b1111;
 			Optional<Type> _type = Arrays.stream(Type.values()).filter(t -> t.getValue() == type).findFirst();
 			if (!_type.isPresent())
 				throw new RuntimeException("board type "+type+" returned by board "+boardNum+" not invalid");
@@ -35,6 +35,18 @@ public class Board {
 			this.hwRevision = (id[0] & 0b11110000) >> 4;
 			this.apiRevision = id[1];
 		});
+	}
+	
+	public int heartbeat() throws Error {
+		io.select(boardNum);
+		try {
+			byte[] data = io.sendCommandExpect(2, 0b11111111);
+			int hb = (data[0] << 8) | (data[1]);
+			return hb;
+		}
+		finally {
+			io.select(-1);
+		}
 	}
 	
 	SatIO io = SatIO.get();

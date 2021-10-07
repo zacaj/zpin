@@ -202,8 +202,10 @@ public class SatIO {
 		}
 //		System.out.println("\ngot ready signal");
 		byte numInputBytes = spiRead(1)[0];
+//		System.out.println("resp length: "+numInputBytes);
 		if (numInputBytes > 0) {
 			byte[] input = spiRead(numInputBytes+1);
+//			System.out.println("resp: "+Arrays.toString(input));
 			byte[] in = Arrays.copyOf(input, numInputBytes);
 			byte sum = checkSum(in);
 			byte inputSum = input[numInputBytes];

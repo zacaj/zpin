@@ -1,8 +1,11 @@
 import { MPU } from './mpu';
 import { Log } from './log';
 import { machine } from './machine';
+import { Timer, TimerQueueEntry } from './timer';
 
 export class Solenoid16 {
+    hbId?: string;
+    heartbeatTimer?: TimerQueueEntry;
     
     constructor(
         public board: number,
@@ -17,7 +20,11 @@ export class Solenoid16 {
         }
         Log.info(['mpu', 'solenoid'], 'init board %i as s16', this.board);
         if (!MPU.isLive) return;
-        return MPU.sendCommand(`i ${this.board} s16`).catch(e => {
+        return MPU.sendCommand(`i ${this.board} s16`)
+        .then(() => {
+            Timer.cancel(this.heartbeatTimer);
+            this.heartbeatTimer = Timer.setInterval(() => this.heartbeat(), 1000, `board ${this.board} heartbeat`, Math.random()*1000 );
+        }).catch(e => {
             Log.error('console', 'error initializing boards', e);
             process.exit(1);
         });
@@ -26,6 +33,29 @@ export class Solenoid16 {
     send(cmd: string, force = false) {
         if (!MPU.isLive && !force) return;
         return MPU.sendCommand(`${this.board}: ${cmd}`);
+    }
+
+    async heartbeat() {
+        if (!machine.sDetect3.state || !MPU.isLive || !machine.game) return;
+
+        const hb = await this.send('hb');
+        if (!this.hbId) {
+            this.hbId = hb;
+            Log.log('mpu', 'got heartbeat %s for board %i', hb, this.board);
+        }
+        else {
+            if (hb !== this.hbId) {
+                Log.error(['mpu', 'assert'], 'heartbeat mismatch (%s now %s) for board %i, reinitializing...', this.hbId, hb, this.board);
+                this.hbId = hb;
+                await this.init();
+                
+                for (const s of machine.coils.filter(c => c.board === this)) {
+                    await s.init();
+                    await s.set(s.val);
+                }
+                Log.log('mpu', 'board %i re-init complete', this.board);
+            }
+        }
     }
 
     fireSolenoid(num: number) {
