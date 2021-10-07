@@ -134,14 +134,14 @@ export function add(func: (() => boolean)|boolean, color: LightState|(() => Ligh
     return mix(() => (typeof func==='function'? func() : func)? (typeof color==='function'? color() : color) : undefined);
 }
 
-export function many(func: () => {[color: string]: boolean}): (state?: LightState[]) => LightState[] | undefined {
+export function many(func: () => [LightState|'prev', boolean][]): (state?: LightState[]) => LightState[] | undefined {
     return (prev) => {
         const o = func();
         let state: LightState[] = [];
-        for (const key of Object.keys(o)) {
-            if (key === 'prev' && o[key])
+        for (const [key, value] of o) {
+            if (key === 'prev' && value)
                 state = [...state, ...prev ?? []];
-            else if (o[key]) {
+            else if (value) {
                 state.push(key as Color);
             }
         }

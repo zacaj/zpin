@@ -1,5 +1,5 @@
 import { Multiball } from './multiball';
-import { addToScreen, alert, gfx, pfx, screen } from '../gfx';
+import { addToScreen, alert, gfx, gWait, pfx, screen } from '../gfx';
 import { fork } from '../promises';
 import { DropBank, DropBankCompleteEvent, DropDownEvent, DropTarget } from '../drop-bank';
 import { Player, SpinnerHit, SpinnerRip } from './player';
@@ -219,6 +219,7 @@ export class RoyalFlushMb extends Multiball {
                 await mb.start();
             }
             await mb.gfx?.ready;
+            await gWait(2000, '');
             // await mb.releaseBallFromTrough();
             mb.state = BankLit(mb.banks[0]);
             await mb.releaseBallFromLock();

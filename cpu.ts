@@ -59,7 +59,7 @@ export const CPU = {
         if (this.connecting) return;
         this.connecting = true;
         fork(wait(this.timeout*1000).then(() => this.connect()));
-        Log.info('cpu', 'reconnect to CPU in %is', this.timeout);
+        Log.log('cpu', 'reconnect to CPU in %is', this.timeout);
         if (this.timeout < 30)
             this.timeout *= 2;
     },

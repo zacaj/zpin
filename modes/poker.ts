@@ -119,7 +119,7 @@ export class Poker extends Mode {
             getSkillshot: () => (ss: Skillshot) => this.getSkillshot(ss),
             iRamp: (prev) => {
                 // const mbReady = this.player.mbReady && this.allowMbStart;
-                if (prev && ((time()/1500%2)|0)===0) return undefined;
+                if (prev && (((time()/1500%2)|0)===0 || this.step < 7)) return undefined;
                 if (this.step >= 7) return dImage("finish_hand_ramp");
                 return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
@@ -258,7 +258,7 @@ export class Poker extends Mode {
 
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.adjustSide *= -1);
 
-        this.listen(onAnySwitchClose(machine.sLeftOrbit, machine.sRampMade), () => {
+        this.listen(onAnySwitchClose(machine.sLeftOrbit), () => {
             if (this.step < 7) {
                 this.bet -= this.betAdjust*this.adjustSide;
                 notify(`BET ${money(this.betAdjust*this.adjustSide, 0, '+')}`);

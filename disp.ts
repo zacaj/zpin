@@ -92,7 +92,7 @@ export function dInvert(inverted: boolean, disp?: DisplayContent): DisplayConten
 }
 
 export function dFlash(disp: DisplayContent, on = 200, off = 200) {
-    return dInvert(time()%(on+off)>on, disp);
+    return dInvert(time()%(on+off)>off, disp);
 }
 
 export function dHash(d: Partial<DisplayContent>): DisplayContent {

@@ -97,7 +97,7 @@ export class Log {
     }
 
     static error(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
-        return Log.logMessage(Levels.Error, categories, message, params);
+        return Log.logMessage(Levels.Error, categories, message, ...params);
     }
 
     static format(message: string, params: any): string {

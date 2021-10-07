@@ -62,15 +62,15 @@ export class FullHouseMb extends Multiball {
         switch (this.state.jp) {
             case Jackpot.RightLane:
                 if (machine.upper3Bank.targets[2].state)
-                    return 300000/FullHouseMb.startValue*this.base;
+                    return 300000/FullHouseMb.startValue*this.base+this.rightAdd;
                 else
-                    return 600000/FullHouseMb.startValue*this.base;
+                    return 600000/FullHouseMb.startValue*this.base+this.rightAdd;
             case Jackpot.RightTarget:
-                return 750000/FullHouseMb.startValue*this.base;
+                return 750000/FullHouseMb.startValue*this.base+this.rightAdd;
             case Jackpot.LeftLane:
-                return 750000/FullHouseMb.startValue*this.base;
+                return 750000/FullHouseMb.startValue*this.base+this.leftAdd;
             case Jackpot.LeftTarget:
-                return 500000/FullHouseMb.startValue*this.base;
+                return 500000/FullHouseMb.startValue*this.base+this.leftAdd;
             case Jackpot.Drop1:
             case Jackpot.Drop2:
             case Jackpot.Drop3:
@@ -81,6 +81,8 @@ export class FullHouseMb extends Multiball {
     }
 
     base = FullHouseMb.startValue;
+    leftAdd = 0;
+    rightAdd = 0;
 
     jpColor(jp?: Jackpot): Color {
         // if (this.state._ !== 'jackpotLit' && !jp) return Color.Pink;
@@ -212,7 +214,7 @@ export class FullHouseMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('full house mb');
-            await alert('Full House Multiball!', 6000)[1];
+            await alert('Full House Multiball!', 5000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -286,40 +288,50 @@ export class FullHouseMb extends Multiball {
         const jps = this.skillshotRng.shuffle([...jackpots, undefined, undefined]);
         jps.remove(magJp);
         jps.remove(ejectJp);
-        const selections: (string|Jackpot|undefined)[] = [
-            undefined,
-            this.restartJp ?? magJp,
-            this.restartJp ?? jps[0],
-            this.restartJp ?? jps[1],
-            this.restartJp ?? ejectJp,
-            this.restartJp ?? jps[3],
-        ];
+        // const selections: (string|Jackpot|undefined)[] = [
+        //     undefined,
+        //     this.restartJp ?? magJp,
+        //     this.restartJp ?? jps[0],
+        //     this.restartJp ?? jps[1],
+        //     this.restartJp ?? ejectJp,
+        //     this.restartJp ?? jps[3],
+        // ];
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
-            this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            // this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            // this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
+            // this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            // this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +500K']),
+            // this.skillshotRng.weightedSelect([3, '100K points'], [3, 'JACKPOT +250K']),
+            ...[
+                'LEFT JACKPOT +250K',
+                'RIGHT JACKPOT +250K',
+                'JACKPOTS +100K',
+                'LIGHT LEFT JACKPOT',
+                'LIGHT RIGHT JACKPOT',
+                undefined,
+                undefined,
+            ].shuffle(() => this.skillshotRng.rand()).slice(0, 5),
         ];
 
         return [...switches.map((sw, i) => {
             return {
                 switch: sw,
                 award: verb[i],
-                dontOverride: i===0,
-                display: !selections[i]? undefined : (selections[i] === 'random'? dImage('random_jp')
-                    : dMany(
-                        dClear(this.jpColor(selections[i] as Jackpot)!)!,
-                        dImage('skill_light_jp'),
-                )),
+                dontOverride: !!verb[i],
+                // display: !selections[i]? undefined : (selections[i] === 'random'? dImage('random_jp')
+                //     : dMany(
+                //         dClear(this.jpColor(selections[i] as Jackpot)!)!,
+                //         dImage('skill_light_jp'),
+                // )),
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;
-                    if (!selections[i])
+                    // if (!selections[i])
+                    if (this.state._==='starting')
                         this.state = Started();
-                    else
-                        this.state = JackpotLit(selections[i]==='random'? 
-                            this.skillshotRng.randSelect(...jackpots)  : (selections[i] as Jackpot));
+                    // else
+                    //     this.state = JackpotLit(selections[i]==='random'? 
+                    //         this.skillshotRng.randSelect(...jackpots)  : (selections[i] as Jackpot));
                     fork(this.releaseBallsFromLock());
                 },
                 made: (e: SwitchEvent) => {
@@ -342,6 +354,11 @@ export class FullHouseMb extends Multiball {
                         case 'JACKPOT +250K': this.base += 250000; break;
                         case '100K points': this.player.score += 100000; break;
                         case '10K POINTS': this.player.score += 10000; break;
+                        case 'LEFT JACKPOT +250K': this.leftAdd += 250000; break;
+                        case 'RIGHT JACKPOT +250K': this.rightAdd += 250000; break;
+                        case 'JACKPOTS +100K': this.leftAdd += 100000; this.rightAdd += 100000; break;
+                        case 'LIGHT LEFT JACKPOT': this.state = JackpotLit(this.skillshotRng.randSelect(...jackpots.filter(jp => jp.startsWith('Left')))); break;
+                        case 'LIGHT RIGHT JACKPOT': this.state = JackpotLit(this.skillshotRng.randSelect(...jackpots.filter(jp => !jp.startsWith('Left')))); break;
                         default:
                             debugger;
                     }

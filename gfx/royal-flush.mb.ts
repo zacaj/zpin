@@ -123,6 +123,7 @@ export class RoyalFlushMbGfx extends ModeGroup {
             this.mbTotal.text(`GET READY`);
             this.mbTotal.visible(true);
             void playSound('clunk c');
+            this.doneCb();
 
             this.remove(this.bankValue);
             this.add(this.leftBankValue, this.rightBankValue, this.centerBankValue);
@@ -130,7 +131,6 @@ export class RoyalFlushMbGfx extends ModeGroup {
             this.add(this.spinnerValue);
             void playSound('clunk f');
             this.remove(this.mbTotal);
-            this.doneCb();
             await gWait(500, '');
         })());
 

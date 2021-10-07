@@ -16,7 +16,7 @@ import { Ball } from './ball';
 import { Rng } from '../rand';
 import { playMusic, playSound, playVoice, stopMusic } from '../sound';
 import { AddABall, Combo } from '../util-modes';
-import { dClear, dImage, dInvert, DisplayContent, dMany } from '../disp';
+import { dClear, dFlash, dImage, dInvert, DisplayContent, dMany } from '../disp';
 import { Color } from '../light';
 
 export enum GateMode {
@@ -82,7 +82,7 @@ export class Skillshot extends Mode {
             outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = () => {
                 const disp = a.display ?? (i===this.curAward? dImage('skill_plunge'+(i===1?'_2':'')) : dClear(Color.Black));
                 const d = i===this.curAward? 
-                    dInvert(time()%600>400, dMany(disp, dImage("skill_selected")))
+                    dFlash(dMany(disp, dImage("skill_selected")), 15, 300)
                     // (((time()/800%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
                   : {...disp};
                 if (d.images)
@@ -243,6 +243,7 @@ export class Skillshot extends Mode {
         return super.end();
     }
 
+    // eslint-disable-next-line complexity
     makeAwards(): SkillshotAward[] {
         const generic = this.getGenericAwards();
         const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot(this) : [];
@@ -295,12 +296,12 @@ export class Skillshot extends Mode {
                         award: 'UNDO TWO CARDS',
                         made: () => seq(2).forEach(() => this.player.poker!.snail()),
                     }],
-                    [this.player.mbsQualified.size===0 && !this.player.curMbMode? 10 : 0, {
+                    [this.player.mbsQualified.size===0 && !this.player.curMbMode && [this.player.straightMbStatus, this.player.flushMbStatus, this.player.fullHouseMbStatus].truthy().length<=1? 10 : 0, {
                         switch: gen.switch,
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
                     }],
-                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<1? 15 : 0, {
+                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<1 && !this.player.curMbMode? 15 : 0, {
                         switch: gen.switch,
                         award: 'ADD A BALL',
                         made: () => AddABall(this.player.overrides),

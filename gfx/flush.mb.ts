@@ -9,6 +9,7 @@ import { PokerHand } from './poker';
 export class FlushMbGfx extends ModeGroup {
     notInstructions = gfx.createGroup();
     light = makeText('SHOOT ANYTHING TO START HURRYUP', 40, 'center', 'bottom').y(Screen.h*-.1);
+    collect = makeText('SHOOT IT AGAIN TO COLLECT', 40, 'center', 'bottom').y(Screen.h*.1);
     jp = makeText('JACKPOT LIT!', 40, 'center', 'bottom', gfx, Color.Yellow).y(Screen.h*-.1);
     value = makeText('100000', 120, 'center', 'bottom').y(Screen.h*.25).wrap('end').w(Screen.w).x(-Screen.w/2);
 
@@ -32,6 +33,7 @@ export class FlushMbGfx extends ModeGroup {
         this.notInstructions.add(makeText('FLUSH multiball!', 60).y(Screen.h*-.28).x.anim(anim).start());
 
         this.add(this.light);
+        this.add(this.collect);
         this.add(this.jp);
         this.add(this.value);
 
@@ -42,6 +44,7 @@ export class FlushMbGfx extends ModeGroup {
         ].truthy().join('\n')).fontSize(mb.state._==='jackpotLit'? 150 : 50));
 
         mb.watch(() => this.light.visible(mb.state._!=='jackpotLit'));
+        mb.watch(() => this.collect.visible(mb.state._!=='jackpotLit'));
         mb.watch(() => {
             this.jp.visible(mb.state._==='jackpotLit');
         });

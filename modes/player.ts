@@ -333,14 +333,14 @@ export class Player extends Mode {
             lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2] && this.chips<3, Color.Orange),
             lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3] && this.chips<3, Color.Orange),
             lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4] && this.chips<3, Color.Orange),
-            lMainTargetArrow: many(() => ({
-                [this.mbColor(this.nextMb)]: this.mbsReady.size>1 && !this.curMbMode,
-                [Color.Orange]: this.chipsLit[1],
-            })),
+            lMainTargetArrow: many(() => ([
+                [[this.mbColor(this.nextMb), 'fl', 1], this.mbsReady.size>1 && !this.curMbMode],
+                [Color.Orange, this.chipsLit[1]],
+            ])),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
-            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
-            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
-            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : [],
+            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl', 2]] : [],
+            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl', 2]] : [],
+            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl', 2]] : [],
         });
 
         // mystery

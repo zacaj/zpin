@@ -59,6 +59,8 @@ export class StraightMb extends Multiball {
         return this.state._ === 'jackpotLit' && this.state.doubled && time()-this.state.doubled<5000;
     }
 
+    nextBank!: DropBank;
+
     protected constructor(
         player: Player,
         public hand: Card[],
@@ -70,6 +72,7 @@ export class StraightMb extends Multiball {
             machine.ballsLocked++;
         this.skillshotRng = player.rng();
         this.bankRng = player.rng();
+        this.nextBank = restartBank ?? machine.dropBanks[this.bankRng.weightedRand(1, 1, 5, 0, 3, 0)];
         State.declare<StraightMb>(this, ['state']);
         player.storeData<StraightMb>(this, ['value', 'bankRng', 'skillshotRng', 'topTotal']);
         const outs: any  = {};
@@ -78,10 +81,11 @@ export class StraightMb extends Multiball {
             outs[target.image.name] = () => {
                 switch (this.state._) {
                     case 'starting':
-                        return colorToArrow(this.bankColors.get(target.bank));
+                        if (target.bank === this.nextBank)
+                            return !target.state? dInvert(time()%500>350 && isFirstDown(target), colorToArrow(this.bankColors.get(this.nextBank))) : undefined;
+                        return undefined;
                     case 'bankLit':
                         if (target.bank === this.state.curBank)
-                            // return (((time()/500%2)|0)===0 || !isFirstDown(target)) && !target.state? colorToArrow(this.bankColors.get(this.state.curBank)) : undefined;
                             return !target.state? dInvert(time()%500>350 && isFirstDown(target), colorToArrow(this.bankColors.get(this.state.curBank))) : undefined;
                         return undefined;
                     case 'jackpotLit':
@@ -165,7 +169,7 @@ export class StraightMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('straight mb');
-            await alert('STRAIGHT Multiball!', 6000)[1];
+            await alert('STRAIGHT Multiball!', 5000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -205,8 +209,8 @@ export class StraightMb extends Multiball {
     
     selectBank(bank?: DropBank) {
         if (!bank) {
-            const i = this.bankRng.weightedRand(1, 1, 5, 0, 3, 0);
-            bank = machine.dropBanks[i];
+            bank = this.nextBank;
+            this.nextBank = machine.dropBanks[this.bankRng.weightedRand(1, 1, 5, 0, 3, 0)];
         }
         this.state = BankLit(bank);
         this.lastBank = bank;
@@ -253,33 +257,36 @@ export class StraightMb extends Multiball {
     
     getSkillshot(): Partial<SkillshotAward>[] {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
-        const selections: (string|DropBank)[] = [
-            'random', 
-            this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank],  [1, machine.upper3Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [4, machine.centerBank], [1, machine.upper2Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
-            this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [1, machine.upper3Bank]),
-        ];
+        // const selections: (string|DropBank)[] = [
+        //     'random', 
+        //     this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [3, machine.leftBank], [1, machine.upper2Bank]),
+        //     this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.centerBank], [5, machine.leftBank],  [1, machine.upper3Bank]),
+        //     this.restartBank ?? this.skillshotRng.weightedSelect([4, machine.leftBank], [4, machine.centerBank], [1, machine.upper2Bank]),
+        //     this.restartBank ?? this.skillshotRng.weightedSelect([8, machine.centerBank], [5, machine.leftBank], [1, machine.upper2Bank], [1, machine.upper3Bank]),
+        //     this.restartBank ?? this.skillshotRng.weightedSelect([5, machine.leftBank], [1, machine.upper3Bank]),
+        // ];
         const verb = this.isRestarted? repeat('JACKPOT +50K', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? 'JACKPOT +50K' : 'ONE-SHOT ADD-A-BALL',
-            'DOUBLE JACKPOT VALUE',
-            'DOUBLE JACKPOT VALUE',
-            '1.5X JACKPOT VALUE',
-            'DOUBLE JACKPOT VALUE',
-            'JACKPOT +250K',
+            ...[
+                'JACKPOT +250K',
+                'LIGHT 2-BANK',
+                'LIGHT 5-BANK',
+                'LIGHT 4-BANK',
+                undefined,
+                undefined,
+                'JACKPOT +250K',
+            ].shuffle(() => this.skillshotRng.rand()).slice(0, 5),
         ];
 
         return [...switches.map((sw, i) => {
             return {
                 switch: sw,
                 award: verb[i],
-                dontOverride: i===0,
-                display: selections[i] === 'random'? dImage("random_bank")
-                    : dClear(this.bankColors.get(selections[i] as DropBank)!),
+                dontOverride: !!verb[i],
                 collect: () => {
                     if (this.state._==='starting' && this.state.addABallReady) return;
-                    this.selectBank(selections[i]==='random'? undefined  : (selections[i] as DropBank));
+                    if (!verb[i]?.startsWith('LIGHT '))
+                        this.selectBank();
                     fork(this.releaseBallsFromLock());
                 },
                 made: (e: SwitchEvent) => {
@@ -302,8 +309,11 @@ export class StraightMb extends Multiball {
                         case 'DOUBLE JACKPOT VALUE': this.value *= 2; break;
                         case 'TRIPLE JACKPOT VALUE': this.value *= 3; break;
                         case '1.5X JACKPOT VALUE': this.value *= 1.5; break;
+                        case 'LIGHT 2-BANK': this.selectBank(machine.upper2Bank); break;
+                        case 'LIGHT 4-BANK': this.selectBank(machine.leftBank); break;
+                        case 'LIGHT 5-BANK': this.selectBank(machine.rightBank); break;
                         default:
-                            debugger;
+                            break;
                     }
                 },
             };

@@ -137,7 +137,7 @@ export class FlushMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('flush mb');
-            await alert('Flush Multiball!', 6000)[1];
+            await alert('Flush Multiball!', 5000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();

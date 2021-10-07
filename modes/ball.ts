@@ -67,6 +67,7 @@ export class Ball extends Mode {
             kickerEnable: () => !this.drained && !this.shootAgain && !this.tilted,
             lShootAgain: () => flash(this.shootAgain, Color.Orange),
             music: () => machine.sShooterLane.state || (machine.lastSwitchHit===machine.sOuthole && machine.ballsInPlay<1) || !this.validated? undefined : 'green grass slow with start', 
+            ballSave: () => this.shootAgain,
         });
         
         this.listen(onAnySwitchClose(machine.sShooterLane), () => {
@@ -81,16 +82,14 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sOuthole), async () => {
             await stopSounds();
             await playSound('drop spin');
+            if (machine.ballsLocked > 0) {
+                await this.saveBall();
+            }
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
             if (this.shootAgain || machine.out!.treeValues.ballSave) {
-                Events.fire(new BallSaved(this));
-                await ReleaseBall(this);
-                this.shootAgain = false;
-                this.drained = false;
-                this.validated = false;
-                this.tilted = false;
+                await this.saveBall();
                 return;
             }
 
@@ -173,6 +172,15 @@ export class Ball extends Mode {
     end() {
         fork(wait(1).then(() => Events.fire(new BallEnd(this))));
         return super.end();
+    }
+
+    async saveBall() {
+        Events.fire(new BallSaved(this));
+        await ReleaseBall(this);
+        this.shootAgain = false;
+        this.drained = false;
+        this.validated = false;
+        this.tilted = false;
     }
 }
 
