@@ -40,6 +40,8 @@ export class MiniPf extends Mode {
                 ball.player.top20 = amount;
             notify(score(amount), 8000);
         });
+
+        // todo voice
     }
 
     end() {

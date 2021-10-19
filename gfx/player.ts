@@ -76,6 +76,7 @@ export class PlayerGfx extends ModeGroup {
             this.diff.visible(player.game.ballNum===1 && player.score===0);
             if (machine.sMagnetButton.lastClosed)
                 this.diff.text('SKILL LEVEL: '+Difficulty[player.difficulty]);
+            if (!this.diff.visible()) return 'remove';
         });
 
         this.pokerOrNo.add(this.bank);

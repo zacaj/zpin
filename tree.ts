@@ -241,7 +241,7 @@ export abstract class Tree<Outs extends {} = {}> {
             if (onChange)
                 onChange();
             else
-                record(ev);
+                return record(ev);
         });
 
         return [record as any, affectors, initialValue];

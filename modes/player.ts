@@ -313,34 +313,34 @@ export class Player extends Mode {
             lRampArrow: add(() => this.mbReady && !machine.cRamp.actual, () => [this.mbColor(), 'fl']),
             iRamp: () => this.mbReady? dImage(this.selectedMb?.slice(0, this.selectedMb!.length-2).toLowerCase()+'_mb') : undefined,
             lEjectArrow: add(() => this.mysteryLeft===0 && !this.curMbMode && !this.mystery, [Color.Purple, 'pl']),
-            lPower1: () => light(this.chips>=1, Color.Orange),
-            lPower2: () => light(this.chips>=2, Color.Orange),
-            lPower3: () => light(this.chips>=3, Color.Orange),
+            lPower1: () => this.chips>0? [this.chips===1? Color.Red : this.chips===2? Color.Orange : Color.Green] : undefined,
+            lPower2: () => this.chips>1? [this.chips===1? Color.Red : this.chips===2? Color.Orange : Color.Green] : undefined,
+            lPower3: () => this.chips>2? [this.chips===1? Color.Red : this.chips===2? Color.Orange : Color.Green] : undefined,
             lPopperStatus: () => light(this.chips>=1, Color.Green, Color.Red),
             shooterDiverter: () => this.closeShooter||this.ball?.tilted? false :
                                    (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : 
                                    undefined,
-            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0] && this.chips<3? Color.Orange : Color.Green] : [],
-            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1] && this.chips<3? Color.Orange : Color.Green] : [],
-            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Green] : [],
-            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3] && this.chips<3? Color.Orange : Color.Green] : [],
+            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0] && this.chips<3? Color.Orange : Color.Blue] : [],
+            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1] && this.chips<3? Color.Orange : Color.Blue] : [],
+            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Blue] : [],
+            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3] && this.chips<3? Color.Orange : Color.Blue] : [],
             lLaneLower1: () => light(this.lowerLanes[0], Color.Blue),
             lLaneLower2: () => light(this.lowerLanes[1], Color.Blue),
             lLaneLower3: () => light(this.lowerLanes[2], Color.Blue),
             lLaneLower4: () => light(this.lowerLanes[3], Color.Blue),
             lMiniReady: () => this.miniReady? [Color.Green] : [Color.Red],
-            lRampMini: add(() => !this.curMbMode && this.chipsLit[0] && this.chips<3, Color.Orange),
-            lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2] && this.chips<3, Color.Orange),
+            lRampMini: add(() => !this.curMbMode && this.chipsLit[0] && this.chips<2, Color.Orange),
+            lUpperLaneTarget: add(() => !this.curMbMode && this.chipsLit[2] && this.chips<2, Color.Orange),
             lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3] && this.chips<3, Color.Orange),
             lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4] && this.chips<3, Color.Orange),
             lMainTargetArrow: many(() => ([
-                [[this.mbColor(this.nextMb), 'fl', 1], this.mbsReady.size>1 && !this.curMbMode],
-                [Color.Orange, this.chipsLit[1]],
+                [[this.mbColor(this.nextMb), 'pl', .75], this.mbsReady.size>1 && !this.curMbMode],
+                [Color.Orange, this.chipsLit[1] && this.chips<2],
             ])),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
-            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl', 2]] : [],
-            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl', 2]] : [],
-            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl', 2]] : [],
+            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl']] : [],
+            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl']] : [],
+            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl']] : [],
         });
 
         // mystery
@@ -454,6 +454,8 @@ export class Player extends Mode {
                     else
                         void playVoice('bonus x');
                 }
+                else
+                    void playSound('lane');
             });
 
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.chipsLit.rotate(1));
@@ -492,8 +494,7 @@ export class Player extends Mode {
             // if (time() - (machine.cPopper.lastFired??time()) > 100) return;
             
             if (machine.lPopperStatus.is(Color.Green))
-                this.chips-=1;
-            if (this.chips<0) this.chips = 0;
+                this.removeChip();
         });
         
         this.listen([...onSwitchClose(machine.sMagnetButton), () => machine.sShooterLane.state && this.game.ballNum===1 && this.score===0], () => {
@@ -509,8 +510,7 @@ export class Player extends Mode {
                 return;
             }
             if (machine.lMagnet1.is(Color.Green))
-                this.chips-=1;
-            if (this.chips<0) this.chips = 0;
+                this.removeChip();
 
             // for (let i=0; i<50; i++) {
             //     await playSound('chip drop');
@@ -635,6 +635,17 @@ export class Player extends Mode {
         //     void playSound('cash');
         // }
     }
+    removeChip() {
+        if (this.chips <= 0) return;
+        fork(Effect(this.overrides, 800, {
+            lPower1: [[machine.lPower1.color(), this.chips===1 && 'fl', 6]],
+            lPower2: [[machine.lPower2.color(), this.chips===2 && 'fl', 6]],
+            lPower3: [[machine.lPower3.color(), this.chips===3 && 'fl', 6]],
+        }));
+        this.chips -= 1;
+    }
+
+
     changeValue(value: number, showAlert = true) {
         if (value > 0)
             void playSound('ca ching');
@@ -679,6 +690,9 @@ class NoMode extends MiscAwards {
         ].truthy();
     }
 
+    bonusCollectValue = 0;
+    bonusCollected = false;
+
     constructor(
         player: Player,
     ) {
@@ -722,6 +736,7 @@ class Spinner extends Tree<MachineOutputs> {
                 ...dImage("per_spin"),
                 ...dFitText(this.displayText, 57, 'baseline'),
             }),
+            catcher: () => !!this.lastSpinAt && machine.sLeftInlane.wasClosedWithin(150) && time()-this.lastSpinAt < 300 && machine.sLeftInlane.lastClosed! > this.lastHitAt!? true : undefined,
         });
 
         this.listen(onSwitchClose(machine.sSpinner), 'hit');
@@ -798,7 +813,7 @@ class Spinner extends Tree<MachineOutputs> {
     updateDisplay() {
         const value = machine.out!.treeValues.spinnerValue ?? this.score;
         if (this.comboMult>1)
-            this.displayText = `${short(value)} *${this.comboMult}`;
+            this.displayText = `${short(value)}*${this.comboMult}`;
         else
             this.displayText = score(value);
     }
@@ -1017,7 +1032,7 @@ export class Multiplier extends Tree<MachineOutputs> {
             this.lanes.rotate(1);
         });
 
-        void playVoice('2x', 25);
+        void playVoice('2x', 75);
 
         this.listen(onChange(player, '_score'), e => {
             const oldTotal = this.total;
@@ -1037,14 +1052,14 @@ export class Multiplier extends Tree<MachineOutputs> {
         );
         if (screen) {
             player.gfx?.add(this.text);
-            this.text.z(70);
+            this.text.z(Modes.Multipler);
             this.text.y(0);
             this.text.x(-Screen.w/4);
             this.watch(() => (this.text.children[3] as Text).text(score(this.total)));
         }
 
         this.listen(e => e instanceof BonusEnd, 'end');
-        this.listen([e => e instanceof BallEnding, () => ![machine.sLeftOutlane, machine.sRightOutlane, machine.sMiniOut].includes(machine.lastSwitchHit!)], 'end');
+        this.listen([e => e instanceof BallEnding], 'end');
     }
 
     end() {

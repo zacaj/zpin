@@ -40,6 +40,7 @@ export class Ball extends Mode {
     spins = 0;
     slings = 0;
     lanes = 0;
+    multiballs = 0;
 
     tilted = false;
     drained = false;
@@ -161,8 +162,9 @@ export class Ball extends Mode {
         }
         Events.fire(new BallStart(ball));
 
-        // if (player.chips === 0)
-        player.chips = player.startingChips;
+        if (player.chips === 0)
+            player.chips = 1;
+        // player.chips = player.startingChips;
         if (player.difficulty <= Difficulty.Normal)
             player.miniReady = true;
 

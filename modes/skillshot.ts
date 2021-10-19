@@ -136,7 +136,7 @@ export class Skillshot extends Mode {
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
             () => !machine.sShooterLane.state,
         ], e => {
-            Log.info('game', 'skillshot ended by playfield switch %s', e.name);
+            Log.info('game', 'skillshot ended by playfield switch %s', e.sw.name);
             return this.finish(e);
         });
 
@@ -225,7 +225,7 @@ export class Skillshot extends Mode {
     async finish(e: SwitchEvent) {
         this.timesTried[this.curAward]++;
         if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole, machine.sMiniOut].includes(e.sw)) {
-            void playVoice(`wait you'll get that back`);
+            void playVoice(`wait you'll get that back`, 75, true);
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
         } else if (!this.wasMade) {

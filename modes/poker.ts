@@ -1,4 +1,4 @@
-import { MachineOutputs, machine, SkillshotAward } from '../machine';
+import { MachineOutputs, machine, SkillshotAward, Light } from '../machine';
 import { Mode, Modes } from '../mode';
 import { PokerGfx } from '../gfx/poker';
 import { State } from '../state';
@@ -8,7 +8,7 @@ import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, Switch } from '..
 import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
-import { KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
+import { Effect, KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
 import { add, Color, light, many } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
@@ -101,7 +101,7 @@ export class Poker extends Mode {
         player.storeData<Poker>(this, ['cashValue', 'bank', 'bet', 'skillshotRng', 'cardRng', 'handsWon', 'handsForMb', 'handsPlayed', 'wasQuit', 'biggestWin', 'biggestLoss', 'topCashout']);
         this.deal();
 
-        this.bet = (this.bet+Poker.BetStart+Poker.BetStart+Poker.BetStart)/4;
+        this.bet = round((this.bet+Poker.BetStart+Poker.BetStart+Poker.BetStart)/4, 10, -10000);
 
         this.misc = new MiscAwards(player);
 
@@ -120,11 +120,14 @@ export class Poker extends Mode {
             iRamp: (prev) => {
                 // const mbReady = this.player.mbReady && this.allowMbStart;
                 if (prev && (((time()/1500%2)|0)===0 || this.step < 7)) return undefined;
-                if (this.step >= 7) return dImage("finish_hand_ramp");
+                if (this.step === 7) return dImage("finish_hand_ramp");
+                if (this.step > 7) return undefined;
                 return dAdjustBet(-this.betAdjust*this.adjustSide);
             },
             iSS5: () => this.step===7? dInvert(time()%600>400, dImage("finish_hand_eject")) : undefined,
-            iSS1: () => this.step<7? dImage('change_bet') : dInvert(time()%500>400, ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter')),
+            iSS1: () => this.step<7? dImage('change_bet') : 
+                        this.step===7? dInvert(time()%500>400, ((time()/1500%2)|0)===0? dImage("finish_hand_shooter") : dImage('start_next_hand_shooter')) :
+                        undefined,
             // iSpinner: () => this.step<7 && ((time()/1500%2)|0)===0? dAdjustBet(this.betAdjust*this.adjustSide) : undefined,
             lRampArrow: add(() => this.step===7, [Color.White, 'fl']),
             lEjectArrow: add(() => this.step===7, [Color.White, 'fl']),
@@ -242,9 +245,9 @@ export class Poker extends Mode {
         this.listen(onSwitchClose(machine.sActionButton), () => {
             if (machine.sShooterLane.state) {
                 if (this.player.number > 4)
-                    void playVoice('folded');
+                    void playVoice('folded', 75, true);
                 else
-                    void playVoice(`player ${this.player.number} folds`);
+                    void playVoice(`player ${this.player.number} folds`, 75, true);
                 this.wasQuit = true;
                 player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
                     this.wasQuit = false;
@@ -270,10 +273,10 @@ export class Poker extends Mode {
         // });
 
         // award chips on bank complete
-        this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
-            for (let i=1; i<e.bank.targets.length; i++)
-                player.addChip();
-        });
+        // this.listen<DropBankCompleteEvent>(e => e instanceof DropBankCompleteEvent, (e) => {
+        //     for (let i=1; i<e.bank.targets.length; i++)
+        //         player.addChip();
+        // });
 
         addToScreen(() => new PokerGfx(this));
     }
@@ -433,13 +436,13 @@ export class Poker extends Mode {
             const flushes = findFlushes(cards);
             const straights = findStraights(cards);
             const pairs = findPairs(cards);
-            for (const pair of pairs) {
-                if (!this.newModes.has(pair[0].num)) {
-                    Log.info('game', 'qualified mode %i', pair[0].num);
-                    // this.newModes.add(pair[0].num);
-                    // alert(`${getRank(pair[0])} mode qualified`);
-                }
-            }
+            // for (const pair of pairs) {
+            //     if (!this.newModes.has(pair[0].num)) {
+            //         // Log.info('game', 'qualified mode %i', pair[0].num);
+            //         // this.newModes.add(pair[0].num);
+            //         // alert(`${getRank(pair[0])} mode qualified`);
+            //     }
+            // }
             for (const straight of straights) {
                 // if (!this.newMbs.size) {
                 if (!this.newMbs.has('StraightMb') && !this.player.mbsQualified.has('StraightMb')) {
@@ -491,7 +494,7 @@ export class Poker extends Mode {
         const result = compareHands(this.playerHand as Card[], this.dealerHand as Card[]);
         this.playerWins = result.aWon;
         Log.info('game', 'poker results: %o', result);
-        fork(wait(1000).then(() => playVoice(this.playerWins? "player win" : "crowd groan")));
+        fork(wait(1000).then(() => playVoice(this.playerWins? "player win" : "crowd groan", undefined, true)));
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         if (this.playerWins) {
@@ -805,7 +808,7 @@ export class Poker extends Mode {
             if (betInds.includes(i)) {
                 const amount = round(this.bet * this.skillshotRng.randSelect(.4, .5, .6, .7) * betSign, 10, -1000);
                 betSign *= -1;
-                award = {
+                return {
                     award: 'BET ' + money(amount, 0, '+'),
                     made: () => {
                         this.bet += amount;
@@ -844,14 +847,17 @@ export class Poker extends Mode {
 
         void playSound('snail');
 
-        this.player.chips -= 1;
+        this.player.removeChip();
 
         this.pot -= this.bet * 2;
         this.bank += this.bet;
 
+        const removedCard = this.playerHand[this.step-1];
         this.playerHand[this.step-1] = null;
         this.dealerHand[this.step-1] = null;
         this.step--;
+
+
     }
 }
 

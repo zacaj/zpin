@@ -315,7 +315,7 @@ export class RoyalFlushMb extends Multiball {
         while (verb.filter(x => x === 'SUPER JACKPOT').length < 2)
             verb[this.skillshotRng.randRange(0, 5)] = 'SUPER JACKPOT';
 
-        void playVoice('super skill');
+        void playVoice('super skill', undefined, true);
 
         return [...switches.map((sw, i) => {
             return {

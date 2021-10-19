@@ -185,6 +185,13 @@ export class OwnOutputEvent<OutputTypes extends {}, Prop extends keyof OutputTyp
     ) {
         super();
     }
+
+    cleanLog() {
+        return {
+            ...this,
+            on: this.on.tree.name,
+        };
+    }
 }
 export class TreeOutputEvent<OutputTypes extends {}, Prop extends keyof OutputTypes = keyof OutputTypes> extends Event {
     constructor(

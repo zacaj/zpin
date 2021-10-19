@@ -169,7 +169,7 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
 
     parent.addTemp(node);
 
-    return wait(ms, 'effect').then(() => node.end());
+    return wait(ms, 'effect').then(() => { node.end(); });
 }
 
 export async function AddABall(parent: Tree<MachineOutputs>) {
@@ -189,7 +189,7 @@ export async function AddABall(parent: Tree<MachineOutputs>) {
 
     parent.addTemp(node);
     alert('BALL ADDED');
-    void playVoice('ball added');
+    void playVoice('ball added', undefined, true);
     await ReleaseBall(parent);
 
     await parent.await(node.onEnd());
@@ -262,7 +262,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
                     player.addChip();
                     break;
                 case Award.AddValue:
-                    player.changeValue(5);
+                    player.changeValue(10);
                     break;
                 case Award.SubtractValue:
                     player.changeValue(-10);

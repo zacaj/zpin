@@ -82,6 +82,7 @@ export abstract class Multiball extends Mode {
         if (MPU.isLive || gfx) {
             await ResetMechs(this);
         }
+        this.player.ball!.multiballs++;
     }
 
     async releaseBallFromTrough() {
@@ -106,11 +107,11 @@ export abstract class Multiball extends Mode {
 
         Log.info(['game', 'console'], 'release balls from lock via ', getCallerLoc(true));
         assert(machine.ballsLocked !== 0);
-        this.lockPost = true;
-        await wait(85, 'release lock');
-        this.lockPost = false;
+        // this.lockPost = true;
+        // await wait(85, 'release lock');
+        // this.lockPost = false;
 
-        await wait(250, 'release locks');
+        // await wait(250, 'release locks');
         this.lockPost = true;
         machine.ballsLocked = 0;
         await wait(1200, 'release locks');
@@ -122,7 +123,6 @@ export abstract class Multiball extends Mode {
     }
 
     async lastBallDrained() {
-        // void stopMusic();
         return this.end();
     }
 

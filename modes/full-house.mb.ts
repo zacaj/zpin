@@ -154,14 +154,14 @@ export class FullHouseMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
-                void playVoice('ball added');
+                void playVoice('ball added', undefined, true);
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
             else {
                 if  (this.state._!=='jackpotLit' || !this.state.jp.startsWith('Left')) {
                     this.state = JackpotLit(this.jpRng.randSelect(...jackpots.filter(j => j.startsWith('Left')) as Jackpot[]));
-                    void playVoice('jackpot is lit');
+                    void playVoice('jackpot is lit', undefined, true);
                 }
                 await this.releaseBallsFromLock();
                 this.total += 10000;
@@ -245,6 +245,7 @@ export class FullHouseMb extends Multiball {
         }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
+        this.total = Math.max(this.total, 1);
         this.player.fullHouseMbStatus += this.total;
         if (this.player.straightMbStatus && this.player.flushMbStatus && this.player.fullHouseMbStatus)
             this.player.royalFlushReady = true;
@@ -259,9 +260,9 @@ export class FullHouseMb extends Multiball {
         }
         this.jackpots++;
         if (this.value! > 400000)
-            void playVoice('jackpot excited echo');
+            void playVoice('jackpot excited echo', 75, true);
         else
-            void playVoice('jackpot excited');
+            void playVoice('jackpot excited', 75, true);
 
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;

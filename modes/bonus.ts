@@ -1,9 +1,10 @@
 import { Node, Text } from 'aminogfx-gl';
 import { dClear } from '../disp';
+import { DropBank } from '../drop-bank';
 import { Event, Events } from '../events';
 import { addToScreen, alert, gfx, gWait, makeText, ModeGroup, Screen } from '../gfx';
 import { GameGfx } from '../gfx/game';
-import { Color } from '../light';
+import { Color, colorToArrow } from '../light';
 import { machine } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
@@ -15,22 +16,35 @@ import { comma, round, score, short } from '../util';
 import { Ball } from './ball';
 
 export class Bonus extends Mode {
+    readonly bankColors = new Map<DropBank, Color>([
+        [machine.centerBank, Color.Orange],
+        [machine.upper2Bank, Color.White],
+        [machine.rightBank, Color.Yellow],
+        [machine.leftBank, Color.Green],
+        [machine.upper3Bank, Color.Pink],
+    ]);
+    
     lines: [string, string?][] = [];
     total = 0;
 
     topTotal = 0;
     bottomTotal = 0;
 
+    lastLine?: string;
+
     constructor(
         public ball: Ball,
+        public bonusX = ball.bonusX,
     ) {
         super(Modes.Bonus);
-        State.declare<Bonus>(this, ['lines', 'total']);
+        State.declare<Bonus>(this, ['lines', 'total', 'lastLine']);
         ball.player.storeData<Bonus>(this, ['topTotal', 'bottomTotal']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
-            outs[target.image.name] = dClear(Color.Black);
+            outs[target.image.name] = () => this.lastLine==='Drops'? colorToArrow(target.num%2? Color.Yellow : Color.White) :
+                                            this.lastLine==='Banks'? colorToArrow(this.bankColors.get(target.bank)):
+                                            dClear(Color.Black);
         }
         for (const light of machine.lights) {
             outs[light.name] = [];
@@ -45,9 +59,19 @@ export class Bonus extends Mode {
             leftGate: false,
             rightGate: false,
             music: null,
+            lLaneLower1: () => this.lastLine==='Lanes'? [Color.Green] : [],
+            lLaneLower2: () => this.lastLine==='Lanes'? [Color.Green] : [],
+            lLaneLower3: () => this.lastLine==='Lanes'? [Color.Green] : [],
+            lLaneLower4: () => this.lastLine==='Lanes'? [Color.Green] : [],
+            lLaneUpper1: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
+            lLaneUpper2: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
+            lLaneUpper3: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
+            lLaneUpper4: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
+            lRampArrow: () => this.lastLine==='Ramps'? [Color.Blue] : [],
+            lFlushStatus: () => this.lastLine==='Multiballs'? [Color.Purple] : [],
+            lStraightStatus: () => this.lastLine==='Multiballs'? [Color.Purple] : [],
+            lFullHouseStatus: () => this.lastLine==='Multiballs'? [Color.Purple] : [],
         });
-
-        void stopMusic();
 
         fork(this.run());
 
@@ -55,22 +79,23 @@ export class Bonus extends Mode {
     }
 
     async run() {
-        if (!this.ball.tilted) 
+        // if (!this.ball.tilted) 
         // await gWait(500, 'bonus start');
-        // await stopSounds();
-        await this.addLine('Drops', 2500, this.ball.drops);
-        await this.addLine('Banks', 5000, this.ball.banks);
-        await this.addLine('Slings', 100, this.ball.spins);
-        await this.addLine('Lanes', 2500, this.ball.lanes);
+        await this.addLine('Drops', 1500, this.ball.drops);
+        await this.addLine('Banks', 7500, this.ball.banks);
+        await this.addLine('Slings', 100, this.ball.slings);
+        await this.addLine('Lanes', 1500, this.ball.lanes);
         await this.addLine('Ramps', 10000, this.ball.ramps);
+        await this.addLine('Multiballs', 50000, this.ball.multiballs);
         // await this.addLine('Targets', 2500, this.ball.targets);
-        if (this.ball.bonusX>1) {
+        if (this.bonusX>1) {
             // if (!this.ball.tilted) 
                 await gWait(500, 'bonus x');
             this.lines.push([`BONUS X: ${1}`]);
+            this.lastLine = 'Bonus X';
             const singleBonus = this.total;
             let x = 1;
-            while (x < this.ball.bonusX) {
+            while (x < this.bonusX) {
                 if (!this.ball.tilted) void playSound('rattle thunk');
                 if (!this.ball.tilted) await gWait(600, 'bonus x');
                 x++;
@@ -131,9 +156,10 @@ export class Bonus extends Mode {
     }
 
     async addLine(left: string, value: number, count: number, wait = 750) {
+        this.lastLine = count? left : undefined;
         if (!count) return;
         const total = value * count;
-        this.lines.push([left+`: ${comma(count, 3)}`, `* ${short(value)} = ${short(total, 4)}`]);
+        this.lines.push([left+`: ${comma(count, Math.max(5-left.length+3, 0))}`, `* ${short(value)} = ${short(total, 4)}`]);
         this.total += total;
         if (!this.ball.tilted) void playSound('thunk');
         // if (!this.ball.tilted)
@@ -168,7 +194,7 @@ export class BonusGfx extends ModeGroup {
 
         bonus.watch(() => {
             lines.clear();
-            let y = top + bonusText.fontSize()*1.5;
+            let y = top + bonusText.fontSize()*1.25;
             for (const [left, right] of bonus.lines) {
                 let l: Text;
                 if (right) {

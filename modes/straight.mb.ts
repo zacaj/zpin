@@ -114,7 +114,7 @@ export class StraightMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
-                void playVoice('ball added');
+                void playVoice('ball added', undefined, true);
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -200,6 +200,7 @@ export class StraightMb extends Multiball {
         }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
+        this.total = Math.max(this.total, 1);
         this.player.straightMbStatus += this.total;
         if (this.player.straightMbStatus && this.player.flushMbStatus && this.player.fullHouseMbStatus)
             this.player.royalFlushReady = true;
@@ -224,10 +225,10 @@ export class StraightMb extends Multiball {
         this.jackpots++;
         if (this.state.awardingJp) {
             fork(this.releaseBallFromLock());
-            void playVoice('rowdy ramp round');
+            void playVoice('rowdy ramp round', 75, true);
         } 
         else
-            void playVoice('jackpot excited echo');
+            void playVoice('jackpot excited echo', 75, true);
         this.state.awardingJp++;
         const value = this.value * (this.doubleComboActive? 2 : 1);
         const [group, promise] = alert('JACKPOT!', 4500, comma(value));

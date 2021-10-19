@@ -1,5 +1,5 @@
 import { AnimParams } from 'aminogfx-gl';
-import { dClear, dImage, DisplayContent, dMany } from '../disp';
+import { dClear, dFlash, dImage, DisplayContent, dMany } from '../disp';
 import { DropBank, DropBankCompleteEvent, DropDownEvent, DropTarget, Shot, Standup, Thing } from '../drop-bank';
 import { Events, Priorities } from '../events';
 import { addToScreen, alert, pfx } from '../gfx';
@@ -58,29 +58,19 @@ export class FlushMb extends Multiball {
         player.storeData<FlushMb>(this, ['skillshotRng', 'standupMult', 'targetMult', 'shotMult', 'standupSpeed', 'targetSpeed', 'shotSpeed', 'topTotal']);
 
         const outs: any  = {};
-        // for (const light of machine.lights) {
-        //     outs[light.name] = [];
-        // }
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
-            outs[target.image.name] = () => this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===target.bank&&!target.state? dImage('yellowArrow') : 
-                                            this.state._==='started'&&this.lastJps?.includes(target.bank)? dImage("x") : dClear(Color.Black);
+            outs[target.image.name] = () => target.state? dClear() :
+                                            this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===target.bank? dFlash(dImage('yellowArrow'), 100) : 
+                                            this.lastJps.includes(target.bank)? dClear(Color.Black) : dImage('blueArrow');
         }
-        // for (const lane of machine.upperLanes) {
-        //     const {sw,light} = lane;
-        //     outs[light.name] = () => this.state._==='jackpotLit'&&('isLane' in this.state.jp)&&machine.upperLanes.includes(this.state.jp)&&this.state.jp!==lane? [[Color.Yellow, 'fl']] : [];
-        // }
-        // for (const lane of machine.lowerLanes) {
-        //     const {sw,light} = lane;
-        //     outs[light.name] = () => this.state._==='jackpotLit'&&('isLane' in this.state.jp)&&machine.lowerLanes.includes(this.state.jp)&&this.state.jp!==lane? [[Color.Yellow, 'fl']] : [];
-        // }
         for (const standup of machine.standups) {
-            outs[standup[1].name] = () => this.state._==='jackpotLit'&&(Array.isArray(this.state.jp))&&this.state.jp===standup? [[Color.Yellow, 'fl']] : 
-                                            this.state._==='started'&&!this.lastJps?.includes(standup)? [Color.Blue] : [];
+            outs[standup[1].name] = () => this.state._==='jackpotLit'&&(Array.isArray(this.state.jp))&&this.state.jp===standup? [[Color.Yellow, 'fl', 6]] : 
+                                            this.lastJps.includes(standup)? [] : [Color.Blue];
         }
         for (const shot of [machine.spinnerShot, machine.rampShot, machine.ejectShot]) {
-            outs[shot.light.name] = () => this.state._==='jackpotLit'&&('isShot' in this.state.jp)&&this.state.jp===shot? [[Color.Yellow, 'fl']] : 
-            this.state._==='started'&&!this.lastJps?.includes(shot)? [Color.Blue] : [];
+            outs[shot.light.name] = () => this.state._==='jackpotLit'&&('isShot' in this.state.jp)&&this.state.jp===shot? [[Color.Yellow, 'fl', 6]] : 
+            this.lastJps.includes(shot)? [] : [Color.Blue];
         }
         const origRamp = outs.lRampArrow;
         this.out = new Outputs(this, {
@@ -110,7 +100,7 @@ export class FlushMb extends Multiball {
             if (this.state._==='starting' && !this.state.secondBallLocked) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
-                void playVoice('ball added');
+                void playVoice('ball added', undefined, true);
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -168,6 +158,7 @@ export class FlushMb extends Multiball {
         }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
+        this.total = Math.max(this.total, 1);
         this.player.flushMbStatus += this.total;
         if (this.player.straightMbStatus && this.player.flushMbStatus && this.player.fullHouseMbStatus)
             this.player.royalFlushReady = true;
@@ -268,7 +259,7 @@ export class FlushMb extends Multiball {
             this.lastJps.shift();
 
         this.jackpots++;
-        void playVoice('jackpot short');
+        void playVoice('jackpot short', 75, true);
 
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;

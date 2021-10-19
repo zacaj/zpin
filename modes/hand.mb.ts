@@ -118,7 +118,7 @@ export class HandMb extends Multiball {
                     machine.ballsLocked++;
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
-                void playVoice('ball added');
+                void playVoice('ball added', undefined, true);
                 await alert('ball locked')[1];
                 await this.releaseBallFromTrough();
             }
@@ -248,7 +248,7 @@ export class HandMb extends Multiball {
         this.collected();
         this.player.score += value;
         this.total += value;
-        void playVoice(value > 200000? 'jackpot' : 'jackpot short');
+        void playVoice(value > 200000? 'jackpot' : 'jackpot short', 75, true);
         if (this.state.doubled || this.redTargets.size>10)
             this.updateValue(); // undouble it
         const anim: AnimParams = {

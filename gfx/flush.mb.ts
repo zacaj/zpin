@@ -8,10 +8,10 @@ import { PokerHand } from './poker';
 // eslint-disable-next-line no-undef
 export class FlushMbGfx extends ModeGroup {
     notInstructions = gfx.createGroup();
-    light = makeText('SHOOT ANYTHING TO START HURRYUP', 40, 'center', 'bottom').y(Screen.h*-.1);
-    collect = makeText('SHOOT IT AGAIN TO COLLECT', 40, 'center', 'bottom').y(Screen.h*.1);
-    jp = makeText('JACKPOT LIT!', 40, 'center', 'bottom', gfx, Color.Yellow).y(Screen.h*-.1);
-    value = makeText('100000', 120, 'center', 'bottom').y(Screen.h*.25).wrap('end').w(Screen.w).x(-Screen.w/2);
+    light = makeText('SHOOT BLUE SHOTS TO (RE)START HURRYUP', 40, 'center', 'bottom').y(Screen.h*-.0);
+    collect = makeText('SHOOT SHOT AGAIN TO COLLECT', 40, 'center', 'bottom').y(Screen.h*.1);
+    jp = makeText('JACKPOT LIT!', 50, 'center', 'bottom', gfx, Color.Yellow).y(Screen.h*-.1);
+    value = makeText('100000', 120, 'center', 'bottom').y(Screen.h*.3).wrap('end').w(Screen.w).x(-Screen.w/2);
 
     hand!: PokerHand;
 

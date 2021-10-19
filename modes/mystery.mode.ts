@@ -152,7 +152,8 @@ const allAwards: ((player: Player) => Award)[] = [
     //     chance: 4,
     // },
     (player) => {
-        const value = Math.max(round(player.store.Poker!.bank * (((player.store.Poker!.bank/1000)|0)%4%2+1)*.15, 100), 500);
+        const bank = player.store.Poker?.bank ?? 5000;
+        const value = Math.max(round(bank * (((bank/1000)|0)%4%2+1)*.15, 100), 500);
         return {
             name() {
                 return `CASH OUT ${money(value)} at 2X`;
@@ -162,6 +163,7 @@ const allAwards: ((player: Player) => Award)[] = [
                 player.addScore(value*player.store.Poker!.cashValue*2, 'cash out', true);
             },
             chance: 2,
+            isValid: !!player.store.Poker?.bank,
         };
     },
 ];
