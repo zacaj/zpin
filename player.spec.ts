@@ -19,7 +19,7 @@ describe('player', () => {
                 player.storeData<any>(this, ['bet']);
             }
 
-            get name(): string {
+            override get name(): string {
                 return 'Poker';
             }
         };
@@ -39,7 +39,7 @@ describe('player', () => {
                 player.storeData<any>(this, ['bet']);
             }
 
-            get name(): string {
+            override get name(): string {
                 return 'Poker';
             }
         };

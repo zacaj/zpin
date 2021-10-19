@@ -80,9 +80,9 @@ export abstract class Tree<Outs extends {} = {}> {
     }
     onEnding = (e: Event) => e instanceof TreeWillEndEvent && e.tree === this;
     await<T extends Event>(predicate: OrArray<EventTypePredicate<T>>): Promise<T> {
-        return new Promise(resolve => {
-            this.listen(predicate, () => {
-                resolve();
+        return new Promise<T>(resolve => {
+            this.listen(predicate, (e) => {
+                resolve(e);
                 return 'remove';
             });
         });

@@ -34,7 +34,7 @@ export enum Modes {
 }
 
 export abstract class Mode extends Tree<MachineOutputs> {
-    gPriority!: number;
+    override gPriority!: number;
 
     gfx?: Group;
 
@@ -47,7 +47,7 @@ export abstract class Mode extends Tree<MachineOutputs> {
         Log.info(['game', 'console', 'switch'], 'create mode %s', this.constructor.name);
     }
 
-    started() {
+    override started() {
         assert(machine.getChildren().includes(this));
         Log.log('game', 'start mode %s', this.constructor.name);
         super.started();
@@ -55,7 +55,7 @@ export abstract class Mode extends Tree<MachineOutputs> {
         //     this.gfx?.add(node.gfx!);    
     }
 
-    end() {
+    override end() {
         Log.log('game', 'end mode %s', this.constructor.name);
         // if (this.gfx) 
         //     this.gfx.parent?.remove(this.gfx);

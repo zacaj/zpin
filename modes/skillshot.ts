@@ -236,7 +236,7 @@ export class Skillshot extends Mode {
         return this.end();
     }
 
-    end() {
+    override end() {
         if (this.finishDisplay)
             this.finishDisplay();
         this.ball.skillshot = undefined;

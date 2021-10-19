@@ -31,7 +31,7 @@ while (true) {
         cmd = await new Promise(r => rl.question('>', r));
         await parseCommand(cmd || lastCmd);
     } catch (e) {
-        Log.error(['console'], e);
+        Log.error(['console'], '', e);
     }
     if (cmd)
         lastCmd = cmd;

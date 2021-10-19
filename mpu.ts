@@ -29,7 +29,7 @@ export const MPU = {
         // socket.connect(2908, '192.168.2.4');
         // socket.on('error', )
         try {
-            await new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 // await socket.connect(2908, 'localhost');
                 socket.setTimeout(20000);
                 socket.setNoDelay(true);

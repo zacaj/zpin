@@ -52,7 +52,7 @@ export async function settleForks() {
     let settlesLeft = 2;
     while (true) {
         const oldForks = [...forks];
-        await new Promise(r => r());
+        await new Promise<void>(r => r());
         const newForks = [...forks];
         if (eq(oldForks, newForks)) {
             if (!settlesLeft--) 

@@ -104,7 +104,7 @@ export class DropBank extends Tree<MachineOutputs> {
         return e => e instanceof DropBankCompleteEvent && e.bank === this;
     }
 
-    cleanLog() {
+    override cleanLog() {
         return `DropBank ${this.coil?.name}`;
     }
 }

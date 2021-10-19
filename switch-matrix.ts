@@ -117,7 +117,7 @@ export class SwitchEvent extends Event {
     then: Switch; //Pick<Switch, Extract<keyof Switch, JSONValue>>;//{ [P in keyof Switch]: Switch[P] };
     constructor(
         public sw: Switch,
-        public when = time(),
+        when = time(),
     ) {
         super(when);
 

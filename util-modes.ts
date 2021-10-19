@@ -35,7 +35,7 @@ export class ClearHoles extends Tree<MachineOutputs> {
 }
 
 export class ResetAnyDropOnComplete extends Tree<MachineOutputs> {
-    get nodes() {
+    override get nodes() {
         return this.resetters;
     }
 
@@ -311,7 +311,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
         this.addTargets(this.rng.weightedSelect([50, 5], [20, 3], [20, 7], [7, 10]));
     }
 
-    end() {
+    override end() {
         return super.end();
     }
 }

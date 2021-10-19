@@ -44,7 +44,7 @@ export class MiniPf extends Mode {
         // todo voice
     }
 
-    end() {
+    override end() {
         this.ball.miniPf = undefined;
         return super.end();
     }

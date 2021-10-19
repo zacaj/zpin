@@ -47,7 +47,7 @@ export class Ball extends Mode {
     shootAgain = false;
     validated = false;
 
-    get nodes() {
+    override get nodes() {
         return [
             this.resetDrops,
             this.skillshot,
@@ -171,7 +171,7 @@ export class Ball extends Mode {
         return ball;
     }
 
-    end() {
+    override end() {
         fork(wait(1).then(() => Events.fire(new BallEnd(this))));
         return super.end();
     }

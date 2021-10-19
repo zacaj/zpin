@@ -176,7 +176,7 @@ export class Player extends Mode {
     mult?: Multiplier;
     mystery?: Mystery;
 
-    get nodes() {
+    override get nodes() {
         return [
             this.clearHoles,
             this.ball,
@@ -684,7 +684,7 @@ export class Player extends Mode {
 
 class NoMode extends MiscAwards {
     leftOrbit!: LeftOrbit;
-    get nodes() {
+    override get nodes() {
         return [
             this.leftOrbit,
             ...this.tempNodes,
@@ -1063,7 +1063,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         this.listen([e => e instanceof BallEnding], 'end');
     }
 
-    end() {
+    override end() {
         this.player.mult = undefined;
         const ret = super.end();
         if (screen)

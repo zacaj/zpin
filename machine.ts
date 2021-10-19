@@ -2,12 +2,12 @@ import { Node } from 'aminogfx-gl';
 import { AttractMode } from './attract';
 import { Solenoid16 } from './boards';
 import { CPU } from './cpu';
-import { dInvert, DisplayContent, dMany } from './disp';
+import { dInvert, DisplayContent, dMany, dOff } from './disp';
 import { DropBank, DropTarget, Standup, Lane, Shot } from './drop-bank';
 import { Event, Events, EventTypePredicate, onAny, StateEvent } from './events';
 import { Game } from './game';
 import { alert, gfx, gfxImages, gfxLights, screen } from './gfx';
-import { Color, colorToHex, light, LightState, LPU, normalizeLight } from './light';
+import { Color, colorToHex, light, LightState, LPU, NormalizedLight, normalizeLight } from './light';
 import { Log } from './log';
 import { Mode, Modes } from './mode';
 import { Skillshot } from './modes/skillshot';
@@ -116,7 +116,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         }
     }
 
-    abstract async init(): Promise<void>;
+    abstract init(): Promise<void>;
 
     abstract set(val: T): Promise<boolean|number>|boolean|number;
 }
@@ -137,14 +137,14 @@ abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = Machin
         return this.type+"_"+(this.pending)?.hash;
     }
 
-    changeDetected(ev: TreeOutputEvent<any>) {
+    override changeDetected(ev: TreeOutputEvent<any>) {
         (BatchedOutput.pendingOuts[this.hash()] ??= []).remove(this as any);
         this.pending = ev.value;
         (BatchedOutput.pendingOuts[this.hash()] ??= []).push(this as any);
         return super.changeDetected(ev);
     }
 
-    settle(changeAttempt: number) {
+    override settle(changeAttempt: number) {
         if (changeAttempt !== this.changeAttempts)
             return undefined;
         if (eq(this.val, this.pending))
@@ -164,7 +164,7 @@ abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = Machin
 
     abstract batchSet(val: T, outs: this[]): Promise<boolean|number>|boolean|number;
 
-    set(val: T): Promise<boolean|number>|boolean|number {
+    override set(val: T): Promise<boolean|number>|boolean|number {
         const hash = this.type+"_"+(val)?.hash;
         return this.batchSet(val, BatchedOutput.valOuts[hash] as any);
     }
@@ -276,7 +276,7 @@ export class IncreaseSolenoid extends MomentarySolenoid {
         assert(steps >= 2);
     }
 
-    async fire(): Promise<boolean|number> {
+    override async fire(): Promise<boolean|number> {
         let fired: boolean|number = false;
         if (!this.lastFired)
             fired = await super.fire(this.initial);
@@ -300,14 +300,14 @@ export class TriggerSolenoid extends MomentarySolenoid {
         num: number,
         board: Solenoid16,
         public sw: Switch,
-        public readonly ms = 25, // fire time
-        public wait = 1000, // min time between fire attempts
-        public fake?: () => void,
+        ms = 25, // fire time
+        wait = 1000, // min time between fire attempts
+        fake?: () => void,
     ) {
         super(name, num, board, ms, wait, fake);
     }
 
-    async set(enabled: boolean): Promise<boolean|number> {
+    override async set(enabled: boolean): Promise<boolean|number> {
         if (enabled) 
             await this.board.send(`set-trigger ${this.num} ${this.sw.row} ${this.sw.column}`);
         else
@@ -1038,7 +1038,7 @@ export class Machine extends Tree<MachineOutputs> {
     attract?: AttractMode;
     overrides!: MachineOverrides;
 
-    get nodes() {
+    override get nodes() {
         return [
             ...this.dropBanks,
             this.attract,
@@ -1269,7 +1269,7 @@ class MachineOverrides extends Mode {
     searchTimer?: TimerQueueEntry;
     curBallSearch?: number;
 
-    get nodes() {
+    override get nodes() {
         return [this.eosPulse, ...this.tempNodes];
     }
 
@@ -1353,7 +1353,7 @@ class MachineOverrides extends Mode {
         }
     }
 
-    end() {
+    override end() {
         Timer.cancel(this.searchTimer);
         return super.end();
     }

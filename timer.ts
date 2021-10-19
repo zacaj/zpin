@@ -151,5 +151,5 @@ export async function passTime(ms = 1) {
 }
 
 export async function wait(ms: number, context?: string) {
-    return new Promise(resolve => safeSetTimeout(resolve, ms, context ?? 'wait '+ms));
+    return new Promise<void>(resolve => safeSetTimeout(resolve, ms, context ?? 'wait '+ms));
 }

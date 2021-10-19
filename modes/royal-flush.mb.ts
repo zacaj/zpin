@@ -54,7 +54,7 @@ export class RoyalFlushMb extends Multiball {
     superValue = 0;
     ballSave = 30;
 
-    gfx?: RoyalFlushMbGfx;
+    override gfx?: RoyalFlushMbGfx;
 
     static SpinsForSuper = AvgSpins+10;
 
@@ -232,7 +232,7 @@ export class RoyalFlushMb extends Multiball {
         }
     }
 
-    async lastBallDrained() {       
+    override async lastBallDrained() {       
         const finish = await Events.tryPriority(Priorities.EndMb);
         if (!finish) {
             debugger;
@@ -251,14 +251,14 @@ export class RoyalFlushMb extends Multiball {
         return ret;
     }
 
-    end() {
+    override end() {
         if (this.total > this.topTotal)
             this.topTotal = this.total;
         this.player.straightMbStatus = this.player.flushMbStatus = this.player.fullHouseMbStatus = 0;
         return super.end();
     }
 
-    async ballDrained() {
+    override async ballDrained() {
         if (machine.lastSwitchHit!.lastChange < this.startTime + this.ballSave*1000) {
             let value: number;
             if (this.state._==='bankLit') {

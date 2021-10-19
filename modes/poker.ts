@@ -32,7 +32,7 @@ function dAdjustBet(amount: number): DisplayContent {
 }
 
 export class Poker extends Mode {
-    get nodes() {
+    override get nodes() {
         return [
             this.misc,
             ...this.tempNodes,
@@ -607,7 +607,7 @@ export class Poker extends Mode {
         this.end();
     }
 
-    end() {
+    override end() {
         for (const mode of this.newModes)
             this.player.modesQualified.add(mode);
 

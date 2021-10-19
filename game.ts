@@ -21,7 +21,7 @@ import { assert, getFormattedTime } from './util';
 import { ClearHoles } from './util-modes';
 
 export class Game extends Mode {
-    get nodes() {
+    override get nodes() {
         return [this.curPlayer, ...this.tempNodes].truthy();
     }
 
@@ -111,7 +111,7 @@ export class Game extends Mode {
         }
     }
 
-    end() {
+    override end() {
         machine.attract = new AttractMode(this.players.map(p => [p.score, p.store.Poker!.bank]));
         machine.attract.started();
         machine.game = undefined;
@@ -132,7 +132,7 @@ export class Game extends Mode {
                 alert('BALL MISSING', 0)[0];
             const clear = new ClearHoles();
             machine.addTemp(clear);
-            await new Promise(resolve => Events.listen(() => {
+            await new Promise<void>(resolve => Events.listen(() => {
                 resolve();
                 return 'remove';
             }, onSwitchClose(machine.sTroughFull)));

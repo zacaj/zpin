@@ -65,7 +65,7 @@ export class State {
                             // const old = arr[num];
                             // if (val !== old) {
                             //     arr[num] = val;
-                                Events.fire(new StateEvent(newArr, key as any, val, old), `change index ${key as number} of array ${prop}`); // `${prop}[${key}]` as any
+                                Events.fire(new StateEvent(newArr, key as any, val, old), `change index ${key as any} of array ${prop}`); // `${prop}[${key}]` as any
                         Events.fire(new StateEvent(obj, prop, arr as any, old as any));
                             // }
                         // } else {

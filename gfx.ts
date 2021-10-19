@@ -31,7 +31,7 @@ const showDisp = !isRpi && !split;
 // eslint-disable-next-line complexity
 export async function initGfx() {
     gfx = new AminoGfx({display: isRpi? (swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
-    await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
         gfx.start((err) => {
             if (err) reject(err);
             else resolve();
@@ -60,7 +60,7 @@ export async function initGfx() {
             pfx = new AminoGfx({display: isRpi? (!swap? 'HDMI-A-2':'HDMI-A-1') : undefined});
             pfx.showFPS(false);
             pfx.title('Playfield');
-            await new Promise((resolve, reject) => {
+            await new Promise<void>((resolve, reject) => {
                 pfx!.start((err) => {
                     if (err) reject(err);
                     else resolve();
@@ -426,7 +426,7 @@ abstract class Light extends Group {
 }
 
 class CircleLight extends Light {
-    shape!: Circle;
+    override shape!: Circle;
 
     constructor(
         name: keyof LightOutputs,

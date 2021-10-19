@@ -271,7 +271,7 @@ export class Mystery extends Mode {
         }
     }
 
-    end() {
+    override end() {
         Timer.cancel(this.timer);
         this.player.mystery = undefined;
         this.player.mysteryLeft = this.player.mysteryRng.randRange(4, 7);

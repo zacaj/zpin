@@ -166,7 +166,7 @@ export class Bonus extends Mode {
             await gWait(wait, 'bonus');
     }
 
-    end() {
+    override end() {
         this.ball.bonus = undefined;
         Events.fire(new BonusEnd(this));
         return super.end();

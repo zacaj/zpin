@@ -73,7 +73,7 @@ export class Restart extends Mode {
         this.listen(e => e instanceof BallEnding, 'end');
     }
 
-    end() {
+    override end() {
         this.ball.gfx?.remove(this.text);
         return super.end();
     }

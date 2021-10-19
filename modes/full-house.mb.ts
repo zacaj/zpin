@@ -228,7 +228,7 @@ export class FullHouseMb extends Multiball {
         }
     }
 
-    async lastBallDrained() {       
+    override async lastBallDrained() {       
         const finish = await Events.tryPriority(Priorities.EndMb);
         if (!finish) {
             debugger;

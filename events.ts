@@ -160,7 +160,7 @@ export const Events = {
             while (true) {
                 const waiter = this.waiting[0];
                 if (!waiter) return;
-                await new Promise(r => {
+                await new Promise<void>(r => {
                     waiter.resolve(r);
                 });
                 this.waiting.remove(waiter);

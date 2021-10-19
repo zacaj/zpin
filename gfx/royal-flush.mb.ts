@@ -37,7 +37,7 @@ export class RoyalFlushMbGfx extends ModeGroup {
     hand!: PokerHand;
 
     doneCb!: () => any;
-    ready = new Promise(resolve => this.doneCb = resolve);
+    ready = new Promise<void>(resolve => this.doneCb = resolve);
 
     constructor(
         public mb: RoyalFlushMb,

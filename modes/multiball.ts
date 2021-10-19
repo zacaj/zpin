@@ -15,7 +15,7 @@ import { Color } from '../light';
 import { stopMusic } from '../sound';
 
 export abstract class Multiball extends Mode {
-    get nodes() {
+    override get nodes() {
         return [
             this.misc,
             ...this.tempNodes,
@@ -126,7 +126,7 @@ export abstract class Multiball extends Mode {
         return this.end();
     }
 
-    end() {
+    override end() {
         alert(`TOTAL: ${score(this.total)}`, 8000);
         return super.end();
     }
