@@ -77,6 +77,7 @@ export class Game extends Mode {
     async onBallEnd() {
         const lastPlayer = this.curPlayer;
 
+        // todo voice
         if (this.playerUp+1 < this.players.length)
             this.playerUp++;
         else {
@@ -125,7 +126,10 @@ export class Game extends Mode {
             machine.sTroughFull.changeState(true, 'fake');
         }
         if (!machine.sTroughFull.state) {
-            const pop = alert('BALL MISSING', 0)[0];
+            const pop = machine.sShooterLane.state?
+                alert('PLEASE PLUNGE BALL', 0,  'BALL MISSING')[0]
+            :
+                alert('BALL MISSING', 0)[0];
             const clear = new ClearHoles();
             machine.addTemp(clear);
             await new Promise(resolve => Events.listen(() => {
@@ -188,7 +192,6 @@ export class Game extends Mode {
         [machine.sRampMini,         3000],
         [machine.sRampMiniOuter,    3000],
         [machine.sRampDown,         0],
-        [machine.sUnderRamp,        0],
         [machine.sLeftOrbit,        5000],
         [machine.sSpinner,          0],
         [machine.sSpinnerMini,      3000],

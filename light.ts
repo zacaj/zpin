@@ -15,7 +15,12 @@ export enum Color {
 
 export type Frequency = number;
 
-
+export type NormalizedLight = {
+    color: Color;
+    type: 'solid'|'pulsing'|'flashing';
+    freq: Frequency;
+    phase: number;
+};
 
 export type LightState = Color|{
     color: Color;
@@ -27,15 +32,14 @@ export type LightState = Color|{
     pulsing: true;
     freq: Frequency;
     phase: number;
-}|[Color, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse'|false, Frequency?, number?];
+}|
+NormalizedLight
+|[Color|undefined, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse'|false|undefined, Frequency?, number?]
+|undefined|false;
 const defaultFlashFreq: Frequency = 3;
 const defaultPulseFreq: Frequency = 1;
-export function normalizeLight(state: LightState): {
-    color: Color;
-    type: 'solid'|'pulsing'|'flashing';
-    freq: Frequency;
-    phase: number;
-} {
+export function normalizeLight(state: LightState): NormalizedLight|undefined {
+    if (!state) return undefined;
     if (typeof state === 'string')
         return {
             color: state,
@@ -43,13 +47,16 @@ export function normalizeLight(state: LightState): {
             freq: defaultFlashFreq,
             phase: 0,
         };
-    if (Array.isArray(state)) 
+    if (Array.isArray(state)) {
+        if (!state[0]) return undefined;
         return {
             color: state[0],
             type: typeof state[1]==='string'? (state[1].startsWith('f')? 'flashing' : 'pulsing') : 'solid',
             freq: state[2] ?? (typeof state[1]==='string'&&state[1]?.startsWith('f')? defaultFlashFreq : defaultPulseFreq),
             phase: state[3] ?? 0,
         };
+    }
+    if ('type' in state) return state;
     return {
         color: state.color,
         type: 'flashing' in state? 'flashing' : 'pulsing',

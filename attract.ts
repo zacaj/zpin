@@ -21,7 +21,7 @@ export class AttractMode extends Mode {
 
     clearHoles = new ClearHoles();
 
-    get nodes() {
+    override get nodes() {
         return [this.clearHoles];
     }
 
@@ -63,11 +63,11 @@ export class AttractMode extends Mode {
             lLaneUpper3: [[Color.Orange, 'fl', 1, 0]],
             lLaneUpper4: [[Color.Orange, 'fl', 1, 1]],                        
             lStraightStatus: [[Color.Blue, 'fl', 1, 0]],
-            lFullHouseStatus: [[Color.Yellow, 'fl', 1, 1]],  
-            lFlushStatus: [[Color.Pink, 'fl', 1, 0]],                      
+            lFlushStatus: [[Color.Pink, 'fl', 1, 1]],     
+            lFullHouseStatus: [[Color.Yellow, 'fl', 1, 0]],                   
             lMiniBank: [[Color.Yellow, 'fl', 1, 0]],
             lMiniReady: [[Color.Green, 'fl', 1, 1]],      
-            shooterDiverter: () => machine.sShooterLane.wasClosedWithin(2000),           
+            shooterDiverter: () => machine.sShooterLane.state || (machine.lastSwitchHit && machine.lastSwitchHit?.lastChange < machine.sShooterLane.lastChange),          
         });
 
         addToScreen(() => new AttractGfx(this));
@@ -77,7 +77,7 @@ export class AttractMode extends Mode {
         });
     }
 
-    end() {
+    override end() {
         machine.attract = undefined;
         return super.end();
     }

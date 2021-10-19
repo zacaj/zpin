@@ -15,6 +15,7 @@ export type DisplayContent = {
         y: number;
         size: number;
     }[];
+    off?: true;
 };
 
 export function dText(text: string, x: number, y: number, vAlign: 'top'|'bottom'|'center'|'baseline', size: number): DisplayContent {
@@ -81,6 +82,13 @@ export function dClear(color: Color = Color.Black): DisplayContent {
     return {
         hash: `clear ${color}`,
         color,
+    };
+}
+
+export function dOff(): DisplayContent {
+    return {
+        hash: 'off',
+        off: true,
     };
 }
 

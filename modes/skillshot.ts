@@ -103,7 +103,7 @@ export class Skillshot extends Mode {
             leftGate: () => this.gateMode===GateMode.Toggle? (time()-this.startTimestamp) % 3000 > 1500 : (this.gateMode===GateMode.Open),
             rightGate: false,
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
-            music: (prev) => wasSilent? !this.music? prev? [typeof prev==='string'? prev:prev[0], false] : undefined : [this.music, false] : undefined,
+            music: (prev) => wasSilent? (!this.music? prev? [typeof prev==='string'? prev:prev[0], false] : undefined : [this.music, false]) : undefined,
         });
 
 

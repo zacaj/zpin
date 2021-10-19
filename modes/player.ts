@@ -374,6 +374,7 @@ export class Player extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sUpperEject), async () => {
+            if (machine.sUpperInlane.wasClosedWithin(1000)) return;
             const mode = await Mystery.start(this);
             if (mode) {
                 this.mystery!.started();

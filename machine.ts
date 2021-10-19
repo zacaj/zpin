@@ -59,8 +59,8 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
     }
 
     changeDetected(ev: TreeOutputEvent<any>) {
-        if (this instanceof Image)
-            Log.info('machine', 'tree change for disp %i', this.num);
+        // if (this instanceof Image)
+        //     Log.info('machine', 'tree change for disp %i', this.num);
         this.changeAttempts++;
         const pendingChangeAttempt = this.changeAttempts;
         this.lastPendingChange = time();
@@ -84,9 +84,7 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
             try {
                 if (success instanceof Error) throw success;
                 if (success === true) {
-                    Log.info('machine', '%s successfully set to ', this.name, this.val);
-                    this.lastActualChange = time();
-                    this.actual = this.val;
+                    this.setSuccess(this.val);
                 } else {
                     if (!success) {
                         Log.log('machine', 'failed to %s set to ', this.name, this.val);
@@ -105,6 +103,12 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
         });
     }
 
+    setSuccess(val: T, x = this) {
+        Log.info('machine', '%s successfully set to ', x.name, val);
+        x.lastActualChange = time();
+        x.actual = val;
+    }
+
     private stopRetry() {
         if (this.timer) {
             Timer.cancel(this.timer);
@@ -118,14 +122,15 @@ abstract class MachineOutput<T, Outs = MachineOutputs> {
 }
 
 abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = MachineOutputs> extends MachineOutput<T, Outs> {
-    static outs: { [value: string]: BatchedOutput<any>[] } = {};
+    static pendingOuts: { [value: string]: BatchedOutput<any>[] } = {};
+    static valOuts: { [value: string]: BatchedOutput<any>[] } = {};
     constructor(
         val: T,
         name: keyof Outs,
         public type: string,
     ) {
         super(val, name, 10);
-        (BatchedOutput.outs[this.hash()] ??= []).push(this as any);
+        (BatchedOutput.pendingOuts[this.hash()] ??= []).push(this as any);
     }
 
     hash(): string {
@@ -133,9 +138,9 @@ abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = Machin
     }
 
     changeDetected(ev: TreeOutputEvent<any>) {
-        (BatchedOutput.outs[this.hash()] ??= []).remove(this as any);
+        (BatchedOutput.pendingOuts[this.hash()] ??= []).remove(this as any);
         this.pending = ev.value;
-        (BatchedOutput.outs[this.hash()] ??= []).push(this as any);
+        (BatchedOutput.pendingOuts[this.hash()] ??= []).push(this as any);
         return super.changeDetected(ev);
     }
 
@@ -146,21 +151,31 @@ abstract class BatchedOutput<T extends { hash: string }|undefined, Outs = Machin
             return undefined;
         
         const hash = this.hash();
-        const batch = BatchedOutput.outs[hash] ?? [];
-        delete BatchedOutput.outs[hash];
+        const batch = BatchedOutput.pendingOuts[hash] ?? [];
+        delete BatchedOutput.pendingOuts[hash];
         for (const out of batch) {
             out.val = out.pending;
             out.lastValChange = time();
         }
-        BatchedOutput.outs[this.hash()] ??= batch;
-        Log.trace('machine', 'output %s settled on ', batch.map(o => o.name).join(','), this.val);
+        BatchedOutput.valOuts[hash] = batch.slice();
+        Log.trace('machine', 'batch outputs %s settled on ', batch.map(o => o.name).join(','), this.val);
         return this.trySet();
     }
 
     abstract batchSet(val: T, outs: this[]): Promise<boolean|number>|boolean|number;
 
     set(val: T): Promise<boolean|number>|boolean|number {
-        return this.batchSet(val, BatchedOutput.outs[this.hash()] as any);
+        const hash = this.type+"_"+(val)?.hash;
+        return this.batchSet(val, BatchedOutput.valOuts[hash] as any);
+    }
+
+    override setSuccess(val: T) {
+        const hash = this.type+"_"+(val)?.hash;
+        const outs = BatchedOutput.valOuts[hash] ?? [];
+        for (const out of outs) {
+            super.setSuccess(val, out as any);
+        }
+        delete BatchedOutput.valOuts[hash];
     }
 }
 export abstract class Solenoid extends MachineOutput<boolean> {
@@ -380,13 +395,15 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
     }
 
     lit(): boolean {
-        return this.val.length > 0;
+        return this.val.some(x => normalizeLight(x));
     }
 
     is(...colors: Color[]): boolean {
-        return this.val.some(c => (typeof c === 'string' && colors.includes(c)) 
-                               || (Array.isArray(c) && colors.includes(c[0]))
-                               || (typeof c === 'object' && colors.includes((c as any).color)));
+        return this.val.some(c => colors.includes(normalizeLight(c)?.color!));
+    }
+
+    color(): Color|undefined {
+        return normalizeLight(this.val[0])?.color;
     }
 
     onChange(): EventTypePredicate<StateEvent<this, 'val'>> {
@@ -404,7 +421,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
                 const threadId = machine.lights.indexOf(this) + 1;
                 Log.info('lpu', `Light: %s`, this.name);
                 if (state.length) {
-                    const states = state.map(normalizeLight);
+                    const states = state.map(normalizeLight).truthy();
                     let loopNeeded = states.length > 1;
                     for (const {color, type, freq} of states) {
                         switch (type) {
@@ -453,7 +470,7 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
             else if (MPU.isConnected) {
                 Log.info('mpu', `Light: %s`, this.name);
                 if (state.length) {
-                    const states = state.map(normalizeLight);
+                    const states = state.map(normalizeLight).truthy();
                     const parts = states.map(({color, type, freq, phase}) => `${colorToHex(color)} ${type} ${freq} ${phase}`);
                     for (const num of this.nums)
                         await MPU.sendCommand(`light ${states.length} ${num} `+parts.join(' '));
@@ -498,8 +515,9 @@ export type ImageType = DisplayContent|undefined;
 export class Image extends BatchedOutput<ImageType, ImageOutputs> {
     constructor(
         name: keyof ImageOutputs,
+        public big = false,
     ) {
-        super(dInvert(false), name, 'Image');
+        super(dInvert(false), name, 'Image'+(big? '_160' : '_128'));
     }
 
     async init() {
@@ -549,6 +567,8 @@ export class Image extends BatchedOutput<ImageType, ImageOutputs> {
         if (CPU.isConnected) {
             const cmds: string[] = [];
             let inverted = state?.inverted ?? false;
+            // if (state?.off)
+            //     cmds.push(`power ${numStr} false`);
             if (state) {
                 if (state.color)
                     cmds.push(`clear ${numStr} ${colorToHex(state.color!)!.slice(1)}`);
@@ -585,6 +605,8 @@ export class Image extends BatchedOutput<ImageType, ImageOutputs> {
             if (inverted !== undefined) {
                 await CPU.sendCommand(`invert ${numStr} ${inverted}`);
             }
+            // if (old?.off && !state?.off)
+            //     cmds.push(`power ${numStr} true`);
         }
     }
 }
@@ -757,7 +779,6 @@ export class Machine extends Tree<MachineOutputs> {
     sRampMini = new Switch(3, 7, 'ramp mini', StandupSet);
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', StandupSet);
     sRampDown = new Switch(7, 4, 'ramp down');
-    sUnderRamp = new Switch(7, 7, 'under ramp');
     sLeftOrbit = new Switch(7, 2, 'left orbit', 0, 300);
     sSpinner = new Switch(6, 6, 'spinner', 0, 1);
     sSpinnerMini = new Switch(6, 2, 'spinner mini', StandupSet);
@@ -855,7 +876,6 @@ export class Machine extends Tree<MachineOutputs> {
         this.sSingleStandup,
         this.sRampMini,
         this.sRampMiniOuter,
-        this.sUnderRamp,
         this.sLeftOrbit,
         // this.sSpinner,
         this.sSpinnerMini,
@@ -904,8 +924,8 @@ export class Machine extends Tree<MachineOutputs> {
     lMiniReady = new Light('lMiniReady', 148);
     lMiniBank = new Light('lMiniBank', 145);
     lStraightStatus = new Light('lStraightStatus', 132);
-    lFlushStatus = new Light('lFlushStatus', 128);
-    lFullHouseStatus = new Light('lFullHouseStatus', 130);
+    lFlushStatus = new Light('lFlushStatus', 130);
+    lFullHouseStatus = new Light('lFullHouseStatus', 128);
     lRampArrow = new Light('lRampArrow', [62, 61]);
     lPower1 = new Light('lPower1', 100);
     lPower2 = new Light('lPower2', 102);
@@ -937,13 +957,13 @@ export class Machine extends Tree<MachineOutputs> {
 
     oMusic = new MusicOutput(null, 'music');
 
-    iSS1 = new Image('iSS1');
+    iSS1 = new Image('iSS1', true);
     iSS3 = new Image('iSS3');
-    iSS4 = new Image('iSS4');
-    iSS5 = new Image('iSS5');
+    iSS4 = new Image('iSS4', true);
+    iSS5 = new Image('iSS5', true);
     iSS6 = new Image('iSS6');
-    iSpinner = new Image('iSpinner');
-    iRamp = new Image('iRamp');
+    iSpinner = new Image('iSpinner', true);
+    iRamp = new Image('iRamp', true);
 
     dropTargets: DropTarget[] = [];
     allDropTargets: DropTarget[] = [];
@@ -1082,9 +1102,9 @@ export class Machine extends Tree<MachineOutputs> {
             lPower1: [],
             lPower2: [],
             lPower3: [],
-            lMagnet1: () => light(this.lPower1.lit(), Color.Green),
-            lMagnet2: () => light(this.lPower2.lit(), Color.Green),
-            lMagnet3: () => light(this.lPower3.lit(), Color.Green),
+            lMagnet1: () => this.cLeftMagnet.actual && this.lPower1.lit()? [{...normalizeLight(this.lPower1.val[0]), color: Color.Green} as NormalizedLight] : [],
+            lMagnet2: () => this.cLeftMagnet.actual && this.lPower2.lit()? [{...normalizeLight(this.lPower2.val[0]), color: Color.Green} as NormalizedLight] : [],
+            lMagnet3: () => this.cLeftMagnet.actual && this.lPower3.lit()? [{...normalizeLight(this.lPower3.val[0]), color: Color.Green} as NormalizedLight] : [],
             lPopperStatus: [],
             lLaneUpper1: [],
             lLaneUpper2: [],
@@ -1167,6 +1187,8 @@ export class Machine extends Tree<MachineOutputs> {
         });
 
         this.listen(onAnySwitchClose(...this.standups.map(([sw]) => sw)), (e) => Events.fire(new StandupEvent(this.standups.find(([sw]) => e.sw === sw)!)));
+
+        this.listen([...onSwitchClose(this.sPopperButton), () => this.sBothFlippers.state], () => this.out!.debugPrint());
 
         this.overrides = new MachineOverrides(this);
         
@@ -1253,26 +1275,21 @@ class MachineOverrides extends Mode {
 
     constructor(public machine: Machine) {
         super(Modes.MachineOverrides);
+        const outs: any  = {};
+        for (const target of machine.dropTargets) {
+            if (!target.image) continue;
+            // outs[target.image.name] = (prev: any) => machine.pfIsInactive()? dOff() : prev;
+        }
         this.out = new Outputs(this, {
-            rampUp: (up) => {
-                // ball under ramp?
-                if (machine.sRampDown.state && machine.sUnderRamp.state)
-                    return true;
-                // ball was under ramp?
-                if (machine.cRamp.actual && time() - machine.cRamp.lastActualChange! < 1000 && machine.sUnderRamp.wasClosedWithin(1000))
-                    return true;
-                // ramp inactivity
-                if (machine.pfIsInactive())
-                    return false;
-                return up;
-            },
+            ...outs,
             realRightBank: () => machine.out!.treeValues.rightBank &&
                 !machine.cShooterDiverter.actual && time()-(machine.cShooterDiverter.lastActualChange??0) > 500,
-            shooterDiverter: (on) => machine.out!.treeValues.rightBank || machine.pfIsInactive()? false : on,        
-            leftGate: (on) => machine.pfIsInactive()? false : on,
-            rightGate: (on) => machine.pfIsInactive()? false : on,
-            lockPost: (on) => machine.pfIsInactive()? false : on,
-            miniDiverter: (on) => machine.pfIsInactive()? false : on,
+            rampUp: () => machine.pfIsInactive()? false : undefined,
+            shooterDiverter: () => machine.out!.treeValues.rightBank || machine.pfIsInactive()? false : undefined,
+            leftGate: () => machine.pfIsInactive()? false : undefined,
+            rightGate: () => machine.pfIsInactive()? false : undefined,
+            lockPost: () => machine.pfIsInactive()? false : undefined,
+            miniDiverter: () => machine.pfIsInactive()? false : undefined,
         });
         
         this.listen(e => e instanceof SolenoidFireEvent && e.coil === machine.cRealRightBank, () => Events.fire(new SolenoidFireEvent(machine.cRightBank)));
@@ -1280,7 +1297,7 @@ class MachineOverrides extends Mode {
         
 
 
-        this.listen(e => e instanceof SwitchEvent, 'updateBallSearch');
+        this.listen(e => e instanceof SwitchEvent && ![machine.sRampDown].includes(e.sw), 'updateBallSearch');
         this.listen(onChange(machine, 'ballsLocked'), 'updateBallSearch');
     }
 
@@ -1303,7 +1320,7 @@ class MachineOverrides extends Mode {
             this.searchTimer = undefined;
         }
         
-        if (!traps.some(sw => sw.state) && !this.curBallSearch && MPU.isLive && machine.ballsLocked===0) {
+        if (!traps.some(sw => sw.state) && !this.curBallSearch && MPU.isLive && (machine.ballsLocked===0 || machine.ballsLocked==='unknown')) {
             const ballSearchNum = this.curBallSearch = Math.random();
             this.searchTimer = Timer.callIn(async () => {
                 for (let i=0; i<3; i++) {

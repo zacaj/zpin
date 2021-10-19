@@ -207,10 +207,11 @@ export abstract class Tree<Outs extends {} = {}> {
             // eslint-disable-next-line no-self-assign
             num = num;
             { // begin recording
+                affectors.clear();
                 pushStateAccessRecorder((state, k) => {
                     if (!affectors.has(state))
-                        affectors.set(state, new Set());
-                    if (!affectors.get(state)!.has(k))
+                        affectors.set(state, new Set([k]));
+                    else if (!affectors.get(state)!.has(k))
                         affectors.get(state)!.add(k);
                 });
             }

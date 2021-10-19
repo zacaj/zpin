@@ -386,11 +386,12 @@ abstract class Light extends Group {
             clearInterval(this.timer);
             this.timer = undefined;
         }
+        val = val.truthy();
         if (val.length) {
             const setShape = (s: LightState) => {
                 this.shape.opacity.curAnim?.stop();
                 this.shape.opacity(1);
-                const state = normalizeLight(s);
+                const state = normalizeLight(s)!;
                 this.shape.fill(colorToHex(state.color)!);
                 switch (state.type) {
                     case 'flashing':
@@ -950,7 +951,6 @@ const gfxSwitches: { [name: string]: {
     'upper eject':  { x: 4.78125, y: 39.375 },
     'left inlane':  { x: 1.18125, y: 15.693750000000001 },
     'spinner': { x: 17.662499999999998, y: 33.35625 },
-    'under ramp': { x: 2.4187499999999997, y: 34.25625 },
     'left orbit': { x: 1.0125, y: 39.76875 },
     'left outlane': { x: 2.5875, y: 15.1875 },
     'right outlane': { x: 16.9875, y: 14.681250000000002 },
@@ -969,7 +969,8 @@ const gfxSwitches: { [name: string]: {
     'start button': { x: 2.90625, y: 1.0687500000000014 },
     'left flipper': { x: 0.39375, y: 1.3187500000000014 },
     'right flipper': { x: 18.95625, y: 1.387500000000003 },
-    'both flippers': { x: 9.674999999999999, y: 0.3374999999999986 },
+    'both flippers': { x: 9.674999999999999, y: 1.3374999999999986 },
+    'action button': { x: 9.674999999999999, y: 0.3374999999999986 },
     'tilt': { x: 18, y: 3.0375000000000014 },
     'right sling': { x: 13.725, y: 13.668750000000003 },
     'left sling': { x: 4.44375, y: 13.5 },

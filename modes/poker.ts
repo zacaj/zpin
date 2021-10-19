@@ -543,7 +543,7 @@ export class Poker extends Mode {
             }
         }
         fork(ResetDropBanks(this));
-        await gWait(2000, 'showing cards');
+        await gWait(1000, 'showing cards');
 
         if (this.player.royalFlushReady)
             this.player.royalFlushReady = 'missed';
