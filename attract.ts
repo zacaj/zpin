@@ -170,14 +170,43 @@ export class AttractGfx extends ModeGroup {
         if (partialSlide)
             slides.push(partialSlide);
 
+        {
+            const title = gfx.createGroup();
+            const poker = makeText('Poker', 250, 'center').y(Screen.h*-.1);
+            poker.rz.anim({
+                from: -5,
+                to: 5,
+                autoreverse: true,
+                duration: 1500,
+                loop: -1,
+            }).start();
+            title.add(poker);
+            title.add(makeText('<working title>', 60, 'center').x(Screen.w*.275).y(Screen.h*.3).rz(-20));
+            slides.push(title);
+        }
+
+        {
+            const credits = gfx.createGroup();
+            credits.add(makeText('A Game By', 60, 'center').y(-Screen.h*.38));
+            let y = -Screen.h * .35;
+            credits.add(makeText('Zachary Frey', 70, 'center').y(y+=75));
+            y += 100;
+            credits.add(makeText('Special Thanks', 45, 'center').y(y+=65));
+            y += 15;
+            credits.add(makeText('Ron Hallett Jr.', 35, 'center').y(y+=55));
+            credits.add(makeText('Stephanie Guida', 35, 'center').y(y+=55));
+            credits.add(makeText('Raymond Davidson', 35, 'center').y(y+=55));
+            slides.push(credits);
+        }
+
         for (const slide of slides)
             this.add(slide);
         a.watch(() => {
             slides.forEach((slide, i) => 
-                slide.visible(wrap(((time()-a.start)/4000)|0, slides.length) === i),
+                slide.visible(wrap(((time()-a.start)/5000)|0, slides.length) === i),
             );
         });
-        a.listen(onSwitchClose(machine.sRightFlipper), () => a.start = (a.start-4000) as any);
-        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.start = (a.start+4000) as any);
+        a.listen(onSwitchClose(machine.sRightFlipper), () => a.start = (a.start-5000) as any);
+        a.listen(onSwitchClose(machine.sLeftFlipper), () => a.start = (a.start+5000) as any);
     }
 }
