@@ -3,8 +3,8 @@
 class Image;
 
 typedef enum {
-    ST7735,
-    ST7789,
+    TYPE_ST7735,
+    TYPE_ST7789,
 } DisplayType;
 
 typedef enum {

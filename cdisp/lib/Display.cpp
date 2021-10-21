@@ -51,21 +51,23 @@ void Display::setPixel(u16 Xpoint, u16 Ypoint, Color Color)
 
     switch(rotate) {
     case 0:
+    case 180:
         X = Xpoint;
         Y = Ypoint;  
         break;
     case 90:
+    case 270:
         X = pixWidth - Ypoint - 1;
         Y = Xpoint;
         break;
-    case 180:
-        X = pixWidth - Xpoint - 1;
-        Y = pixHeight - Ypoint - 1;
-        break;
-    case 270:
-        X = Ypoint;
-        Y = pixHeight - Xpoint - 1;
-        break;
+    // case 180:
+    //     X = pixWidth - Xpoint - 1;
+    //     Y = pixHeight - Ypoint - 1;
+    //     break;
+    // case 270:
+    //     X = Ypoint;
+    //     Y = pixHeight - Xpoint - 1;
+    //     break;
     default:
         return;
     }
@@ -106,20 +108,22 @@ Color Display::getPixel(u16 Xpoint, u16 Ypoint)
 
     switch(rotate) {
     case 0:
+    case 180:
         X = Xpoint;
         Y = Ypoint;  
         break;
     case 90:
+    case 270:
         X = pixWidth - Ypoint - 1;
         Y = Xpoint;
         break;
-    case 180:
-        X = pixWidth - Xpoint - 1;
-        Y = pixHeight - Ypoint - 1;
-        break;
-    case 270:
-        X = Ypoint;
-        Y = pixHeight - Xpoint - 1;
+    // case 180:
+    //     X = pixWidth - Xpoint - 1;
+    //     Y = pixHeight - Ypoint - 1;
+    //     break;
+    // case 270:
+    //     X = Ypoint;
+    //     Y = pixHeight - Xpoint - 1;
         break;
     default:
         return RED;

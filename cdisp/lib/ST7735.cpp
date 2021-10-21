@@ -4,7 +4,7 @@
 ST7735::ST7735(int number, int width, int height, LCD_SCAN_DIR scanDir, u8 rgbOrder, ROTATE_IMAGE rotate, MIRROR_IMAGE mirror): 
     Display(number, width, height, scanDir, rotate, mirror) {
 	this->rgbOrder = rgbOrder;
-	type = ST7735;
+	type = TYPE_ST7735;
 }
 
 static void LCD_Write_Command(UBYTE data)	 
@@ -180,6 +180,10 @@ void ST7735::setScanDir(LCD_SCAN_DIR Scan_dir)
 	// 	// sLCD_DIS.LCD_Y_Adjust = LCD_X;
 	// }
 
+	// MADCTL: MY MX MV ML RGB/BGR MH - -
+	// 8 = mirror y
+	// 4 = mirror x
+	// 2 = swap xy
     // Gets the scan direction of GRAM
     uint16_t MemoryAccessReg_Data=0;  //0x36
     switch (Scan_dir) {
