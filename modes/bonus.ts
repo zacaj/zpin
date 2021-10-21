@@ -43,7 +43,7 @@ export class Bonus extends Mode {
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
             outs[target.image.name] = () => this.lastLine==='Drops'? colorToArrow(target.num%2? Color.Yellow : Color.White) :
-                                            this.lastLine==='Banks'? colorToArrow(this.bankColors.get(target.bank)):
+                                            this.lastLine==='Banks'? colorToArrow(this.bankColors.get(target.bank)) :
                                             dClear(Color.Black);
         }
         for (const light of machine.lights) {
@@ -60,8 +60,8 @@ export class Bonus extends Mode {
             rightGate: false,
             music: null,
             lLaneLower1: () => this.lastLine==='Lanes'? [Color.Green] : [],
-            lLaneLower2: () => this.lastLine==='Lanes'? [Color.Green] : [],
-            lLaneLower3: () => this.lastLine==='Lanes'? [Color.Green] : [],
+            lLaneLower2: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Slings'? [Color.Red] : [],
+            lLaneLower3: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Slings'? [Color.Red] : [],
             lLaneLower4: () => this.lastLine==='Lanes'? [Color.Green] : [],
             lLaneUpper1: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
             lLaneUpper2: () => this.lastLine==='Lanes'? [Color.Green] : this.lastLine==='Bonus X'? [Color.Pink] : [],
@@ -73,9 +73,12 @@ export class Bonus extends Mode {
             lFullHouseStatus: () => this.lastLine==='Multiballs'? [Color.Purple] : [],
         });
 
-        fork(this.run());
-
         addToScreen(() => new BonusGfx(this));
+    }
+
+    override started() {
+        fork(this.run());
+        return super.started();
     }
 
     async run() {
@@ -112,6 +115,8 @@ export class Bonus extends Mode {
             this.topTotal = this.total;
         if (this.ball.tilted && this.total > this.bottomTotal)
             this.bottomTotal = this.total;
+
+        this.lastLine = undefined;
 
         if (!this.ball.tilted) {
             this.lines.push([`Total: ${score(this.total)}`]);

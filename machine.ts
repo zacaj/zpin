@@ -566,7 +566,7 @@ export class Image extends BatchedOutput<ImageType, ImageOutputs> {
 
         if (CPU.isConnected) {
             const cmds: string[] = [];
-            let inverted = state?.inverted ?? false;
+            let inverted = state?.inverted;
             // if (state?.off)
             //     cmds.push(`power ${numStr} false`);
             if (state) {
@@ -594,10 +594,14 @@ export class Image extends BatchedOutput<ImageType, ImageOutputs> {
                     if (old.inverted && !state.inverted)
                         inverted = false;
                 }
+                else 
+                    inverted = false;
             }
-            else
+            else {
                 cmds.push(`clear ${numStr} ${colorToHex(Color.Black)!.slice(1)}`);
+                inverted = false;
                 // cmds.push(`power ${this.num} false`);
+            }
 
             for (const cmd of cmds) {
                 await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
@@ -1122,9 +1126,9 @@ export class Machine extends Tree<MachineOutputs> {
             lPower1: [],
             lPower2: [],
             lPower3: [],
-            lMagnet1: () => this.cLeftMagnet.actual && this.lPower1.lit()? [{...normalizeLight(this.lPower1.val[0]), color: Color.Green} as NormalizedLight] : [],
-            lMagnet2: () => this.cLeftMagnet.actual && this.lPower2.lit()? [{...normalizeLight(this.lPower2.val[0]), color: Color.Green} as NormalizedLight] : [],
-            lMagnet3: () => this.cLeftMagnet.actual && this.lPower3.lit()? [{...normalizeLight(this.lPower3.val[0]), color: Color.Green} as NormalizedLight] : [],
+            lMagnet1: () => this.lPower1.lit()? [{...{...normalizeLight(this.lPower1.val[0]), color: Color.Green}, ...!this.cLeftMagnet.actual? {type: 'solid'} : {}} as NormalizedLight] : [],
+            lMagnet2: () => this.lPower2.lit()? [{...{...normalizeLight(this.lPower2.val[0]), color: Color.Green}, ...!this.cLeftMagnet.actual? {type: 'solid'} : {}} as NormalizedLight] : [],
+            lMagnet3: () => this.lPower3.lit()? [{...{...normalizeLight(this.lPower3.val[0]), color: Color.Green}, ...!this.cLeftMagnet.actual? {type: 'solid'} : {}} as NormalizedLight] : [],
             lPopperStatus: [],
             lLaneUpper1: [],
             lLaneUpper2: [],
