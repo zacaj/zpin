@@ -955,6 +955,26 @@ export class Machine extends Tree<MachineOutputs> {
     lSpinnerTarget = new Light('lSpinnerTarget', 33);
     lUpperLaneTarget = new Light('lUpperLaneTarget', 37);
 
+    swLights = new Map<Switch, Light>([
+        [this.sSingleStandup, this.lMainTargetArrow],
+        [this.sBackLane, this.lUpperLaneArrow],
+        [this.sUpperLane2, this.lLaneUpper2],
+        [this.sUpperLane3, this.lLaneUpper3],
+        [this.sUpperLane4, this.lLaneUpper4],
+        [this.sLeftInlane, this.lLaneLower1],
+        [this.sLeftOutlane, this.lLaneLower2],
+        [this.sRightInlane, this.lLaneLower3],
+        [this.sRightOutlane, this.lLaneLower4],
+        [this.sLeftOrbit, this.lRampArrow],
+        [this.sRampMade, this.lRampArrow],
+        [this.sRampMini, this.lRampMini],
+        [this.sRampMiniOuter, this.lLeftArrow],
+        [this.sSidePopMini, this.lUpperTargetArrow],
+        [this.sSpinnerMini, this.lSpinnerTarget],
+        [this.sUnderUpperFlipper, this.lSideTargetArrow],
+        [this.sUpperPopMini, this.lUpperLaneTarget],
+    ]);
+
     oMusic = new MusicOutput(null, 'music');
 
     iSS1 = new Image('iSS1', true);

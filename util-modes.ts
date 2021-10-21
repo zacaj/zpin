@@ -1,5 +1,5 @@
 import { Mode, Modes } from './mode';
-import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light, Solenoid } from './machine';
+import { MachineOutputs, machine, MomentarySolenoid, SolenoidFireEvent, Light, Solenoid, LightOutputs } from './machine';
 import { OutputFuncsOrValues, Outputs, toggle } from './outputs';
 import { getTypeIn, assert, score, eq } from './util';
 import { DropBank, DropBankResetter, DropBankCompleteEvent, DropBankResetEvent, DropDownEvent, DropTarget } from './drop-bank';
@@ -170,6 +170,37 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
     parent.addTemp(node);
 
     return wait(ms, 'effect').then(() => { node.end(); });
+}
+
+export const defaultLightExcept: (keyof LightOutputs)[] = ['lShootAgain'];
+export async function FlashLights(parent: Tree<MachineOutputs>, times: number, color = Color.White, lights?: (keyof LightOutputs)[], ...except: (keyof LightOutputs)[]) {
+    const speed = 500; // complete flash length
+    const outs: any = {};
+    for (const light of lights ?? machine.lights.map(l => l.name)) {
+        if (except.includes(light)) continue;
+        outs[light] = [[color, 'fl', 1000/speed, 0, 0.5]];
+    }
+    return Effect(parent, speed*times, outs);
+}
+export async function ShimmerLights(parent: Tree<MachineOutputs>, ms: number, color = Color.White, lights?: (keyof LightOutputs)[], ...except: (keyof LightOutputs)[]) {
+    const speed = 75; // complete flash length
+    const outs: any = {};
+    for (const light of lights ?? machine.lights.map(l => l.name)) {
+        if (except.includes(light)) continue;
+        outs[light] = [[color, 'fl', 1000/speed, Math.random(), 0.15]];
+    }
+    return Effect(parent, ms, outs);
+}
+
+export function blink(tree: Tree<MachineOutputs>, light: keyof LightOutputs, color?: Color) {
+    color ??= machine[light].color(); // ?? Color.Gray;
+    if (!color) return;
+    const length = color === Color.Gray? 225 : 300;
+    return {
+        promise: Effect('overrides' in tree? (tree as any).overrides : 'player' in tree? (tree as any).player.overrides : machine.overrides, length, {
+            [light]: [[color, 'fl', 1000/(300/120)]],
+        }),
+    };
 }
 
 export async function AddABall(parent: Tree<MachineOutputs>) {

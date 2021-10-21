@@ -4,7 +4,7 @@ import { clone, assert, OrArray, arrayify, getCallerLoc, getFuncNames, FunctionP
 import { Log } from './log';
 import { State } from './state';
 import { fork } from './promises';
-import { machine } from './machine';
+import { LightOutputs, machine } from './machine';
 import { time, Timer } from './timer';
 
 export abstract class Tree<Outs extends {} = {}> {

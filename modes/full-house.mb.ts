@@ -13,7 +13,7 @@ import { onChange, State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, SwitchEvent } from '../switch-matrix';
 import { time } from '../timer';
 import { comma, makeState, repeat, round } from '../util';
-import { ResetBank } from '../util-modes';
+import { FlashLights, ResetBank, ShimmerLights } from '../util-modes';
 import { Multiball } from './multiball';
 import { Player, SpinnerHit, SpinnerRip } from './player';
 import { Card } from './poker';
@@ -264,6 +264,7 @@ export class FullHouseMb extends Multiball {
         else
             void playVoice('jackpot excited', 75, true);
 
+        fork(FlashLights(machine.overrides, 1.5, Color.Yellow).then(() => ShimmerLights(machine.overrides, 900, Color.Yellow)));
         const [group, promise] = alert('JACKPOT!', 4500, comma(this.value!));
         this.player.score += this.value!;
         this.total += this.value!;

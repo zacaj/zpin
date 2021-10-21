@@ -14,7 +14,7 @@ import { State } from '../state';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose, Switch, SwitchEvent } from '../switch-matrix';
 import { Time, time, Timer, TimerQueueEntry } from '../timer';
 import { comma, makeState, repeat } from '../util';
-import { ResetBank } from '../util-modes';
+import { FlashLights, ResetBank, ShimmerLights } from '../util-modes';
 import { Multiball } from './multiball';
 import { Player, SpinnerHit, SpinnerRip } from './player';
 import { Card } from './poker';
@@ -261,6 +261,7 @@ export class FlushMb extends Multiball {
         this.jackpots++;
         void playVoice('jackpot short', 75, true);
 
+        fork(FlashLights(machine.overrides, 1.5, Color.Pink));
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;
         this.total += this.state.value;

@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { argv } from 'yargs';
 import { AttractMode } from './attract';
+import { dClear, dFlash } from './disp';
+import { DropDownEvent } from './drop-bank';
 import { Events } from './events';
 import { addToScreen, alert, gfx, screen } from './gfx';
 import { GameGfx } from './gfx/game';
@@ -12,13 +14,14 @@ import { Mode, Modes } from './mode';
 import { Player } from './modes/player';
 import { MPU } from './mpu';
 import { Outputs } from './outputs';
+import { fork } from './promises';
 import { playSound } from './sound';
 import { State } from './state';
 import { onClose, onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { time, Timer } from './timer';
 import { TreeChangeEvent } from './tree';
 import { assert, getFormattedTime } from './util';
-import { ClearHoles } from './util-modes';
+import { blink, ClearHoles, Effect } from './util-modes';
 
 export class Game extends Mode {
     override get nodes() {
@@ -64,12 +67,26 @@ export class Game extends Mode {
             }
         }, 2000, 'start button hold'));
         this.listen([...onSwitchOpen(machine.sStartButton), () => time()-machine.sStartButton.lastClosed! < 500 && machine.sStartButton.lastClosed! > this.startTime], 'addPlayer');
+        // this.listen<DropDownEvent>(e => e instanceof DropDownEvent, e => {
+        //     if (e.target.image) {
+        //         const disp = e.target.image.actual;
+        //         if (disp)
+        //             fork(Effect(this.curPlayer.overrides, 300, {
+        //                 [e.target.image.name]: () => dFlash(disp, 300/3*.5, 300/3*.5),
+        //             }));
+        //     }
+        // });
         
 
         // this.listen(onSwitchClose(machine.sLeftInlane),
         //     () => this.addTemp(new KnockTarget()));
 
-        this.listen(onClose(), (e) => this.curPlayer.addScore(this.scores.get(e.sw) ?? 0, e.sw.name));
+        this.listen(onClose(), (e) => {
+            if (this.scores.has(e.sw)) 
+                this.curPlayer.addScore(this.scores.get(e.sw) ?? 0, e.sw.name);
+            if (machine.swLights.has(e.sw))
+                blink(this.curPlayer, machine.swLights.get(e.sw)!.name);
+        });
 
         addToScreen(() => new GameGfx(this));
     }

@@ -19,6 +19,7 @@ import { Restart } from './restart';
 import { dClear, dImage, dInvert } from '../disp';
 import { Time, time } from '../timer';
 import { playVoice } from '../sound';
+import { FlashLights, ShimmerLights } from '../util-modes';
 
 
 const Starting = makeState('starting', { 
@@ -231,6 +232,7 @@ export class StraightMb extends Multiball {
             void playVoice('jackpot excited echo', 75, true);
         this.state.awardingJp++;
         const value = this.value * (this.doubleComboActive? 2 : 1);
+        fork(FlashLights(machine.overrides, 1.5, Color.Blue).then(() => ShimmerLights(machine.overrides, 900, Color.Blue)));
         const [group, promise] = alert('JACKPOT!', 4500, comma(value));
         this.player.score += value;
         this.total += value;

@@ -8,7 +8,7 @@ import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, Switch } from '..
 import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
-import { Effect, KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs } from '../util-modes';
+import { Effect, KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs, ShimmerLights } from '../util-modes';
 import { add, Color, light, many } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
@@ -495,6 +495,8 @@ export class Poker extends Mode {
         this.playerWins = result.aWon;
         Log.info('game', 'poker results: %o', result);
         fork(wait(1000).then(() => playVoice(this.playerWins? "player win" : "crowd groan", undefined, true)));
+        // if (this.playerWins)
+        //     fork(ShimmerLights(this.player.overrides, 900, Color.White));
         this.playerCardsUsed.set(result.aCards);
         this.dealerCardsUsed.set(result.bCards);
         if (this.playerWins) {
