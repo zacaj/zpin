@@ -20,6 +20,7 @@ export type NormalizedLight = {
     type: 'solid'|'pulsing'|'flashing';
     freq: Frequency;
     phase: number;
+    dutyCycle: number;
 };
 
 export type LightState = Color|{
@@ -27,14 +28,16 @@ export type LightState = Color|{
     flashing: true;
     freq: Frequency;
     phase: number;
+    dutyCycle: number;
 }|{
     color: Color;
     pulsing: true;
     freq: Frequency;
     phase: number;
+    dutyCycle: number;
 }|
 NormalizedLight
-|[Color|undefined, 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse'|false|undefined, Frequency?, number?]
+|[color?: Color, mode?: 'fl'|'flashing'|'pl'|'pulsing'|'flash'|'pulse'|false, freq?: Frequency, Phase?: number, DutyCycle?: number]
 |undefined|false;
 const defaultFlashFreq: Frequency = 3;
 const defaultPulseFreq: Frequency = 1;
@@ -46,6 +49,7 @@ export function normalizeLight(state: LightState): NormalizedLight|undefined {
             type: 'solid',
             freq: defaultFlashFreq,
             phase: 0,
+            dutyCycle: 0.5,
         };
     if (Array.isArray(state)) {
         if (!state[0]) return undefined;
@@ -54,6 +58,7 @@ export function normalizeLight(state: LightState): NormalizedLight|undefined {
             type: typeof state[1]==='string'? (state[1].startsWith('f')? 'flashing' : 'pulsing') : 'solid',
             freq: state[2] ?? (typeof state[1]==='string'&&state[1]?.startsWith('f')? defaultFlashFreq : defaultPulseFreq),
             phase: state[3] ?? 0,
+            dutyCycle: state[4] ?? 0.5,
         };
     }
     if ('type' in state) return state;
@@ -62,6 +67,7 @@ export function normalizeLight(state: LightState): NormalizedLight|undefined {
         type: 'flashing' in state? 'flashing' : 'pulsing',
         freq: state.freq ?? ('flashing' in state? defaultFlashFreq : defaultPulseFreq),
         phase: state.phase ?? 0,
+        dutyCycle: state.dutyCycle ?? 0.5,
     };
 }
 
@@ -103,7 +109,7 @@ export function colorToHex(color: Color): string|undefined {
 export function light(cond: boolean, color: LightState = Color.White, offColor?: LightState): LightState[] {
     return cond? [color] : (offColor? [offColor] : []);
 }
-export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency|Color = defaultFlashFreq, freq = defaultFlashFreq, phase = 0): LightState[] {
+export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency|Color = defaultFlashFreq, freq = defaultFlashFreq, phase = 0, dutyCycle = 0.5): LightState[] {
     if (typeof freqOrColor === 'number')
         freq = freqOrColor;
     return cond? [{
@@ -111,14 +117,16 @@ export function flash(cond: boolean, color = Color.White, freqOrColor: Frequency
         flashing: true,
         freq,
         phase,
+        dutyCycle,
     }] : (typeof freqOrColor !== 'number'? [[freqOrColor, 'flash', freq]] : []);
 }
-export function flashLight(cond: boolean, color = Color.White, off = Color.Red, freq = defaultFlashFreq, phase = 0): LightState[] {
+export function flashLight(cond: boolean, color = Color.White, off = Color.Red, freq = defaultFlashFreq, phase = 0, dutyCycle = 0.5): LightState[] {
     return cond? [{
         color,
         flashing: true,
         freq,
         phase,
+        dutyCycle,
     }] : [off];
 }
 

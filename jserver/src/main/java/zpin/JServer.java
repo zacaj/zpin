@@ -255,8 +255,8 @@ public class JServer extends Thread
 							return true;
 						}
 						case "light":
-							if (parts.length < 7)
-								error("usage: light stateCount ledNum hex solid|flashing|pulsing frequency phase [hex sol...]");
+							if (parts.length < 8)
+								error("usage: light stateCount ledNum hex solid|flashing|pulsing frequency phase duty-cycle [hex sol...]");
 							int stateCount = num(1);
 							int n = num(2);
 							int j = 3;
@@ -268,6 +268,7 @@ public class JServer extends Thread
 								String modeStr = parts[j++];
 								state.freq = Double.parseDouble(parts[j++]);
 								state.phase = Double.parseDouble(parts[j++]);
+								state.dutyCycle = Double.parseDouble(parts[j++]);
 								state.r = Integer.valueOf(hex.substring(0,2), 16);
 								state.g = Integer.valueOf(hex.substring(2,4), 16);
 								state.b = Integer.valueOf(hex.substring(4,6), 16);

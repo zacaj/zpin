@@ -471,13 +471,13 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
                 Log.info('mpu', `Light: %s`, this.name);
                 if (state.length) {
                     const states = state.map(normalizeLight).truthy();
-                    const parts = states.map(({color, type, freq, phase}) => `${colorToHex(color)} ${type} ${freq} ${phase}`);
+                    const parts = states.map(({color, type, freq, phase, dutyCycle}) => `${colorToHex(color)} ${type} ${freq} ${phase} ${dutyCycle}`);
                     for (const num of this.nums)
                         await MPU.sendCommand(`light ${states.length} ${num} `+parts.join(' '));
                 }
                 else {
                     for (const num of this.nums)
-                        await MPU.sendCommand(`light 1 ${num} 000000 solid 1 0`);
+                        await MPU.sendCommand(`light 1 ${num} 000000 solid 1 0 0.5`);
                 }
             }
         }

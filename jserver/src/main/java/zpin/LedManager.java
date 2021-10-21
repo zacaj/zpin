@@ -23,6 +23,7 @@ public class LedManager extends Thread {
 		public LedMode mode;
 		public double freq = 1;
 		public double phase = 0;
+		public double dutyCycle = 0.5;
 		
 		public LedState() {}
 		public LedState(int r, int g, int b) {
@@ -65,14 +66,14 @@ public class LedManager extends Thread {
 					LedState s = states[j];
 					double t = now / (1000.f/s.freq);
 					t = t - Math.floor(t);
-					t += s.phase/2;
+					t += s.phase*.5;
 					while (t > 1) t -= 1;
 					switch (s.mode) {
 					case Solid:
 						strip.setPixel(i, s.r, s.g, s.b);
 						break;
 					case Flashing:
-						if (t >= .25 && t < 0.75)
+						if (t >= 0.5-s.dutyCycle/2 && t < 0.5+s.dutyCycle/2)
 							strip.setPixel(i, s.r, s.g, s.b);
 						else
 							strip.setPixel(i, 0, 0, 0);
