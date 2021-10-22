@@ -83,13 +83,13 @@ export class Ball extends Mode {
         this.listen(onSwitchClose(machine.sOuthole), async () => {
             await stopSounds();
             await playSound('drop spin');
-            if (machine.ballsLocked > 0) {
+            if (machine.ballsLocked > 0 || !machine.sDetect3.state) {
                 await this.saveBall();
             }
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
-            if (this.shootAgain || machine.out!.treeValues.ballSave) {
+            if (this.shootAgain || machine.out!.treeValues.ballSave || !machine.sDetect3.state) {
                 await this.saveBall();
                 return;
             }

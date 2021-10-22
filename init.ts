@@ -18,6 +18,7 @@ const argv = require('yargs').argv;
 
 export let initialized = false;
 
+// eslint-disable-next-line complexity
 export async function initMachine(mpu = true, gfx = false, game = false, trace = true, recording?: string, toPoint?: string) {
     try {
         initialized = false;
@@ -42,6 +43,10 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
         
             await machine.initOutputs();
         }
+
+        if (!MPU.isLive)
+            machine.sDetect3.changeState(true, 'fake');
+            
         if (cpu) {
             fork(CPU.init(argv.cpuIp ?? argv.ip));
         }
