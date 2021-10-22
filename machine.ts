@@ -807,7 +807,7 @@ export class Machine extends Tree<MachineOutputs> {
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
-    sActionButton = new Switch(3, 8, 'action button', 100, 250);
+    sActionButton = new Switch(3, 8, 'action button', 25, 250);
     sBothFlippers = new Switch(1, 15, 'both flippers', 1, 50, false, false, true);
     sTilt = new Switch(2, 8, 'tilt');
     sDetect3 = new Switch(0, 15, '3v detect', 100, 100);

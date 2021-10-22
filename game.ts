@@ -30,14 +30,14 @@ export class Game extends Mode {
 
     players: Player[] = [];
     playerUp = 0;
-    get curPlayer(): Player {
-        return this.players[this.playerUp];
+    get curPlayer(): Player|undefined {
+        return this.playerUp>=0? this.players[this.playerUp] : undefined;;
     }
     ballNum = 1;
-    ballCount = 3;
+    ballCount = 1;
 
     get ball() {
-        return this.curPlayer.ball;
+        return this.curPlayer?.ball;
     }
 
     startTimestamp = getFormattedTime();
@@ -82,6 +82,7 @@ export class Game extends Mode {
         //     () => this.addTemp(new KnockTarget()));
 
         this.listen(onClose(), (e) => {
+            if (!this.curPlayer) return;
             if (this.scores.has(e.sw)) 
                 this.curPlayer.addScore(this.scores.get(e.sw) ?? 0, e.sw.name);
             if (machine.swLights.has(e.sw))
@@ -102,6 +103,8 @@ export class Game extends Mode {
             this.ballNum++;
             if (this.ballNum > this.ballCount) {
                 // alert('GAME OVER', 5000);
+                this.playerUp = -1;
+                Events.fire(new TreeChangeEvent(this));
                 await checkForScores(this);
                 const totals = Object.keys(this.totals).map(source => ({
                     ...this.totals[source],
@@ -122,9 +125,9 @@ export class Game extends Mode {
             }
         }
         if (!this.ended) {
-            Log.log('console', 'player %i starting ball %i', this.curPlayer.number, this.ballNum);
+            Log.log('console', 'player %i starting ball %i', this.curPlayer!.number, this.ballNum);
             Events.fire(new TreeChangeEvent(this));
-            await this.curPlayer.startBall();
+            await this.curPlayer!.startBall();
         }
     }
 
@@ -161,13 +164,13 @@ export class Game extends Mode {
         machine.game = game;
         game.started();
         game.players.push(new Player(game, 1, game.seed));
-        game.curPlayer.started();
-        await game.curPlayer.startBall();
+        game.curPlayer!.started();
+        await game.curPlayer!.startBall();
         return game;
     }
 
     addPlayer() {
-        if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer.score>0) return;
+        if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer!.score>0) return;
         this.players.push(new Player(this, this.players.length+1, this.seed));
         alert(`PLAYER ${this.players.length} ADDED`);
         if (this.players.length <= 4) void playSound(`player ${this.players.length}`);

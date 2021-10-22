@@ -9,14 +9,14 @@ describe('player', () => {
         machine.sTroughFull.state = true;
         jest.spyOn(Poker, 'start').mockResolvedValue({} as any);
         const game = await Game.start();
-        const player = game.curPlayer;
+        const player = game.curPlayer!;
         const child1 = new class extends Tree {
             bet = 2;
 
             constructor() {
                 super();
 
-                player.storeData<any>(this, ['bet']);
+                player!.storeData<any>(this, ['bet']);
             }
 
             override get name(): string {
