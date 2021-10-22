@@ -6,7 +6,7 @@ apt-get update
 apt-get install -y libfreetype6-dev libjpeg-dev libavformat-dev libswscale-dev libavcodec-dev
 apt-get install -y libegl1-mesa-dev libdrm-dev libgbm-dev libfreetype6-dev libjpeg-dev libavformat-dev libswscale-dev libavcodec-dev
 apt-get install -y libasound2-dev
-apt install -y screen
+apt install -y screen tmux
 
 dpkg -i wiringpi-latest.deb
 

@@ -1,4 +1,5 @@
 #!/bin/sh
 
 rm -rf sgame.log
-screen -L -Logfile sgame.log -S game ./astart
+#screen -L -Logfile sgame.log -S game ./astart
+tmux new -sgame -- './astart |& tee sgame.log'

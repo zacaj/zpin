@@ -10,7 +10,7 @@ $ sudo passwd pi
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm install 14.15.0
+    nvm install 17.0.1
 8. chmod +x zpin/setup/setup.sh
 9. sudo zpin/setup/setup.sh
 
