@@ -137,6 +137,11 @@ export const Events = {
         this.firing = false;
     },
 
+    resetPriorities() {
+        this.firing = false;
+        this.waiting.clear();
+    },
+
     waiting: [] as { resolve: (finish: () => void) => void; priority: Priorities; context: string }[],
     async waitPriority(priority: Priorities): Promise<() => void> {
         assert(!this.waiting.find(w => w.priority === priority));

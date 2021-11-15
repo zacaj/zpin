@@ -140,8 +140,7 @@ export class Game extends Mode {
 
     static async start(seed: string = argv.seed as string ?? 'pinball'): Promise<Game> {
         assert(!machine.game);
-        Events.waiting.clear();
-        Events.firing = false;
+        Events.resetPriorities();
         if (gfx && !MPU.isLive) {
             machine.sTroughFull.changeState(true, 'fake');
         }
