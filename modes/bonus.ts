@@ -110,6 +110,7 @@ export class Bonus extends Mode {
             await gWait(1000, 'bonus x');
             // if (!this.ball.tilted) 
         }
+        this.ball.player.audit('bonus '+this.bonusX+'x');
         const initialTotal = this.total;
         if (!this.ball.tilted && this.total > this.topTotal)
             this.topTotal = this.total;
@@ -166,6 +167,7 @@ export class Bonus extends Mode {
         const total = value * count;
         this.lines.push([left+`: ${comma(count, Math.max(5-left.length+3, 0))}`, `* ${short(value)} = ${short(total, 4)}`]);
         this.total += total;
+        this.ball.player.audit('bonus '+left, total);
         if (!this.ball.tilted) void playSound('thunk');
         // if (!this.ball.tilted)
             await gWait(wait, 'bonus');

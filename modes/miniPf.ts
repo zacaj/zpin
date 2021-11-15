@@ -35,7 +35,7 @@ export class MiniPf extends Mode {
             if (machine.ballsInPlay<=1)
                 ball.shootAgain = true;
             const amount = round(ball.player.score*.2, 10);
-            ball.player.score += amount;
+            ball.player.addScore(amount, 'bonus jackpot');
             if (amount > ball.player.top20)
                 ball.player.top20 = amount;
             notify(score(amount), 8000);

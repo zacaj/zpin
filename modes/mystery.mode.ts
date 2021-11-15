@@ -229,6 +229,7 @@ export class Mystery extends Mode {
         this.listen(machine.upper3Bank.onTargetDown(), e => {
             const i = e.target.bank.targets.indexOf(e.target);
             const award = this.awards[i];
+            player.audit('mystery award ' + award.name);
             award.giveAward(player);
             fork(Effect(player.overrides, 1000, {
                 iUpper31: () => i === 0? dImage('mystery_1') : dClear(Color.Black),

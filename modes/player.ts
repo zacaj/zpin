@@ -109,6 +109,13 @@ export class Player extends Mode {
         this.game.totals[source].total += amount;
         this.game.totals[source].average = this.game.totals[source].total / this.game.totals[source].times;
     }
+    audit(source: string, amount: number = 1) {
+        if (!this.game.audits[source])
+            this.game.audits[source] = {times: 0, total: 0, average: 0};
+        this.game.audits[source].times++;
+        this.game.audits[source].total += amount;
+        this.game.audits[source].average = this.game.audits[source].total / this.game.audits[source].times;
+    }
     miniReady = true;
 
     difficulty = Difficulty.Normal;
@@ -542,11 +549,33 @@ export class Player extends Mode {
             }
         });
 
-        this.listen([...onSwitchClose(machine.sRightOutlane), () => machine.lPopperStatus.lit() && !machine.lPopperStatus.is(Color.Red)], () => 
-            Effect(this.overrides, 800, {
+        this.listen([...onSwitchClose(machine.sRightOutlane), () => machine.lPopperStatus.lit() && !machine.lPopperStatus.is(Color.Red)], async () => {
+            fork(Effect(this.overrides, 800, {
                 lPopperStatus: [[Color.Green, 'fl', 6]],
-            }),
-        );
+            }));
+            await wait(3000);
+            if (!machine.sOuthole.wasClosedWithin(3000) && machine.sPopperButton.wasClosedWithin(3000)) {
+                fork(Effect(this.overrides, 300, {
+                    lPopperStatus: [[Color.White, 'fl', 8]],
+                }));
+                this.audit('right ball save used successfully');
+            } 
+            if (machine.sOuthole.wasClosedWithin(3000) && machine.sPopperButton.wasClosedWithin(3000)) {
+                fork(Effect(this.overrides, 300, {
+                    lPopperStatus: [[Color.Red, 'fl', 8]],
+                }));
+                this.audit('right ball save used unsuccessfully');
+            } 
+        });
+        this.listen([...onSwitchClose(machine.sLeftOutlane), () => machine.lMagnet1.lit() && !machine.lMagnet1.is(Color.Red) && !machine.sMagnetButton.wasClosedWithin(1000)], () => {
+            fork(Effect(this.overrides, 400, {
+                lMagnet1: [[Color.Red, 'fl', 6]],
+                lMagnet2: [[Color.Red, 'fl', 6]],
+                lMagnet3: [[Color.Red, 'fl', 6]],
+            }));
+            
+            this.audit('left ball save not used');
+        });
 
         // this.listen(onSwitchClose(machine.sLeftInlane), () => fork(KnockTarget(this)));
         
@@ -784,7 +813,7 @@ class Spinner extends Tree<MachineOutputs> {
         }
         this.lastSpinAt = time();
         const value = (machine.out!.treeValues.spinnerValue ?? this.score) * this.comboMult;
-        this.player.score += value;
+        this.player.addScore(value, 'spinner');
         this.ripCount++;
         this.ripTotal += value;
         if (this.ripCount > 3) {
@@ -795,6 +824,8 @@ class Spinner extends Tree<MachineOutputs> {
                     this.ripTimer = Timer.callIn(() => {
                         this.player.gfx?.remove(this.tb!);
                         this.ripTimer = undefined;
+                        this.player.audit('spinner rip value', this.ripTotal);
+                        this.player.audit('spinner rip count', this.ripCount);
                     }, 750);
                     this.player.gfx?.add(this.tb);
                 }
@@ -1069,7 +1100,7 @@ export class Multiplier extends Tree<MachineOutputs> {
         if (screen)
             // this.player.gfx?.remove(this.text);
             this.text.remove();
-        this.player.score += this.total;
+        this.player.addScore(this.total, '2x scoring');
         if (this.topTotal < this.total)
             this.topTotal = this.total;
         notify(`2X Total: ${score(this.total)}`, this.total>100000? 5000 : 2500);

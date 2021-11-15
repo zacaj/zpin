@@ -130,7 +130,10 @@ export abstract class Multiball extends Mode {
     }
 
     override end() {
-        alert(`TOTAL: ${score(this.total)}`, 8000);
+        if (!this.ended) {
+            alert(`TOTAL: ${score(this.total)}`, 8000);
+            this.player.audit(this.name+' total', this.total);
+        }
         return super.end();
     }
 

@@ -20,7 +20,7 @@ import { State } from './state';
 import { onClose, onSwitchClose, onSwitchOpen, Switch } from './switch-matrix';
 import { time, Timer } from './timer';
 import { TreeChangeEvent } from './tree';
-import { assert, getFormattedTime } from './util';
+import { assert, getFormattedTime, objectMap } from './util';
 import { blink, ClearHoles, Effect } from './util-modes';
 
 export class Game extends Mode {
@@ -43,6 +43,7 @@ export class Game extends Mode {
     startTimestamp = getFormattedTime();
 
     totals: {[source: string]: {times: number; total: number; average: number}} = {};
+    audits: {[source: string]: {times: number; total: number; average: number}} = {};
     
     private constructor(
         public seed: string,
@@ -105,17 +106,33 @@ export class Game extends Mode {
                 // alert('GAME OVER', 5000);
                 this.playerUp = -1;
                 Events.fire(new TreeChangeEvent(this));
-                await checkForScores(this);
-                const totals = Object.keys(this.totals).map(source => ({
-                    ...this.totals[source],
-                    source,
-                }));
-                totals.sort((a, b) => b.total - a.total);
+                try {
+                    await checkForScores(this);
+                }
+                catch (e) {
+                    Log.error('game', 'error checking highs', e);
+                }
 
-                fs.writeFileSync(`./scores/game-${this.startTimestamp}.json`, JSON.stringify({
-                    players: this.players.map(p => ({ number: p.number, score: p.score })),
-                    totals,
-                }, undefined, 2));
+                try {
+                    const totals = Object.keys(this.totals).map(source => ({
+                        ...this.totals[source],
+                        source,
+                    }));
+                    totals.sort((a, b) => b.total - a.total);
+
+                    fs.writeFileSync(`./scores/game-${this.startTimestamp}.json`, JSON.stringify({
+                        players: this.players.map(p => ({ 
+                            number: p.number, 
+                            score: p.score, 
+                            store: objectMap(p.store, o => objectMap(o, v => typeof v === 'object'? undefined : v)) })),
+                        audits: this.audits,
+                        totals,
+                    }, undefined, 2));
+                }
+                catch (e) {
+                    Log.error('game', 'error saving audits', e);
+                }
+
                 if (require.main === module) {
                     debugger;
                     process.exit(0);

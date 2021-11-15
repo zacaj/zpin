@@ -78,6 +78,7 @@ export class EndOfGameBonus extends Mode {
             await gWait(speed, 'bonus count');
         }
         await gWait(2500, 'bonus end');
+        this.player.audit('eog cash value', this.player.store.Poker!.cashValue);
         this.end();
     }
 

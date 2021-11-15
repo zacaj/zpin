@@ -86,6 +86,10 @@ export class Ball extends Mode {
             if (machine.ballsLocked > 0 || !machine.sDetect3.state) {
                 await this.saveBall();
             }
+            else if (machine.sRightOutlane.wasClosedWithin(1000) && !machine.sPopperButton.wasClosedWithin(1000) && this.player.chips>0 && !this.shootAgain && !this.tilted) {
+                await alert('USE RIGHT BUTTON TO SAVE BALL', 3000)[1];
+                this.player.audit('right ball save not used');
+            }
         });
 
         this.listen(onSwitchClose(machine.sTroughFull), async () => {
@@ -146,6 +150,7 @@ export class Ball extends Mode {
     }
 
     static async start(player: Player) {
+        Events.resetPriorities();
         const ball = new Ball(player);
         
         player.ball = ball;
@@ -155,6 +160,9 @@ export class Ball extends Mode {
         if (player.noMode) {
             await Poker.start(player);
         }
+
+        if (player.game.ballNum === 2)
+            player.audit('Difficulty: ' + Difficulty[player.difficulty]);
 
         if (MPU.isLive || gfx) {
             await ResetMechs(ball);

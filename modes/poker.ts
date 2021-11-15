@@ -503,10 +503,13 @@ export class Poker extends Mode {
             this.handsWon++;
             if (this.pot > this.biggestWin)
                 this.biggestWin = this.pot;
+            this.player.audit('poker win', this.pot);
         }
-        else
-            if (this.pot > this.biggestLoss)
+        else {
+            if (this.pot > this.biggestLoss, this.pot)
                 this.biggestLoss = this.pot;
+            this.player.audit('poker loss');
+        }
         await gWait(1500, 'showing cards');
         for (const [mb, hand] of this.newMbs) {
             const [g, prom] =  this.player.qualifyMb(mb, hand, 2000);

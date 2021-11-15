@@ -215,6 +215,9 @@ export class Skillshot extends Mode {
             this.awards[i].collect!(e);
         this.wasMade = true;
         Events.fire(new SkillshotComplete(i, i === this.curAward));
+        this.player.audit(`skillshot to ${i}`);
+        this.player.audit(`skillshot attempted ${this.curAward}`);
+
 
         // void wait(1000).then(() => this.music('green grass main'));
         await wait(1000);
