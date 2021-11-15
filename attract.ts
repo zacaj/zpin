@@ -1,6 +1,6 @@
 import { Group } from 'aminogfx-gl';
 import { argv } from 'yargs';
-import { dImage, dInvert, dMany } from './disp';
+import { dClear, dImage, dInvert, dMany } from './disp';
 import { Game } from './game';
 import { addToScreen, gfx, makeText, ModeGroup, Screen } from './gfx';
 import { getHighscores, Highscores } from './highscore';
@@ -15,14 +15,15 @@ import { State } from './state';
 import { onSwitchClose } from './switch-matrix';
 import { Time, time } from './timer';
 import { money, round, roundDown, score, wrap } from './util';
-import { ClearHoles } from './util-modes';
+import { ClearHoles, FlashLights, ResetAnyDropOnComplete, ShimmerLights } from './util-modes';
 
 export class AttractMode extends Mode {
 
     clearHoles = new ClearHoles();
+    resetDrops = new ResetAnyDropOnComplete();
 
     override get nodes() {
-        return [this.clearHoles];
+        return [this.clearHoles, this.resetDrops];
     }
 
     start = time();
@@ -33,7 +34,13 @@ export class AttractMode extends Mode {
         super(Modes.AttractMode);
         State.declare<AttractMode>(this, ['start']);
 
+        const outs: any  = {};
+        for (const target of machine.dropTargets) {
+            if (!target.image) continue;
+            // outs[target.image.name] = dClear(Color.Yellow);
+        }
         this.out = new Outputs(this, {
+            ...outs,
             lPower1: [[Color.White, 'fl', 1, 1]],
             lPower2: [[Color.White, 'fl', 1, 0]],
             lPower3: [[Color.White, 'fl', 1, 1]],
@@ -75,6 +82,9 @@ export class AttractMode extends Mode {
         this.listen(onSwitchClose(machine.sStartButton), async () => {
             const game = await Game.start(argv.seed as string ?? Math.random().toString());
         });
+
+        this.listen(onSwitchClose(machine.sActionButton), () => 
+            FlashLights(machine.overrides, 1.5).then(() => ShimmerLights(machine.overrides, 900)));
     }
 
     override end() {
@@ -119,6 +129,35 @@ export class AttractGfx extends ModeGroup {
             }
         }
         slides.push(scores);
+
+        const title = gfx.createGroup();
+        {
+            const poker = makeText('Poker', 250, 'center').y(Screen.h*-.1);
+            poker.rz.anim({
+                from: -5,
+                to: 5,
+                autoreverse: true,
+                duration: 1500,
+                loop: -1,
+            }).start();
+            title.add(poker);
+            title.add(makeText('<working title>', 60, 'center').x(Screen.w*.275).y(Screen.h*.3).rz(-20));
+            slides.push(title);
+        }
+
+        {
+            const credits = gfx.createGroup();
+            credits.add(makeText('A Game By', 60, 'center').y(-Screen.h*.38));
+            let y = -Screen.h * .35;
+            credits.add(makeText('Zachary Frey', 70, 'center').y(y+=75));
+            y += 100;
+            credits.add(makeText('Special Thanks', 45, 'center').y(y+=65));
+            y += 15;
+            credits.add(makeText('Ron Hallett Jr.', 35, 'center').y(y+=55));
+            credits.add(makeText('Stephanie Guida', 35, 'center').y(y+=55));
+            credits.add(makeText('Raymond Davidson', 35, 'center').y(y+=55));
+            slides.push(credits);
+        }
 
         const highscores = getHighscores();
         let partialSlide: Group|undefined = undefined;
@@ -169,35 +208,6 @@ export class AttractGfx extends ModeGroup {
         }
         if (partialSlide)
             slides.push(partialSlide);
-
-        {
-            const title = gfx.createGroup();
-            const poker = makeText('Poker', 250, 'center').y(Screen.h*-.1);
-            poker.rz.anim({
-                from: -5,
-                to: 5,
-                autoreverse: true,
-                duration: 1500,
-                loop: -1,
-            }).start();
-            title.add(poker);
-            title.add(makeText('<working title>', 60, 'center').x(Screen.w*.275).y(Screen.h*.3).rz(-20));
-            slides.push(title);
-        }
-
-        {
-            const credits = gfx.createGroup();
-            credits.add(makeText('A Game By', 60, 'center').y(-Screen.h*.38));
-            let y = -Screen.h * .35;
-            credits.add(makeText('Zachary Frey', 70, 'center').y(y+=75));
-            y += 100;
-            credits.add(makeText('Special Thanks', 45, 'center').y(y+=65));
-            y += 15;
-            credits.add(makeText('Ron Hallett Jr.', 35, 'center').y(y+=55));
-            credits.add(makeText('Stephanie Guida', 35, 'center').y(y+=55));
-            credits.add(makeText('Raymond Davidson', 35, 'center').y(y+=55));
-            slides.push(credits);
-        }
 
         for (const slide of slides)
             this.add(slide);
