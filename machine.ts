@@ -1081,7 +1081,7 @@ export class Machine extends Tree<MachineOutputs> {
     }
 
     lockDown = false;
-    miniDown = false;
+    miniDownUntil?: Time = undefined;
     ballsInTrough: 3|'unknown' = 'unknown';
     ballsLocked: 0|1|2|3|'unknown' = 'unknown';
     get ballsInPlay(): 0|1|2|3|'unknown' {
@@ -1092,7 +1092,7 @@ export class Machine extends Tree<MachineOutputs> {
     constructor() {
         super();
         this.makeRoot();
-        State.declare<Machine>(this, ['lockDown', 'miniDown', 'lastSwitchHit', 'ballsInTrough', 'ballsLocked', 'game']);
+        State.declare<Machine>(this, ['lockDown', 'miniDownUntil', 'lastSwitchHit', 'ballsInTrough', 'ballsLocked', 'game']);
 
         this.out = new Outputs<MachineOutputs>(this, {
             rampUp: false,
@@ -1102,7 +1102,7 @@ export class Machine extends Tree<MachineOutputs> {
             miniEject: false,
             miniBank: false,
             miniFlipperEnable: false,
-            miniDiverter: () => this.miniDown,
+            miniDiverter: () => !!this.miniDownUntil && time() < this.miniDownUntil,
             leftBank: false,
             rightBank: false,
             realRightBank: false,
@@ -1207,10 +1207,12 @@ export class Machine extends Tree<MachineOutputs> {
         this.listen(onSwitchClose(this.sRampMade), () => this.lockDown = true);
         this.listen(onAnyPfSwitchExcept(this.sRampMade), () => this.lockDown = false);
 
-        this.listen([...onSwitchClose(this.sLeftOutlane), () => this.out!.treeValues.lMiniReady.includes(Color.Green)], () => {
-            this.miniDown = true;
+        this.listen([...onSwitchClose(this.sLeftOutlane), () => !this.out!.treeValues.lMiniReady.includes(Color.Red)], () => {
+            this.miniDownUntil = time() + 2000 as Time;
+            this.cMiniDiverter.pending = this.cMiniDiverter.val = true;
+            this.cMiniDiverter.trySet();
         });
-        this.listen(onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
+        // this.listen([onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
         this.listen<SwitchEvent>([onAny(onAnyPfSwitchExcept(), onSwitchClose(this.sSpinner)), e => e.sw!==machine.sOuthole] , e => this.lastSwitchHit = e.sw);
 
