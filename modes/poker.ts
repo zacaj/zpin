@@ -38,7 +38,7 @@ export class Poker extends Mode {
             ...this.tempNodes,
         ];
     }
-
+    static FoldTime = 1250;
     static BankStart = 5000;
     static BetStart = 150;
 
@@ -242,21 +242,15 @@ export class Poker extends Mode {
         //     }
         // });
 
-        this.listen(onSwitchClose(machine.sActionButton), () => {
-            if (machine.sShooterLane.state) {
-                if (this.player.number > 4)
-                    void playVoice('folded', 75, true);
-                else
-                    void playVoice(`player ${this.player.number} folds`, 75, true);
-                this.wasQuit = true;
-                player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
-                    this.wasQuit = false;
-                    return 'remove';
-                });
-                this.end();
-            } else {
+        this.listen(onSwitchClose(machine.sActionButton), async () => {
+            // if (machine.sShooterLane.state) {
+            //     await wait(Poker.FoldTime);
+            //     if (!machine.sActionButton.closedForAtLeast(Poker.FoldTime)) {
+            //         this.fold(player);
+            //     }
+            // } else {
                 return this.snail();
-            }
+            // }
         });
 
         this.listen(onAnySwitchClose(machine.sLeftSling, machine.sRightSling), () => this.adjustSide *= -1);
@@ -282,6 +276,20 @@ export class Poker extends Mode {
     }
 
     
+    private fold() {
+        if (this.player.number > 4)
+            void playVoice('folded', 75, true);
+
+        else
+            void playVoice(`player ${this.player.number} folds`, 75, true);
+        this.wasQuit = true;
+        this.player.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower), () => {
+            this.wasQuit = false;
+            return 'remove';
+        });
+        this.end();
+    }
+
     static async start(player: Player): Promise<Poker|false> {
         const finish = await Events.tryPriority(Priorities.StartPoker);
 
@@ -799,6 +807,14 @@ export class Poker extends Mode {
         let betSign = 1;
         return [...switches.map((sw, i) => {
             let award: Partial<SkillshotAward> = {};
+            if (i===0 && !ss.isFirstOfBall) {
+                return {
+                    award: 'FOLD',
+                    made: () => this.fold(),
+                    dontOverride: true,
+                    dontDefault: true,
+                };
+            }
             if (spotInds.includes(i)) {
                 const slot = availSpots.shift()!;
                 const card = this.slots[slot]!;

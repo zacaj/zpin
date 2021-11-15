@@ -72,7 +72,7 @@ export class Skillshot extends Mode {
         this.awards = this.makeAwards();    
         this.gateMode = this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);    
         
-        this.setAward(this.rng.randRange(0, 5));//(Math.random()*this.awards.length)|0);  
+        this.setAward(this.rng.randSelect(...seq(6).filter(i => !this.awards[i].dontDefault)));//(Math.random()*this.awards.length)|0);  
 
         const outs = {} as any;
         let displays = 0;

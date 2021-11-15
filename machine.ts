@@ -646,6 +646,7 @@ export type SkillshotAward = {
     made: (e: SwitchEvent) => void; // if selected skillshot was made
     select?: (selected: boolean, disp: Node, a: SkillshotAward) => void;
     dontOverride?: boolean;
+    dontDefault?: boolean;
 };
 
 export type MusicType = string|[file: string, resume: boolean]|null;
