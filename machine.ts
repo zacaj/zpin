@@ -219,18 +219,18 @@ export class MomentarySolenoid extends Solenoid {
         if (this.num < 0) return true;
         if (this.lastFired && time() < this.lastFired + this.wait) {
             Log.trace(['machine', 'solenoid'], 'skip firing solenoid %s, too soon', this.name);
-            return this.lastFired + this.wait - time() + 3;
+            return this.lastFired + this.wait - time() + 3 + Math.floor(Math.random()*10);
         }
         if (Solenoid.firingUntil) {
             if (time() <= Solenoid.firingUntil) {
                 Log.info(['machine', 'solenoid', 'console'], 'skip firing solenoid %s, global too soon', this.name);
-                return Solenoid.firingUntil - time();
+                return Solenoid.firingUntil - time() + Math.floor(Math.random()*10);
             }
             Solenoid.firingUntil = undefined;
         }
 
         this.lastFired = time();
-        Solenoid.firingUntil = time() + (ms ?? this.ms)+100 as Time;
+        Solenoid.firingUntil = time() + (ms ?? this.ms)+100 + Math.floor(Math.random()*10) as Time;
         Log.log(['machine', 'solenoid'], 'fire solenoid %s for %i', this.name, ms ?? this.ms);
         Events.fire(new SolenoidFireEvent(this));
 
@@ -240,7 +240,7 @@ export class MomentarySolenoid extends Solenoid {
         else
             await this.board.fireSolenoid(this.num);
 
-        return (ms ?? this.ms) + this.wait + 3;
+        return (ms ?? this.ms) + this.wait + 3 + Math.floor(Math.random()*10);
     }
 
     async set(on: boolean) {
@@ -260,6 +260,7 @@ export class SolenoidFireEvent extends Event {
 
 export class IncreaseSolenoid extends MomentarySolenoid {
     i = 0;
+    tries = 0;
 
     constructor(
         name: keyof MachineOutputs,
@@ -283,11 +284,17 @@ export class IncreaseSolenoid extends MomentarySolenoid {
         else {
             if (time() > (this.lastFired + this.resetPeriod)) {
                 this.i = 0;
+                this.tries = 0;
                 fired = await super.fire(this.initial);
             } else {
                 fired = await super.fire((this.max - this.initial)/(this.steps-1) * this.i + this.initial);
             }
         } 
+        if (fired) {
+            this.tries++;
+            if (this.tries > this.steps+3)
+            return true;
+        }
         if (fired && this.i < this.steps - 1)
             this.i++;
         return fired;
@@ -817,20 +824,20 @@ export class Machine extends Tree<MachineOutputs> {
     cOuthole = new IncreaseSolenoid('outhole', 0, this.solenoidBank1, 55, 75, 4, undefined, undefined, () => {this.sOuthole.changeState(false, 'fake'); if (this.ballsInTrough===3) this.sTroughFull.changeState(true, 'fake'); });
     cTroughRelease = new IncreaseSolenoid('troughRelease', 1, this.solenoidBank1, 500, 2000, 3, 3000, undefined, () => { this.sTroughFull.changeState(false, 'fake'); this.sShooterLane.changeState(true, 'fake') });
     cPopper = new TriggerSolenoid('popper', 2, this.solenoidBank1, this.sPopperButton, 70, 1000);
-    cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 100, 20, 10);
+    cMiniDiverter = new OnOffSolenoid('miniDiverter', 4, this.solenoidBank1, 150, 20, 10);
     cShooterDiverter = new OnOffSolenoid('shooterDiverter', 5, this.solenoidBank1);
     // cMagnetPost = new OnOffSolenoid('magnetPost', 6, this.solenoidBank1);
-    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 50, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
+    cLeftBank = new IncreaseSolenoid('leftBank', 7, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sLeft1, this.sLeft2, this.sLeft3, this.sLeft4].forEach(t => t.changeState(false, 'fake')));
     cCenterBank = new IncreaseSolenoid('centerBank', 8, this.solenoidBank1, 60, 100, undefined, undefined, undefined, () => [this.sCenterLeft, this.sCenterCenter, this.sCenterRight].forEach(t => t.changeState(false, 'fake')));
     cLeftMagnet = new OnOffSolenoid('leftMagnet', 9, this.solenoidBank1, 5000);
     cLockPost = new OnOffSolenoid('lockPost', 10, this.solenoidBank1, 100, 30, 5);
     cRamp = new OnOffSolenoid('rampUp', 11, this.solenoidBank1, 100, 15, 10, on => this.sRampDown.state = !on);
     cMiniEject = new IncreaseSolenoid('miniEject', 12, this.solenoidBank1, 50, 100, 4, 1000, 5000);
-    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 40, 100, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
+    cMiniBank = new IncreaseSolenoid('miniBank', 14, this.solenoidBank1, 60, 130, undefined, undefined, undefined, () => [this.sMiniLeft, this.sMiniRight, this.sMiniCenter].forEach(t => t.changeState(false, 'fake')));
     cMiniFlipper = new OnOffSolenoid('miniFlipperEnable', 15, this.solenoidBank1);
 
     solenoidBank2 = new Solenoid16(2);
-    cUpper2 = new IncreaseSolenoid('upper2', 13, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
+    cUpper2 = new IncreaseSolenoid('upper2', 10, this.solenoidBank2, 50, 100, undefined, undefined, undefined, () => [this.sUpper2Left, this.sUpper2Right].forEach(t => t.changeState(false, 'fake')));
     cUpper3 = new IncreaseSolenoid('upper3', 12, this.solenoidBank2, 40, 100, undefined, undefined, undefined, () => [this.sUpper3Left, this.sUpper3Center, this.sUpper3Right].forEach(t => t.changeState(false, 'fake')));
     cUpperEject = new IncreaseSolenoid('upperEject', 11, this.solenoidBank2, 8, 20, 9, 500, undefined, () => machine.sUpperEject.changeState(false, 'fake'));
     cLeftGate = new OnOffSolenoid('leftGate', 8, this.solenoidBank2, 25, 50, 8);

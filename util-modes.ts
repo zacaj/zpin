@@ -71,6 +71,14 @@ export async function ResetMechs(parent: Tree<MachineOutputs>, ...except: DropBa
 
     parent.addTemp(node);
 
+    fork(wait(10000).then(() => {
+        if (!node.ended) {
+            node.end();
+            alert('BANK RESET FAILED');
+            Log.error(['assert', 'machine'], 'failed to reset all banks in time: ', machine.dropBanks.filter(b => !except.includes(b) && b.targets.every(t => !t.switch.state)).map(b => b.name));
+        }
+    }));
+
     await parent.await(node.onEnd());
 }
 
