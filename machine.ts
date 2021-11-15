@@ -1236,8 +1236,9 @@ export class Machine extends Tree<MachineOutputs> {
                     }
                     for (const s of this.coils) {
                         await s.init();
+                        Solenoid.firingUntil = undefined;
                         await s.set(s.val);
-                        await wait(150);
+                        // await wait(150);
                     }
                     Log.log(['console', 'machine'], 'drivers initialized');
                 })(),

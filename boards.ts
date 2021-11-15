@@ -1,6 +1,6 @@
 import { MPU } from './mpu';
 import { Log } from './log';
-import { machine } from './machine';
+import { machine, Solenoid } from './machine';
 import { Timer, TimerQueueEntry } from './timer';
 
 export class Solenoid16 {
@@ -51,6 +51,7 @@ export class Solenoid16 {
                 
                 for (const s of machine.coils.filter(c => c.board === this)) {
                     await s.init();
+                    Solenoid.firingUntil = undefined;
                     await s.set(s.val);
                 }
                 Log.log('mpu', 'board %i re-init complete', this.board);
