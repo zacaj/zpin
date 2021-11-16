@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd /home/pi/zpin/cdisp/
-sudo killall cserver
+sudo killall -q cserver
 rm -rf scserver.log
 #screen -L -Logfile scserver.log -S cserver ./cstart
-tmux new -cserver -- './cstart |& tee scserver.log'
+tmux new -scserver -- './cstart |& tee scserver.log'

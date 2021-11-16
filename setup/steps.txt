@@ -11,6 +11,7 @@ $ sudo passwd pi
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     nvm install 17.0.1
+7.5. install and build ws2812 lib https://github.com/tom-muir/rpi-ws281x-java, copy jar to jars/ folder
 8. chmod +x zpin/setup/setup.sh
 9. sudo zpin/setup/setup.sh
 
@@ -23,3 +24,67 @@ auto login
 10. test:
     ./jstart
     ./astart
+
+
+
+1:
+/etc/dhcpcd.conf
+    interface eth0
+    static ip_address=192.168.10.1/24
+
+2:
+no:
+/etc/network/interfaces
+    auto eth0
+    iface eth0 inet static
+    address 192.168.10.2
+    netmask 255.255.255.0
+    gateway 192.168.10.1
+
+yes:
+/etc/dhcpcd.conf
+    interface eth0
+    static ip_address=192.168.10.2/24
+    static routers=192.168.10.1
+    metric 299
+
+    interface wlan0
+    metric 201 
+
+no:
+fallbacks?:
+    profile static_eth0
+    static ip_address=192.168.10.1/24
+    #static routers=192.168.1.1
+    #static domain_name_servers=192.168.1.1
+
+    # fallback to static profile on eth0
+    interface eth0
+    fallback static_eth0
+
+    profile hotspot
+    #interface wlan0
+        static ip_address=192.168.4.1/24
+        nohook wpa_supplicant
+
+    interface wlan0
+    fallback hotspot
+https://www.raspberrypi.com/documentation/computers/configuration.html#setting-up-a-routed-wireless-access-point
+
+no:
+/etc/dhcp/dhclient.conf
+    timeout=15
+
+/etc/systemd/system/multi-user.target.wants/hostapd.service
+    TimeoutStartSec=200
+    ExecStartPre=/bin/sleep 60
+
+
+
+~/.bashrc:
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+  SESSION_TYPE=remote/ssh
+# many other tests omitted
+else
+        cd /home/pi/zpin/cdisp && ./scstart
+fi
