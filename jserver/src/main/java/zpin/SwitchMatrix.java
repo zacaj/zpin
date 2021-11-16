@@ -59,9 +59,9 @@ public class SwitchMatrix extends Thread {
 				e.when = ms;
 				e.state = sw.rawState;
 				e.name = sw.name;
+				sw.state = sw.rawState;
 				events.add(e);
 				
-				sw.state = sw.rawState;
 				
 				System.out.println("NEW   switch event: "+e);
 				

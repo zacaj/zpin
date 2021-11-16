@@ -2,13 +2,13 @@ import { Mode, Modes } from '../mode';
 import { MachineOutputs, machine } from '../machine';
 import { Skillshot } from './skillshot';
 import { onAnyPfSwitchExcept, onAnySwitchClose, onSwitchClose } from '../switch-matrix';
-import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall } from '../util-modes';
+import { ResetAnyDropOnComplete, ResetMechs, ReleaseBall, AllLights } from '../util-modes';
 import { Event, Events, Priorities } from '../events';
 import { Difficulty, Player } from './player';
 import { MPU } from '../mpu';
-import { addToScreen, gfx, ModeGroup, Screen, textBox } from '../gfx';
+import { addToScreen, alert, gfx, ModeGroup, Screen, textBox } from '../gfx';
 import { fork } from '../promises';
-import { wait } from '../timer';
+import { time, wait } from '../timer';
 import { onChange, State } from '../state';
 import { Outputs } from '../outputs';
 import { Color, flash } from '../light';
@@ -18,8 +18,8 @@ import { Bonus } from './bonus';
 import { EndOfGameBonus, EogGfx } from './eog';
 import { Poker } from './poker';
 import { Group } from 'aminogfx-gl';
-import { TreeEndEvent } from '../tree';
-import { playSound, stopSounds } from '../sound';
+import { Tree, TreeEndEvent } from '../tree';
+import { playSound, playVoice, stopSounds } from '../sound';
 import { HighscoreEntry } from './highscore.mode';
 
 export class Ball extends Mode {
@@ -30,6 +30,7 @@ export class Ball extends Mode {
     miniPf?: MiniPf;
     bonus?: Bonus;
     eog?: EndOfGameBonus;
+    drainEffect?: Tree<MachineOutputs>;
 
     bonusX = 1;
 
@@ -47,12 +48,15 @@ export class Ball extends Mode {
     shootAgain = false;
     validated = false;
 
+    validateTime = this.startTime;
+
     override get nodes() {
         return [
             this.resetDrops,
             this.skillshot,
             this.miniPf,
             ...this.tempNodes,
+            this.drainEffect,
             this.bonus,
             this.eog,
         ].truthy();
@@ -67,7 +71,7 @@ export class Ball extends Mode {
             miniFlipperEnable: () => !this.drained && !this.shootAgain && !this.tilted,
             kickerEnable: () => !this.drained && !this.shootAgain && !this.tilted,
             lShootAgain: () => flash(this.shootAgain, Color.Orange),
-            music: () => machine.sShooterLane.state || (machine.lastSwitchHit===machine.sOuthole && machine.ballsInPlay<1) || !this.validated? undefined : 'green grass slow with start', 
+            music: () => this.tilted? null : machine.sShooterLane.state || (machine.lastSwitchHit===machine.sOuthole && machine.ballsInPlay<1) || !this.validated? undefined : 'green grass slow with start', 
             ballSave: () => this.shootAgain,
         });
         
@@ -81,6 +85,8 @@ export class Ball extends Mode {
         });
 
         this.listen(onSwitchClose(machine.sOuthole), async () => {
+            this.drainEffect?.end();
+            this.drainEffect = undefined;
             await stopSounds();
             await playSound('drop spin');
             if (machine.ballsLocked > 0 || !machine.sDetect3.state) {
@@ -114,11 +120,6 @@ export class Ball extends Mode {
             finish();
             return this.end();
         });
-        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sRightOutlane, machine.sLeftOutlane, machine.sOuthole, machine.sMiniOut), () => {
-            this.validated = true;
-            return 'remove';
-        });
-
         this.listen(e => e instanceof DropDownEvent, () => this.drops++);
         this.listen(e => e instanceof DropBankCompleteEvent, () => this.banks++);
         this.listen(onSwitchClose(machine.sSpinner), () => this.spins++);
@@ -132,7 +133,12 @@ export class Ball extends Mode {
         // this.listen(onAnySwitchClose(...machine.sLanes), () => 
         //     void playSound('bop'));
 
-        this.listen([...onSwitchClose(machine.sMiniOut), () => !this.player.curMbMode], () => this.drained = true);
+        this.listen([...onSwitchClose(machine.sMiniOut), () => !this.player.curMbMode], () => {
+            if (!this.shootAgain && !this.drained)
+                void playVoice("crowd groan");
+            this.drained = true;
+            // this.drainEffect = AllLights(this) as Tree<MachineOutputs>;
+        });
 
         addToScreen(() => new ModeGroup(this));
 
@@ -154,6 +160,7 @@ export class Ball extends Mode {
         const ball = new Ball(player);
         
         player.ball = ball;
+        ball.parent = player;
 
         ball.started();
 
@@ -166,7 +173,7 @@ export class Ball extends Mode {
 
         if (MPU.isLive || gfx) {
             await ResetMechs(ball);
-            await ReleaseBall(ball);
+            await ball.releaseBall();
         }
         Events.fire(new BallStart(ball));
 
@@ -180,16 +187,30 @@ export class Ball extends Mode {
     }
 
     override end() {
+        this.drainEffect?.end();
+        this.drainEffect = undefined;
         fork(wait(1).then(() => Events.fire(new BallEnd(this))));
+        this.player.audit('ball time (s)', (time()-this.validateTime)/1000);
+        this.player.ballTimes.push((time()-this.validateTime)/1000);
         return super.end();
+    }
+
+    async releaseBall() {
+        this.validated = false;
+        this.listen(onAnyPfSwitchExcept(machine.sShooterLane, machine.sRightOutlane, machine.sLeftOutlane, machine.sOuthole, machine.sMiniOut), () => {
+            this.validated = true;
+            this.validateTime = time();
+            return 'remove';
+        });
+        fork(Skillshot.start(this));
+        await ReleaseBall(this);
     }
 
     async saveBall() {
         Events.fire(new BallSaved(this));
-        await ReleaseBall(this);
+        await this.releaseBall();
         this.shootAgain = false;
         this.drained = false;
-        this.validated = false;
         this.tilted = false;
     }
 }

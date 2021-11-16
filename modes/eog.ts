@@ -1,6 +1,9 @@
 import { Text } from 'aminogfx-gl';
+import { dClear } from '../disp';
 import { addToScreen, gfx, gWait, makeText, ModeGroup, Screen } from '../gfx';
 import { GameGfx } from '../gfx/game';
+import { Color } from '../light';
+import { machine } from '../machine';
 import { Mode, Modes } from '../mode';
 import { Outputs } from '../outputs';
 import { fork } from '../promises';
@@ -20,7 +23,16 @@ export class EndOfGameBonus extends Mode {
     ) {
         super(Modes.Bonus);
         State.declare<EndOfGameBonus>(this, ['total', 'lines']);
+        const outs: any  = {};
+        for (const target of machine.dropTargets) {
+            if (!target.image) continue;
+            outs[target.image.name] = dClear(Color.Black);
+        }
+        for (const light of machine.lights) {
+            outs[light.name] = [];
+        }
         this.out = new Outputs(this, {
+            ...outs,
             kickerEnable: false,
             outhole: false,
             troughRelease: false,

@@ -1,11 +1,12 @@
 import { Group, ImageView } from 'aminogfx-gl';
 import { Poker, Card, getFileForCard } from '../modes/poker';
-import { gfx, makeImage, Screen, Image, makeText, ModeGroup } from '../gfx';
+import { gfx, makeImage, Screen, Image, makeText, ModeGroup, Pie } from '../gfx';
 import { onChange } from '../state';
 import { tryNum, comma, money } from '../util';
 import { machine } from '../machine';
 import { onAny } from '../events';
 import { Mode } from '../mode';
+import { time } from '../timer';
 
 export class PokerGfx extends ModeGroup {
     bet = makeText('BET: 0', 40);
@@ -19,6 +20,8 @@ export class PokerGfx extends ModeGroup {
     playerHand!: PokerHand;
     dealerHand!: PokerHand;
     rects = gfx?.createGroup();
+    action = new Pie(gfx).radius(Screen.h * 0.15).start(Math.PI/2).fill('#AAAAAA');
+    actionText = makeText('FOLDING...', 40, 'center', 'top').y(Screen.h * 0.25);
     constructor(
         public poker: Poker,
     ) {
@@ -62,10 +65,10 @@ export class PokerGfx extends ModeGroup {
         });
 
         this.add(this.snailInstr.y(Screen.h*.49));
-        poker.watch(() => this.snailInstr.visible(poker.step>2 && poker.step<=6 && poker.player.chips>=1 && !machine.sShooterLane.state));
+        poker.watch(() => this.snailInstr.visible(poker.step>2 && poker.step<=6 && poker.player.chips>=1));
 
-        this.add(this.foldInstr.y(Screen.h*.49));
-        poker.watch(() => this.foldInstr.visible(poker.step < 7 && machine.sShooterLane.state));
+        // this.add(this.foldInstr.y(Screen.h*.49));
+        // poker.watch(() => this.foldInstr.visible(poker.step < 7 && machine.sShooterLane.state));
 
         poker.watch(() => {
             this.rects.clear();
@@ -79,6 +82,13 @@ export class PokerGfx extends ModeGroup {
             }
         });
         this.add(this.rects);
+
+        // this.add(this.action, this.actionText);
+        // poker.watch(() => {
+        //     this.action.visible(machine.sActionButton.state && machine.sShooterLane.state);
+        //     this.actionText.visible(machine.sActionButton.state && machine.sShooterLane.state);
+        //     this.action.percent((time() - machine.sActionButton.lastClosed!) / Poker.FoldTime);
+        // });
     }
 }
 

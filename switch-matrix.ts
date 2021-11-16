@@ -7,7 +7,7 @@ import { Log } from './log';
 import { machine } from './machine';
 import { initialized } from './init';
 
-export const Standup = [0,100];
+export const Standup = [0,200];
 export const Drop = [25, 250];
 export const Bumper = [0, 25];
 export const Lane = [1, 100];
@@ -102,6 +102,9 @@ export class Switch {
 
     openForAtLeast(ms: number): boolean {
         return !this.state && (!this.lastOn || time() - this.lastOn > ms);
+    }
+    closedForAtLeast(ms: number): boolean {
+        return this.state && (!this.lastOff || time() - this.lastOff > ms);
     }
 
     cleanLog() {
@@ -199,7 +202,7 @@ safeSetInterval(async () => {
     if (time() - lastRawCheck > 1000) {
         const newState = await getSwitchState();
         forRC((r,c,sw) => {
-            if (c>15 || sw.skipScan) return;
+            if (c>15 || sw.skipScan || time()-sw.lastChange < sw.minOffTime+sw.minOnTime) return;
             // assert(sw.state === newState[r][c]);
             sw.changeState(newState[r][c], 'sweep');
         });

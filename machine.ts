@@ -476,8 +476,8 @@ export class Light extends MachineOutput<LightState[], LightOutputs> {
             }
             else if (MPU.isConnected) {
                 Log.info('mpu', `Light: %s`, this.name);
-                if (state.length) {
-                    const states = state.map(normalizeLight).truthy();
+                const states = state.map(normalizeLight).truthy();
+                if (states.length) {
                     const parts = states.map(({color, type, freq, phase, dutyCycle}) => `${colorToHex(color)} ${type} ${freq} ${phase} ${dutyCycle}`);
                     for (const num of this.nums)
                         await MPU.sendCommand(`light ${states.length} ${num} `+parts.join(' '));
@@ -613,8 +613,8 @@ export class Image extends BatchedOutput<ImageType, ImageOutputs> {
             for (const cmd of cmds) {
                 await CPU.sendCommand(cmd+(cmd===cmds.last()? '' : ' &'));
             }
-            if (inverted !== undefined) {
-                await CPU.sendCommand(`invert ${numStr} ${inverted}`);
+            if (inverted !== undefined || !old) {
+                await CPU.sendCommand(`invert ${numStr} ${inverted ?? false}`);
             }
             // if (old?.off && !state?.off)
             //     cmds.push(`power ${numStr} true`);
@@ -787,7 +787,7 @@ export class Machine extends Tree<MachineOutputs> {
     sUpper3Right = new Switch(5, 0, 'upper 3 right', Drop);
     sUpper2Left = new Switch(6, 4, 'upper 2 left', Drop);
     sUpper2Right = new Switch(6, 3, 'upper 2 right', Drop);
-    sSingleStandup = new Switch(7, 3, 'single standup', [0, 100]);
+    sSingleStandup = new Switch(7, 3, 'single standup', StandupSet);
     sRampMini = new Switch(3, 7, 'ramp mini', StandupSet);
     sRampMiniOuter = new Switch(3, 0, 'ramp mini outer', StandupSet);
     sRampDown = new Switch(7, 4, 'ramp down');
@@ -801,23 +801,22 @@ export class Machine extends Tree<MachineOutputs> {
     sShooterLane = new Switch(0, 0, 'shooter lane', 100, 10);
     sShooterLower = new Switch(2, 0, 'shooter lower', 0, 50);
     sBackLane = new Switch(5, 5, 'back lane', [0, 100]);
-    sPop = new Switch(4, 7, 'pop', Bumper);
-    sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 50); // disabled
+    sUpperInlane = new Switch(7, 1, 'upper inlane', 0, 50); 
     sUnderUpperFlipper = new Switch(7, 5, 'under upper flipper', StandupSet);
     sUpperSideTarget = new Switch(6, 1, 'upper side target', StandupSet);
     sUpperEject = new Switch(7, 6, 'upper eject', Hole);
     sUpperLane2 = new Switch(6, 5, 'upper lane 2', 1, 50);
     sUpperLane3 = new Switch(5, 7, 'upper lane 3', 1, 50);
     sUpperLane4 = new Switch(5, 3, 'upper lane 4', 1, 50);
-    sRampMade = new Switch(7, 0, 'ramp made', [0, 100]);
+    sRampMade = new Switch(7, 0, 'ramp made', [0, 150]);
     sPopperButton = new Switch(5, 8, 'popper button', 1, 50);
     sMagnetButton = new Switch(6, 8, 'magnet button', 1, 50);
     sLeftFlipper = new Switch(4, 8, 'left flipper', 1, 50);
     sRightFlipper = new Switch(1, 8, 'right flipper', 1, 50);
     sStartButton = new Switch(0, 8, 'start button', 1, 50);
-    sActionButton = new Switch(3, 8, 'action button', 25, 250);
+    sActionButton = new Switch(3, 8, 'action button', 25, 100);
     sBothFlippers = new Switch(1, 15, 'both flippers', 1, 50, false, false, true);
-    sTilt = new Switch(2, 8, 'tilt');
+    sTilt = new Switch(2, 8, 'tilt', 1, 100);
     sDetect3 = new Switch(0, 15, '3v detect', 100, 100);
 
 
@@ -897,7 +896,6 @@ export class Machine extends Tree<MachineOutputs> {
         this.sShooterMagnet,
         this.sShooterLower,
         this.sBackLane,
-        this.sPop,
         this.sUpperInlane,
         this.sUnderUpperFlipper,
         this.sUpperSideTarget,
@@ -1209,8 +1207,6 @@ export class Machine extends Tree<MachineOutputs> {
 
         this.listen([...onSwitchClose(this.sLeftOutlane), () => !this.out!.treeValues.lMiniReady.includes(Color.Red)], () => {
             this.miniDownUntil = time() + 2000 as Time;
-            this.cMiniDiverter.pending = this.cMiniDiverter.val = true;
-            this.cMiniDiverter.trySet();
         });
         // this.listen([onAnySwitchClose(this.sOuthole), () => this.miniDown = false);
 
@@ -1325,6 +1321,7 @@ class MachineOverrides extends Mode {
             rightGate: () => machine.pfIsInactive()? false : undefined,
             lockPost: () => machine.pfIsInactive()? false : undefined,
             miniDiverter: () => machine.pfIsInactive()? false : undefined,
+            kickerEnable: () => machine.sActionButton.state || undefined,
         });
         
         this.listen(e => e instanceof SolenoidFireEvent && e.coil === machine.cRealRightBank, () => Events.fire(new SolenoidFireEvent(machine.cRightBank)));
@@ -1378,6 +1375,8 @@ class MachineOverrides extends Mode {
                     await wait(1000);
                     if (this.curBallSearch !== ballSearchNum) return;
                     for (const bank of machine.dropBanks) {
+                        if (bank === machine.rightBank)
+                            fork(FireCoil(this, machine.cShooterDiverter, 500, false));
                         await FireCoil(this, bank.coil, 50);
                         await wait(100);
                     }

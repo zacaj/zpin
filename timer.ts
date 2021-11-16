@@ -101,7 +101,7 @@ setInterval(() => {
         Log.error('console', 'error on timer interval', err);
         debugger;
     }
-}, 5);
+}, 10);
 
 export function onTick(): EventTypePredicate<StateEvent<Timer, never>> {
     return e => e instanceof StateEvent && e.on === Timer && e.prop === 'time';

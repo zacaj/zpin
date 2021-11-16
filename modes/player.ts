@@ -121,10 +121,10 @@ export class Player extends Mode {
     difficulty = Difficulty.Normal;
     setDifficulty(difficulty: Difficulty) {
         this.difficulty = difficulty;
-        if (difficulty<=Difficulty.Normal)
-            this.upperLaneChips = [true, true, true, true];
-        else
-            this.upperLaneChips = [true, false, false, false];
+        // if (difficulty<=Difficulty.Normal)
+        //     this.upperLaneChips = [true, true, true, true];
+        // else
+        //     this.upperLaneChips = [true, false, false, false];
 
         if (difficulty<=Difficulty.Normal)
             this.chipsLit = [true, false, true, false, true];
@@ -151,7 +151,7 @@ export class Player extends Mode {
             return 2;
     }
 
-    upperLaneChips = [true, false, false, false];
+    upperLaneChips = [false, false, false, false];
     upperLanes = [true, true, true, true];
     lowerLanes = [true, true, true, true];
     chipsLit = [true, false, false, false, false];
@@ -182,6 +182,7 @@ export class Player extends Mode {
     ball?: Ball;
     mult?: Multiplier;
     mystery?: Mystery;
+    ballTimes: number[] = [];
 
     override get nodes() {
         return [
@@ -215,7 +216,7 @@ export class Player extends Mode {
     }
     rand!: Rng;
     mysteryRng!: Rng;
-    mysteryLeft = 3;
+    mysteryLeft = 4;
     mysteryNext = MysteryNext.Target;
     mysteryAwards!: MysteryAward[];
 
@@ -301,6 +302,7 @@ export class Player extends Mode {
         public seed: string,
     ) {
         super(Modes.Player);
+        this.parent = game;
         this.rand = this.rng();
         this.mysteryRng = this.rng();
         this.mysteryAwards = getMysteryAwards(this);
@@ -327,10 +329,10 @@ export class Player extends Mode {
             shooterDiverter: () => this.closeShooter||this.ball?.tilted? false :
                                    (!this.curMode && !this.store.Poker?.wasQuit) || (this.poker?.step??-1) >= 7? true : 
                                    undefined,
-            lLaneUpper1: () => this.upperLanes[0]? [!this.curMbMode && this.upperLaneChips[0] && this.chips<3? Color.Orange : Color.Blue] : [],
-            lLaneUpper2: () => this.upperLanes[1]? [!this.curMbMode && this.upperLaneChips[1] && this.chips<3? Color.Orange : Color.Blue] : [],
-            lLaneUpper3: () => this.upperLanes[2]? [!this.curMbMode && this.upperLaneChips[2] && this.chips<3? Color.Orange : Color.Blue] : [],
-            lLaneUpper4: () => this.upperLanes[3]? [!this.curMbMode && this.upperLaneChips[3] && this.chips<3? Color.Orange : Color.Blue] : [],
+            lLaneUpper1: () => this.upperLanes[0]? [Color.Blue] : !this.curMbMode && this.upperLaneChips[0] && this.chips<3? [Color.Orange] : [],
+            lLaneUpper2: () => this.upperLanes[1]? [Color.Blue] : !this.curMbMode && this.upperLaneChips[1] && this.chips<3? [Color.Orange] : [],
+            lLaneUpper3: () => this.upperLanes[2]? [Color.Blue] : !this.curMbMode && this.upperLaneChips[2] && this.chips<3? [Color.Orange] : [],
+            lLaneUpper4: () => this.upperLanes[3]? [Color.Blue] : !this.curMbMode && this.upperLaneChips[3] && this.chips<3? [Color.Orange] : [],
             lLaneLower1: () => light(this.lowerLanes[0], Color.Blue),
             lLaneLower2: () => light(this.lowerLanes[1], Color.Blue),
             lLaneLower3: () => light(this.lowerLanes[2], Color.Blue),
@@ -341,13 +343,13 @@ export class Player extends Mode {
             lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3] && this.chips<3, Color.Orange),
             lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4] && this.chips<3, Color.Orange),
             lMainTargetArrow: many(() => ([
-                [[this.mbColor(this.nextMb), 'pl', .75], this.mbsReady.size>1 && !this.curMbMode],
+                [[this.mbColor(this.nextMb), 'pl', .75], this.mbsReady.size>1 && !this.curMbMode && this.mbReady],
                 [Color.Orange, this.chipsLit[1] && this.chips<2],
             ])),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
-            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl']] : [],
-            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl']] : [],
-            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl']] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl']] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl']] : [],
+            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl', .5]] : [],
+            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl', .5]] : [],
+            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl', .5]] : [],
         });
 
         // mystery
@@ -445,16 +447,18 @@ export class Player extends Mode {
             (e) => {
                 const i = machine.sUpperLanes.indexOf(e.sw);
                 if (!this.upperLanes[i]) {
+                    if (this.upperLaneChips[i]) 
+                        this.addChip();
                     void playSound('lane');
                     return;
                 }
-
-                if (this.upperLaneChips[i]) 
-                    this.addChip();
-                // this.addChip();             
+       
                 this.upperLanes[i] = false;
+                if (this.upperLanes.filter(x => x).length < (this.difficulty<Difficulty.Expert? 3 : 2))
+                    this.upperLaneChips[this.upperLanes.findIndex((l, ind) => !l && !this.upperLaneChips[ind] && i!==ind)] = true;
                 if (this.upperLanes.every(c => !c)) {
                     this.upperLanes.fill(true);
+                    this.upperLaneChips.fill(false);
                     this.ball!.bonusX++;
                     alert(`bonus ${this.ball!.bonusX}X`);
                     if (this.ball!.bonusX <= 4)
@@ -474,17 +478,20 @@ export class Player extends Mode {
             (e) => {
                 const i = machine.sLowerlanes.indexOf(e.sw);
                 if (!this.lowerLanes[i] || this.mult) {
+                    if (this.difficulty > Difficulty.Casual)
+                        this.lowerLanes[i] = true;
                     void playSound('bop');
-                    return;
                 }
-                this.lowerLanes[i] = false;
-                if (this.lowerLanes.every(c => !c)) {
-                    this.lowerLanes.fill(true);
-                    this.mult = new Multiplier(this);
-                    this.mult.started();
+                else {
+                    this.lowerLanes[i] = false;
+                    if (this.lowerLanes.every(c => !c)) {
+                        this.lowerLanes.fill(true);
+                        this.mult = new Multiplier(this);
+                        this.mult.started();
+                    }
+                    else   
+                        void playSound('lane');
                 }
-                else   
-                    void playSound('lane');
             });
 
         //  bank complete
@@ -627,7 +634,8 @@ export class Player extends Mode {
             }
         });
 
-        this.listen([...onSwitchClose(machine.sShooterLane), () => this.canStartHand], async () => {
+        this.listen([onAnySwitchClose(machine.sShooterLane, machine.sRampMade), () => this.canStartHand], async (e) => {
+            if (e.sw===machine.sRampMade && (this.mbReady || this.difficulty>=Difficulty.Expert || !this.poker)) return;
             await Poker.start(this);
         });
 
@@ -766,7 +774,7 @@ class Spinner extends Tree<MachineOutputs> {
                 ...dImage("per_spin"),
                 ...dFitText(this.displayText, 57, 'baseline'),
             }),
-            catcher: () => !!this.lastSpinAt && machine.sLeftInlane.wasClosedWithin(150) && time()-this.lastSpinAt < 300 && machine.sLeftInlane.lastClosed! > this.lastHitAt!? true : undefined,
+            // catcher: () => !!this.lastSpinAt && machine.sLeftInlane.wasClosedWithin(150) && time()-this.lastSpinAt < 300 && machine.sLeftInlane.lastClosed! > this.lastHitAt!? true : undefined,
         });
 
         this.listen(onSwitchClose(machine.sSpinner), 'hit');
@@ -942,7 +950,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
                 this.comboMult += 1;
                 this.state = LeftOrbitState.Spinner1;
                 player.spinner.comboMult += 3;
-                void playSound("ts wow 3");
+                void playSound("ts wow 3", 100);
                 if (this.player.bestCombo < 3) this.player.bestCombo = 3;
                 if (player.spinner.score < 2000)
                     player.spinner.score = 2000;
@@ -951,13 +959,13 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
         this.listen(e => e instanceof SpinnerHit, () => {
             if (this.state === LeftOrbitState.Spinner1) {
-                void playSound("ts wow 4");
+                void playSound("ts wow 4", 100);
                 if (this.player.bestCombo < 4) this.player.bestCombo = 4;
                 this.state = LeftOrbitState.Spinner2;
                 this.addScore();
             }
             if (this.state === LeftOrbitState.Spinner2) {
-                void playSound("ts wow 5");
+                void playSound("ts wow 5", 100);
                 if (this.player.bestCombo < 5) this.player.bestCombo = 5;
                 this.state = LeftOrbitState.SpinnerStop;
                 this.addScore();
@@ -966,7 +974,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
         this.listen(onAnySwitchClose(machine.sUpperInlane, machine.sUpperEject), () => {
             if (this.state === LeftOrbitState.SpinnerStop) {
-                void playSound("ts wow 6");
+                void playSound("ts wow 6", 100);
                 if (this.player.bestCombo < 6) this.player.bestCombo = 6;
                 this.state = LeftOrbitState.Lane;
                 this.addScore();
@@ -975,7 +983,7 @@ class LeftOrbit extends Tree<MachineOutputs> {
 
         this.listen(onAnySwitchClose(machine.sBackLane), () => {
             if (this.state === LeftOrbitState.Lane) {
-                void playSound("ts wow 7");
+                void playSound("ts wow 7", 100);
                 if (this.player.bestCombo < 7) this.player.bestCombo = 7;
                 this.state = LeftOrbitState.Ready;
                 this.addScore();

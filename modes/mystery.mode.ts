@@ -93,9 +93,9 @@ const allAwards: ((player: Player) => Award)[] = [
         chance: 6,
     }),
     (player) => ({
-        name: '$ VALUE +50',
+        name: '$ VALUE +75',
         giveAward() {
-            player.changeValue(50);
+            player.changeValue(75);
         },
         chance: 6,
     }),
@@ -111,6 +111,7 @@ const allAwards: ((player: Player) => Award)[] = [
         giveAward() {
             player.ball!.bonusX+=2;
             alert(`bonus ${player.ball!.bonusX}X`);
+            // todo voice
         },
         chance: 6,
     }),
@@ -142,6 +143,7 @@ const allAwards: ((player: Player) => Award)[] = [
         giveAward() {
             player.chips = 3;
             alert('CHEATS filled');
+            // todo voice
         },
         chance: 4,
     }),
@@ -275,7 +277,7 @@ export class Mystery extends Mode {
     override end() {
         Timer.cancel(this.timer);
         this.player.mystery = undefined;
-        this.player.mysteryLeft = this.player.mysteryRng.randRange(4, 7);
+        this.player.mysteryLeft = this.player.mysteryRng.randRange(6, 9);
         // void unmuteMusic();
         return super.end();
     }

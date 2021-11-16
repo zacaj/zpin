@@ -178,7 +178,8 @@ export const Events = {
 
 // stuff on the top comes first
 export enum Priorities {
-    EndMb = 1,
+    ReleaseMb = 1,
+    EndMb,
     ShowCards,
     Mystery,
     EndBall,

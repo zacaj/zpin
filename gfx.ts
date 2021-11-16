@@ -169,7 +169,7 @@ export async function initGfx() {
             screen.sy(-screen.h()/Screen.h);
         }
         
-        root.add(pfx.createCircle().radius(10).x(screenW).y(screenH/-2));
+        // root.add(pfx.createCircle().radius(10).x(screenW).y(screenH/-2));
         
         playfield.acceptsMouseEvents = true;
         playfield.acceptsKeyboardEvents = true;
@@ -927,7 +927,6 @@ const gfxSwitches: { [name: string]: {
         y: 25.650000000000002,
     },
     'ramp made':  { x: 2.5875, y: 38.025 },
-    'pop':  { x: 12.487499999999999, y: 33.8625 },
     'upper 2 left':  { x: 6.2437499999999995, y: 39.15 },
     'upper 2 right':  { x: 7.3687499999999995, y: 39.43125 },
     'upper 3 left':  { x: 10.575, y: 39.825 },

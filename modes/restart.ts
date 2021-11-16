@@ -66,11 +66,12 @@ export class Restart extends Mode {
         );
         if (screen) {
             ball.gfx?.add(this.text);
-            this.text.z(100);
+            this.text.z(110);
             this.watch(() => (this.text.children[3] as Text).text(`${this.flips} flip${this.flips>1?'s':''} left`));
         }
 
         this.listen(e => e instanceof BallEnding, 'end');
+        this.listen(onSwitchClose(machine.sOuthole), 'end');
     }
 
     override end() {

@@ -60,7 +60,7 @@ export async function playVoice(name: OrArray<string>, volume = 50, force = fals
     };
 }
 
-export async function playMusic(name: string, loops = 0, volume = 50, resume = false, solo = true) {
+export async function playMusic(name: string, loops = 0, volume = 40, resume = false, solo = true) {
     const play = ++playNum;
 
     if (argv.music === false) volume = 0;

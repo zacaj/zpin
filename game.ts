@@ -34,7 +34,7 @@ export class Game extends Mode {
         return this.playerUp>=0? this.players[this.playerUp] : undefined;;
     }
     ballNum = 1;
-    ballCount = 1;
+    ballCount = 3;
 
     get ball() {
         return this.curPlayer?.ball;
@@ -67,7 +67,7 @@ export class Game extends Mode {
                 this.end();
             }
         }, 2000, 'start button hold'));
-        this.listen([...onSwitchOpen(machine.sStartButton), () => time()-machine.sStartButton.lastClosed! < 500 && machine.sStartButton.lastClosed! > this.startTime], 'addPlayer');
+        this.listen([...onSwitchOpen(machine.sStartButton), () => time()-machine.sStartButton.lastClosed! < 1000 && machine.sStartButton.lastClosed! > this.startTime], 'addPlayer');
         // this.listen<DropDownEvent>(e => e instanceof DropDownEvent, e => {
         //     if (e.target.image) {
         //         const disp = e.target.image.actual;
@@ -96,7 +96,7 @@ export class Game extends Mode {
     async onBallEnd() {
         const lastPlayer = this.curPlayer;
 
-        // todo voice
+        // todo voice p# youre up
         if (this.playerUp+1 < this.players.length)
             this.playerUp++;
         else {
@@ -124,6 +124,8 @@ export class Game extends Mode {
                         players: this.players.map(p => ({ 
                             number: p.number, 
                             score: p.score, 
+                            ballTimes: p.ballTimes,
+                            gameTime: p.ballTimes.sum(),
                             store: objectMap(p.store, o => objectMap(o, v => typeof v === 'object'? undefined : v)) })),
                         audits: this.audits,
                         totals,
@@ -186,7 +188,7 @@ export class Game extends Mode {
     }
 
     addPlayer() {
-        if (!machine.sShooterLane.state || this.ballNum > 1 || this.curPlayer!.score>0) return;
+        if (!machine.sShooterLane.state || this.ballNum > 1) return;
         this.players.push(new Player(this, this.players.length+1, this.seed));
         alert(`PLAYER ${this.players.length} ADDED`);
         if (this.players.length <= 4) void playSound(`player ${this.players.length}`);
@@ -219,12 +221,12 @@ export class Game extends Mode {
         [machine.sRight5,           4000],
         [machine.sLeftBack1,        5000],
         [machine.sLeftBack2,        5000],
-        [machine.sUpper3Left,       12000],
-        [machine.sUpper3Center,     12000],
-        [machine.sUpper3Right,      12000],
-        [machine.sUpper2Left,       12000],
-        [machine.sUpper2Right,      12000],
-        [machine.sSingleStandup,    13000],
+        [machine.sUpper3Left,       6000],
+        [machine.sUpper3Center,     6000],
+        [machine.sUpper3Right,      6000],
+        [machine.sUpper2Left,       6000],
+        [machine.sUpper2Right,      6000],
+        [machine.sSingleStandup,    3000],
         [machine.sRampMini,         3000],
         [machine.sRampMiniOuter,    3000],
         [machine.sRampDown,         0],
@@ -238,14 +240,13 @@ export class Game extends Mode {
         [machine.sShooterLane,      0],
         [machine.sShooterLower,     10],
         [machine.sBackLane,         1000],
-        [machine.sPop,              7500],
         [machine.sUpperInlane,      1000],
-        [machine.sUnderUpperFlipper,25000],
+        [machine.sUnderUpperFlipper,0],
         [machine.sUpperSideTarget,  15000],
         [machine.sUpperEject,       1000],
-        [machine.sUpperLane2,    1000],
-        [machine.sUpperLane3,   1000],
-        [machine.sUpperLane4,    1000],
+        [machine.sUpperLane2,       1000],
+        [machine.sUpperLane3,       1000],
+        [machine.sUpperLane4,       1000],
         [machine.sRampMade,         5000],
     ]);
 }

@@ -332,13 +332,13 @@ export class MiscAwards extends Tree<MachineOutputs> {
                     player.addChip();
                     break;
                 case Award.AddValue:
-                    player.changeValue(10);
+                    player.changeValue(20);
                     break;
                 case Award.SubtractValue:
-                    player.changeValue(-10);
+                    player.changeValue(-20);
                     break;
                 case Award.SetSpinner:
-                    this.spinnerValue = 4000;
+                    this.spinnerValue = 2500;
                     break;
             }
             this.targets.delete(e.target);

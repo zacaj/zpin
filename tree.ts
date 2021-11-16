@@ -100,6 +100,10 @@ export abstract class Tree<Outs extends {} = {}> {
         return [this.parent, ...this.parent.getParents()];
     }
 
+    getAndParents(): Tree<Outs>[] {
+        return [this, ...this.getParents()];
+    }
+
     getChildren() {
         return this.children.flatMap(c => c.getAndChildren());
     }

@@ -1,5 +1,5 @@
 import { Mode, Modes } from '../mode';
-import { MachineOutputs, machine, SkillshotAward, MusicType } from '../machine';
+import { MachineOutputs, machine, SkillshotAward, MusicType, ImageType } from '../machine';
 import { SkillShotGfx } from '../gfx/skillshot';
 import { State } from '../state';
 import { Outputs } from '../outputs';
@@ -79,10 +79,10 @@ export class Skillshot extends Mode {
         for (const a of this.awards) {
             const i = displays;
             displays++;
-            outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = () => {
-                const disp = a.display ?? (i===this.curAward? dImage('skill_plunge'+(i===1?'_2':'')) : dClear(Color.Black));
+            outs[i!==1? `iSS${this.awards.indexOf(a)+1}` : 'iSpinner'] = (prev: ImageType) => {
+                const disp = a.display ?? (i===this.curAward? dImage('skill_plunge'+(i===1?'_2':'')) : dClear());
                 const d = i===this.curAward? 
-                    dFlash(dMany(disp, dImage("skill_selected")), 15, 300)
+                    dFlash(disp, 100, 300)
                     // (((time()/800%2)|0)===0? dMany(disp, dImage("skill_selected")) : dImage('skill_plunge'+(i===1?'_2':'')))
                   : {...disp};
                 if (d.images)
@@ -104,6 +104,7 @@ export class Skillshot extends Mode {
             rightGate: false,
             upperMagnet: () => this.curAward===1 && machine.sShooterMagnet.lastClosed && time() - machine.sShooterMagnet.lastClosed < 3000 && this.lastSw < 2,
             music: (prev) => wasSilent? (!this.music? prev? [typeof prev==='string'? prev:prev[0], false] : undefined : [this.music, false]) : undefined,
+            enableSkillshot: false,
         });
 
 
@@ -126,11 +127,11 @@ export class Skillshot extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftInlane), (e) => this.made(5, e));
 
         if (this.isFirstOfBall)
-            this.listen(onSwitchClose(machine.sShooterLane), () => this.music = 'green grass intro a end');
+            this.listen([...onSwitchClose(machine.sShooterLane), () => (machine.sShooterLane.lastOpened??0) > this.startTime], () => this.music = 'green grass intro a end');
         this.listen(onSwitchOpen(machine.sShooterLane), () => this.music = 'green grass intro a');
 
         this.listen<SwitchEvent>([onAny(
-            onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sLeftOrbit, machine.sSingleStandup, machine.sRampMade, machine.sShooterUpper, machine.sShooterMagnet),
+            onAnyPfSwitchExcept(machine.sShooterLane, machine.sShooterLower, machine.sShooterUpper, machine.sShooterMagnet),
             onSwitchClose(machine.sSpinner),
         ),
             e => !machine.out!.treeValues.ignoreSkillsot.has(e.sw),
@@ -142,7 +143,7 @@ export class Skillshot extends Mode {
 
         // this.listen(onSwitchClose(machine.sOuthole), 'end');
 
-        this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 300 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
+        this.listen([...onSwitchOpen(machine.sRightFlipper), () => time() - machine.sRightFlipper.lastClosed! < 350 && machine.sShooterLane.state], () => this.setAward(this.curAward+1));
         this.listen([...onSwitchClose(machine.sLeftFlipper), () => machine.sShooterLane.state], () => this.setAward(this.curAward-1));
 
 
@@ -152,14 +153,14 @@ export class Skillshot extends Mode {
     static async start(ball: Ball) {
         if (!machine.out!.treeValues.enableSkillshot) return false;
         // return;
-        if (machine.getChildren().find(x => 'isAddABall' in x)) return;
+        // if (machine.getChildren().find(x => 'isAddABall' in x)) return;
         const finish = await Events.tryPriority(Priorities.Skillshot);
         if (!finish) return false;
 
         const skillshot = new Skillshot(ball.player, ball);
         if (skillshot.isFirstOfBall)
             void stopMusic();
-        skillshot.finishDisplay = finish;
+        // skillshot.finishDisplay = finish;
         assert(!ball.skillshot);
         if (Skillshot.isShootAgain === ball) {
             void playVoice('shoot the ball carefully');
@@ -176,6 +177,7 @@ export class Skillshot extends Mode {
         Skillshot.ballInPlay = ball;
         ball.skillshot = skillshot;
         skillshot.started();
+        finish();
         return skillshot;
     }
 
@@ -193,6 +195,10 @@ export class Skillshot extends Mode {
     }
 
     async made(i: number, e: SwitchEvent) { 
+        if (machine.sShooterLane.state) {
+            Log.error(['switch', 'game'], 'Switch %s detected while ball in shooter lane', e.sw.name);
+            return;
+        }
         Log.log('game', 'skillshot %i', i);
         this.music = null;
         if (i === this.curAward) {
@@ -226,6 +232,11 @@ export class Skillshot extends Mode {
     }
 
     async finish(e: SwitchEvent) {
+        if (machine.sShooterLane.state) {
+            Log.error(['switch', 'game'], 'Switch %s detected while ball in shooter lane', e.sw.name);
+            return;
+        }
+        if (this.wasMade) return;
         this.timesTried[this.curAward]++;
         if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole, machine.sMiniOut].includes(e.sw)) {
             void playVoice(`wait you'll get that back`, 75, true);
@@ -288,7 +299,7 @@ export class Skillshot extends Mode {
                     }],
                     [24-this.player.chips*8, {
                         switch: gen.switch,
-                        award: `+${3-this.player.chips} chips`,
+                        award: `+${3-this.player.chips} cheats`,
                         made: () => seq(3-this.player.chips).forEach(() => this.player.addChip()),
                     }],
                     [(this.player.poker?.step??0)>2? 20:0, {

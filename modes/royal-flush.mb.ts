@@ -142,7 +142,7 @@ export class RoyalFlushMb extends Multiball {
             this.player.score += 1000;
             if (this.state._ !== 'bankLit') return;
             if (this.state.curBank === e.target.bank || (this.banks.last()!==this.state.curBank && this.banks[this.banks.indexOf(this.state.curBank)+1]===e.target.bank && this.state.drops>0)) {
-                void playSound('clunk '+'abcdef'.charAt(this.state.drops));
+                void playSound('clunk '+'abcdef'.charAt(this.state.drops), 75);
                 this.state.drops++;
                 const add = this.bankValue[this.banks.indexOf(e.target.bank)];
                 this.player.addScore(round(add * 0.05, 10), 'royal drop', false);
@@ -159,7 +159,7 @@ export class RoyalFlushMb extends Multiball {
             if (this.state._==='bankLit')
                 this.state = JackpotLit();
             // this.player.addScore(this.value, 'royal jp', false);
-            void playSound('jackpot excited echo_1', undefined, true);
+            void playSound('jackpot excited echo_1', 75, true);
             this.superValue += this.value;
             this.total += this.value;
             if (this.state._==='jackpotLit') {
@@ -270,7 +270,7 @@ export class RoyalFlushMb extends Multiball {
                 this.superValue -= value;
             }
             alert('BALL SAVED', 3000, value? `${score(value)} VALUE LOST` : undefined);
-            // todo voice
+            // todo voice ball saved
         }
         else {
             void playVoice("crowd groan");
@@ -283,7 +283,7 @@ export class RoyalFlushMb extends Multiball {
         this.total += this.superValue;
         this.player.addScore(this.superValue, 'royal super', false);
         
-        // todo voice
+        void playVoice('super jackpot');
         const [group, promise] = alert('SUPER JACKPOT!', 5500, score(this.superValue!));
         const anim: AnimParams = {
             from: 1,
