@@ -252,12 +252,14 @@ export class Skillshot extends Mode {
         const current = machine.out!.treeValues.getSkillshot? machine.out!.treeValues.getSkillshot(this) : [];
         const awards: SkillshotAward[] = [];
         const nRand = this.rng.weightedRand(30, 60, 30, 5)+(this.isFirstOfBall? 2:0);
-        const randInds = seq(nRand).map(() => this.rng.randRange(0, 5));
+        const randInds = seq(nRand).map(() => this.rng.randRange(1, 4));
         randInds.push(4);
+        let max = Math.max(...this.timesTried);
+        if (this.timesTried.filter(t => t === max).length > 3) max++;
         for (let i=0; i<7; i++) {
             const gen = generic[i];
-            const rand = (!current[i]?.dontOverride && randInds.includes(i))?
-                this.rng.weightedSelect<SkillshotAward>(
+            const rand = (!current[i]?.dontOverride && randInds.includes(i) && this.timesTried[i]<max)?
+                this.rng.weightedSelect<SkillshotAward>(...([
                     [rangeSelect(this.player.store.Poker!.cashValue, [200, 25], [350, 15], [0, 3]), {
                         switch: gen.switch,
                         award: '+50 $ value',
@@ -304,13 +306,14 @@ export class Skillshot extends Mode {
                         award: 'LIGHT MULTIBALL',
                         made: () => this.player.qualifyMb(['StraightMb', 'FullHouseMb', 'FlushMb'].find(m => !this.player.mbsQualified.has(m as any)) as any),
                     }],
-                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<1 && !this.player.curMbMode? 15 : 0, {
+                    [i===4 && machine.ballsInPlay<=1 && machine.ballsLocked<1 && !this.player.curMbMode && this.player.mysteryLeft? 15 : 0, {
                         switch: gen.switch,
                         award: 'ADD A BALL',
                         made: () => AddABall(this.player.overrides),
                     }],
+                ] as [number, SkillshotAward][]).filter((a) => !awards.some(b => b.award === a[1].award)),
                 ) : undefined;
-            const cur = {...current[i], ...rand} ?? current[i];
+            const cur = this.timesTried[i]<max || current[i]?.dontOverride? {...current[i], ...(current[i]?.dontOverride? {} : rand)} : undefined;
             awards.push({
                 ...gen ?? {},
                 ...cur ?? {},
@@ -352,8 +355,10 @@ export class Skillshot extends Mode {
             this.gateMode===GateMode.Closed? [[1, 10, 15]] : 
                 (this.gateMode===GateMode.Open? [[1, 1, 5]] : [[1, 4, 8]]),
         ];
+        let max = Math.max(...this.timesTried);
+        if (this.timesTried.filter(t => t === max).length > 3) max++;
         return switches.map((sw, i) => {
-            const value = base * this.rng.weightedRange(...mults[i] as any);
+            const value = base * this.rng.weightedRange(...mults[i] as any) * (this.timesTried[i]>=max? 0.5 : 1);
             return {
                 award: comma(value)+' points',
                 switch: sw,
