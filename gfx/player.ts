@@ -61,7 +61,12 @@ export class PlayerGfx extends ModeGroup {
         this.add(this.playerNum);
         this.playerNum.text(`PLAYER ${player.number}`);
         player.watch(() => {
-            if (!machine.lastSwitchHit?.wasClosedWithin(4000) && (!player.poker || player.ball?.skillshot)) {
+            if (player.game.players.length === 2) {
+                this.playerNum.visible(false);
+                this.score.visible(false);
+                return;
+            }
+            if (!machine.lastSwitchHit?.wasClosedWithin(4000) && (!player.poker || player.ball?.skillshot) && machine.cKickerEnable.actual) {
                 this.playerNum.visible(player.game.players.length>1 && ((time()-(machine.lastSwitchHit?.lastChange??0))/2000|0)%3===2);
                 this.score.visible(player.game.players.length<=1 || ((time()-(machine.lastSwitchHit?.lastChange??0))/2000|0)%3!==2);
             }
@@ -150,7 +155,7 @@ export class StatusReportGfx extends Group {
             }
 
             {
-                const h = game.players.length<4? 30 : 20;
+                const h = game.players.length<4? 25 : 20;
                 scores.clear();
                 if (game.players.length === 1) return;
                 let y = bottom;
