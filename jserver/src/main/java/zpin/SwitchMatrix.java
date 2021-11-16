@@ -38,9 +38,7 @@ public class SwitchMatrix extends Thread {
 		double rawLastOnAt = 0;
 		double rawLastOffAt = 0;
 		String name = null;
-		Solenoid16 triggerBoard = null;
-		byte triggerNum = 0;
-		
+		String triggerCmd = null;
 
 		public void update(int row, int col, boolean on) throws InterruptedException {
 			Switch sw = this;
@@ -65,19 +63,8 @@ public class SwitchMatrix extends Thread {
 				
 				System.out.println("NEW   switch event: "+e);
 				
-				if (e.state && sw.triggerBoard!=null) {
-					if (SatIO.waitLock(1)) {
-						try {
-							System.out.println("      trigger solenoid");
-							sw.triggerBoard.fireSolenoid(sw.triggerNum);
-						} 
-						finally {
-							SatIO.unlock();
-						}
-					}
-					else {
-						System.out.println("ERR   couldn't lock IO for trigger");
-					}
+				if (e.state && sw.triggerCmd!=null) {
+					SwitchMatrix.this.triggeredCommands.add(sw.triggerCmd);
 				}
 			}
 		}
@@ -86,6 +73,7 @@ public class SwitchMatrix extends Thread {
 	Switch[] switches = new Switch[Width*Height];
 	
 	Queue<Event> events = new ConcurrentLinkedQueue<>();
+	Queue<String> triggeredCommands = new ConcurrentLinkedQueue<>();
 	
 	private SwitchMatrix() {	
 		SwitchMatrix.startTime = System.nanoTime();

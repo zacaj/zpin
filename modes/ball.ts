@@ -170,6 +170,9 @@ export class Ball extends Mode {
 
         if (player.game.ballNum === 2)
             player.audit('Difficulty: ' + Difficulty[player.difficulty]);
+        const minChips = player.difficulty===Difficulty.Casual? 3 : player.difficulty===Difficulty.Normal? 2 : 1;
+        if (player.chips < minChips)
+            player.chips = minChips;
 
         if (MPU.isLive || gfx) {
             await ResetMechs(ball);
@@ -177,8 +180,6 @@ export class Ball extends Mode {
         }
         Events.fire(new BallStart(ball));
 
-        if (player.chips === 0)
-            player.chips = 1;
         // player.chips = player.startingChips;
         if (player.difficulty <= Difficulty.Normal)
             player.miniReady = true;

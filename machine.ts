@@ -316,9 +316,30 @@ export class TriggerSolenoid extends MomentarySolenoid {
 
     override async set(enabled: boolean): Promise<boolean|number> {
         if (enabled) 
-            await this.board.send(`set-trigger ${this.num} ${this.sw.row} ${this.sw.column}`);
+            await this.board.send(`set-trigger ${this.sw.row} ${this.sw.column} #-1 ${this.board.board}: f ${this.num}`);
         else
             await this.board.send(`disable-trigger ${this.sw.row} ${this.sw.column}`);
+        return true;
+    }
+}
+
+export class Trigger extends MachineOutput<boolean> {
+    constructor(
+        name: keyof MachineOutputs,
+        public sw: Switch,
+        public cmd: string,
+    ) {
+        super(false, name);
+    }
+
+    override async init() {}
+
+    override async set(enabled: boolean): Promise<boolean|number> {
+        if (!MPU.isLive) return true;
+        if (enabled) 
+            await MPU.sendCommand(`set-trigger ${this.sw.row} ${this.sw.column} #-1 ${this.cmd}`);
+        else
+            await MPU.sendCommand(`disable-trigger ${this.sw.row} ${this.sw.column}`);
         return true;
     }
 }
@@ -690,6 +711,7 @@ export type CoilOutputs = {
     right5: boolean;
     miniFlipperEnable: boolean;
     popperEnabled: boolean;
+    miniTrigger: boolean;
 };
 
 export type LightOutputs = {
@@ -852,6 +874,7 @@ export class Machine extends Tree<MachineOutputs> {
     cRightDown = [this.cRightDown1, this.cRightDown2, this.cRightDown3, this.cRightDown4, this.cRightDown5];
     cKickerEnable = new OnOffSolenoid('kickerEnable', 14, this.solenoidBank2);
     cCatcher = new OnOffSolenoid('catcher', 7, this.solenoidBank2, 100, 30, 10);
+    tMiniTrigger = new Trigger('miniTrigger', this.sLeftOutlane, '0: on 4');
 
     pfSwitches = [
         this.sMiniOut,
@@ -1121,6 +1144,7 @@ export class Machine extends Tree<MachineOutputs> {
             right4: false,
             right5: false,
             popperEnabled: false,
+            miniTrigger: () => !this.lMiniReady.is(Color.Red) && this.lMiniReady.lit() && this.cKickerEnable.actual,
             // magnetPost: false,
             // temp: () => 0,
             lMiniReady: [Color.Red],

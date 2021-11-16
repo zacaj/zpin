@@ -47,12 +47,17 @@ export const MPU = {
                     for (const line of lines) {
                         const parts = split(line, ' ');
                         const seq = line.startsWith('#')? num(parts[0].slice(1)) : 0;
+                        if (seq === -1) {
+                            Log.error('mpu', 'trigger error: ', parts[1]);
+                            return;
+                        }
                         const resp = line.startsWith('#')? parts[1] : line;
                         if (this.lines[seq]) {
                             this.lines[seq].cb(resp);
                             delete this.lines[seq];
                         } else
-                            throw new Error(`unknown seq # '${seq}'`);
+                            // throw new Error(`unknown seq # '${seq}'`);
+                            Log.error('mpu', `unknown seq # '${seq}'`);
                     }
                 });
                 socket.connect(2908, ip, async () => {
