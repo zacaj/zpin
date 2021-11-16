@@ -19,6 +19,7 @@ import { Multiball } from './multiball';
 import { Player, SpinnerHit, SpinnerRip } from './player';
 import { Card } from './poker';
 import { Restart } from './restart';
+import { SkillshotComplete } from './skillshot';
 
 type Jp = DropTarget|Standup|Shot;
 
@@ -75,12 +76,12 @@ export class FlushMb extends Multiball {
         const origRamp = outs.lRampArrow;
         this.out = new Outputs(this, {
             ...outs,
-            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0) 
-                || (this.state._!=='starting')),
-            lockPost: () => this.lockPost ?? false,
+            rampUp: () => (this.state._==='starting' && !this.state.addABallReady && (this.state.secondBallLocked || player.ball?.skillshot?.curAward !== 0)),
+            lockPost: () => this.lockPost ?? (machine.sRampMade.wasClosedWithin(1500)? true : undefined),
             lRampArrow: () => 
                 (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady))?  [[Color.Green, 'fl']] :
                 origRamp(),
+            iRamp: () => (this.state._==='starting' && !this.state.secondBallLocked && (player.ball?.skillshot?.curAward === 0 || this.state.addABallReady))? dImage('add_a_ball') : undefined,            
             getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
             rightGate: true,
             leftGate: true,
@@ -95,9 +96,10 @@ export class FlushMb extends Multiball {
         this.listen(e => e instanceof SpinnerHit, () => this.checkSwitch(machine.sSpinner, machine.spinnerShot));
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
-            if (machine.ballsLocked !== 'unknown')
-                machine.ballsLocked++;
-            if (this.state._==='starting' && !this.state.secondBallLocked) {
+            if (this.state._==='starting' && !this.state.secondBallLocked && !machine.cRamp.actual && this.state.addABallReady) {
+                if (machine.ballsLocked !== 'unknown')
+                    machine.ballsLocked++;
+                
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
                 void playVoice('ball added', undefined, true);
@@ -110,6 +112,12 @@ export class FlushMb extends Multiball {
 
         this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===e.bank], () => this.state = Started())
 
+        this.listen(e => e instanceof SkillshotComplete, () => {
+            if (this.state._==='starting' && this.state.addABallReady) return;
+            this.state = Started();
+            fork(this.releaseBallsFromLock());
+        });
+        
         addToScreen(() => new FlushMbGfx(this));
     }
 
@@ -152,7 +160,7 @@ export class FlushMb extends Multiball {
         }
         const ret = this.end();
         if (this.jackpots < 6 && this.total < 250000 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
+            this.player.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
                 return FlushMb.start(this.player, true, this.lastJps, this.total);
             }));
         }
@@ -282,13 +290,13 @@ export class FlushMb extends Multiball {
     getSkillshot(): Partial<SkillshotAward>[] {
         const switches = ['first switch','second switch','third switch','upper lanes','upper eject hole','left inlane'];
 
-        const selections: (DisplayContent)[] = [
-            dClear(Color.Black),
-            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : dClear(Color.Black),
-            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : dClear(Color.Black),
-            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : dClear(Color.Black),
-            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : dClear(Color.Black),
-            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : dClear(Color.Black),
+        const selections: (DisplayContent|undefined)[] = [
+            undefined,
+            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : undefined,
+            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : undefined,
+            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : undefined,
+            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : undefined,
+            !this.isRestarted ? dImage(this.skillshotRng.randSelect('slower_standups', 'slower_targets', 'slower_shots')) : undefined,
         ];
         const verb = this.isRestarted? repeat('10K POINTS', 6) : [
             this.state._==='starting'&&this.state.secondBallLocked? '10K POINTS' : 'ONE-SHOT ADD-A-BALL',
@@ -306,9 +314,8 @@ export class FlushMb extends Multiball {
                 dontOverride: i===0,
                 display: selections[i],
                 collect: () => {
-                    if (this.state._==='starting' && this.state.addABallReady) return;
-                    if (selections[i].images)
-                        switch (selections[i].images![0]) {
+                    if (selections[i]?.images)
+                        switch (selections[i]!.images![0]) {
                             case 'slower_standups':
                                 this.standupSpeed *= .5;
                                 break;
@@ -319,20 +326,20 @@ export class FlushMb extends Multiball {
                                 this.shotSpeed *= .5;
                                 break;
                         }
-                    this.state = Started();
-                    fork(this.releaseBallsFromLock());
                 },
                 made: (e: SwitchEvent) => {
                     switch (verb[i]) {
                         case 'ONE-SHOT ADD-A-BALL': 
                             if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
-                                this.listen(onAnyPfSwitchExcept(), (ev) => {
+                                this.listen(onAnyPfSwitchExcept(), async (ev) => {
                                     if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
+                                    const finish = await Events.tryPriority(Priorities.ReleaseMb);
                                     if (ev.sw !== machine.sRampMade) {
                                         this.state = Started();
-                                        fork(this.releaseBallsFromLock());
+                                        await this.releaseBallsFromLock();
                                     }
+                                    if (finish) finish();
                                     return 'remove';
                                 });
                                 return;

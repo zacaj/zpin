@@ -114,7 +114,7 @@ export class HandMb extends Multiball {
         this.misc = undefined;
 
         this.listen(onSwitchClose(machine.sRampMade), async () => {
-            if (this.state._==='starting' && !this.state.secondBallLocked) {
+            if (this.state._==='starting' && !this.state.secondBallLocked && !machine.cRamp.actual && this.state.addABallReady) {
                 if (machine.ballsLocked !== 'unknown')
                     machine.ballsLocked++;
                 this.state.secondBallLocked = true;
@@ -142,6 +142,12 @@ export class HandMb extends Multiball {
 
         this.listen<DropDownEvent>(e => e instanceof DropDownEvent, (e) => this.updateValue(e.target));
         this.listen<StandupEvent>(e => e instanceof StandupEvent, (e) => this.updateValue(e.standup));
+
+        this.listen(e => e instanceof SkillshotComplete, async () => {
+            if (this.state._==='starting' && this.state.addABallReady) return;
+            this.state = Started();
+            await this.releaseBallsFromLock();
+        });
 
         
 
@@ -185,12 +191,12 @@ export class HandMb extends Multiball {
             debugger;
             throw new Error();
         }
-        if (this.state._==='starting') {
+        if (this.state._==='starting' || machine.ballsLocked > 0) {
             await this.releaseBallsFromLock();
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
+            this.player.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
                 return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
             }));
         }
@@ -301,20 +307,17 @@ export class HandMb extends Multiball {
                 award: this.state._==='starting'&&!this.state.secondBallLocked&&i===0? 'ONE-SHOT ADD-A-BALL' :
                     `JACKPOT +${short(value*1000)}` ,
                 dontOverride: i===0,
-                collect: () => {
-                    if (this.state._==='starting' && this.state.addABallReady) return;
-                    this.state = Started();
-                    fork(this.releaseBallsFromLock());
-                },
                 made: (e: SwitchEvent) => {
                     if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                         this.state.addABallReady = true; 
-                        this.listen(onAnyPfSwitchExcept(), (ev) => {
+                        this.listen(onAnyPfSwitchExcept(), async (ev) => {
                             if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
+                            const finish = await Events.tryPriority(Priorities.ReleaseMb);
                             if (ev.sw !== machine.sRampMade) {
                                 this.state = Started();
-                                fork(this.releaseBallsFromLock());
+                                await this.releaseBallsFromLock();
                             }
+                            if (finish) finish();
                             return 'remove';
                         });
                         return;

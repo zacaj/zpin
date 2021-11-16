@@ -18,6 +18,7 @@ import { Multiball } from './multiball';
 import { Player, SpinnerHit, SpinnerRip } from './player';
 import { Card } from './poker';
 import { Restart } from './restart';
+import { SkillshotComplete } from './skillshot';
 
 export enum Jackpot {
     Drop1 = 'Drop1',
@@ -128,10 +129,10 @@ export class FullHouseMb extends Multiball {
             lEjectArrow: () => this.state._ === 'started'? [[Color.White, 'fl']] : this.state._==='jackpotLit' && this.state.jp.startsWith('Left')? [Color.Gray] : [],
             iSS5: () => this.state._ === 'started' || (this.state._==='jackpotLit'&&this.state.jp.startsWith('Left'))? dImage('light_right_jackpot') : undefined,
             getSkillshot: () => this.state._==='starting'? () => this.getSkillshot() : undefined,
-            lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane), 4),
-            lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget), 4),
-            lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget), 4),
-            lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane), 4),
+            lUpperLaneArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightLane), this.jpColor(Jackpot.RightLane), this.state._==='starting'? 2 : 6, 6, 1),
+            lUpperTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.RightTarget), this.jpColor(Jackpot.RightTarget), this.state._==='starting'? 2 : 6, 6, 1),
+            lSideTargetArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftTarget), this.jpColor(Jackpot.LeftTarget), this.state._==='starting'? 2 : 6),
+            lSideShotArrow: () => flash(this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.LeftLane), this.jpColor(Jackpot.LeftLane), this.state._==='starting'? 2 : 6),
             // iUpper31: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop1))? colorToArrow(this.jpColor(Jackpot.Drop1)) : undefined,
             // iUpper32: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop2))? colorToArrow(this.jpColor(Jackpot.Drop2)) : undefined,
             // iUpper33: () => ((time()/300%2)|0)===0 && (this.state._==='starting' || (this.state._==='jackpotLit' && this.state.jp===Jackpot.Drop3))? colorToArrow(this.jpColor(Jackpot.Drop2)) : 
@@ -151,7 +152,7 @@ export class FullHouseMb extends Multiball {
         this.listen(onSwitchClose(machine.sRampMade), async () => {
             if (machine.ballsLocked !== 'unknown')
                 machine.ballsLocked++;
-            if (this.state._==='starting' && !this.state.secondBallLocked) {
+            if (this.state._==='starting' && !this.state.secondBallLocked && !machine.cRamp.actual && this.state.addABallReady) {
                 this.state.secondBallLocked = true;
                 this.state.addABallReady = false;
                 void playVoice('ball added', undefined, true);
@@ -197,6 +198,17 @@ export class FullHouseMb extends Multiball {
         // });
         // this.listen([onAnySwitchClose(machine.sShooterUpper, machine.sShooterMagnet, ...machine.sUpperLanes), () => time()<this.catcherOnUntil], () => this.catcherOnUntil = 0);
 
+        this.listen(e => e instanceof SkillshotComplete, () => {
+            if (this.state._==='starting' && this.state.addABallReady) return;
+            // if (!selections[i])
+            if (this.state._==='starting')
+                this.state = Started();
+            // else
+            //     this.state = JackpotLit(selections[i]==='random'? 
+            //         this.skillshotRng.randSelect(...jackpots)  : (selections[i] as Jackpot));
+            fork(this.releaseBallsFromLock());
+        });
+        
         addToScreen(() => new FullHouseMbGfx(this));
     }
 
@@ -239,7 +251,7 @@ export class FullHouseMb extends Multiball {
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, 14, () => {
+            this.player.addTemp(new Restart(this.player.ball!, 14, () => {
                 return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined, this.total);
             }));
         }
@@ -326,27 +338,19 @@ export class FullHouseMb extends Multiball {
                 //         dClear(this.jpColor(selections[i] as Jackpot)!)!,
                 //         dImage('skill_light_jp'),
                 // )),
-                collect: () => {
-                    if (this.state._==='starting' && this.state.addABallReady) return;
-                    // if (!selections[i])
-                    if (this.state._==='starting')
-                        this.state = Started();
-                    // else
-                    //     this.state = JackpotLit(selections[i]==='random'? 
-                    //         this.skillshotRng.randSelect(...jackpots)  : (selections[i] as Jackpot));
-                    fork(this.releaseBallsFromLock());
-                },
                 made: (e: SwitchEvent) => {
                     switch (verb[i]) {
                         case 'ONE-SHOT ADD-A-BALL': 
                             if (i===0 && this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
-                                this.listen(onAnyPfSwitchExcept(), (ev) => {
+                                this.listen(onAnyPfSwitchExcept(), async (ev) => {
                                     if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
+                                    const finish = await Events.tryPriority(Priorities.ReleaseMb);
                                     if (ev.sw !== machine.sRampMade) {
                                         this.state = Started();
-                                        fork(this.releaseBallsFromLock());
+                                        await this.releaseBallsFromLock();
                                     }
+                                    if (finish) finish();
                                     return 'remove';
                                 });
                                 return;

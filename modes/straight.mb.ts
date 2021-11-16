@@ -17,7 +17,7 @@ import { Rng } from '../rand';
 import { Card } from './poker';
 import { Restart } from './restart';
 import { dClear, dImage, dInvert } from '../disp';
-import { Time, time } from '../timer';
+import { Time, time, wait } from '../timer';
 import { playVoice } from '../sound';
 import { FlashLights, ShimmerLights } from '../util-modes';
 
@@ -109,18 +109,26 @@ export class StraightMb extends Multiball {
         });
         if (isRestarted && this.state._==='starting') this.state.secondBallLocked = true;
 
-        this.listen(onSwitchClose(machine.sRampMade), async () => {
+        this.listen(onSwitchClose(machine.sRampMade), async (e) => {
             if (machine.ballsLocked !== 'unknown')
                 machine.ballsLocked++;
-            if (this.state._==='starting' && !this.state.secondBallLocked) {
-                this.state.secondBallLocked = true;
-                this.state.addABallReady = false;
-                void playVoice('ball added', undefined, true);
-                await alert('ball locked')[1];
-                await this.releaseBallFromTrough();
+            if (this.state._==='starting') {
+                if (!this.state.secondBallLocked && !machine.cRamp.actual && this.state.addABallReady) {
+                    this.state.secondBallLocked = true;
+                    this.state.addABallReady = false;
+                    void playVoice('ball added', undefined, true);
+                    await alert('ball locked')[1];
+                    await this.releaseBallFromTrough();
+                }
+                else if (this.player.ball?.skillshot)
+                    await this.player.ball?.skillshot?.finish(e);
+                else
+                    await this.releaseBallsFromLock();
             }
-            else
+            else if (this.state._==='jackpotLit')
                 return this.jackpot();
+            else
+                await this.releaseBallsFromLock();
         });
 
         this.listen([e => e instanceof SpinnerRip], () => {
@@ -153,6 +161,12 @@ export class StraightMb extends Multiball {
             this.player.score += 10000;
         });
 
+        this.listen(e => e instanceof SkillshotComplete, () => {
+            if (this.state._==='starting' && this.state.addABallReady) return;
+            fork(this.releaseBallsFromLock());
+            this.selectBank();
+        });
+
         addToScreen(() => new StraightMbGfx(this));
     }
 
@@ -170,7 +184,7 @@ export class StraightMb extends Multiball {
             mb.total = total;
             (mb.gfx as any)?.notInstructions.visible(false);
             void playVoice('straight mb');
-            await alert('STRAIGHT Multiball!', 5000)[1];
+            await alert('STRAIGHT Multiball!', 4000)[1];
             (mb.gfx as any)?.notInstructions.visible(true);
             if (!isRestarted) {
                 await mb.start();
@@ -195,7 +209,7 @@ export class StraightMb extends Multiball {
         }
         const ret = this.end();
         if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.noMode?.addTemp(new Restart(this.player.ball!, Math.max(25 - this.drops * 4, 9), () => {
+            this.player.addTemp(new Restart(this.player.ball!, Math.max(25 - this.drops * 4, 9), () => {
                 return StraightMb.start(this.player, true, this.lastBank, this.total);
             }));
         }
@@ -212,7 +226,9 @@ export class StraightMb extends Multiball {
     selectBank(bank?: DropBank) {
         if (!bank) {
             bank = this.nextBank;
-            this.nextBank = machine.dropBanks[this.bankRng.weightedRand(1, 1, 5, 0, 3, 0)];
+            do {
+                this.nextBank = machine.dropBanks[this.bankRng.weightedRand(1, 1, 5, 0, 3, 0)];
+            } while (this.nextBank === this.lastBank);
         }
         this.state = BankLit(bank);
         this.lastBank = bank;
@@ -272,9 +288,11 @@ export class StraightMb extends Multiball {
             this.state._==='starting'&&this.state.secondBallLocked? 'JACKPOT +50K' : 'ONE-SHOT ADD-A-BALL',
             ...[
                 'JACKPOT +250K',
-                'LIGHT 2-BANK',
-                'LIGHT 5-BANK',
-                'LIGHT 4-BANK',
+                this.nextBank!==machine.upper2Bank? 'LIGHT 2-BANK' : undefined,
+                this.nextBank!==machine.rightBank? 'LIGHT 5-BANK' : undefined,
+                this.nextBank!==machine.leftBank? 'LIGHT 4-BANK' : undefined,
+                this.nextBank!==machine.centerBank? 'LIGHT 3-BANK' : undefined,
+                this.nextBank!==machine.centerBank? 'LIGHT 3-BANK' : undefined,
                 undefined,
                 undefined,
                 'JACKPOT +250K',
@@ -286,23 +304,19 @@ export class StraightMb extends Multiball {
                 switch: sw,
                 award: verb[i],
                 dontOverride: !!verb[i],
-                collect: () => {
-                    if (this.state._==='starting' && this.state.addABallReady) return;
-                    if (!verb[i]?.startsWith('LIGHT '))
-                        this.selectBank();
-                    fork(this.releaseBallsFromLock());
-                },
                 made: (e: SwitchEvent) => {
                     switch (verb[i]) {
                         case 'ONE-SHOT ADD-A-BALL': 
                             if (this.state._==='starting' && !this.state.secondBallLocked) {
                                 this.state.addABallReady = true; 
-                                this.listen(onAnyPfSwitchExcept(), (ev) => {
+                                this.listen(onAnyPfSwitchExcept(), async (ev) => {
                                     if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
+                                    const finish = await Events.tryPriority(Priorities.ReleaseMb);
                                     if (ev.sw !== machine.sRampMade) {
-                                        this.selectBank(undefined);
-                                        fork(this.releaseBallsFromLock());
+                                        this.selectBank();
+                                        await this.releaseBallsFromLock();
                                     }
+                                    if (finish) finish();
                                     return 'remove';
                                 });
                             }
@@ -312,9 +326,10 @@ export class StraightMb extends Multiball {
                         case 'DOUBLE JACKPOT VALUE': this.value *= 2; break;
                         case 'TRIPLE JACKPOT VALUE': this.value *= 3; break;
                         case '1.5X JACKPOT VALUE': this.value *= 1.5; break;
-                        case 'LIGHT 2-BANK': this.selectBank(machine.upper2Bank); break;
-                        case 'LIGHT 4-BANK': this.selectBank(machine.leftBank); break;
-                        case 'LIGHT 5-BANK': this.selectBank(machine.rightBank); break;
+                        case 'LIGHT 2-BANK': this.nextBank = machine.upper2Bank; break;
+                        case 'LIGHT 3-BANK': this.nextBank = machine.centerBank; break;
+                        case 'LIGHT 4-BANK': this.nextBank = machine.leftBank; break;
+                        case 'LIGHT 5-BANK': this.nextBank = machine.rightBank; break;
                         default:
                             break;
                     }

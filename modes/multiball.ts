@@ -13,6 +13,7 @@ import { Difficulty, Player } from './player';
 import { assert, getCallerLoc, score } from '../util';
 import { Color } from '../light';
 import { stopMusic } from '../sound';
+import { Skillshot } from './skillshot';
 
 export abstract class Multiball extends Mode {
     override get nodes() {
@@ -86,6 +87,7 @@ export abstract class Multiball extends Mode {
     }
 
     async releaseBallFromTrough() {
+        fork(Skillshot.start(this.player.ball!));
         if (MPU.isLive || gfx) {
             await ReleaseBall(this);
         }
@@ -109,7 +111,7 @@ export abstract class Multiball extends Mode {
         assert(machine.ballsLocked !== 0);
         if (machine.ballsLocked>=2) {
             this.lockPost = true;
-            await wait(55, 'release lock');
+            await wait(45, 'release lock');
             this.lockPost = false;
 
             await wait(250, 'release locks');
@@ -146,7 +148,7 @@ export abstract class Multiball extends Mode {
         Log.log('game', 'lost ball from multiball, now at %i balls', this.balls);
         if (this.balls <= 1) {
             Log.log('game', 'multiball over');
-            return this.lastBallDrained();
+            await this.lastBallDrained();
         }
 
         return undefined;
