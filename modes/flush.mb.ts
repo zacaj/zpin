@@ -261,7 +261,7 @@ export class FlushMb extends Multiball {
         this.jackpots++;
         void playVoice('jackpot short', 75, true);
 
-        fork(FlashLights(machine.overrides, 1.5, Color.Pink));
+        fork(FlashLights(machine.overrides, 2.5, Color.Pink));
         const [group, promise] = alert('JACKPOT!', 3000, comma(this.state.value));
         this.player.score += this.state.value;
         this.total += this.state.value;

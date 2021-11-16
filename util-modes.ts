@@ -11,11 +11,11 @@ import { MPU } from './mpu';
 import { Time, Timer, TimerQueueEntry, wait } from './timer';
 import { fork } from './promises';
 import { alert, notify } from './gfx';
-import { Color, colorToArrow } from './light';
+import { Color, colorToArrow, LightState, normalizeLight } from './light';
 import { Player } from './modes/player';
 import { Rng } from './rand';
 import { State } from './state';
-import { dImage } from './disp';
+import { dClear, dImage } from './disp';
 import { playVoice } from './sound';
 
 
@@ -166,6 +166,19 @@ export async function ReleaseBall(parent: Tree<MachineOutputs>) {
     await parent.await(node.onEnd());
 }
 
+export function MakeOuts(parent: Tree<MachineOutputs>, origFuncs: OutputFuncsOrValues<MachineOutputs>) {
+    const node = new class extends Tree<MachineOutputs> {
+        constructor() {
+            super();
+            this.out = new Outputs(this, origFuncs);
+        }
+    };
+
+    parent.addTemp(node);
+
+    return node;
+}
+
 export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs: OutputFuncsOrValues<MachineOutputs>) {
 
     const node = new class extends Tree<MachineOutputs> {
@@ -180,9 +193,27 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
     return wait(ms, 'effect').then(() => { node.end(); });
 }
 
+export function getOverrides(tree: Tree<MachineOutputs>): Tree<MachineOutputs>&{overrides: Tree<MachineOutputs>} {
+    return tree.getAndParents().find(t => 'overrides' in t) as any;
+}
+
 export const defaultLightExcept: (keyof LightOutputs)[] = ['lShootAgain'];
+export function AllLights(tree: Tree<MachineOutputs>, state: LightState = [], ms?: number, lights?: (keyof LightOutputs)[], ...except: (keyof LightOutputs)[]) {
+    const outs: any = {};
+    const color = normalizeLight(state)?.color;
+    for (const light of lights ?? machine.lights.map(l => l.name)) {
+        if (except.includes(light)) continue;
+        outs[light] = [state];
+    }
+    for (const target of machine.dropTargets) {
+        if (!target.image) continue;
+        outs[target.image.name] = () => dClear(color);
+    }
+    const parent = getOverrides(tree);
+    return ms? Effect(parent, ms, outs) : MakeOuts(parent, outs);
+}
 export async function FlashLights(parent: Tree<MachineOutputs>, times: number, color = Color.White, lights?: (keyof LightOutputs)[], ...except: (keyof LightOutputs)[]) {
-    const speed = 500; // complete flash length
+    const speed = 350; // complete flash length
     const outs: any = {};
     for (const light of lights ?? machine.lights.map(l => l.name)) {
         if (except.includes(light)) continue;
@@ -205,7 +236,7 @@ export function blink(tree: Tree<MachineOutputs>, light: keyof LightOutputs, col
     if (!color) return;
     const length = color === Color.Gray? 225 : 300;
     return {
-        promise: Effect('overrides' in tree? (tree as any).overrides : 'player' in tree? (tree as any).player.overrides : machine.overrides, length, {
+        promise: Effect(getOverrides(tree), length, {
             [light]: [[color, 'fl', 1000/(300/120)]],
         }),
     };

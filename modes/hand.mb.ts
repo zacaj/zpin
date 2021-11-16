@@ -245,7 +245,7 @@ export class HandMb extends Multiball {
     async jackpot() {
         if (this.state._==='starting') return;
         const value = this.value * (this.state.doubled? 2 : 1);
-        fork(FlashLights(machine.overrides, 1.5, Color.Green));
+        fork(FlashLights(machine.overrides, 2.5, Color.Green));
         const [group, promise] = alert('JACKPOT!', 4500, comma(value));
         this.collected();
         this.player.score += value;

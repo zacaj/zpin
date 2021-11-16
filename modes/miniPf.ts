@@ -10,6 +10,8 @@ import { round, score } from '../util';
 import { time } from '../timer';
 import { Color } from '../light';
 import { Difficulty } from './player';
+import { ShimmerLights } from '../util-modes';
+import { fork } from '../promises';
 
 export class MiniPf extends Mode {
     waitingForSwitch = true;
@@ -39,6 +41,7 @@ export class MiniPf extends Mode {
             if (amount > ball.player.top20)
                 ball.player.top20 = amount;
             notify(score(amount), 8000);
+            fork(ShimmerLights(this, 2000));
         });
 
         // todo voice
