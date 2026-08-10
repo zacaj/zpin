@@ -14,3 +14,7 @@ cdisp/Debug/
 cdisp/bin/
 media/wip/
 scores/
+*.log
+highscore*.json
+sync.ffs_db
+cdisp/cdisp.vcxproj.user
