@@ -1,0 +1,64 @@
+Thu May 20 2021 17:19:05 GMT-0400 (Eastern Daylight Time)
+53:00.585.900 create mode MachineOverrides
+53:01.404.200 switch 'trough full' state -> true (1,0) at 2549 via fake
+53:01.410.800 create mode Game
+53:01.438.400 create mode Player
+53:01.490.700 create mode PlayerOverrides
+53:01.732.400 create mode Ball
+53:02.166.200 switch 'trough full' state -> false (1,0) at 3311 via fake
+53:02.186.000 switch 'shooter lane' state -> true (0,0) at 3330 via fake
+53:02.192.800 create mode Poker
+53:02.897.600 create mode Skillshot
+53:06.124.300 force state of shooter lane to off
+53:06.125.200 switch 'shooter lane' state -> false (0,0) at 7270 via force
+53:07.636.200 force state of shooter lower to on
+53:07.637.900 switch 'shooter lower' state -> true (0,2) at 8782 via force
+53:07.900.200 switch 'shooter lower' state -> false (0,2) at 9044 via force
+53:08.938.500 force state of right inlane to on
+53:08.941.100 switch 'right inlane' state -> true (5,0) at 10085 via force
+53:09.218.700 switch 'right inlane' state -> false (5,0) at 10362 via force
+53:12.553.100 force state of outhole to on
+53:12.554.900 switch 'outhole' state -> true (2,0) at 13698 via force
+53:12.683.600 switch 'outhole' state -> false (2,0) at 13828 via fake
+53:12.688.200 switch 'trough full' state -> true (1,0) at 13833 via fake
+53:12.695.000 create mode Bonus
+53:12.968.300 switch 'ramp down' state -> true (4,7) at 14113 via 
+53:16.833.800 create mode Ball
+53:17.085.900 switch 'ramp down' state -> false (4,7) at 18229 via 
+53:17.312.800 switch 'trough full' state -> false (1,0) at 18457 via fake
+53:17.327.200 switch 'shooter lane' state -> true (0,0) at 18472 via fake
+53:17.333.900 create mode Skillshot
+53:18.886.900 force state of shooter lane to off
+53:18.889.900 switch 'shooter lane' state -> false (0,0) at 20033 via force
+53:20.218.900 force state of shooter magnet to on
+53:20.219.300 switch 'shooter magnet' state -> true (7,2) at 21363 via force
+53:20.487.800 switch 'shooter magnet' state -> false (7,2) at 21631 via force
+53:21.670.800 force state of right inlane to on
+53:21.670.500 switch 'right inlane' state -> true (5,0) at 22815 via force
+53:21.950.400 switch 'right inlane' state -> false (5,0) at 23094 via force
+53:23.653.300 force state of outhole to on
+53:23.654.200 switch 'outhole' state -> true (2,0) at 24799 via force
+53:23.785.400 switch 'outhole' state -> false (2,0) at 24929 via fake
+53:23.790.200 switch 'trough full' state -> true (1,0) at 24934 via fake
+53:23.795.100 create mode Bonus
+53:24.066.300 switch 'ramp down' state -> true (4,7) at 25210 via 
+53:27.950.100 create mode Ball
+53:28.207.900 switch 'ramp down' state -> false (4,7) at 29352 via 
+53:28.532.700 switch 'trough full' state -> false (1,0) at 29676 via fake
+53:28.545.400 switch 'shooter lane' state -> true (0,0) at 29690 via fake
+53:28.549.400 create mode Skillshot
+53:30.852.800 force state of shooter lane to off
+53:30.853.200 switch 'shooter lane' state -> false (0,0) at 31997 via force
+53:34.135.400 force state of upper lane 4 to on
+53:34.136.900 switch 'upper lane 4' state -> true (3,5) at 35281 via force
+53:34.425.100 switch 'upper lane 4' state -> false (3,5) at 35569 via force
+53:36.502.800 force state of outhole to on
+53:36.503.300 switch 'outhole' state -> true (2,0) at 37647 via force
+53:36.635.200 switch 'outhole' state -> false (2,0) at 37779 via fake
+53:36.639.700 switch 'trough full' state -> true (1,0) at 37784 via fake
+53:36.646.100 create mode Bonus
+53:36.896.300 switch 'ramp down' state -> true (4,7) at 38041 via 
+53:40.688.100 create mode EndOfGameBonus
+53:48.220.200 force state of right flipper to on
+53:48.221.400 switch 'right flipper' state -> true (8,1) at 49365 via force
+53:48.485.200 switch 'right flipper' state -> false (8,1) at 49629 via force

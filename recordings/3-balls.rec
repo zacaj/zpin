@@ -1,0 +1,86 @@
+Mon Mar 01 2021 13:17:36 GMT-0500 (Eastern Standard Time)
+21:07.401.200 create mode MachineOverrides
+21:08.206.100 switch 'trough full' state -> true (1,0) at 1884 via fake
+21:08.210.000 create mode Game
+21:08.236.900 create mode Player
+21:08.283.900 create mode PlayerOverrides
+21:08.500.400 create mode Ball
+21:08.908.600 switch 'trough full' state -> false (1,0) at 2586 via fake
+21:08.925.900 switch 'shooter lane' state -> true (0,0) at 2603 via fake
+21:08.930.300 create mode Poker
+21:09.638.800 create mode Skillshot
+21:13.919.400 force state of shooter lane to off
+21:13.920.200 switch 'shooter lane' state -> false (0,0) at 7598 via force
+21:15.384.900 force state of right inlane to on
+21:15.385.400 switch 'right inlane' state -> true (5,0) at 9063 via force
+21:15.678.100 switch 'right inlane' state -> false (5,0) at 9356 via force
+21:17.387.100 force state of center right to on
+21:17.388.400 switch 'center right' state -> true (1,4) at 11066 via force
+21:17.397.500 drop switch center right down
+21:17.900.900 force state of center center to on
+21:17.901.300 switch 'center center' state -> true (2,4) at 11579 via force
+21:17.911.600 drop switch center center down
+21:19.184.900 force state of center left to on
+21:19.185.500 switch 'center left' state -> true (3,4) at 12863 via force
+21:19.194.800 drop switch center left down
+21:19.196.600 drop bank centerBank complete
+21:19.553.900 switch 'center left' state -> false (3,4) at 13231 via fake
+21:19.558.600 switch 'center center' state -> false (2,4) at 13236 via fake
+21:19.563.600 switch 'center right' state -> false (1,4) at 13241 via fake
+21:19.567.600 drop bank centerBank reset successfully
+21:29.833.600 force state of right 2 to on
+21:29.834.300 switch 'right 2' state -> true (4,2) at 23512 via force
+21:29.843.600 drop switch right 2 down
+21:34.251.000 force state of upper 2 left to on
+21:34.252.000 switch 'upper 2 left' state -> true (4,6) at 27930 via force
+21:34.283.500 drop switch upper 2 left down
+21:34.437.900 switch 'ramp down' state -> true (4,7) at 28115 via 
+21:34.461.200 switch 'upper 2 left' state -> false (4,6) at 28139 via fake
+21:34.464.900 drop bank upper2 reset successfully
+21:34.619.700 switch 'right 1' state -> true (5,2) at 28297 via fake
+21:34.622.300 drop switch right 1 detected, but was already down
+21:34.760.500 switch 'right 3' state -> true (3,2) at 28438 via fake
+21:34.763.500 drop switch right 3 detected, but was already down
+21:41.917.400 force state of outhole to on
+21:41.918.500 switch 'outhole' state -> true (2,0) at 35596 via force
+21:42.099.000 switch 'outhole' state -> false (2,0) at 35777 via fake
+21:42.102.100 switch 'trough full' state -> true (1,0) at 35780 via fake
+21:44.122.600 switch 'right 1' state -> false (5,2) at 37800 via fake
+21:44.124.500 switch 'right 2' state -> false (4,2) at 37802 via fake
+21:44.130.900 switch 'right 3' state -> false (3,2) at 37808 via fake
+21:44.133.200 drop bank rightBank reset successfully
+21:48.923.900 create mode Bonus
+21:54.361.000 create mode Ball
+21:54.455.100 create mode Poker
+21:54.736.900 switch 'ramp down' state -> false (4,7) at 48414 via 
+21:55.241.700 switch 'trough full' state -> false (1,0) at 48919 via fake
+21:55.253.800 switch 'shooter lane' state -> true (0,0) at 48931 via fake
+21:55.257.400 create mode Skillshot
+21:56.686.100 force state of shooter lane to off
+21:56.687.800 switch 'shooter lane' state -> false (0,0) at 50365 via force
+21:58.835.500 force state of right inlane to on
+21:58.835.600 switch 'right inlane' state -> true (5,0) at 52513 via force
+21:59.108.300 switch 'right inlane' state -> false (5,0) at 52786 via force
+22:02.604.200 force state of outhole to on
+22:02.605.000 switch 'outhole' state -> true (2,0) at 56283 via force
+22:02.728.400 switch 'outhole' state -> false (2,0) at 56406 via fake
+22:02.732.500 switch 'trough full' state -> true (1,0) at 56410 via fake
+22:02.738.100 create mode Bonus
+22:02.877.900 switch 'ramp down' state -> true (4,7) at 56555 via 
+22:05.705.600 create mode Ball
+22:05.859.500 switch 'ramp down' state -> false (4,7) at 59537 via 
+22:06.164.100 switch 'trough full' state -> false (1,0) at 59842 via fake
+22:06.175.200 switch 'shooter lane' state -> true (0,0) at 59853 via fake
+22:06.178.100 create mode Skillshot
+22:14.053.600 force state of shooter lane to off
+22:14.054.300 switch 'shooter lane' state -> false (0,0) at 67733 via force
+22:14.986.000 force state of right inlane to on
+22:14.987.900 switch 'right inlane' state -> true (5,0) at 68665 via force
+22:15.274.300 switch 'right inlane' state -> false (5,0) at 68953 via force
+22:17.319.300 force state of outhole to on
+22:17.320.200 switch 'outhole' state -> true (2,0) at 70998 via force
+22:17.442.500 switch 'outhole' state -> false (2,0) at 71120 via fake
+22:17.447.000 switch 'trough full' state -> true (1,0) at 71126 via fake
+22:17.453.200 create mode Bonus
+22:17.611.000 switch 'ramp down' state -> true (4,7) at 71290 via 
+22:20.353.500 create mode EndOfGameBonus
