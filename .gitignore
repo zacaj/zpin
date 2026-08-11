@@ -18,3 +18,4 @@ scores/
 highscore*.json
 sync.ffs_db
 cdisp/cdisp.vcxproj.user
+pi/aminogfx-gl/
