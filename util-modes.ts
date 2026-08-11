@@ -75,7 +75,7 @@ export async function ResetMechs(parent: Tree<MachineOutputs>, ...except: DropBa
         if (!node.ended) {
             node.end();
             alert('BANK RESET FAILED');
-            Log.error(['assert', 'machine'], 'failed to reset all banks in time: ', machine.dropBanks.filter(b => !except.includes(b) && b.targets.every(t => !t.switch.state)).map(b => b.name));
+            Log.error(['assert', 'machine'], 'failed to reset all banks in time: ', machine.dropBanks.filter(b => !except.includes(b) && b.targets.every(t => !t.switch.state)).map(b => b.coil?.name ?? b.name));
         }
     }));
 
@@ -190,7 +190,7 @@ export async function Effect(parent: Tree<MachineOutputs>, ms: number, origFuncs
 
     parent.addTemp(node);
 
-    return wait(ms, 'effect').then(() => { node.end(); });
+    return wait(ms, 'effect').then(() => { node.end() });
 }
 
 export function getOverrides(tree: Tree<MachineOutputs>): Tree<MachineOutputs>&{overrides: Tree<MachineOutputs>} {
@@ -332,7 +332,7 @@ export class MiscAwards extends Tree<MachineOutputs> {
                     player.addChip();
                     break;
                 case Award.AddValue:
-                    player.changeValue(20);
+                    player.changeValue(10);
                     break;
                 case Award.SubtractValue:
                     player.changeValue(-20);

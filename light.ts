@@ -249,4 +249,4 @@ thread_stop\n\n`);
 
         socket.write(cmd+(cmd.endsWith('\n')? '' : '\n'));
     },
-}
+};

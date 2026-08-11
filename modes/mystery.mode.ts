@@ -68,7 +68,7 @@ const allAwards: ((player: Player) => Award)[] = [
     (player) => ({
         name: 'LIGHT MUlTIBALL',
         giveAward() {
-            const mb = player.mysteryRng.randSelect(...['StraightMb', 'FullHouseMb', 'FlushMb'].filter(m => !player.mbsQualified.has(m as any)) as any)
+            const mb = player.mysteryRng.randSelect(...['StraightMb', 'FullHouseMb', 'FlushMb'].filter(m => !player.mbsQualified.has(m as any)) as any);
             player.qualifyMb(mb);
         },
         chance: 8,

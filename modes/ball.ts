@@ -89,7 +89,7 @@ export class Ball extends Mode {
             this.drainEffect = undefined;
             await stopSounds();
             await playSound('drop spin');
-            if (machine.ballsLocked > 0 || !machine.sDetect3.state) {
+            if (machine.ballsLocked > 0 || (!machine.sDetect3.state && time() - machine.sDetect3.lastClosed! < 2000)) {
                 await this.saveBall();
             }
             else if (machine.sRightOutlane.wasClosedWithin(1000) && !machine.sPopperButton.wasClosedWithin(1000) && this.player.chips>0 && !this.shootAgain && !this.tilted) {

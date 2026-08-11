@@ -83,15 +83,15 @@ export function getHighscores(): Highscores {
         'LOW SCORES': [
             {
                 name: 'RON',
-                score: '-2,000,000',
+                score: '-100,000',
             },
             {
                 name: 'STP',
-                score: '-1,000,000',
+                score: '-50,000',
             },
             {
                 name: 'SAG',
-                score: '-500,000',
+                score: '-10,000',
             },
             {
                 name: 'YYZ',

@@ -70,7 +70,7 @@ export class Skillshot extends Mode {
             this.isFirstOfBall = true;
 
         this.awards = this.makeAwards();    
-        this.gateMode = this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]);    
+        this.gateMode = this.skillshotCount>0? this.rng.weightedSelect([0, GateMode.Closed], [8, GateMode.Toggle], [4, GateMode.Open]) : GateMode.Toggle;    
         
         this.setAward(this.rng.randSelect(...seq(6).filter(i => !this.awards[i].dontDefault)));//(Math.random()*this.awards.length)|0);  
 
@@ -236,9 +236,7 @@ export class Skillshot extends Mode {
             Log.error(['switch', 'game'], 'Switch %s detected while ball in shooter lane', e.sw.name);
             return;
         }
-        if (this.wasMade) return;
-        this.timesTried[this.curAward]++;
-        if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole, machine.sMiniOut].includes(e.sw)) {
+        if ([machine.sLeftOutlane, machine.sRightOutlane, machine.sOuthole, machine.sMiniOut].includes(e.sw) && !this.player.curMbMode) {
             void playVoice(`wait you'll get that back`, 75, true);
             this.ball.shootAgain = true;
             Skillshot.isShootAgain = this.ball;
@@ -251,6 +249,8 @@ export class Skillshot extends Mode {
     }
 
     override end() {
+        if (!this.ended)
+            this.timesTried[this.curAward]++;
         if (this.finishDisplay)
             this.finishDisplay();
         this.ball.skillshot = undefined;

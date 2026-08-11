@@ -31,7 +31,7 @@ export class Game extends Mode {
     players: Player[] = [];
     playerUp = 0;
     get curPlayer(): Player|undefined {
-        return this.playerUp>=0? this.players[this.playerUp] : undefined;;
+        return this.playerUp>=0? this.players[this.playerUp] : undefined;
     }
     ballNum = 1;
     ballCount = 3;
