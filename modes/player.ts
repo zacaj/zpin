@@ -206,7 +206,7 @@ export class Player extends Mode {
         // ['RoyalFlushMb', []],
     ]);
 
-    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb'|'RoyalFlushMb';
+    selectedMb?: 'StraightMb'|'FlushMb'|'HandMb'|'FullHouseMb'|'RoyalFlushMb'|'None';
 
     get modesReady() {
         return new Set([...this.modesQualified, ...(this.poker?.newModes ?? [])]);
@@ -247,7 +247,7 @@ export class Player extends Mode {
     }
 
     get mbReady(): boolean {
-        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (machine.ballsInPlay==='unknown'||machine.ballsInPlay<=1);
+        return (!this.curMode || !!this.poker) && this.mbsReady.size>0 && (machine.ballsInPlay==='unknown'||machine.ballsInPlay<=1) && this.selectedMb!=='None';
     }
 
     get handMbQualified(): boolean {
@@ -260,9 +260,11 @@ export class Player extends Mode {
 
     get nextMb() {
         const mbs = [...this.mbsReady.keys()];
+        if (this.selectedMb === 'None')
+            return mbs[0];
         const cur = mbs.indexOf(this.selectedMb!);
         if (cur >= mbs.length - 1)
-            return mbs[0];
+            return 'None';
         else
            return mbs[cur+1];
     }
@@ -313,7 +315,7 @@ export class Player extends Mode {
         State.declare<Player['store']>(this.store, ['Poker', 'Skillshot']);
         this.out = new Outputs(this, {
             leftMagnet: () => machine.sMagnetButton.state && time() - machine.sMagnetButton.lastChange < 4000 && !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable,
-            rampUp: () => !this.mbReady,
+            rampUp: () => !this.mbReady || !this.selectedMb,
             iSS1: () => this.canStartHand? dImage("start_hand_shooter") : undefined,
             // lEjectStartMode: () => (!this.curMode || this.poker) && this.modesReady.size>0? ((this.poker?.step??7) >= 7? [Color.Green] : [Color.Red]) : [],
             iSS4: () => dImage(`lanes_`+[machine.cLeftGate.actual, machine.cRightGate.actual].map(b => b? "go" : 'stop').join('_')),
@@ -343,13 +345,14 @@ export class Player extends Mode {
             lUpperTargetArrow: add(() => !this.curMbMode && this.chipsLit[3] && this.chips<3, Color.Orange),
             lSpinnerTarget: add(() => !this.curMbMode && this.chipsLit[4] && this.chips<3, Color.Orange),
             lMainTargetArrow: many(() => ([
-                [[this.mbColor(this.nextMb), 'pl', .75], this.mbsReady.size>1 && !this.curMbMode && this.mbReady],
+                [[this.mbColor(this.nextMb), 'pl', .75], this.mbsReady.size>=1 && !this.curMbMode && this.nextMb!=='None'],
+                [[Color.White, 'pl', .75], this.mbsReady.size>=1 && !this.curMbMode && this.nextMb==='None'],
                 [Color.Orange, this.chipsLit[1] && this.chips<2],
             ])),
             popper: () => !machine.sShooterLane.state && machine.out!.treeValues.kickerEnable && machine.lPower1.lit(),
-            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl', .5]] : [],
-            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl', .5]] : [],
-            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl', .5]] : [],
+            lStraightStatus: () => (this.straightMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.straightMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : /*this.mbsReady.has('StraightMb')? [[this.mbColor('StraightMb'), 'pl', .5]] :*/ [],
+            lFullHouseStatus: () => (this.fullHouseMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.fullHouseMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : /*this.mbsReady.has('FullHouseMb')? [[this.mbColor('FullHouseMb'), 'pl', .5]] :*/ [],
+            lFlushStatus: () => (this.flushMbStatus??0)>150000? [[Color.Green, this.royalFlushReady&&'pl', .5]] : (this.flushMbStatus??0)>0? [[Color.Red, this.royalFlushReady&&'pl', .5]] : /*this.mbsReady.has('FlushMb')? [[this.mbColor('FlushMb'), 'pl', .5]] :*/ [],
         });
 
         // mystery
@@ -418,7 +421,7 @@ export class Player extends Mode {
 
         // swap mb
         this.listen(onSwitchClose(machine.sSingleStandup), () => {
-            if (this.mbsReady.size < 2) return;
+            if (this.mbsReady.size < 1) return;
             this.selectedMb = this.nextMb;
             void playSound('swap mb');
         });
@@ -644,7 +647,9 @@ export class Player extends Mode {
                 if (this.mbsReady.size)
                     this.selectedMb = this.rand.randSelect(...this.mbsReady.keys());
             } else {
-                if (!this.mbsReady.has(this.selectedMb))
+                if (this.selectedMb!=='None' && !this.mbsReady.has(this.selectedMb))
+                    this.selectedMb = undefined;
+                if (this.mbsReady.size === 0)
                     this.selectedMb = undefined;
             }
         });
