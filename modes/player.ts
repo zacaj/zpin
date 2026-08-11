@@ -85,7 +85,7 @@ export class Player extends Mode {
         return this._score;
     }
     set score(val: number) {
-        if (this.ball?.tilted) return;
+        if (this.ball?.tilted || isNaN(val)) return;
         const diff = val - this._score;
         this._score = val;
 
@@ -94,8 +94,8 @@ export class Player extends Mode {
             this.recordScore(diff, source);
         }
     }
-    addScore(amount: number, source: string|null, announce = false) {
-        if (this.ball?.tilted) return;
+    addScore(amount: number, source: string|null, announce = false, checkTilt = true) {
+        if (this.ball?.tilted && checkTilt) return;
         this._score += amount;
         if (source && amount)
             this.recordScore(amount, source);

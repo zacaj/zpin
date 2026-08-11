@@ -66,28 +66,30 @@ export class EndOfGameBonus extends Mode {
         this.player.recordScore(this.total, 'eog');
         if (this.total > this.player.store.Poker!.topCashout)
             this.player.store.Poker!.topCashout = this.total;
-        const speed = 30;
-        const maxTime = 4500;
-        const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
-        let dropTime = 500;
-        let lastDrop = 0;
-        let drops = 0;
-        let dropCount = 3;
-        while (this.total !== 0) {
-            if (this.total/speed/rate > .300) {
-                lastDrop = time();
-                void playSound('chip drop');
-                if (++drops === dropCount) {
-                    dropTime /= 2;
-                    drops = 0;
-                    dropCount *= 2;
+        if (this.total !== 0 && !isNaN(this.total)) {
+            const speed = 30;
+            const maxTime = 4500;
+            const rate = Math.max(1000, round(Math.abs(this.total)/(maxTime/speed), 1000));
+            let dropTime = 500;
+            let lastDrop = 0;
+            let drops = 0;
+            let dropCount = 3;
+            while (this.total !== 0) {
+                if (this.total/speed/rate > .300) {
+                    lastDrop = time();
+                    void playSound('chip drop');
+                    if (++drops === dropCount) {
+                        dropTime /= 2;
+                        drops = 0;
+                        dropCount *= 2;
+                    }
                 }
+                const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);
+                this.total -= change;
+                // this.player.score += change;
+                this.player.addScore(change, null, false, false);
+                await gWait(speed, 'bonus count');
             }
-            const change = Math.min(Math.abs(this.total), rate)*Math.sign(this.total);
-            this.total -= change;
-            // this.player.score += change;
-            this.player.addScore(change, null);
-            await gWait(speed, 'bonus count');
         }
         await gWait(2500, 'bonus end');
         this.player.audit('eog cash value', this.player.store.Poker!.cashValue);
