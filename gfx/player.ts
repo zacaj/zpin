@@ -91,7 +91,7 @@ export class PlayerGfx extends ModeGroup {
         player.watch(() => {
             const left = player.store.Poker?.handsForMb-player.store.Poker?.handsPlayed;
             this.handsLeft.text(`${left} hand${left>1?'s':''} for MB`);
-            this.handsLeft.visible(!player.handMbQualified && !player.mbsQualified.size);
+            this.handsLeft.visible(!player.handMbQualified);
         });
 
         this.add(this.status);
