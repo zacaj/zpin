@@ -13,7 +13,7 @@ cdisp/.vs/
 cdisp/Debug/
 cdisp/bin/
 media/wip/
-scores/
+scores/game-*.json
 *.log
 highscore*.json
 sync.ffs_db

@@ -1,2 +1,2 @@
 #!/bin/sh
-java -cp jserver/target/classes/:jserver/jars/* zpin.JServer
+sudo java -cp jserver/target/classes/:jserver/jars/* zpin.JServer

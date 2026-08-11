@@ -1,2 +1,3 @@
 #!/bin/sh
+#node --inspect build/attract --split
 node build/attract --split
