@@ -1,0 +1,28 @@
+{
+  "name": "zpin",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:dev-24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "8",
+      "installMaven": true
+    },
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages": "build-essential,python3,pkg-config,libglfw3-dev,libgl1-mesa-dev,libfreetype6-dev,libjpeg-dev,libpng-dev,zlib1g-dev,libavcodec-dev,libavformat-dev,libavutil-dev,libswscale-dev"
+    }
+  },
+  "mounts": [
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+  ],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}"
+  },
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "orta.vscode-jest"
+      ]
+    }
+  }
+}
