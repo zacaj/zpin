@@ -50,22 +50,27 @@ public class JServer extends Thread
     	return "";
     }
     
+    private void log(String str) {
+      if (!str.equals("Received command 'sw'") && !str.endsWith(" Response: 200 empty"))
+        logCmd.println(str);
+    }
+    
     void error(String str) throws ZError {
     	out.print(seqPrefix()+"400 " + str + "\r\n");
     	out.flush();
-    	logCmd.println(""+connNum+" Error: 400 " + str);
+    	log(""+connNum+" Error: 400 " + str);
     	throw new ZError("Client error " + str);
     }
     void internalError() {
     	out.print(seqPrefix()+"500" + "\r\n");
     	out.flush();
-    	logCmd.println(""+connNum+" internal error");
+    	log(""+connNum+" internal error");
     }
     
     void resp(Object str, int status) {
     	out.print(seqPrefix()+"" + status + " " + str + "\r\n");
     	out.flush();
-    	logCmd.println(""+connNum+" Response: " + status + " " + str);
+    	log(""+connNum+" Response: " + status + " " + str);
     }
     void resp(Object str) {
     	resp(str, 200);
@@ -121,7 +126,11 @@ public class JServer extends Thread
     
     private boolean handleCommand() {
     	try {
-    		String input = in.readLine();
+    		String input;
+    		if (matrix.triggeredCommands.isEmpty())
+    			input = in.readLine();
+    		else
+    			input = matrix.triggeredCommands.remove();
     		if (input == null) return false;
     		input = input.trim();
     		
@@ -136,7 +145,7 @@ public class JServer extends Thread
 			try {
 				if (input.length() == 0)
 					input = lastCommand;
-				logCmd.println("Received command '" + input + "'");
+				log("Received command '" + input + "'");
 				int oldCurBoard = -2;
 				if (input.matches("^\\d+:.*")) {
 					String[] p = input.split(":", 2);
@@ -200,7 +209,7 @@ public class JServer extends Thread
 							}
 							resp(response);
 							return true;
-						case "sw-config":
+						case "sw-config": {
 							if (parts.length != 6)
 								error("usage: sw-config row col minOnTime minOffTime inverted");
 							int row = num(1);
@@ -214,6 +223,7 @@ public class JServer extends Thread
 							System.out.println("Configure switch "+row+","+col);
 							ack();
 							return true;
+						}
 						case "sound": {
 							if (parts.length < 6)
 								error("usage: sound volume track solo loops resume name ");
@@ -224,7 +234,7 @@ public class JServer extends Thread
 							boolean resume = parts[5].equals("true");
 							if (solo)
 								sound.tracks[track].stop();
-							Sounds.Play play = sound.playSound(
+								Sounds.Play play = sound.playSound(
 									String.join(" ", Arrays.asList(parts).subList(6, parts.length)), 
 									track, 
 									((float)volume)/100,
@@ -272,7 +282,7 @@ public class JServer extends Thread
 								state.r = Integer.valueOf(hex.substring(0,2), 16);
 								state.g = Integer.valueOf(hex.substring(2,4), 16);
 								state.b = Integer.valueOf(hex.substring(4,6), 16);
-//								System.out.println("r "+state.r+" g "+state.g+" b "+state.b);
+//								System.out.log("r "+state.r+" g "+state.g+" b "+state.b);
 								if (modeStr.equals("solid"))
 									state.mode = LedMode.Solid;
 								if (modeStr.equals("flashing"))
@@ -291,6 +301,39 @@ public class JServer extends Thread
 							return true;
 						case "time":
 							resp(SwitchMatrix.ms());
+							return true;
+	    				case "set-trigger": {
+							if (parts.length < 4)
+								error("usage: set-trigger row col cmd");
+							else {
+								int row = num(1);
+								int col = num(2);
+								String tCmd = String.join(" ", Arrays.asList(parts).subList(3, parts.length));
+										
+								Switch sw = matrix.switches[row*matrix.Width+col];
+								if (sw == null)
+									error("no switch configured for row "+row+" col "+col);
+								else {
+									sw.triggerCmd = tCmd;
+									resp("set switch "+sw.name+" to trigger '"+tCmd+"'");
+								}
+							}
+							return true;
+	    				}
+	    				case "disable-trigger":
+							if (parts.length != 3)
+								error("usage: disable-trigger row col");
+							else {
+								int row = num(1);
+								int col = num(2);
+								Switch sw = matrix.switches[row*matrix.Width+col];
+								if (sw == null)
+									error("no switch configured for row "+row+" col "+col);
+								else {
+									sw.triggerCmd = null;
+									resp("disabled trigger for switch "+sw.name);
+								}
+							}
 							return true;
 						case "end":
 						case "q":
@@ -338,38 +381,6 @@ public class JServer extends Thread
 									else 
 										error("usage: fire <num> [fire time]");
 									resp("fired solenoid "+byt(1));
-									return true;
-			    				case "set-trigger":
-									if (parts.length != 4)
-										error("usage: set-trigger <num> row col");
-									else {
-										byte num = byt(1);
-										int row = num(2);
-										int col = num(3);
-										Switch sw = matrix.switches[row*matrix.Width+col];
-										if (sw == null)
-											error("no switch configured for row "+row+" col "+col);
-										else {
-											sw.triggerBoard = board;
-											sw.triggerNum = num;
-											resp("set solenoid "+byt(1)+" to trigger from "+sw.name);
-										}
-									}
-									return true;
-			    				case "disable-trigger":
-									if (parts.length != 3)
-										error("usage: disable-trigger row col");
-									else {
-										int row = num(1);
-										int col = num(2);
-										Switch sw = matrix.switches[row*matrix.Width+col];
-										if (sw == null)
-											error("no switch configured for row "+row+" col "+col);
-										else {
-											sw.triggerBoard = null;
-											resp("disabled trigger for switch "+sw.name);
-										}
-									}
 									return true;
 			    				case "on":
 									if (parts.length == 2)
@@ -493,7 +504,7 @@ public class JServer extends Thread
 //    		sound.playSound("chip fall", 1, (float) (Math.random()*.2+.7));
 //    		long l = (long) (Math.random()*0+50+(i/5)*200);
 //			Thread.sleep(l);
-//			System.out.println(l);
+//			System.out.log(l);
 //    	}
 //    	sound.playSound("chip fall", 1, .50f).loops = -1;;
 //    	Thread.sleep(140);
@@ -514,6 +525,8 @@ public class JServer extends Thread
                 System.out.println("New connection from " + connection.getInetAddress());
                 new JServer(connection, args.length==0 || !args[0].equals("sim")); 
             }
+        } catch(Exception e) {
+          e.printStackTrace();
         } finally {
         	System.out.println("No longer listening");
             socket.close();

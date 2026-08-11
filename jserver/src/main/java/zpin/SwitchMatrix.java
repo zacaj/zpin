@@ -65,6 +65,19 @@ public class SwitchMatrix extends Thread {
 				
 				if (e.state && sw.triggerCmd!=null) {
 					SwitchMatrix.this.triggeredCommands.add(sw.triggerCmd);
+//					if (SatIO.waitLock(1)) {
+//						try {
+//							System.out.println("      trigger solenoid");
+//							sw.triggerBoard.fireSolenoid(sw.triggerNum);
+//						} 
+//						finally {
+//							SatIO.unlock();
+//						}
+//					}
+//					else {
+//						System.out.println("ERR   couldn't lock IO for trigger");
+//					}
+					
 				}
 			}
 		}

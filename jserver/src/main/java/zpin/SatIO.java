@@ -10,10 +10,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
-import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.spi.SpiChannel;
@@ -23,7 +21,7 @@ import com.pi4j.io.spi.SpiFactory;
 public class SatIO {
 	GpioController gpio = GpioFactory.getInstance();
 	
-	GpioPinDigitalOutput[] selects = new GpioPinDigitalOutput[8];
+	GpioPinDigitalOutput[] selects = new GpioPinDigitalOutput[4];
 	SpiDevice spi;
 	
 	private SatIO() {
@@ -34,10 +32,10 @@ public class SatIO {
 			RaspiPin.GPIO_07,
 			RaspiPin.GPIO_21,
 			RaspiPin.GPIO_22,
-			RaspiPin.GPIO_11,
-			RaspiPin.GPIO_10,
-			RaspiPin.GPIO_26,
-			RaspiPin.GPIO_23,
+//			RaspiPin.GPIO_11,
+//			RaspiPin.GPIO_10,
+//			RaspiPin.GPIO_26,
+//			RaspiPin.GPIO_23,
 		};
 		for (int i = 0; i<ss.length; i++) {
 			selects[i] = gpio.provisionDigitalOutputPin(ss[i], PinState.HIGH);
@@ -173,7 +171,7 @@ public class SatIO {
 		long start = System.nanoTime();
 		spiWrite(out);
 		long end = System.nanoTime();
-		System.out.println("Send command in "+(((float)(end-start))/1000000.0)+" ms");
+		System.out.println("Send command "+bytes[0]+ " in "+(((float)(end-start))/1000000.0)+" ms");
 //		System.out.println("begin wait for ready signal");
 		byte ready = 0;
 		//clk.low();
