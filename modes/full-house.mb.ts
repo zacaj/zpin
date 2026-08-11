@@ -346,12 +346,16 @@ export class FullHouseMb extends Multiball {
                                 this.listen(onAnyPfSwitchExcept(), async (ev) => {
                                     if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
                                     const finish = await Events.tryPriority(Priorities.ReleaseMb);
-                                    if (ev.sw !== machine.sRampMade) {
-                                        this.state = Started();
-                                        await this.releaseBallsFromLock();
+                                    try {
+                                        if (ev.sw !== machine.sRampMade) {
+                                            this.state = Started();
+                                            await this.releaseBallsFromLock();
+                                        }
+                                        return 'remove';
                                     }
-                                    if (finish) finish();
-                                    return 'remove';
+                                    finally {
+                                        if (finish) finish();
+                                    }
                                 });
                                 return;
                             }

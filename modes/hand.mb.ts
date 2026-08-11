@@ -191,19 +191,23 @@ export class HandMb extends Multiball {
             debugger;
             throw new Error();
         }
-        if (this.state._==='starting' || machine.ballsLocked > 0) {
-            await this.releaseBallsFromLock();
+        try {
+            if (this.state._==='starting' || machine.ballsLocked > 0) {
+                await this.releaseBallsFromLock();
+            }
+            const ret = this.end();
+            if (this.jackpots === 0 && !this.isRestarted) {
+                this.player.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
+                    return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
+                }));
+            }
+            if (this.total > this.topTotal)
+                this.topTotal = this.total;
+            return ret;
         }
-        const ret = this.end();
-        if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
-                return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
-            }));
+        finally {
+            finish();
         }
-        if (this.total > this.topTotal)
-            this.topTotal = this.total;
-        finish();
-        return ret;
     }
 
     updateValue(target?: DropTarget|Standup, bank?: DropBank) {
@@ -313,12 +317,16 @@ export class HandMb extends Multiball {
                         this.listen(onAnyPfSwitchExcept(), async (ev) => {
                             if (e === ev || ev.sw === e.sw || ev.sw === machine.sRightInlane) return;
                             const finish = await Events.tryPriority(Priorities.ReleaseMb);
-                            if (ev.sw !== machine.sRampMade) {
-                                this.state = Started();
-                                await this.releaseBallsFromLock();
+                            try {
+                                if (ev.sw !== machine.sRampMade) {
+                                    this.state = Started();
+                                    await this.releaseBallsFromLock();
+                                }
+                                return 'remove';
                             }
-                            if (finish) finish();
-                            return 'remove';
+                            finally {
+                                if (finish) finish();
+                            }
                         });
                         return;
                     }
