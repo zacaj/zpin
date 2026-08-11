@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 sudo killall -q java
+sleep 1
 rm -rf sjserver.log
 #screen -L -Logfile sjserver.log -S jserver -d -m ./jstart
 tmux new -d -sjserver -- './jstart |& tee sjserver.log'

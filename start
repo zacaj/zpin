@@ -1,7 +1,13 @@
-#!/bin/sh
-
-./sjstart
-echo "MPU loading...... (10 seconds)"
-sleep 8
-./sastart
-cat sgame.log
+#!/bin/bash
+# rc=0
+# while [ "$rc" != "130" ] 
+# do
+#   cp sjserver.log sjserver.log.old
+  ./sjstart
+  echo "MPU loading...... (10 seconds)"
+  sleep 10
+  ./sastart
+  # rc=$
+  cat sgame.log
+#   echo "Exit code: $rc"
+# done
