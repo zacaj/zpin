@@ -78,6 +78,7 @@ export class Player extends Mode {
 
         State.declare<T>(store, props);
     }
+    muteMusic = false;
 
     chips = 3;
     _score = 0;
@@ -310,7 +311,7 @@ export class Player extends Mode {
         this.mysteryAwards = getMysteryAwards(this);
         State.declare<Player>(this, ['miniReady', '_score', 'ball', 'difficulty', 'chips', 'modesQualified', 'selectedMb', 
             'mbsQualified', 'focus', 'closeShooter', 'upperLanes', 'upperLaneChips', 'lowerLanes', 'mysteryLeft', 'chipsLit',
-            'straightMbStatus', 'flushMbStatus', 'fullHouseMbStatus',
+            'straightMbStatus', 'flushMbStatus', 'fullHouseMbStatus', 'muteMusic',
         ]);
         State.declare<Player['store']>(this.store, ['Poker', 'Skillshot']);
         this.out = new Outputs(this, {
@@ -521,6 +522,9 @@ export class Player extends Mode {
             i++;
             if (i>=diffs.length) i=0;
             this.setDifficulty(diffs[i]);
+        });
+        this.listen([...onSwitchClose(machine.sPopperButton), () => machine.sShooterLane.state && machine.sMagnetButton.state], async () => {
+            this.muteMusic = !this.muteMusic;
         });
         this.listen([...onSwitchClose(machine.sMagnetButton), () => !machine.sShooterLane.state], async () => {
             if (!machine.lPower1.lit()) {
@@ -1131,6 +1135,7 @@ class PlayerOverrides extends Mode {
             kickerEnable: () => player.ball?.tilted? false : undefined,
             miniFlipperEnable: () => player.ball?.tilted? false : undefined,
             rampUp: () => player.ball?.tilted? true : undefined,
+            music: () => player.muteMusic? null : undefined,
         });
     }
 }
