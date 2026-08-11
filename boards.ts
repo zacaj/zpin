@@ -2,6 +2,7 @@ import { MPU } from './mpu';
 import { Log } from './log';
 import { machine, Solenoid } from './machine';
 import { Timer, TimerQueueEntry } from './timer';
+import { alert } from './gfx';
 
 export class Solenoid16 {
     hbId?: string;
@@ -23,7 +24,7 @@ export class Solenoid16 {
         return MPU.sendCommand(`i ${this.board} s16`)
         .then(() => {
             Timer.cancel(this.heartbeatTimer);
-            this.heartbeatTimer = Timer.setInterval(() => this.heartbeat(), 1000, `board ${this.board} heartbeat`, Math.random()*1000 );
+            this.heartbeatTimer = Timer.setInterval(() => this.heartbeat(), 250, `board ${this.board} heartbeat`, Math.random()*1000);
         }).catch(e => {
             Log.error('console', 'error initializing boards', e);
             process.exit(1);
@@ -55,6 +56,7 @@ export class Solenoid16 {
                     await s.set(s.val);
                 }
                 Log.log('mpu', 'board %i re-init complete', this.board);
+                alert(`Board ${this.board} reset`);
             }
         }
     }

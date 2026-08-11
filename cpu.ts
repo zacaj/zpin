@@ -81,16 +81,19 @@ export const CPU = {
             Log.info(['cpu'],'CPU: ', greeting);
             await this.sendCommand(apiVersion, true);
 
+            if (machine.sDetect3.state) {
+                Log.log(['cpu', 'console'], 'Initializing CPU');
+                await CPU.sendCommand("init", true);
+            }
+
             this.isConnected = true;
             this.connecting = false;
             this.timeout = 10;
             Log.log(['cpu', 'console'], 'connected to CPU');
 
-            if (machine.sDetect3.state)
-                await CPU.sendCommand("init");
-
-
-            await this.syncDisplays();
+            if (machine.sDetect3.state) {
+                await this.syncDisplays();
+            }
         });
     },
 

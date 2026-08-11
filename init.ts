@@ -27,7 +27,7 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
         if (argv.game !== undefined) game = argv.game;
         if (argv.trace !== undefined) trace = argv.trace;
         if (argv.recording !== undefined) recording = argv.recording;
-        const cpu = argv.cpu ?? false;
+        const cpu = argv.cpu ?? mpu;
         const lights = argv.lpu ?? argv.mpu ?? false;
         const sound = argv.sound ?? mpu;
         Log.init(trace);
@@ -47,9 +47,6 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
         if (!MPU.isLive)
             machine.sDetect3.changeState(true, 'fake');
             
-        if (cpu) {
-            fork(CPU.init(argv.cpuIp ?? argv.ip));
-        }
 
         if (sound)
             await initAudio();
@@ -57,6 +54,9 @@ export async function initMachine(mpu = true, gfx = false, game = false, trace =
             await initGfx();
         if (lights)
             await LPU.init(argv.lightIp);
+        if (cpu) {
+            fork(CPU.init(argv.cpuIp ?? argv.ip));
+        }
         initialized = true;
         if (game)
             Game.start();
