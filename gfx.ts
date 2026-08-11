@@ -1,4 +1,4 @@
-import { AminoGfx, AminoImage, Circle, fonts, Group, ImageView, Node, Polygon, Rect, Text, Texture } from 'aminogfx-gl';
+import { AminoGfx, AminoImage, Circle, fonts, Group, ImageView, Node, Polygon, Property, makeProps, Rect, Text, Texture } from 'aminogfx-gl';
 // import { Game } from './game';
 // import { MPU } from './mpu';
 import * as fs from 'fs';
@@ -828,7 +828,7 @@ export const gfxImages: { [name in keyof ImageOutputs]: DisplaySettings} = {
     iRight5: { x: 17.1, y: 21.1, r: -77.6 },
     iUpper21: { x: 6.9, y: 38.0, r: -157-180 },
     iUpper22: { x: 7.95, y: 38.37, r: -157-180 },
-    iUpper31: { x: 9.8, y: 38.9, r: -42, },
+    iUpper31: { x: 9.8, y: 38.9, r: -42 },
     iUpper32: { x: 10.5, y: 38.1, r: -42 },
     iUpper33: { x: 11.5, y: 37.3, r: -42 },
     iSS1: { x: 18.5, y: 20.5125, r: 90, large: true },
@@ -1142,4 +1142,54 @@ export function leftAlign(...lines: (Text|Group)[]): Group {
     wChanged();
     // group.add(gfx.createCircle().fill('#00FF00').radius(4));
     return group;
+}
+
+export class Pie extends Polygon {
+    start!: Property<this>;
+    percent!: Property<this>;
+    radius!: Property<this>;
+    steps!: Property<this>;
+
+    constructor(gfx: AminoGfx) {
+        super(gfx);
+    }
+
+    override init() {
+        super.init();
+
+        makeProps<Pie>(this, {
+            start: 0,
+            percent: 0.25,
+            radius: 0,
+            steps: 30,
+        });
+
+        this.radius.watch(() => this.generateGeometry());
+        this.start.watch(() => this.generateGeometry());
+        this.percent.watch(() => this.generateGeometry());
+    }
+
+    override initDone() {
+        this.radius(50);
+    }
+
+    generateGeometry() {
+        const steps = this.steps();
+        const points = new Float32Array(steps * 2 + 2);
+        let pos = 0;
+        const r = this.radius();
+        const start = this.start();
+        const percent = this.percent();
+
+        points[pos++] = 0;
+        points[pos++] = 0;
+        for (let i = 0; i < steps; i++) {
+            const theta = -(start + percent*Math.PI * 2) / steps * i;
+
+            points[pos++] = Math.sin(theta) * r;
+            points[pos++] = Math.cos(theta) * r;
+        }
+
+        this.geometry(points);
+    }
 }

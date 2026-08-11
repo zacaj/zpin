@@ -8,7 +8,7 @@ import { onSwitchClose, onAnySwitchClose, onAnyPfSwitchExcept, Switch } from '..
 import { screen, alert, makeText, gfx, addToScreen, gWait, notify } from '../gfx';
 import { Log } from '../log';
 import { Player, SpinnerHit } from './player';
-import { Effect, KnockTarget, MiscAwards, ResetMechs as ResetDropBanks, ResetMechs, ShimmerLights } from '../util-modes';
+import { Effect, FireCoil, KnockTarget, MiscAwards, ReleaseBall, ResetMechs as ResetDropBanks, ResetMechs, ShimmerLights } from '../util-modes';
 import { add, Color, light, many } from '../light';
 import { StraightMb } from './straight.mb';
 import { Events, Priorities } from '../events';
@@ -40,7 +40,7 @@ export class Poker extends Mode {
     }
     static FoldTime = 1250;
     static BankStart = 5000;
-    static BetStart = 150;
+    static BetStart = 200;
 
     readonly playerHand: (Card|null)[] = [];
     readonly dealerHand: (Card|null)[] = [];
@@ -150,7 +150,6 @@ export class Poker extends Mode {
             const target = e.target;
             if (this.slots[target.num] && this.step < 7) {
                 const card = this.slots[target.num];
-                void playVoice(`card ${getRank(card!)}`);
                 // return;
                 this.playerHand[this.step] = card;
                 this.slots[target.num] = null;
@@ -168,7 +167,7 @@ export class Poker extends Mode {
 
                 if (this.step === 7) {
                     this.handsPlayed++;
-                    if (player.handMbQualified)
+                    if (player.handMbQualified || player.mbsQualified.size>0)
                         this.handsForMb++;
                     else if (this.handsPlayed >= this.handsForMb) {
                         this.handsForMb += this.handsPlayed<=1? 2 : 3;
@@ -180,8 +179,8 @@ export class Poker extends Mode {
                         }
                         this.player.mbsQualified.set('HandMb', this.playerHand.slice(0, 5).truthy());
                     }
-                    if (this.player.mbsQualified.size || this.newMbs.size)
-                        void playVoice('multiball is lit');
+                    // if (this.player.mbsQualified.size || this.newMbs.size)
+                    //     void playVoice('multiball is lit');
                     // this.misc.addTargets(7 - this.misc.targets.size);
                     fork(ResetDropBanks(this, machine.rightBank).then(() => {
                         for (let i=0; i<3; i++) {
@@ -193,6 +192,8 @@ export class Poker extends Mode {
                         }
                     }));
                 }
+
+                void playVoice(`card ${getRank(card!)}`);
             }
         });
 
@@ -258,7 +259,7 @@ export class Poker extends Mode {
         this.listen(onAnySwitchClose(machine.sLeftOrbit), () => {
             if (this.step < 7) {
                 this.bet -= this.betAdjust*this.adjustSide;
-                notify(`BET ${money(this.betAdjust*this.adjustSide, 0, '+')}`);
+                notify(`BET ${money(-this.betAdjust*this.adjustSide, 0, '+')}`);
             }
         });
         // this.listen(e => e instanceof SpinnerHit, () => {
@@ -514,11 +515,13 @@ export class Poker extends Mode {
             this.player.audit('poker win', this.pot);
         }
         else {
-            if (this.pot > this.biggestLoss, this.pot)
+            if (this.pot > this.biggestLoss)
                 this.biggestLoss = this.pot;
             this.player.audit('poker loss');
         }
         await gWait(1500, 'showing cards');
+        // this.newMbs.clear();
+        // this.qualifyModes();
         for (const [mb, hand] of this.newMbs) {
             const [g, prom] =  this.player.qualifyMb(mb, hand, 2000);
             await prom;
@@ -528,7 +531,7 @@ export class Poker extends Mode {
                     case 'StraightMb':
                         if (!this.player.store.StraightMb.value)
                             this.player.store.StraightMb.value = StraightMb.startValue;
-                        this.player.store.StraightMb.value *= 2;
+                        this.player.store.StraightMb.value += StraightMb.startValue;
                         await alert(`STRAIGHT MB VALUE INCREASED`, 3000)[1];
                         break;
                     case 'FlushMb':
@@ -616,6 +619,9 @@ export class Poker extends Mode {
         await gWait(750, 'showing cards');
 
         // void unmuteMusic();
+
+        if (sw === machine.sRampMade)
+            fork(FireCoil(this, machine.cLockPost, 150));
         
         this.end();
     }
@@ -641,28 +647,20 @@ export class Poker extends Mode {
 
 
         const nums = repeat(0, 15);
-        for (let i=0; i<2; i++) {
+
+        // create some straights
+        for (let i=0; i<rng.randSelect(0, 1, 1, 1, 2, 2, 2); i++) {
             const straightLow = rng.randRange(1, 10);
             const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
             for (let x=straightLow; x<=straightHigh; x++)
-                nums[x]++;
+                nums[x] = Math.min(2, nums[x]+1);
         }
-        // for (let i=0; i<1; i++) {
-        //     const straightLow = rng.randRange(1, 5);
-        //     const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
-        //     for (let x=straightLow; x<=straightHigh; x++)
-        //         nums[x]++;
-        // }
-        // for (let i=0; i<1; i++) {
-        //     const straightLow = rng.randRange(5, 10);
-        //     const straightHigh = Math.min(rng.randRange(4, 7) + straightLow, 14);
-        //     for (let x=straightLow; x<=straightHigh; x++)
-        //         nums[x]++;
-        // }
-        for (let i=0; i<3; i++) {
+
+        for (let i=0; i<5; i++) {
             nums[rng.randRange(1,14)]++;
         }
         
+        // create some flushes
         const badSuit = rng.randSelect(...Object.values(Suit));
         const goodSuit = {
             [Suit.Clubs]: Suit.Spades,
@@ -686,13 +684,16 @@ export class Poker extends Mode {
         }
 
         let totalNums = nums.sum();
+        // add some pairs
         while (totalNums < 20) {
-            if (nums[rng.randRange(1,14)]) {
+            const i = rng.randRange(1,14);
+            if (nums[i] < 3) {//} <= rng.randSelect(1, 2, 2, 3)) {
                 totalNums++;
-                nums[rng.randRange(1,14)]++;
+                nums[i]++;
             }
         }
 
+        // create deck from nums
         nums.flatMap((count, num) => repeat(num, count)).shuffle(() => rng.rand()).forEach((num) => {
             if (num < 1) return;
             if (num === 14) {
@@ -700,7 +701,7 @@ export class Poker extends Mode {
             }
 
             let j=0;
-            for (; j<10; j++) {
+            for (; j<15; j++) {
                 const suit = rng.weightedSelect(...Object.values(Suit).map<[number, Suit]>(suit => ([suitCounts[suit]*suitCounts[suit], suit])));
                 if (findCard(num, suit) === -1) {
                     deck.push({num, suit});
@@ -730,7 +731,7 @@ export class Poker extends Mode {
 
         deck.shuffle(() => rng.rand());
 
-
+        // fill in unused cards at the end
         const rest: Card[] = [];
 
         for (let i=1; i<=13; i++) {
@@ -827,7 +828,7 @@ export class Poker extends Mode {
                 };
             }
             if (betInds.includes(i)) {
-                const amount = round(this.bet * this.skillshotRng.randSelect(.4, .5, .6, .7) * betSign, 10, -1000);
+                const amount = round(this.bet * this.skillshotRng.randSelect(.5, .6, .65, .75, .8) * .6 * betSign, 10, -1000);
                 betSign *= -1;
                 return {
                     award: 'BET ' + money(amount, 0, '+'),
@@ -843,6 +844,7 @@ export class Poker extends Mode {
             const percent = base * this.skillshotRng.weightedRange(...mults[i] as any);
             let change = round(percent, 10, -1000);
             if (this.bet + change < 0) change = 10;
+            change = 0;
             const newBet = this.bet + change;
             return {
                 ...award,
@@ -1097,4 +1099,4 @@ export function compareHands(a: Card[], b: Card[], max = Math.min(5, a.length, b
         aHand: aRank,
         bHand: bRank,
     };
-}
+}

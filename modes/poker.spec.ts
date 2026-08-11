@@ -45,6 +45,7 @@ describe('poker', () => {
         expect(compareHands(hand('3s,2h,6h,9s,5h,8h,10d'), hand('3h,10h,3s,2d,5s,4d,3d')).aWon).toBe(false);
     });
 
+    // eslint-disable-next-line complexity
     test('probabilities', () => {
         let numStraights = 0;
         let numFlushes = 0;
@@ -60,12 +61,14 @@ describe('poker', () => {
         let numAvailThrees = 0;
         let numAvailFullHouses = 0;
         let numAvailNothing = 0;
-        const runs = 10000;
+        let numPlayerWins = 0;
+        const runs = 1000;
         const rng = new Rng('pinball');
         for (let i=0; i<runs; i++) {
-            const deck = Poker.makeDeck(rng).slice(0, 17+2);
+            const deck = Poker.makeDeck(rng);
+            const pf = deck.slice(0, 17+2);
             {
-                const play = deck.slice();
+                const play = pf.slice();
                 play.shuffle(() => rng.rand());
                 const hand = play.slice(0, 7);
                 const flushes = findFlushes(hand);
@@ -80,11 +83,19 @@ describe('poker', () => {
                 numFullHouses += pair3.length * pair2.length > 0? 1:0;
                 numTwoPairs += pair2.length * (pair2.length-1) > 0? 1:0;
                 numNothing += !straights.length && !flushes.length && !pairs.length? 1:0;
+
+                const dealer = deck.slice(-7);
+                expect(dealer.length).toBe(7);
+                const db = bestHand(dealer)[0];
+                const pb = bestHand(hand)[0];
+                const result = compareHands(pb, db);
+                if (result.aWon)
+                    numPlayerWins++;
             }
             {
-                const flushes = findFlushes(deck);
-                const straights = findStraights(deck);
-                const pairs = findPairs(deck);
+                const flushes = findFlushes(pf);
+                const straights = findStraights(pf);
+                const pairs = findPairs(pf);
                 const pair2 = pairs.filter(x => x.length === 2);
                 const pair3 = pairs.filter(x => x.length === 3);
                 numAvailStraights += straights.length > 1? 1:0;
@@ -96,22 +107,22 @@ describe('poker', () => {
                 numAvailNothing += !straights.length && !flushes.length && !pairs.length? 1:0;
             }
         }
-        console.log('Drawn Straights: %i    %f%%', numStraights, (numStraights/runs*100).toFixed(0));
-        console.log('Drawn Flushes: %i    %f%%', numFlushes, (numFlushes/runs*100).toFixed(0));
         console.log('Drawn Pairs: %i    %f%%', numPairs, (numPairs/runs*100).toFixed(0));
         console.log('Drawn TwoPairs: %i    %f%%', numTwoPairs, (numTwoPairs/runs*100).toFixed(0));
         console.log('Drawn Threes: %i    %f%%', numThrees, (numThrees/runs*100).toFixed(0));
         console.log('Drawn FullHouses: %i    %f%%', numFullHouses, (numFullHouses/runs*100).toFixed(0));
+        console.log('Drawn Straights: %i    %f%%', numStraights, (numStraights/runs*100).toFixed(0));
+        console.log('Drawn Flushes: %i    %f%%', numFlushes, (numFlushes/runs*100).toFixed(0));
         console.log('Drawn Nothing: %i    %f%%', numNothing, (numNothing/runs*100).toFixed(0));
-        console.log('Avail Straights: %i    %f%%', numAvailStraights, (numAvailStraights/runs*100).toFixed(0));
-        console.log('Avail Flushes: %i    %f%%', numAvailFlushes, (numAvailFlushes/runs*100).toFixed(0));
-        console.log('Avail Pairs: %i    %f%%', numAvailPairs, (numAvailPairs/runs*100).toFixed(0));
-        console.log('Avail TwoPairs: %i    %f%%', numAvailTwoPairs, (numAvailTwoPairs/runs*100).toFixed(0));
-        console.log('Avail Threes: %i    %f%%', numAvailThrees, (numAvailThrees/runs*100).toFixed(0));
-        console.log('Avail FullHouses: %i    %f%%', numAvailFullHouses, (numAvailFullHouses/runs*100).toFixed(0));
-        console.log('Avail Nothing: %i    %f%%', numAvailNothing, (numAvailNothing/runs*100).toFixed(0));
+        // console.log('Avail Straights: %i    %f%%', numAvailStraights, (numAvailStraights/runs*100).toFixed(0));
+        // console.log('Avail Flushes: %i    %f%%', numAvailFlushes, (numAvailFlushes/runs*100).toFixed(0));
+        // console.log('Avail Pairs: %i    %f%%', numAvailPairs, (numAvailPairs/runs*100).toFixed(0));
+        // console.log('Avail TwoPairs: %i    %f%%', numAvailTwoPairs, (numAvailTwoPairs/runs*100).toFixed(0));
+        // console.log('Avail Threes: %i    %f%%', numAvailThrees, (numAvailThrees/runs*100).toFixed(0));
+        // console.log('Avail FullHouses: %i    %f%%', numAvailFullHouses, (numAvailFullHouses/runs*100).toFixed(0));
+        // console.log('Avail Nothing: %i    %f%%', numAvailNothing, (numAvailNothing/runs*100).toFixed(0));
+        console.log('Player Wins: %i    %f%%', numPlayerWins, (numPlayerWins/runs*100).toFixed(0));
     });
-
     
     test('close diverter during deal', async () => {
         await testRecording('close gate during deal', 'break');
