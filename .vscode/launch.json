@@ -49,7 +49,9 @@
 			"sourceMaps": true,
 			"args": [
 				"zpin/",
-                "--no-mpu",
+				"--no-mpu",
+				"--show-pf",
+				// "--split",
 			]
         },
 		{
@@ -64,13 +66,24 @@
 			"sourceMaps": true,
 			"args": [
                 "zpin/",
-				// "--no-mpu",
-				"--sound",
-                // "--no-trace",
-                // "--no-gfx",
+				"--no-mpu",
+				// "--cpu",
+				// "--cpu-ip",
+				// "127.0.0.1",
+				// "--no-cpu",
+				// "--sound",
+                "--trace",
+				// "--no-gfx",
+				"--no-music",
+				"--show-pf",
 				// "--ip",
 				// "--split",
 				// "192.168.2.41",
+				// "--lpu",
+				"--light-ip",
+				"192.168.2.45",
+				// "--lpu",
+				// "--recording","recordings/3-balls.rec",
 				// "--recording","recordings/straightMbStarting.rec",
 				// "--recording","recordings/lightStraight.rec",
 				// "--recording","recordings/2ndWinReady.rec",
@@ -79,6 +92,7 @@
 				// "--recording","recordings/mbAddADrain.rec",
 				// "--recording","recordings/straightJpLit.rec",
 				// "--recording","recordings/upperEjectBlock.rec",
+				// "--recording","recordings/highscore.rec",
             ],
             // "runtimeArgs": [ "--prof"]
         },
@@ -162,4 +176,4 @@
             ]
           }
 	]
-}
+}
