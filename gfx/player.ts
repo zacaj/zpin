@@ -61,7 +61,7 @@ export class PlayerGfx extends ModeGroup {
         this.add(this.playerNum);
         this.playerNum.text(`PLAYER ${player.number}`);
         player.watch(() => {
-            if (player.game.players.length === 2) {
+            if (player.game.players.length <= 4) {
                 this.playerNum.visible(false);
                 this.score.visible(false);
                 return;

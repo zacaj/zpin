@@ -3,15 +3,14 @@ import { Game } from '../game';
 import { gfx, makeText, ModeGroup, Screen } from '../gfx';
 import { machine } from '../machine';
 import { onChange } from '../state';
-import { comma, score } from '../util';
+import { comma, score, seq } from '../util';
 
 export class GameGfx extends ModeGroup {
     static readonly top = 70;
     static readonly main = Screen.h - GameGfx.top;
 
     ball = makeText('FREE PLAY', 40, 'right', 'top');
-    player1 = makeText('PLAYER 1', 60, 'center', 'top').x(-Screen.w/6).y(-Screen.h/2);
-    player2 = makeText('PLAYER 2', 60, 'center', 'top').x(Screen.w/6).y(-Screen.h/2);
+    players = seq(4).map(n => makeText('PLAYER 1', 60, 'center', 'top').x(-Screen.w/6).y(-Screen.h/2));
     constructor(
         public game: Game,
     ) {
@@ -24,19 +23,21 @@ export class GameGfx extends ModeGroup {
         game.watch(() => this.ball.text('BALL '+game.ballNum.toFixed(0)));
         this.add(group);
 
-        group.add(this.player1, this.player2);
+        group.add(...this.players);
         game.watch(() => {
-            if (game.players.length !== 2) {
-                this.player1.visible(false);
-                this.player2.visible(false);
-                return;
+            for (const player of this.players) {
+                const i = this.players.indexOf(player);
+                if (game.players.length > 4 || i >= game.players.length) {
+                    player.visible(false);
+                    continue;
+                }
+
+                player.visible(true);
+                player.text(score(game.players[i].score));
+                player.fontSize((game.playerUp===i? 60 : 40) - (game.players.length<4? 0 : 7));
+                const spacing = game.players.length===2? Screen.w/3 : game.players.length===3? Screen.w / 4 : Screen.w/5.75;
+                player.x(-spacing*(game.players.length-1)/2 + spacing * i);
             }
-            this.player1.visible(true);
-            this.player2.visible(true);
-            this.player1.text(score(game.players[0].score));
-            this.player2.text(score(game.players[1].score));
-            this.player1.fontSize(game.playerUp===0? 60 : 40);
-            this.player2.fontSize(game.playerUp===1? 60 : 40);
         });
 
         // const balls = makeText('', 40, 'left', 'middle').wrap('word').x(-Screen.w/2).y(0).w(Screen.w/2);
