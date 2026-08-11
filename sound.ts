@@ -38,7 +38,7 @@ let playNum = 0;
 
 export async function playSound(name: string, volume = 50, force = false, loops = 0): Promise<SoundInstance> {
     const play = ++playNum;
-
+    Log.info('sound', `request sound ${name} v=${volume} force=${force}`);
     if (soundEnabled)
         await fork(MPU.sendCommand(`sound ${volume} 1 ${force} ${loops} false ${name}`));
     return {
@@ -51,6 +51,7 @@ export async function playVoice(name: OrArray<string>, volume = 50, force = fals
     const play = ++playNum;
     name = arrayify(name);
     name.shuffle();
+    Log.info('sound', `request voice ${name[0]} v=${volume} force=${force}`);
 
     if (soundEnabled)
         await fork(MPU.sendCommand(`sound ${volume} 2 ${force} 0 false ${name[0]}`));
@@ -64,6 +65,8 @@ export async function playMusic(name: string, loops = 0, volume = 40, resume = f
     const play = ++playNum;
 
     if (argv.music === false) volume = 0;
+
+    Log.info('sound', `request voice ${name} v=${volume} resume=${resume} solo=${solo}`);
 
     if (soundEnabled)
         await fork(MPU.sendCommand(`sound ${volume} 0 ${solo} ${loops} ${resume} ${name}`));

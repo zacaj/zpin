@@ -35,8 +35,14 @@ const files = [
     'sound',
 ];
 
+type File = {
+    fd: number;
+    lines: number;
+}
+
+
 export class Log {
-    static files: { [name: string]: number} = {} as any;
+    static files: { [name: string]: File} = {} as any;
 
     static timestamp(): string {
         const hr = process.hrtime();
@@ -73,10 +79,10 @@ export class Log {
         const ts = Log.timestamp()+' ';
         if (categories.includes('switch') || categories.includes('game') || level >= Levels.Log)
             console[level >= Levels.Error? 'error' : 'log'](ts+message, ...params);
-        Log.write(Log.files.all, ts+Log.format(message, params)+'; \t\t'+JSON.stringify(categories)+' ');
+        Log.write('all', ts+Log.format(message, params)+'; \t\t'+JSON.stringify(categories)+' ');
         Log.trace(categories, message, ...params);
         for (const cat of arrayify(categories)) {
-           Log.write(Log.files[cat], ts+Log.format(message, params));
+           Log.write(cat, ts+Log.format(message, params));
         }
     }
 
@@ -85,7 +91,7 @@ export class Log {
         params = Log.cleanParams(params);
         // Log.write(Log.files.trace, JSON.stringify({categories, message, params: util.inspect(params)}));
         const ts = Log.timestamp()+' ';
-        Log.write(Log.files.trace, ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
+        Log.write('trace', ts+JSON.stringify(categories)+' '+Log.format(message, params)+'\t\t\t@'+getCallerLoc(true));
     }
 
     static info(categories: OrArray<LogCategory>, message: string, ...params: any[]) {
@@ -106,26 +112,37 @@ export class Log {
         return util.format.apply(util, [message, ...params]);
     }
 
-    static write(fil: number, message: string) {
-        fs.writeSync(fil, message+'\n');
+    static write(file: string, message: string) {
+        const fil = this.files[file];
+        fs.writeSync(fil.fd, message+'\n');
+        fil.lines++;
+        if (fil.lines > 100000)
+            this.initFile(file, false);
+    }
+
+    private static initFile(f: string, append: boolean) {
+        if (Log.files[f]?.fd)
+            fs.closeSync(Log.files[f].fd);
+        Log.files[f] = { fd: fs.openSync(f+'.log', append? 'a+' : 'w'), lines: 0 };
+        Log.write(f, `${new Date()}`);
     }
 
     static init(trace = true, append = false) {
-        for (const f of files) {
-            Log.files[f] = fs.openSync(f+'.log', append? 'a+' : 'w');
-            Log.write(Log.files[f], `${new Date()}`);
+        for (const f of [...files, 'all']) {
+            this.initFile(f, append);
         }
-        Log.files.all= fs.openSync('all.log', append? 'a+' : 'w');
-        Log.write(Log.files.all, `${new Date()}`);
+        // Log.files.all= fs.openSync('all.log', append? 'a+' : 'w');
+        // Log.write(Log.files.all, `${new Date()}`);
         if (trace) {
-            Log.files.trace= fs.openSync('trace.log', append? 'a+' : 'w');
-            Log.write(Log.files.trace, `${new Date()}`);
+            Log.files.trace = {fd: fs.openSync('trace.log', append? 'a+' : 'w'), lines: 0 };
+            Log.write('trace', `${new Date()}`);
         }
     }
 
     static closeFiles() {
         for (const file of Object.keys(Log.files)) {
-            fs.closeSync(Log.files[file]);
+            fs.closeSync(Log.files[file].fd);
+            Log.files[file].fd = -1;
         }
         Log.files = {};
     }
