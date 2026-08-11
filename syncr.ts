@@ -27,9 +27,15 @@ copyFile('./**').then(() =>*/ {
         if (filename?.startsWith('.')) {
  /*console.log('skip dot');*/ return;
         }
-        if (filename && fs.statSync(path.resolve(localPath, filename)).isDirectory()) {
-            // console.log('skip dir');
-            return;
+        try {
+            if (filename && fs.statSync(path.resolve(localPath, filename)).isDirectory()) {
+                // console.log('skip dir');
+                return;
+            }
+        }
+        catch (e: any) {
+            if (!e.message.includes('ENOENT'))
+                console.error('stat err: ', e);
         }
 
         console.log(new Date().getHours() + ':' + new Date().getMinutes(), eventType, filename);
