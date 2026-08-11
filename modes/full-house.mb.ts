@@ -250,11 +250,11 @@ export class FullHouseMb extends Multiball {
             await this.releaseBallsFromLock();
         }
         const ret = this.end();
-        if (this.jackpots === 0 && !this.isRestarted) {
-            this.player.addTemp(new Restart(this.player.ball!, 14, () => {
-                return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined, this.total);
-            }));
-        }
+        // if (this.jackpots === 0 && !this.isRestarted) {
+        //     this.player.addTemp(new Restart(this.player.ball!, 14, () => {
+        //         return FullHouseMb.start(this.player, true, this.state._==='jackpotLit'? this.state.jp : undefined, this.total);
+        //     }));
+        // }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
         this.total = Math.max(this.total, 1);

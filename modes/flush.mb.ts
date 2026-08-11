@@ -159,11 +159,11 @@ export class FlushMb extends Multiball {
             await this.releaseBallsFromLock();
         }
         const ret = this.end();
-        if (this.jackpots < 6 && this.total < 250000 && !this.isRestarted) {
-            this.player.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
-                return FlushMb.start(this.player, true, this.lastJps, this.total);
-            }));
-        }
+        // if (this.jackpots < 6 && this.total < 250000 && !this.isRestarted) {
+        //     this.player.addTemp(new Restart(this.player.ball!, 30 - this.jackpots * 3, () => {
+        //         return FlushMb.start(this.player, true, this.lastJps, this.total);
+        //     }));
+        // }
         if (this.total > this.topTotal)
             this.topTotal = this.total;
         this.total = Math.max(this.total, 1);

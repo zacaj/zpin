@@ -196,11 +196,11 @@ export class HandMb extends Multiball {
                 await this.releaseBallsFromLock();
             }
             const ret = this.end();
-            if (this.jackpots === 0 && !this.isRestarted) {
-                this.player.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
-                    return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
-                }));
-            }
+            // if (this.jackpots === 0 && !this.isRestarted) {
+            //     this.player.addTemp(new Restart(this.player.ball!, Math.max(30 - this.drops * 4, 9), () => {
+            //         return HandMb.start(this.player, true, this.value, this.drops, this.banks, this.total);
+            //     }));
+            // }
             if (this.total > this.topTotal)
                 this.topTotal = this.total;
             return ret;
