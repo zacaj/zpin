@@ -368,7 +368,7 @@ export class FullHouseMb extends Multiball {
                         case 'RIGHT JACKPOT +250K': this.rightAdd += 250000; break;
                         case 'JACKPOTS +100K': this.leftAdd += 100000; this.rightAdd += 100000; break;
                         case 'LIGHT LEFT JACKPOT': this.state = JackpotLit(this.skillshotRng.randSelect(...jackpots.filter(jp => jp.startsWith('Left')))); break;
-                        case 'LIGHT RIGHT JACKPOT': this.state = JackpotLit(this.skillshotRng.randSelect(...jackpots.filter(jp => !jp.startsWith('Left')))); break;
+                        case 'LIGHT RIGHT JACKPOT': this.state = JackpotLit(this.skillshotRng.randSelect(...jackpots.filter(jp => !jp.startsWith('Left') && (e.sw!==machine.sBackLane || jp!==Jackpot.RightLane)))); break;
                         default:
                             debugger;
                     }

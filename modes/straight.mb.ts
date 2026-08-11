@@ -19,7 +19,7 @@ import { Restart } from './restart';
 import { dClear, dImage, dInvert } from '../disp';
 import { Time, time, wait } from '../timer';
 import { playVoice } from '../sound';
-import { FlashLights, ShimmerLights } from '../util-modes';
+import { FlashLights, ResetBank, ShimmerLights } from '../util-modes';
 
 
 const Starting = makeState('starting', { 
@@ -231,6 +231,7 @@ export class StraightMb extends Multiball {
             } while (this.nextBank === this.lastBank);
         }
         this.state = BankLit(bank);
+        void ResetBank(this, bank)
         this.lastBank = bank;
     }
 

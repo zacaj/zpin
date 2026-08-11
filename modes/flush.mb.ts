@@ -110,7 +110,7 @@ export class FlushMb extends Multiball {
                 return this.checkSwitch(machine.sRampMade, machine.rampShot);
         });
 
-        this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===e.bank], () => this.state = Started())
+        this.listen<DropBankCompleteEvent>([e => e instanceof DropBankCompleteEvent, e => this.state._==='jackpotLit'&&('bank' in this.state.jp)&&this.state.jp.bank===e.bank], () => this.state = Started());
 
         this.listen(e => e instanceof SkillshotComplete, () => {
             if (this.state._==='starting' && this.state.addABallReady) return;
@@ -199,13 +199,18 @@ export class FlushMb extends Multiball {
         this.total += 1000;
         this.player.score += 1000;
 
+        if (this.countdown)
+            Timer.cancel(this.countdown);
         this.countdown = Timer.setInterval((entry) => {
             if (this.state._ !== 'jackpotLit') return;
             const newValue = this.state.value - 770 * ('bank' in this.state.jp? this.targetMult*this.targetSpeed : 'isShot' in this.state.jp? this.shotMult*this.shotSpeed : this.standupMult*this.standupSpeed);
             if (newValue > 0)
                 this.state = JackpotLit(this.state.jp, newValue, this.state.startTime);
-            else 
+            else {
                 this.state = Started();
+                Timer.cancel(this.countdown);
+                this.countdown = undefined;
+            }
             if (newValue <= startValue/2 && entry.repeat === 100)
                 entry.repeat = 50 as Time;
         }, 100, 'flush countdown', 1000);
@@ -215,15 +220,15 @@ export class FlushMb extends Multiball {
         const s = 750;
         if ('bank' in jp) {
             if (jp.bank === machine.upper2Bank)
-                return 500*s*this.standupMult;
+                return 500*s*this.targetMult;
             if (jp.bank === machine.upper3Bank)
-                return 300*s*this.standupMult;
+                return 300*s*this.targetMult;
             if (jp.bank === machine.centerBank)
-                return 150*s*this.standupMult;
+                return 150*s*this.targetMult;
             if (jp.bank === machine.leftBank)
-                return 200*s*this.standupMult;
+                return 200*s*this.targetMult;
             if (jp.bank === machine.rightBank)
-                return 200*s*this.standupMult;
+                return 200*s*this.targetMult;
         }
         if ('isShot' in jp) {
             if (jp === machine.rampShot)
@@ -284,6 +289,10 @@ export class FlushMb extends Multiball {
         group.sy.anim(anim).start();
         // this.base += 250000;
         this.state = Started();
+        if (this.countdown) {
+            Timer.cancel(this.countdown);
+            this.countdown = undefined;
+        }
     }
 
     

@@ -45,9 +45,9 @@ export class RoyalFlushMb extends Multiball {
     topTotal = 0;
     mult = 1;
 
-    flushTotal = this.player.flushMbStatus;
-    straightTotal = this.player.straightMbStatus;
-    fullHouseTotal = this.player.fullHouseMbStatus;
+    flushTotal = 0; //this.player.flushMbStatus;
+    straightTotal = 0; //this.player.straightMbStatus;
+    fullHouseTotal = 0; //this.player.fullHouseMbStatus;
 
     value = 100;
     bankValue: number[];
@@ -68,7 +68,7 @@ export class RoyalFlushMb extends Multiball {
             machine.ballsLocked++;
         this.skillshotRng = player.rng();
         State.declare<RoyalFlushMb>(this, ['state', 'value', 'bankValue', 'superValue', 'ballSave']);
-        player.storeData<RoyalFlushMb>(this, ['mult', 'skillshotRng', 'topTotal']);
+        player.storeData<RoyalFlushMb>(this, ['mult', 'skillshotRng', 'topTotal', 'flushTotal', 'straightTotal', 'fullHouseTotal']);
         const outs: any  = {};
         for (const target of machine.dropTargets) {
             if (!target.image) continue;
@@ -188,7 +188,11 @@ export class RoyalFlushMb extends Multiball {
         //     }
         // });
 
-        this.bankValue = [this.player.flushMbStatus, this.player.fullHouseMbStatus, this.player.straightMbStatus]
+        this.flushTotal += this.player.flushMbStatus;
+        this.straightTotal += this.player.straightMbStatus;
+        this.fullHouseTotal += this.player.fullHouseMbStatus;
+
+        this.bankValue = [this.flushTotal, this.fullHouseTotal, this.player.straightMbStatus]
             .map((total, i) => round(Math.max(MinAdd, MaxAdd(this.banks[i].targets.length, total))*this.mult, 100));
         // this.player.fullHouseMbStatus = 0;
         // this.player.flushMbStatus = 0;
